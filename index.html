@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hold My Loot</title>
-<meta name="hml-build" content="10">
+<meta name="hml-build" content="11">
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 10;
+window.HML_BUILD = 11;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -345,6 +345,9 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 #banner.elite { background: radial-gradient(circle at 50% 0%, #FFFBE0, #FFD24A 60%, #C98A1E); border: 2px solid #8A5A12; box-shadow: 0 0 40px rgba(255,200,60,.9), 0 12px 34px rgba(40,30,20,.35); }
 #banner.elite b { font-size: 40px; letter-spacing: 3px; color: #5A3A08; text-shadow: 0 2px 0 #FFF6D0; }
 #banner.elite span { font-size: 16px; font-weight: 900; color: #3B2410; }
+.chap { font-family: Fraunces, Georgia, serif; font-size: 15px; margin: 10px 2px 2px; color: #3E5E3A; }
+.chap.c2 { color: #8A5A12; margin-top: 16px; }
+.level.c2 .lnum { background: #FFF1C8; color: #8A5A12; }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
@@ -566,8 +569,156 @@ const MAPS = [
       [{ t: 'skel', n: 14, gap: .5, at: 0, p: 'alt' }, { t: 'steve', n: 1, gap: 0, at: 4, p: 'e0' }, { t: 'medic', n: 3, gap: 3, at: 6, p: 'alt' }, { t: 'crab', n: 8, gap: 1, at: 10, p: 'alt' }, { t: 'seagull', n: 10, gap: .5, at: 14 }],
     ] },
 ];
+// ---------- Chapter 2: The Road Trip ----------
+const C2 = [
+  { id: 'servo', name: 'Servo Stop', theme: 'suburb', gold: 300, hpMult: 1.7, size: 1.1,
+    blurb: 'One road splits into three lanes round the servo. Kevin has brought his mum.',
+    entr: [[0, 1, 2]],
+    paths: [
+      [[180, -24], [180, 80], [60, 80], [60, 330], [180, 330], [180, 400], [310, 400], [310, 470], [180, 470], [180, 532]],
+      [[180, -24], [180, 80], [180, 330], [180, 400], [310, 400], [310, 470], [180, 470], [180, 532]],
+      [[180, -24], [180, 80], [300, 80], [300, 330], [180, 330], [180, 400], [310, 400], [310, 470], [180, 470], [180, 532]]],
+    bins: [[20, 40], [340, 40], [20, 560]], finals: ['kevin', 'bigmum'] },
+  { id: 'tide', name: 'Low Tide', theme: 'creek', gold: 300, hpMult: 1.75, size: 1.1,
+    blurb: 'Two creek crossings. Barry is back, and this time it is personal.',
+    waters: [{ y1: 168, y2: 204 }, { y1: 396, y2: 432 }],
+    paths: [[[-24, 90], [310, 90], [310, 290], [50, 290], [50, 500], [180, 500], [180, 532]]],
+    swap: { skel: 'crab', pants: 'crab' }, finals: ['barry'], mids: [{ w: 5, t: 'barry', mini: true }] },
+  { id: 'smoko', name: 'Smoko Ridge', theme: 'dusk', gold: 310, hpMult: 1.8, size: 1.05,
+    blurb: 'Two campfires, four long lanes and a sky full of seagulls. Big Swoop wants a rematch.',
+    fires: [{ x: 130, y: 270, r: 24 }, { x: 220, y: 270, r: 24 }],
+    flight: [[345, -30], [180, 540]],
+    paths: [[[-24, 500], [50, 500], [50, 80], [130, 80], [130, 460], [220, 460], [220, 80], [310, 80], [310, 532], [180, 532]]],
+    swapLate: { rat: 'seagull', gob: 'seagull' }, finals: ['swoop'] },
+  { id: 'longpad', name: 'The Long Paddock', theme: 'paddock', gold: 310, hpMult: 1.8, size: 1, spdMult: .85,
+    blurb: 'The gate again. One road is long, the other has a fairy ring that skips half of it.',
+    gate: { x: 180, y: 60 },
+    paths: [
+      [[180, -24], [180, 60], [60, 60], [60, 250], [140, 250], [140, 380], [60, 380], [60, 470], [180, 470], [180, 532]],
+      [[180, -24], [180, 60], [300, 60], [300, 180], [220, 180], [220, 400, 'tp'], [300, 400], [300, 470], [180, 470], [180, 532]]],
+    finals: ['stack', 'stack'] },
+  { id: 'maze', name: 'Mushroom Maze', theme: 'woods', gold: 320, hpMult: 1.85, size: 1.1,
+    blurb: 'Two pairs of fairy rings and a hedge shortcut. A king still wants your pants.',
+    entr: [[0, 1]], shortcut: 1, rings: true,
+    paths: [
+      [[-24, 70], [310, 70], [310, 160], [50, 160], [50, 250], [310, 330, 'tp'], [310, 420], [50, 420], [300, 500, 'tp'], [180, 500], [180, 532]],
+      [[-24, 70], [310, 70], [310, 420], [50, 420], [300, 500, 'tp'], [180, 500], [180, 532]]],
+    finals: ['pantsalot'], mids: [{ w: 5, t: 'bigmum', mini: true }] },
+  { id: 'pubcrawl', name: 'Pub Crawl', theme: 'garden', gold: 320, hpMult: 1.9, size: 1.05, sticky: true,
+    blurb: 'Three entrances, one sticky floor. Chrisso turns up early, and then again.',
+    entr: [[0], [1], [2]],
+    paths: [
+      [[40, -24], [40, 120], [180, 120], [180, 250], [80, 250], [80, 420], [280, 420], [280, 500], [180, 500], [180, 532]],
+      [[320, -24], [320, 120], [180, 120], [180, 250], [80, 250], [80, 420], [280, 420], [280, 500], [180, 500], [180, 532]],
+      [[384, 200], [330, 200], [330, 330], [280, 330], [280, 420], [280, 500], [180, 500], [180, 532]]],
+    tables: [[220, 300]], finals: ['chrisso'], mids: [{ w: 5, t: 'chrisso', mini: true }] },
+  { id: 'office', name: 'Head Office', theme: 'suburb', gold: 330, hpMult: 1.95, size: 1.1,
+    blurb: 'Two entrances meet at reception. Goblins take the lift. The whole department is in.',
+    entr: [[0, 1, 2], [3, 4, 5]], shortcut: [2, 5],
+    paths: [
+      [[-24, 60], [180, 60], [180, 140], [100, 140], [100, 330], [180, 330], [180, 410], [300, 410], [300, 490], [180, 490], [180, 532]],
+      [[-24, 60], [180, 60], [180, 140], [260, 140], [260, 330], [180, 330], [180, 410], [300, 410], [300, 490], [180, 490], [180, 532]],
+      [[-24, 60], [180, 60], [180, 140], [180, 330, 'tp'], [180, 410], [300, 410], [300, 490], [180, 490], [180, 532]],
+      [[384, 60], [180, 60], [180, 140], [100, 140], [100, 330], [180, 330], [180, 410], [300, 410], [300, 490], [180, 490], [180, 532]],
+      [[384, 60], [180, 60], [180, 140], [260, 140], [260, 330], [180, 330], [180, 410], [300, 410], [300, 490], [180, 490], [180, 532]],
+      [[384, 60], [180, 60], [180, 140], [180, 330, 'tp'], [180, 410], [300, 410], [300, 490], [180, 490], [180, 532]]],
+    bins: [[180, 235]], finals: ['mortimer', 'pantsalot'] },
+  { id: 'ratking', name: 'Rat Kingdom', theme: 'meadow', gold: 330, hpMult: 2.0, size: 1.15,
+    blurb: 'Four burrows, one plaza, a lot of rats. Big Mum runs the place. Kevin is in charge of nothing.',
+    entr: [[0], [1], [2], [3]],
+    paths: [
+      [[40, -24], [40, 120], [180, 120], [180, 260], [180, 410], [60, 410], [60, 480], [300, 480], [300, 532], [180, 532]],
+      [[320, -24], [320, 120], [180, 120], [180, 260], [180, 410], [60, 410], [60, 480], [300, 480], [300, 532], [180, 532]],
+      [[-24, 330], [100, 330], [100, 260], [180, 260], [180, 410], [60, 410], [60, 480], [300, 480], [300, 532], [180, 532]],
+      [[384, 330], [260, 330], [260, 260], [180, 260], [180, 410], [60, 410], [60, 480], [300, 480], [300, 532], [180, 532]]],
+    swap: { skel: 'ratmum', pants: 'ratmum', bog: 'rat', gob: 'rat' }, finals: ['bigmum', 'kevin', 'kevin'] },
+  { id: 'revenge', name: "Steve's Revenge", theme: 'fete', gold: 340, hpMult: 2.05, size: 1.1,
+    blurb: 'Steve is back with backup from Head Office, and Big Swoop is circling.',
+    entr: [[0, 1], [2]],
+    paths: [
+      [[-24, 80], [140, 80], [140, 220], [40, 220], [40, 360], [180, 360], [180, 450], [300, 450], [300, 520], [180, 520], [180, 532]],
+      [[-24, 80], [140, 80], [140, 220], [240, 220], [240, 360], [180, 360], [180, 450], [300, 450], [300, 520], [180, 520], [180, 532]],
+      [[384, 80], [320, 80], [320, 360], [180, 360], [180, 450], [300, 450], [300, 520], [180, 520], [180, 532]]],
+    finals: ['steve', 'mortimer'], mids: [{ w: 5, t: 'swoop', mini: true }] },
+  { id: 'finalnap', name: 'The Final Nap', theme: 'dusk', gold: 360, hpMult: 2.1, size: 1.15, n: 10,
+    blurb: 'Fire, water, two entrances and every boss with a grudge. Ten waves. Good luck, Gary.',
+    entr: [[0], [1]],
+    fires: [{ x: 185, y: 330, r: 24 }], waters: [{ y1: 262, y2: 296 }],
+    paths: [
+      [[40, -24], [40, 130], [320, 130], [320, 230], [50, 230], [50, 330], [320, 330], [320, 430], [50, 430], [50, 510], [180, 510], [180, 532]],
+      [[384, 380], [320, 380], [320, 430], [50, 430], [50, 510], [180, 510], [180, 532]]],
+    finals: ['steve', 'bigmum', 'stack'], mids: [{ w: 5, t: 'barry', mini: true }, { w: 8, t: 'chrisso' }, { w: 8, t: 'mortimer', mini: true }] },
+];
+const C2_TUNE = { servo: .88, tide: .88, smoko: 1.3, longpad: .82, maze: 1.45, pubcrawl: .72, office: 1, ratking: .88, revenge: .6, finalnap: .8 };
+const C2_TEMPLATE = [
+  [['rat', 10, .6], ['gob', 8, .45]],
+  [['skel', 8, .85], ['mozzie', 16, .12]],
+  [['crab', 5, 1.2], ['seagull', 5, .9], ['ratmum', 2, 2.8]],
+  [['bog', 5, 1.7], ['medic', 3, 2.6], ['gob', 14, .32]],
+  [['pants', 7, 1], ['mozzie', 24, .1], ['seagull', 7, .6]],
+  [['crab', 8, .9], ['ratmum', 3, 2.2], ['medic', 3, 2.6], ['skel', 8, .6]],
+  [['bog', 7, 1.3], ['pants', 7, .9], ['seagull', 10, .5], ['gob', 18, .25]],
+  [['pants', 10, .8], ['bog', 8, 1.1], ['mozzie', 36, .07], ['ratmum', 4, 2]],
+  [['skel', 16, .45], ['crab', 10, .8], ['medic', 4, 2.5], ['seagull', 12, .45]],
+];
+function c2Waves(m) {
+  const n = m.n || 8, out = [], E = m.entr ? m.entr.length : 0, multi = m.P ? m.P.length > 1 : m.paths.length > 1;
+  for (let w = 1; w <= n; w++) {
+    const tpl = C2_TEMPLATE[w === n ? 8 : Math.min(w - 1, 7)], wave = [];
+    tpl.forEach((g, gi) => {
+      let t = g[0];
+      if (m.swap && m.swap[t]) t = m.swap[t];
+      if (m.swapLate && w >= 3 && m.swapLate[t]) t = m.swapLate[t];
+      const p = (t === 'seagull' || t === 'swoop') ? undefined : E ? (gi === 0 ? 'alt' : gi === 1 ? 'any' : 'e' + ((w + gi) % E)) : (multi && !m.gate ? 'alt' : undefined);
+      wave.push({ t, n: Math.max(1, Math.round(g[1] * (m.size || 1) * (.75 + (w - 1) * .07))), gap: g[2], at: gi * 3.2, p });
+    });
+    for (const md of (m.mids || [])) if (md.w === w) wave.push({ t: md.t, n: 1, gap: 0, at: 3, p: E ? 'e0' : undefined, mini: md.mini });
+    if (w === n) m.finals.forEach((b, k) => wave.push({ t: b, n: 1, gap: 0, at: 4 + k * 6, p: E ? 'e' + (k % E) : undefined }));
+    out.push(wave);
+  }
+  return out;
+}
+for (const m of C2) { m.chapter = 2; m.boss = m.finals[0]; m.auto = true; m.gold = m.gold + 240; m.hpMult *= 1.55 * (C2_TUNE[m.id] || 1); m.waves = c2Waves(m); MAPS.push(m); }
+function autoLayout(m) {
+  const pts = [], seen = new Set();
+  for (const P of m.P) for (let d = 0; d < P.len; d += 6) {
+    const sg = segAt(P, d); if (sg && sg.tp) continue; const q = posOn(P, d); if (q.y < -5 || q.x < -5 || q.x > W + 5) continue;
+    const k = Math.round(q.x / 6) + ',' + Math.round(q.y / 6); if (!seen.has(k)) { seen.add(k); pts.push(q); }
+  }
+  const roadDist = (x, y) => { let md = 1e9; for (const P of m.P) for (const s of P.segs) { if (s.tp) continue; const vx = s.x2 - s.x1, vy = s.y2 - s.y1, L2 = vx * vx + vy * vy || 1; let t = ((x - s.x1) * vx + (y - s.y1) * vy) / L2; t = Math.max(0, Math.min(1, t)); md = Math.min(md, Math.hypot(x - (s.x1 + vx * t), y - (s.y1 + vy * t))); } return md; };
+  const cands = [];
+  for (let x = 26; x <= 334; x += 6) for (let y = 34; y <= 562; y += 6) {
+    if (Math.hypot(x - GARY.x, y - GARY.y) < 62) continue;
+    const rd = roadDist(x, y); if (rd < 38 || rd > 64) continue;
+    if (m.waters.some(w => y > w.y1 - 24 && y < w.y2 + 18)) continue;
+    if (m.fires.some(f => Math.hypot(f.x - x, f.y - y) < 46)) continue;
+    if (m.gate && Math.hypot(m.gate.x - x, m.gate.y - 20 - y) < 62) continue;
+    if ((m.tables || []).concat(m.bins || []).some(b => Math.hypot(b[0] - x, b[1] - y) < 34)) continue;
+    let c = 0; for (const q of pts) if (Math.hypot(q.x - x, q.y - y) < 95) c++;
+    cands.push({ x, y, c });
+  }
+  cands.sort((a, b) => b.c - a.c);
+  const pads = [];
+  for (const cd of cands) { if (pads.length >= (m.nPads || 12)) break; if (pads.every(p => Math.hypot(p[0] - cd.x, p[1] - cd.y) >= 62)) pads.push([cd.x, cd.y]); }
+  // make sure every stretch of road has a pad within reach
+  for (const q of pts) if (!pads.some(p => Math.hypot(p[0] - q.x, p[1] - q.y) < 100)) {
+    const near = cands.filter(cd => Math.hypot(cd.x - q.x, cd.y - q.y) < 95 && pads.every(p => Math.hypot(p[0] - cd.x, p[1] - cd.y) >= 58)).sort((a, b) => b.c - a.c)[0];
+    if (near) pads.push([near.x, near.y]);
+  }
+  pads[0].push('high'); if (pads.length > 7) pads[Math.floor(pads.length / 2) + 1].push('shady');
+  m.pads = pads;
+  const trees = [];
+  for (let k = 0; k < 400 && trees.length < 6; k++) {
+    const x = 18 + ((k * 97) % 324), y = 30 + ((k * 61) % 540);
+    if (roadDist(x, y) < 48 || pads.some(p => Math.hypot(p[0] - x, p[1] - y) < 44) || Math.hypot(x - GARY.x, y - GARY.y) < 70 || m.waters.some(w => y > w.y1 - 30 && y < w.y2 + 20)) continue;
+    if (trees.every(t => Math.hypot(t[0] - x, t[1] - y) > 100)) trees.push([x, y, .7 + (k % 3) * .08]);
+  }
+  m.trees = trees;
+}
 for (const m of MAPS) {
   m.P = m.paths.map(mkPath); if (m.flight) m.F = mkPath(m.flight);
+  m.fires = m.fire ? [m.fire] : (m.fires || []); m.waters = m.water ? [m.water] : (m.waters || []);
+  if (m.auto) autoLayout(m);
   m.FL = (m.flights || [[[70, -30], [180, 540]], [[290, -30], [180, 540]]]).map(mkPath);
   if (m.F) m.FL.push(m.F);
 }
@@ -1102,9 +1253,9 @@ function choosePath(G, p, type) {
     if (typeof p === 'string' && p[0] === 'e') ei = (+p.slice(1)) % m.entr.length;
     else if (p === 'alt') ei = (G.altCount++) % m.entr.length;
     else if (p === 'any') ei = Math.floor(G.rng() * m.entr.length);
-    const grp = m.entr[ei], sc = m.shortcut;
-    if (def.fast && sc != null && grp.includes(sc) && G.rng() < .8) return sc;
-    const pool = grp.filter(i => i !== sc);
+    const grp = m.entr[ei], scs = [].concat(m.shortcut == null ? [] : m.shortcut), scIn = grp.filter(i => scs.includes(i));
+    if (def.fast && scIn.length && G.rng() < .8) return scIn[Math.floor(G.rng() * scIn.length)];
+    const pool = grp.filter(i => !scs.includes(i));
     if (def.steve) return leastDefended(G, pool);
     return pool[Math.floor(G.rng() * pool.length)];
   }
@@ -1519,7 +1670,7 @@ function update(G, dt) {
       let slow = 0;
       for (const s of sizzles) if (Math.hypot(s.x - e.x, s.y - e.y) <= s.r) slow = Math.max(slow, s.slow);
       if (G.mods.snore && Math.hypot(GARY.x - e.x, GARY.y - e.y) < 130) slow = Math.max(slow, G.mods.snore);
-      if (map.water && !e.flyer && e.y > map.water.y1 && e.y < map.water.y2) { if (ENEMIES[e.type].fish) { e.swim = true; } else { slow = Math.max(slow, .3); } e.wading = !ENEMIES[e.type].fish; } else { e.wading = false; e.swim = false; }
+      if (!e.flyer && map.waters.some(w => e.y > w.y1 && e.y < w.y2)) { if (ENEMIES[e.type].fish) { e.swim = true; } else { slow = Math.max(slow, .3); } e.wading = !ENEMIES[e.type].fish; } else { e.wading = false; e.swim = false; }
       if (e.pecked > 0) slow = Math.max(slow, .12);
       if (e.groggy > 0) slow = Math.max(slow, .4);
       e.sizzled = false; for (const s of sizzles) if (Math.hypot(s.x - e.x, s.y - e.y) <= s.r) e.sizzled = true;
@@ -1544,7 +1695,7 @@ function update(G, dt) {
           }
         }
       }
-      if (map.fire && !e.flyer && Math.hypot(e.x - map.fire.x, e.y - map.fire.y) < map.fire.r + e.r * .4) { if (e.burn <= 0) fx(G, 'ignite', { x: e.x, y: e.y }); e.burn = 2; }
+      if (!e.flyer && map.fires.some(f => Math.hypot(e.x - f.x, e.y - f.y) < f.r + e.r * .4)) { if (e.burn <= 0) fx(G, 'ignite', { x: e.x, y: e.y }); e.burn = 2; }
     }
     if (e.type === 'swoop') {
       e.swoopCd -= dt;
@@ -1669,7 +1820,7 @@ function update(G, dt) {
     const inRange = G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= tr.range * RM && !((t.type === 'bonk' || t.type === 'jezza') && e.flyer) && !(t.type === 'jezza' && ENEMIES[e.type].whiskyImmune));
     if (!inRange.length) { t.cd = 0; return; }
     t.cd = 1 / tr.rate;
-    const warm = map.fire && Math.hypot(map.fire.x - px, map.fire.y - py) < 80 ? 1.2 : 1;
+    const warm = map.fires.some(f => Math.hypot(f.x - px, f.y - py) < 80) ? 1.2 : 1;
     const mult = G.skillMult[def.skill] * warm;
     if (t.type === 'chuck') {
       inRange.sort((a, b) => b.d - a.d);
@@ -1766,7 +1917,7 @@ function update(G, dt) {
         continue;
       }
       if (p.kind === 'whisky') {
-        let fire = p.fire || (map.fire && Math.hypot(map.fire.x - p.tx, map.fire.y - p.ty) < 75);
+        let fire = p.fire || map.fires.some(f => Math.hypot(f.x - p.tx, f.y - p.ty) < 75);
         if (!fire) G.towers.forEach((st, si) => { if (st && st.type === 'sizzle' && Math.hypot(map.pads[si][0] - p.tx, map.pads[si][1] - p.ty) < 60) { fire = true; synergy(G, 'bbq', p.tx, p.ty); } });
         G.puddles.push({ id: ++G.lid, x: p.tx, y: p.ty, r: p.pr, t: 0, life: p.life * (map.sticky ? 2 : 1), tipsy: p.tipsy, fire, rainbow: p.rainbow, vuln: p.vuln });
         fx(G, 'smash', { x: p.tx, y: p.ty, fire });
@@ -2247,13 +2398,14 @@ const R = (function () {
     }
     // roads
     c.lineJoin = 'round';
-    const order = map.P.map((P, i) => ({ P, i })).sort((a, b) => (b.i === map.shortcut) - (a.i === map.shortcut));
-    const wk = o => o.i === map.shortcut ? .55 : 1;
+    const SCs = [].concat(map.shortcut == null ? [] : map.shortcut);
+    const order = map.P.map((P, i) => ({ P, i })).sort((a, b) => SCs.includes(b.i) - SCs.includes(a.i));
+    const wk = o => SCs.includes(o.i) && !o.P.segs.some(s => s.tp) ? .55 : 1;
     for (const o of order) { roadPath(c, o.P.pts); c.strokeStyle = rgba(th.pe, .25); c.lineWidth = 44 * wk(o); c.stroke(); }
     for (const o of order) { roadPath(c, o.P.pts); c.strokeStyle = th.pe; c.lineWidth = 33 * wk(o); c.stroke(); }
     for (const o of order) { roadPath(c, o.P.pts); c.strokeStyle = th.path; c.lineWidth = 28 * wk(o); c.stroke(); }
     for (const o of order) { roadPath(c, o.P.pts); c.strokeStyle = rgba(th.pl, .6); c.lineWidth = 11 * wk(o); c.stroke(); }
-    if (map.shortcut != null) { const P = map.P[map.shortcut]; c.setLineDash([4, 6]); roadPath(c, P.pts); c.strokeStyle = 'rgba(120,90,50,.45)'; c.lineWidth = 2; c.stroke(); c.setLineDash([]); }
+    for (const sci of SCs) { const P = map.P[sci]; if (P.segs.some(s => s.tp)) continue; c.setLineDash([4, 6]); roadPath(c, P.pts); c.strokeStyle = 'rgba(120,90,50,.45)'; c.lineWidth = 2; c.stroke(); c.setLineDash([]); }
     // direction chevrons so the route reads at a glance
     const seenC = new Set();
     for (const P of map.P) for (let d = 40; d < P.len - 30; d += 64) {
@@ -2271,8 +2423,8 @@ const R = (function () {
       if (s[1] < 0 || s[0] < 0 || s[0] > W) { flat(c, bx, by, 19, 10, '#5A4330'); flat(c, bx, by + 1, 15, 7, '#2E2219'); }
     }
     // creek
-    if (map.water) {
-      const { y1, y2 } = map.water, [wc, wl, wd] = th.water;
+    for (const wtr of map.waters) {
+      const { y1, y2 } = wtr, [wc, wl, wd] = th.water || ['#7CB8CA', '#BDE4EA', '#4F8FA6'];
       c.beginPath(); c.moveTo(0, y1);
       for (let x = 0; x <= W; x += 10) c.lineTo(x, y1 + Math.sin(x * .05) * 3);
       for (let x = W; x >= 0; x -= 10) c.lineTo(x, y2 + Math.sin(x * .04 + 1) * 3);
@@ -2294,8 +2446,7 @@ const R = (function () {
       for (let i = 0; i < 6; i++) { const x = 30 + r() * 300, y = 20 + r() * 560; flat(c, x, y, 7, 5, 'rgba(240,220,150,.45)'); }
     }
     // campfire ring
-    if (map.fire) {
-      const f = map.fire;
+    for (const f of map.fires) {
       for (let a = 0; a < Math.PI * 2; a += Math.PI / 5) soft(c, f.x + Math.cos(a) * 15, f.y + Math.sin(a) * 9 + 2, 4.2, 3.2, '#9C958A', { lw: .9 });
       flat(c, f.x, f.y + 2, 11, 6, '#3A2A20');
       c.strokeStyle = '#6B4A30'; c.lineWidth = 3; c.lineCap = 'round';
@@ -3344,8 +3495,7 @@ const R = (function () {
         }
       });
     }
-    if (map.fire) {
-      const f = map.fire;
+    for (const f of map.fires) {
       const fl = 1 + Math.sin(time * 9) * .08 + Math.sin(time * 23) * .05;
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
       const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, 80 * fl); g.addColorStop(0, 'rgba(255,170,80,.45)'); g.addColorStop(1, 'rgba(255,120,60,0)');
@@ -3355,8 +3505,8 @@ const R = (function () {
       }
       if (Math.random() < dt * 14) P({ kind: 'ember', x: f.x + (Math.random() - .5) * 12, y: f.y - 10, vx: (Math.random() - .5) * 20, vy: -40 - Math.random() * 30, life: .9, size: 1.6, col: ['#FFB04A', '#FFE38A'][Math.random() < .5 ? 0 : 1] });
     }
-    if (map.water) {
-      const { y1, y2 } = map.water;
+    for (const wtr of map.waters) {
+      const { y1, y2 } = wtr;
       ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 1.2;
       for (let i = 0; i < 7; i++) { const x = ((time * 18 + i * 61) % (W + 40)) - 20, y = y1 + 8 + (i * 13) % (y2 - y1 - 14); ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 7, y - 2, x + 14, y); ctx.stroke(); }
     }
@@ -3805,6 +3955,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 11, title: 'Chapter 2: The Road Trip', notes: ['10 new levels, from Servo Stop to The Final Nap. Win The Big Day to start.', 'Triple forks, two creeks, two campfires, office lifts, four-burrow rat plazas, and double and triple boss finales.', 'The Final Nap has ten waves and every boss with a grudge.'] },
     { build: 10, title: 'Long Peter and Big Barry', notes: ['New crew: Long Peter, a very long sausage dog with mind powers. He lifts monsters, then slams or YEETS them.', 'New boss: Big Barry the Barramundi. He splashes your crew soggy, and swims fast in the creek. Find him on Puddle Crossing.', 'New synergy (Air Strike), card (Good Boy Treats) and odd job.'] },
     { build: 9, title: 'Elite crew and DJ Brendo', notes: ['New crew: DJ Brendo. Never attacks, earns gold every wave and pumps up nearby towers.', 'ELITE tier 5 for every crew member at skill level 8. New looks, capes, crowns and a huge transformation.', 'New synergy (Backyard Bash) and a new card (Headliner Booking).'] },
     { build: 8, title: 'Always up to date', notes: ['The game now updates itself. No more incognito tricks.', 'This little What\u2019s new card, so you know what changed.'] },
@@ -3872,10 +4023,11 @@ const R = (function () {
     const won = (meta.wins || 0) > 0;
     const dk = dailyKey(), dsu = dailySetup(meta, dk), dDone = meta.daily.done[dk];
     const rules = dsu.rules.map(id => CARDS.find(c => c.id === id).name).join(' + ');
-    const levels = MAPS.map((m, i) => {
+    const levels = MAPS.map((m, i) => ({ m, i })).map(({ m, i }) => {
       const unlocked = mapUnlocked(meta, i), ms = meta.maps[m.id];
-      const bossName = ENEMIES[m.boss].name.split(',')[0];
-      return '<button class="level" data-map="' + i + '"' + (unlocked ? '' : ' disabled') + '><span class="lnum">' + (i + 1) + '</span><span class="ltext"><b>' + m.name + '</b><span>' +
+      const bossName = (m.finals ? [...new Set(m.finals)] : [m.boss]).map(b => ENEMIES[b].name.split(',')[0]).join(' + ');
+      const head = i === 0 ? '<h3 class="chap">Chapter 1: Gary\u2019s Backyard</h3>' : (m.chapter === 2 && MAPS[i - 1].chapter !== 2) ? '<h3 class="chap c2">Chapter 2: The Road Trip</h3>' : '';
+      return head + '<button class="level' + (m.chapter === 2 ? ' c2' : '') + '" data-map="' + i + '"' + (unlocked ? '' : ' disabled') + '><span class="lnum">' + (i + 1) + '</span><span class="ltext"><b>' + m.name + '</b><span>' +
         (unlocked ? m.blurb : 'Win ' + MAPS[i - 1].name + ' to unlock.') + '</span><small>Boss: ' + bossName + '</small></span>' + (unlocked ? starsHTML(ms ? ms.stars : 0) : '<span class="lock">Locked</span>') + '</button>';
     }).join('');
     const bestEndless = Math.max(0, ...Object.values(meta.endlessBest || {}));
@@ -3936,7 +4088,7 @@ const R = (function () {
       const n = Object.keys(pick).filter(k => pick[k]).length;
       openModal('<div class="menu-head"><h2 class="title sm">' + (i + 1) + '. ' + m.name + '</h2><button class="btn" id="lvBack">Back</button></div>' +
         '<p class="lede sm">' + m.blurb + '</p>' + starsHTML(ms.stars || 0) +
-        '<p class="small">Boss: ' + ENEMIES[m.boss].name.split(',')[0] + (ms.bestKept ? '. Best: Gary kept ' + ms.bestKept + '.' : '.') + '</p>' +
+        '<p class="small">Boss: ' + (m.finals ? [...new Set(m.finals)] : [m.boss]).map(x => ENEMIES[x].name.split(',')[0]).join(' + ') + (ms.bestKept ? '. Best: Gary kept ' + ms.bestKept + '.' : '.') + '</p>' +
         '<h3>Modifiers</h3>' + (won ? '<div class="mods">' + MODS.map(md => {
           const lock = md.gary && gl < md.gary, done = ms.mods && ms.mods[md.id];
           return '<button class="modchip' + (pick[md.id] ? ' on' : '') + (lock ? ' locked' : '') + '" data-mod="' + md.id + '"' + (lock ? ' disabled' : '') + '><b>' + md.name + (done ? ' \u2713' : '') + '</b><small>' + (lock ? 'Gary level ' + md.gary : md.desc) + '</small></button>';
