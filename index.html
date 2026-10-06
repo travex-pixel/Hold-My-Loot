@@ -233,6 +233,82 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 .ultbtn { background: linear-gradient(90deg, #FF8A8A, #FFC46B, #FFE97A, #8EE08A, #7CC8FF, #B59BFF, #FF9BE0); border-color: #C98A3A; box-shadow: 0 3px 0 #C98A3A; font-weight: 900; color: #3B2F2A; text-shadow: 0 1px 0 rgba(255,255,255,.7); }
 .ultdone { background: linear-gradient(90deg, #FFE6E6, #FFF3D6, #E6F7E2, #E2F1FF, #F1E8FF); }
 .ultdesc { margin: -4px 0 9px; font-size: 13.5px; font-weight: 700; line-height: 1.3; background: linear-gradient(90deg, rgba(255,138,138,.15), rgba(124,200,255,.15), rgba(181,155,255,.15)); border-radius: 12px; padding: 7px 9px; }
+
+/* dream button */
+#pokeBtn { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; --fill: 0%; }
+#pokeBtn::before { content: ''; position: absolute; inset: 0; width: var(--fill); background: linear-gradient(90deg, #D9CCFF, #B9A8FF); opacity: .7; transition: width .3s; }
+#pokeBtn b, #pokeBtn small { position: relative; }
+#pokeBtn b { font-size: 14px; } #pokeBtn small { font-size: 11.5px; font-weight: 800; color: var(--muted); }
+#pokeBtn.ready { background: linear-gradient(90deg, #FF8A8A, #FFC46B, #FFE97A, #8EE08A, #7CC8FF, #B59BFF, #FF9BE0); border-color: #8E7CFF; box-shadow: 0 3px 0 #6C5CE0, 0 0 18px rgba(142,124,255,.7); animation: pulse 1s ease-in-out infinite; opacity: 1; }
+#pokeBtn.ready::before { display: none; }
+#pokeBtn.ready small { color: #3B2F2A; }
+@keyframes pulse { 50% { transform: scale(1.04); } }
+/* banner */
+#banner { position: absolute; left: 50%; top: 34%; transform: translate(-50%, -50%) scale(.6); opacity: 0; pointer-events: none; z-index: 5; text-align: center; padding: 12px 22px; border-radius: 22px; background: rgba(255,249,236,.95); box-shadow: 0 12px 34px rgba(40,30,20,.35); transition: opacity .25s, transform .35s cubic-bezier(.2,1.6,.4,1); max-width: 86%; }
+#banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+#banner b { display: block; font-family: Fraunces, Georgia, serif; font-size: 25px; line-height: 1.1; }
+#banner span { display: block; font-size: 14px; font-weight: 700; margin-top: 4px; }
+#banner.boss { background: linear-gradient(180deg, #3B1E24, #6E1E2A); color: #FFF2E6; }
+#banner.boss b { font-size: 30px; color: #FFD7C2; letter-spacing: .5px; }
+#banner.perfect { background: linear-gradient(90deg, #FFE6E6, #FFF3D6, #E6F7E2, #E2F1FF, #F1E8FF); }
+#banner.perfect b { background: linear-gradient(90deg, #E5533D, #F09A2E, #3E9E5A, #2F86D8, #8E5CE0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+#banner.event { background: #FFF1C8; } #banner.win { background: #E2EFD6; }
+#stage.bossfight::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: 18px; box-shadow: inset 0 0 60px rgba(200,30,50,.45); animation: bosspulse 1.4s ease-in-out infinite; z-index: 1; }
+@keyframes bosspulse { 50% { box-shadow: inset 0 0 90px rgba(200,30,50,.7); } }
+/* gary card, gear */
+.garycard { background: linear-gradient(135deg, #EEE8FF, #E2F1FF); border: 1.5px solid #CFC6F2; border-radius: 18px; padding: 10px 12px; margin: 12px 0 0; }
+.garycard.res { margin: 0 0 8px; }
+.gtop { display: flex; justify-content: space-between; font-size: 15px; } .gtop span { font-weight: 800; color: var(--muted); font-size: 13px; }
+.garycard .bar i { background: linear-gradient(90deg, #B59BFF, #7CC8FF); }
+.garycard small { display: block; font-size: 12.5px; font-weight: 800; color: #5A4E9A; margin-top: 4px; }
+.grow { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13.5px; font-weight: 700; flex-wrap: wrap; }
+.grow span:first-child { flex: 1; min-width: 140px; }
+.grow .btn { min-height: 38px; padding: 7px 12px; font-size: 14px; }
+.shardic { display: inline-block; width: 13px; height: 16px; margin-right: 4px; vertical-align: -3px; background: linear-gradient(160deg, #F1E8FF, #B59BFF 50%, #7C6CE0); clip-path: polygon(50% 0, 100% 35%, 70% 100%, 30% 100%, 0 35%); }
+.dream { background: var(--paper2); border-radius: 16px; padding: 10px 11px; margin-bottom: 8px; border: 2px solid transparent; }
+.dream.eq { border-color: #8E7CFF; background: #F1EDFF; }
+.dream.locked { opacity: .55; }
+.dhead { display: flex; gap: 10px; align-items: center; } .dhead b { display: block; font-size: 16px; } .dhead small { font-size: 12.5px; color: var(--muted); font-weight: 700; }
+.dic { font-size: 26px; width: 34px; text-align: center; }
+.dp { display: inline-block; width: 22px; height: 8px; border-radius: 4px; background: #E4D8BE; margin-right: 3px; } .dp.on { background: linear-gradient(90deg, #B59BFF, #7CC8FF); } .dp.five.on { background: linear-gradient(90deg, #FF8A8A, #FFE97A, #7CC8FF, #FF9BE0); }
+.pips { margin: 7px 0 4px; } .dlv { font-size: 13px; font-weight: 700; margin: 2px 0 6px; line-height: 1.35; }
+.tabs.two { grid-template-columns: 1fr 1fr; }
+.slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin: 6px 0 4px; }
+.slot { min-height: 78px; border-radius: 14px; border: 2px dashed #CFC6F2; background: #F6F3FF; font-family: inherit; color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 5px; cursor: pointer; }
+.slot span { font-size: 24px; } .slot small { font-size: 11px; font-weight: 800; text-align: center; line-height: 1.2; } .slot em { font-size: 10px; color: var(--muted); font-style: normal; }
+.slot.locked { opacity: .45; }
+.stile.on { box-shadow: 0 0 0 3px #8E7CFF; }
+.fxline { color: #5A4E9A; }
+#stDetail .btn { margin-top: 6px; min-height: 38px; padding: 7px 12px; }
+/* level modal */
+.mods { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.modchip { text-align: left; font-family: inherit; color: var(--ink); background: var(--paper2); border: 2px solid var(--line); border-radius: 14px; padding: 8px 10px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.modchip b { font-size: 14.5px; } .modchip small { font-size: 12px; font-weight: 700; color: var(--muted); line-height: 1.25; }
+.modchip.on { background: #FBE1DA; border-color: #E5533D; }
+.modchip.locked { opacity: .5; }
+/* sheet extras */
+.padnote { margin: -2px 0 8px; font-size: 13px; font-weight: 800; border-radius: 10px; padding: 5px 9px; }
+.padnote.high { background: #E2EFD6; color: #3E5E3A; } .padnote.shady { background: #E2F1EA; color: #2F5E4A; }
+.abilbtn { width: 100%; margin-bottom: 9px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
+.abilbtn b { font-size: 16px; } .abilbtn small { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.abilbtn.ready { background: linear-gradient(90deg, #FFE38A, #FFC94A); border-color: #D49A2E; box-shadow: 0 3px 0 #C98F25, 0 0 14px rgba(255,200,80,.6); }
+.abilbtn.ready small { color: #5A4632; }
+.abil.locked { margin: 0 0 8px; font-size: 13px; color: var(--muted); font-weight: 700; }
+.syn { background: var(--paper2); border-radius: 14px; padding: 9px 11px; margin-bottom: 7px; } .syn b { display: block; font-size: 15px; } .syn span { font-size: 13px; font-weight: 700; color: var(--muted); }
+.syn.found { background: linear-gradient(90deg, #E2F7EF, #E2F1FF); } .syn.found span { color: var(--ink); }
+.tabs { grid-template-columns: repeat(5, 1fr); } .tab { font-size: 12.5px; padding: 8px 2px; }
+/* landscape phones: controls move to the sides */
+@media (orientation: landscape) and (max-height: 560px) {
+  #app { max-width: none; display: grid; grid-template-columns: minmax(150px, 210px) 1fr minmax(150px, 200px); grid-template-rows: minmax(0, 1fr); height: 100%; padding: 0 env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px); }
+  #hud { grid-column: 1; grid-row: 1; align-self: start; grid-template-columns: auto 1fr; grid-auto-rows: auto; margin: 8px; }
+  #hud #wave { grid-column: 1 / -1; } #hud .pilewrap { grid-column: 1 / -1; justify-self: start; }
+  #stage { grid-column: 2; grid-row: 1; height: 100%; min-height: 0; overflow: hidden; }
+  #cv { position: absolute; }
+  #bar { grid-column: 3; grid-row: 1; align-self: center; grid-template-columns: 1fr 1fr; grid-auto-rows: auto; margin: 8px; }
+  #bar #pokeBtn, #bar #startBtn { grid-column: 1 / -1; min-height: 56px; }
+}
+.how.first { background: var(--paper2); border-radius: 16px; padding: 12px 14px 10px 30px; font-size: 15.5px; line-height: 1.4; margin: 6px 0 14px; }
+.how.first li { margin-bottom: 6px; }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
@@ -252,9 +328,10 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
     <div id="toasts" aria-live="polite"></div>
     <div id="bossbar" hidden><div id="bossname">Boss</div><div class="bosstrack"><i id="bossfill"></i></div></div>
     <div id="sheet" hidden></div>
+    <div id="banner" aria-live="polite"></div>
   </main>
   <footer id="bar">
-    <button class="btn" id="pokeBtn" disabled>Poke Gary (1)</button>
+    <button class="btn" id="pokeBtn" disabled><b>Gary's Dream</b></button>
     <button class="btn" id="pauseBtn" disabled>Pause</button>
     <button class="btn" id="speedBtn" aria-label="Game speed" disabled>1×</button>
     <button class="btn primary" id="startBtn" disabled>Start wave 1</button>
@@ -280,10 +357,11 @@ function mkPath(pts) {
   for (let i = 0; i < pts.length - 1; i++) {
     const [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
     const l = Math.hypot(x2 - x1, y2 - y1);
-    segs.push({ x1, y1, x2, y2, len: l, start: len }); len += l;
+    segs.push({ x1, y1, x2, y2, len: l, start: len, tp: pts[i + 1][2] === 'tp' }); len += l;
   }
   return { pts, segs, len };
 }
+function segAt(P, d) { for (const s of P.segs) if (d < s.start + s.len) return s; return null; }
 function posOn(P, d) {
   const s0 = P.segs[0];
   if (d <= 0) { const ux = (s0.x2 - s0.x1) / s0.len, uy = (s0.y2 - s0.y1) / s0.len; return { x: s0.x1 + ux * d, y: s0.y1 + uy * d, dx: Math.sign(ux), dy: Math.sign(uy) }; }
@@ -299,10 +377,10 @@ function posOn(P, d) {
 
 // ---------- maps ----------
 const MAPS = [
-  { id: 'nap', name: "Gary's First Nap", theme: 'meadow', gold: 150, hpMult: 1,
+  { id: 'nap', name: "Gary's First Nap", theme: 'meadow', gold: 150, hpMult: 1.25,
     blurb: 'One road through a meadow. A rat with ambitions.',
     paths: [[[40, -24], [40, 90], [300, 90], [300, 210], [70, 210], [70, 330], [300, 330], [300, 450], [180, 450], [180, 532]]],
-    pads: [[105, 150], [185, 150], [262, 150], [135, 270], [240, 270], [115, 390], [235, 390], [262, 505], [98, 505]],
+    pads: [[105, 150], [185, 150, 'high'], [262, 150], [135, 270], [240, 270], [115, 390], [235, 390, 'shady'], [262, 505], [98, 505]],
     trees: [[334, 36, 1], [18, 262, .9], [340, 272, .85], [20, 430, 1], [342, 566, .9], [150, 28, .75], [22, 560, .8]],
     boss: 'kevin',
     waves: [
@@ -315,41 +393,41 @@ const MAPS = [
       [{ t: 'pants', n: 6, gap: 1.4, at: 0 }, { t: 'bog', n: 4, gap: 2.2, at: 2 }, { t: 'gob', n: 12, gap: .4, at: 6 }, { t: 'rat', n: 12, gap: .35, at: 10 }],
       [{ t: 'rat', n: 14, gap: .5, at: 0 }, { t: 'kevin', n: 1, gap: 0, at: 3 }, { t: 'skel', n: 6, gap: 1, at: 6 }, { t: 'gob', n: 8, gap: .5, at: 12 }],
     ] },
-  { id: 'paddock', name: 'The Paddock', theme: 'paddock', gold: 230, hpMult: .95, spdMult: .66,
+  { id: 'paddock', name: 'The Paddock', theme: 'paddock', gold: 230, hpMult: 1.55, spdMult: .66,
     blurb: 'Two roads and a gate. Tap the gate to send them the long way round.',
     gate: { x: 180, y: 60 },
     paths: [
       [[180, -24], [180, 60], [130, 60], [130, 200], [50, 200], [50, 340], [130, 340], [130, 470], [180, 470], [180, 532]],
       [[180, -24], [180, 60], [230, 60], [230, 470], [180, 470], [180, 532]]],
-    pads: [[180, 130], [180, 230], [180, 330], [180, 420], [90, 130], [90, 270], [90, 410], [285, 150], [285, 300], [285, 420], [110, 530], [250, 530]],
+    pads: [[180, 130], [180, 230, 'high'], [180, 330], [180, 420], [90, 130], [90, 270], [90, 410, 'shady'], [285, 150], [285, 300], [285, 420], [110, 530], [250, 530]],
     trees: [[30, 30, .8], [335, 40, .9], [340, 230, .7], [20, 470, .7], [340, 580, .7]],
     boss: 'stack',
     waves: [
       [{ t: 'rat', n: 7, gap: 1.1, at: 0 }],
       [{ t: 'rat', n: 7, gap: .9, at: 0 }, { t: 'skel', n: 2, gap: 1.5, at: 4 }],
-      [{ t: 'gob', n: 6, gap: .7, at: 0 }, { t: 'rat', n: 5, gap: .8, at: 3 }],
+      [{ t: 'gob', n: 6, gap: .7, at: 0 }, { t: 'rat', n: 5, gap: .8, at: 3 }, { t: 'mozzie', n: 12, gap: .15, at: 7 }],
       [{ t: 'skel', n: 6, gap: 1.1, at: 0 }, { t: 'bog', n: 1, gap: 0, at: 4 }],
       [{ t: 'gob', n: 10, gap: .5, at: 0 }, { t: 'bog', n: 2, gap: 3, at: 2 }],
-      [{ t: 'skel', n: 8, gap: .8, at: 0 }, { t: 'pants', n: 2, gap: 2, at: 4 }, { t: 'gob', n: 6, gap: .5, at: 8 }],
+      [{ t: 'skel', n: 8, gap: .8, at: 0 }, { t: 'pants', n: 2, gap: 2, at: 4 }, { t: 'mozzie', n: 18, gap: .12, at: 8 }],
       [{ t: 'pants', n: 4, gap: 1.4, at: 0 }, { t: 'skel', n: 8, gap: .7, at: 3 }, { t: 'rat', n: 10, gap: .35, at: 7 }],
       [{ t: 'gob', n: 8, gap: .6, at: 0 }, { t: 'stack', n: 1, gap: 0, at: 2 }, { t: 'rat', n: 8, gap: .45, at: 9 }],
     ] },
-  { id: 'creek', name: 'Puddle Crossing', theme: 'creek', gold: 200, hpMult: 1.05,
+  { id: 'creek', name: 'Puddle Crossing', theme: 'creek', gold: 200, hpMult: 1.5,
     blurb: 'Two burrows, one creek. Wading slows them down.',
     water: { y1: 326, y2: 366 },
     paths: [
       [[40, -24], [40, 150], [180, 150], [180, 280], [60, 280], [60, 400], [300, 400], [300, 480], [180, 480], [180, 532]],
       [[320, -24], [320, 200], [180, 200], [180, 280], [60, 280], [60, 400], [300, 400], [300, 480], [180, 480], [180, 532]]],
-    pads: [[110, 85], [250, 130], [110, 215], [250, 250], [250, 312], [335, 312], [130, 452], [240, 445], [100, 522], [262, 525]],
+    pads: [[110, 85], [250, 130], [110, 215, 'shady'], [250, 250, 'high'], [250, 312], [335, 312], [130, 452], [240, 445], [100, 522], [262, 525]],
     trees: [[180, 40, .9], [20, 440, .8], [340, 420, .7], [340, 575, .8], [22, 230, .7]],
     boss: 'pantsalot',
     waves: [
       [{ t: 'rat', n: 8, gap: .8, at: 0, p: 'alt' }],
       [{ t: 'skel', n: 4, gap: 1.3, at: 0, p: 0 }, { t: 'rat', n: 7, gap: .7, at: 2, p: 1 }],
       [{ t: 'rat', n: 12, gap: .45, at: 0, p: 'alt' }, { t: 'bog', n: 1, gap: 0, at: 5, p: 1 }],
-      [{ t: 'skel', n: 8, gap: .8, at: 0, p: 'alt' }, { t: 'pants', n: 2, gap: 2, at: 4, p: 1 }],
+      [{ t: 'skel', n: 8, gap: .8, at: 0, p: 'alt' }, { t: 'crab', n: 3, gap: 2, at: 4, p: 1 }],
       [{ t: 'gob', n: 12, gap: .4, at: 0, p: 'alt' }, { t: 'bog', n: 3, gap: 2.2, at: 5, p: 0 }],
-      [{ t: 'pants', n: 4, gap: 1.2, at: 0, p: 'alt' }, { t: 'skel', n: 8, gap: .7, at: 3, p: 'alt' }],
+      [{ t: 'pants', n: 4, gap: 1.2, at: 0, p: 'alt' }, { t: 'skel', n: 6, gap: .7, at: 3, p: 'alt' }, { t: 'crab', n: 4, gap: 1.4, at: 6, p: 'alt' }],
       [{ t: 'bog', n: 4, gap: 1.8, at: 0, p: 'alt' }, { t: 'gob', n: 10, gap: .35, at: 4, p: 'alt' }, { t: 'pants', n: 3, gap: 1.6, at: 8, p: 'alt' }],
       [{ t: 'skel', n: 10, gap: .6, at: 0, p: 'alt' }, { t: 'pantsalot', n: 1, gap: 0, at: 2, p: 0 }, { t: 'gob', n: 8, gap: .45, at: 10, p: 'alt' }],
     ] },
@@ -358,23 +436,23 @@ const MAPS = [
     fire: { x: 180, y: 290, r: 24 },
     flight: [[345, -30], [180, 540]],
     paths: [[[-24, 60], [310, 60], [310, 170], [50, 170], [50, 290], [310, 290], [310, 410], [50, 410], [50, 500], [180, 500], [180, 532]]],
-    pads: [[110, 115], [250, 115], [110, 230], [180, 232], [250, 230], [120, 350], [180, 350], [240, 350], [110, 455], [250, 458], [300, 528]],
+    pads: [[110, 115], [250, 115], [110, 230], [180, 232, 'high'], [250, 230], [120, 350], [180, 350], [240, 350, 'shady'], [110, 455], [250, 458], [300, 528]],
     trees: [[345, 120, .8], [18, 110, .7], [345, 350, .8], [18, 560, .85], [345, 560, .7]],
     boss: 'swoop',
     waves: [
       [{ t: 'rat', n: 14, gap: .5, at: 0 }],
       [{ t: 'gob', n: 12, gap: .45, at: 0 }, { t: 'skel', n: 4, gap: 1.2, at: 4 }],
-      [{ t: 'skel', n: 10, gap: .7, at: 0 }, { t: 'bog', n: 3, gap: 2.5, at: 3 }],
+      [{ t: 'skel', n: 10, gap: .7, at: 0 }, { t: 'bog', n: 3, gap: 2.5, at: 3 }, { t: 'seagull', n: 4, gap: 1.2, at: 6 }],
       [{ t: 'gob', n: 20, gap: .3, at: 0 }, { t: 'pants', n: 3, gap: 1.5, at: 6 }],
-      [{ t: 'bog', n: 6, gap: 1.6, at: 0 }, { t: 'rat', n: 16, gap: .3, at: 2 }],
+      [{ t: 'bog', n: 6, gap: 1.6, at: 0 }, { t: 'rat', n: 12, gap: .3, at: 2 }, { t: 'seagull', n: 7, gap: .8, at: 5 }],
       [{ t: 'pants', n: 6, gap: 1.1, at: 0 }, { t: 'gob', n: 14, gap: .35, at: 5 }],
       [{ t: 'skel', n: 14, gap: .5, at: 0 }, { t: 'bog', n: 5, gap: 1.5, at: 3 }, { t: 'pants', n: 5, gap: 1.2, at: 7 }],
       [{ t: 'gob', n: 12, gap: .4, at: 0 }, { t: 'swoop', n: 1, gap: 0, at: 3 }, { t: 'skel', n: 10, gap: .6, at: 6 }, { t: 'pants', n: 3, gap: 2, at: 10 }],
     ] },
-  { id: 'garden', name: 'The Beer Garden', theme: 'garden', gold: 230, hpMult: 1.7, sticky: true,
+  { id: 'garden', name: 'The Beer Garden', theme: 'garden', gold: 230, hpMult: 2.15, sticky: true,
     blurb: 'Sticky floor: whisky puddles last twice as long. Someone here is very pleased about that.',
     paths: [[[40, -24], [40, 470], [110, 470], [110, 110], [320, 110], [320, 400], [230, 400], [230, 500], [180, 500], [180, 532]]],
-    pads: [[75, 160], [75, 270], [75, 380], [160, 170], [270, 170], [160, 290], [270, 290], [160, 400], [270, 350], [290, 460], [100, 530], [262, 538]],
+    pads: [[75, 160], [75, 270], [75, 380], [160, 170], [270, 170], [160, 290, 'high'], [270, 290], [160, 400], [270, 350], [290, 460, 'shady'], [100, 530], [262, 538]],
     trees: [[345, 40, .85], [347, 250, .75], [20, 560, .8], [345, 560, .75]],
     tables: [[215, 232], [215, 335]],
     boss: 'chrisso',
@@ -382,14 +460,81 @@ const MAPS = [
       [{ t: 'rat', n: 12, gap: .6, at: 0 }],
       [{ t: 'skel', n: 8, gap: .9, at: 0 }, { t: 'gob', n: 8, gap: .5, at: 4 }],
       [{ t: 'bog', n: 4, gap: 2, at: 0 }, { t: 'rat', n: 14, gap: .4, at: 2 }],
-      [{ t: 'pants', n: 5, gap: 1.3, at: 0 }, { t: 'gob', n: 14, gap: .35, at: 4 }],
+      [{ t: 'pants', n: 5, gap: 1.3, at: 0 }, { t: 'gob', n: 12, gap: .35, at: 4 }, { t: 'medic', n: 2, gap: 4, at: 3 }],
       [{ t: 'skel', n: 14, gap: .55, at: 0 }, { t: 'bog', n: 4, gap: 2, at: 5 }],
-      [{ t: 'gob', n: 22, gap: .3, at: 0 }, { t: 'pants', n: 5, gap: 1.2, at: 4 }],
+      [{ t: 'gob', n: 20, gap: .3, at: 0 }, { t: 'pants', n: 5, gap: 1.2, at: 4 }, { t: 'medic', n: 3, gap: 3, at: 2 }],
       [{ t: 'bog', n: 7, gap: 1.4, at: 0 }, { t: 'pants', n: 6, gap: 1.1, at: 3 }, { t: 'rat', n: 18, gap: .3, at: 8 }],
       [{ t: 'skel', n: 12, gap: .6, at: 0 }, { t: 'chrisso', n: 1, gap: 0, at: 4 }, { t: 'gob', n: 12, gap: .4, at: 9 }, { t: 'pants', n: 4, gap: 1.5, at: 14 }],
     ] },
+  { id: 'lanes', name: 'The Laneways', theme: 'suburb', gold: 280, hpMult: 1.15,
+    blurb: 'Three entrances and a roundabout. Monsters split both ways round it, then merge near Gary.',
+    entr: [[0, 1], [2, 3], [4]],
+    paths: [
+      [[40, -24], [40, 80], [180, 80], [180, 130], [100, 130], [100, 300], [180, 300], [180, 360], [300, 360], [300, 460], [180, 460], [180, 532]],
+      [[40, -24], [40, 80], [180, 80], [180, 130], [260, 130], [260, 300], [180, 300], [180, 360], [300, 360], [300, 460], [180, 460], [180, 532]],
+      [[320, -24], [320, 80], [180, 80], [180, 130], [100, 130], [100, 300], [180, 300], [180, 360], [300, 360], [300, 460], [180, 460], [180, 532]],
+      [[320, -24], [320, 80], [180, 80], [180, 130], [260, 130], [260, 300], [180, 300], [180, 360], [300, 360], [300, 460], [180, 460], [180, 532]],
+      [[-24, 250], [30, 250], [30, 460], [180, 460], [180, 532]]],
+    pads: [[180, 215, 'high'], [140, 175], [220, 255], [55, 195], [310, 200], [110, 30], [250, 30], [240, 410], [110, 340], [70, 520], [300, 520], [85, 410]],
+    trees: [[345, 420, .7], [20, 380, .7], [345, 580, .75]],
+    bins: [[150, 30], [345, 120], [15, 120], [200, 520]],
+    boss: 'mortimer',
+    waves: [
+      [{ t: 'rat', n: 9, gap: .7, at: 0, p: 'e0' }, { t: 'rat', n: 9, gap: .7, at: 3, p: 'e1' }],
+      [{ t: 'gob', n: 12, gap: .45, at: 0, p: 'alt' }, { t: 'skel', n: 4, gap: 1.3, at: 5, p: 'e2' }],
+      [{ t: 'ratmum', n: 3, gap: 2.5, at: 0, p: 'alt' }, { t: 'mozzie', n: 16, gap: .15, at: 6, p: 'e1' }],
+      [{ t: 'crab', n: 6, gap: 1.2, at: 0, p: 'alt' }, { t: 'medic', n: 2, gap: 4, at: 3, p: 'e0' }, { t: 'rat', n: 8, gap: .45, at: 6, p: 'e2' }],
+      [{ t: 'bog', n: 5, gap: 1.8, at: 0, p: 'alt' }, { t: 'seagull', n: 8, gap: .8, at: 3 }],
+      [{ t: 'pants', n: 6, gap: 1.1, at: 0, p: 'alt' }, { t: 'ratmum', n: 2, gap: 3, at: 4, p: 'e2' }, { t: 'gob', n: 16, gap: .3, at: 8, p: 'any' }],
+      [{ t: 'crab', n: 6, gap: 1, at: 0, p: 'alt' }, { t: 'medic', n: 3, gap: 3, at: 2, p: 'e1' }, { t: 'mozzie', n: 24, gap: .1, at: 6, p: 'e0' }, { t: 'bog', n: 3, gap: 2, at: 9, p: 'e2' }],
+      [{ t: 'skel', n: 12, gap: .6, at: 0, p: 'alt' }, { t: 'mortimer', n: 1, gap: 0, at: 4, p: 'e0' }, { t: 'seagull', n: 8, gap: .6, at: 8 }, { t: 'pants', n: 6, gap: 1, at: 12, p: 'alt' }],
+    ] },
+  { id: 'woods', name: 'Fairy Ring Woods', theme: 'woods', gold: 300, hpMult: 1.1,
+    blurb: 'Monsters step into one fairy ring and pop out of another. Goblins know a shortcut.',
+    entr: [[0, 1]], shortcut: 1,
+    paths: [
+      [[-24, 60], [300, 60], [300, 170], [60, 170], [60, 280], [300, 300, 'tp'], [300, 420], [60, 420], [60, 500], [180, 500], [180, 532]],
+      [[-24, 60], [300, 60], [300, 420], [60, 420], [60, 500], [180, 500], [180, 532]]],
+    pads: [[150, 115, 'shady'], [240, 115], [30, 110], [110, 240], [200, 240], [250, 350], [120, 360], [120, 465, 'shady'], [250, 470], [240, 540], [30, 320], [345, 240, 'high']],
+    trees: [[345, 120, .8], [20, 230, .7], [345, 330, .75], [20, 570, .8], [345, 560, .7], [180, 22, .6]],
+    rings: true,
+    boss: 'bigmum',
+    waves: [
+      [{ t: 'rat', n: 12, gap: .6, at: 0 }, { t: 'gob', n: 8, gap: .5, at: 5 }],
+      [{ t: 'skel', n: 8, gap: .9, at: 0 }, { t: 'mozzie', n: 16, gap: .15, at: 5 }],
+      [{ t: 'crab', n: 5, gap: 1.3, at: 0 }, { t: 'gob', n: 14, gap: .35, at: 4 }, { t: 'seagull', n: 5, gap: 1, at: 8 }],
+      [{ t: 'bog', n: 5, gap: 1.8, at: 0 }, { t: 'medic', n: 3, gap: 3, at: 2 }, { t: 'ratmum', n: 2, gap: 3, at: 6 }],
+      [{ t: 'pants', n: 7, gap: 1.1, at: 0 }, { t: 'gob', n: 18, gap: .28, at: 5 }],
+      [{ t: 'crab', n: 8, gap: .9, at: 0 }, { t: 'mozzie', n: 28, gap: .08, at: 4 }, { t: 'seagull', n: 8, gap: .6, at: 8 }],
+      [{ t: 'bog', n: 6, gap: 1.4, at: 0 }, { t: 'pants', n: 6, gap: 1, at: 3 }, { t: 'medic', n: 3, gap: 2.5, at: 5 }, { t: 'gob', n: 20, gap: .25, at: 9 }],
+      [{ t: 'rat', n: 16, gap: .4, at: 0 }, { t: 'bigmum', n: 1, gap: 0, at: 3 }, { t: 'crab', n: 6, gap: 1, at: 8 }, { t: 'seagull', n: 10, gap: .5, at: 12 }],
+    ] },
+  { id: 'bigday', name: "Gary's Big Day", theme: 'fete', gold: 320, hpMult: 1.25,
+    blurb: 'The grand final. Two entrances, a long way and a short way, flyers, and Steve.',
+    entr: [[0, 1], [2]],
+    paths: [
+      [[40, -24], [40, 100], [250, 100], [250, 190], [80, 190], [80, 330], [250, 330], [250, 440], [180, 440], [180, 532]],
+      [[40, -24], [40, 100], [250, 100], [250, 190], [320, 190], [320, 440], [180, 440], [180, 532]],
+      [[384, 300], [320, 300], [320, 440], [180, 440], [180, 532]]],
+    pads: [[145, 145], [300, 145], [165, 260, 'high'], [285, 260], [130, 385], [285, 385], [100, 50], [40, 250, 'shady'], [355, 380], [250, 510], [100, 500]],
+    trees: [[345, 40, .8], [20, 430, .7], [345, 560, .7], [20, 580, .7]],
+    boss: 'steve',
+    waves: [
+      [{ t: 'rat', n: 12, gap: .55, at: 0, p: 'e0' }, { t: 'gob', n: 5, gap: .7, at: 6, p: 'e1' }],
+      [{ t: 'skel', n: 10, gap: .8, at: 0, p: 'alt' }, { t: 'mozzie', n: 20, gap: .12, at: 5, p: 'e0' }],
+      [{ t: 'crab', n: 6, gap: 1.2, at: 0, p: 'alt' }, { t: 'seagull', n: 6, gap: .9, at: 3 }, { t: 'ratmum', n: 2, gap: 3, at: 6, p: 'e1' }],
+      [{ t: 'bog', n: 6, gap: 1.6, at: 0, p: 'alt' }, { t: 'medic', n: 3, gap: 2.5, at: 3, p: 'e0' }, { t: 'gob', n: 9, gap: .4, at: 8, p: 'e1' }],
+      [{ t: 'pants', n: 8, gap: 1, at: 0, p: 'alt' }, { t: 'mozzie', n: 30, gap: .08, at: 5, p: 'any' }, { t: 'seagull', n: 8, gap: .6, at: 9 }],
+      [{ t: 'crab', n: 8, gap: .9, at: 0, p: 'alt' }, { t: 'ratmum', n: 4, gap: 2, at: 3, p: 'any' }, { t: 'medic', n: 3, gap: 3, at: 6, p: 'e0' }],
+      [{ t: 'bog', n: 8, gap: 1.2, at: 0, p: 'alt' }, { t: 'pants', n: 8, gap: .9, at: 4, p: 'alt' }, { t: 'seagull', n: 12, gap: .5, at: 8 }, { t: 'gob', n: 20, gap: .25, at: 10, p: 'any' }],
+      [{ t: 'skel', n: 14, gap: .5, at: 0, p: 'alt' }, { t: 'steve', n: 1, gap: 0, at: 4, p: 'e0' }, { t: 'medic', n: 3, gap: 3, at: 6, p: 'alt' }, { t: 'crab', n: 8, gap: 1, at: 10, p: 'alt' }, { t: 'seagull', n: 10, gap: .5, at: 14 }],
+    ] },
 ];
-for (const m of MAPS) { m.P = m.paths.map(mkPath); if (m.flight) m.F = mkPath(m.flight); }
+for (const m of MAPS) {
+  m.P = m.paths.map(mkPath); if (m.flight) m.F = mkPath(m.flight);
+  m.FL = (m.flights || [[[70, -30], [180, 540]], [[290, -30], [180, 540]]]).map(mkPath);
+  if (m.F) m.FL.push(m.F);
+}
 
 const SKILLS = ['chucking', 'bonking', 'muttering', 'sizzling', 'pouring', 'flocking', 'scrounging'];
 const SKILL_NAMES = { chucking: 'Chucking', bonking: 'Bonking', muttering: 'Muttering', sizzling: 'Sizzling', pouring: 'Pouring', flocking: 'Flocking', scrounging: 'Scrounging' };
@@ -411,7 +556,7 @@ const TOWERS = {
   nan: { name: "Nan's Porch", crew: 'Nan Beryl', skill: 'muttering', cost: 85, blurb: 'Knitting needles. Huge crits. Long range.',
     tiers: [{ dmg: 30, rate: .5, range: 125, crit: .4 }, { cost: 80, dmg: 44, rate: .55, range: 130, crit: .45 }, { cost: 125, dmg: 60, rate: .6, range: 135, crit: .5, pierce: true }, { cost: 240, dmg: 78, rate: .66, range: 142, crit: .55, pierce: true, ult: true, chain: 3 }] },
   sizzle: { name: 'Sausage Sizzle', crew: 'Uncle Tony', skill: 'sizzling', cost: 70, blurb: 'No damage. Speeds up every tower on the map, and slows monsters nearby.',
-    tiers: [{ aura: 75, buff: .12, slow: .25 }, { cost: 70, aura: 82, buff: .18, slow: .3 }, { cost: 110, aura: 90, buff: .25, slow: .35, queue: true }, { cost: 200, aura: 100, buff: .35, slow: .4, queue: true, ult: true, snagEvery: 6 }] },
+    tiers: [{ aura: 75, buff: .08, slow: .25 }, { cost: 70, aura: 82, buff: .12, slow: .3 }, { cost: 110, aura: 90, buff: .17, slow: .35, queue: true }, { cost: 200, aura: 100, buff: .26, slow: .4, queue: true, ult: true, snagEvery: 6 }] },
   jezza: { name: "Jezza's Top Shelf", crew: 'Jezza', skill: 'pouring', cost: 80, unlockWins: 1, blurb: 'Throws whisky. Tipsy monsters stumble, slow down and take 25% more damage.',
     tiers: [{ rate: .55, range: 95, pr: 24, life: 3, tipsy: 2.5, dmg: 8 }, { cost: 70, rate: .65, range: 100, pr: 30, life: 3.5, tipsy: 3, dmg: 12 }, { cost: 115, rate: .7, range: 105, pr: 34, life: 4, tipsy: 3.5, dmg: 16, fire: true }, { cost: 220, rate: .8, range: 112, pr: 38, life: 4.5, tipsy: 4, dmg: 22, fire: true, ult: true, spread: 3, vuln: .45 }] },
 };
@@ -422,7 +567,7 @@ const TIER_NOTES = {
   chuck: ['Random junk, random damage', 'Heavier junk', 'Junk splashes', 'ULTIMATE: Throw the Bathtub'],
   bonk: ['Bonks one, stuns briefly', 'Harder bonks, longer stun', 'Bonks everything in reach', 'ULTIMATE: Last Drinks shockwave'],
   nan: ['40% crit chance', 'Sharper needles', 'Needles ignore armour', 'ULTIMATE: Rainbow chain crits'],
-  sizzle: ['+12% speed to every tower, slows monsters nearby', '+18% speed to every tower, bigger slow', 'Free snags: +25% everywhere, monsters queue', 'ULTIMATE: Snag Rain'],
+  sizzle: ['+8% speed to every tower, slows monsters nearby', '+12% speed to every tower, bigger slow', 'Free snags: +17% everywhere, monsters queue', 'ULTIMATE: Snag Rain'],
   jezza: ['Whisky puddle: monsters go tipsy', 'Bigger splash, longer hangover', 'Flaming Dram: the puddle catches fire', 'ULTIMATE: Rainbow Shots'],
   bev: ['Summons 2 bin chickens to peck and pester', 'Up to 3 birds, plus pigeons that hit flyers', 'Bin Day: birds nick loot back and peck off armour', 'ULTIMATE: Pigeon Storm'],
 };
@@ -430,7 +575,14 @@ const TIER_NOTES = {
 const ENEMIES = {
   rat:   { name: 'Rat (Regular)', hp: 22, spd: 46, armor: 0, gold: 5, steal: 1, r: 9 },
   skel:  { name: 'Skeleton Without Pants', hp: 48, spd: 38, armor: 2, gold: 8, steal: 1, r: 11 },
-  gob:   { name: 'Unpaid Goblin Intern', hp: 30, spd: 68, armor: 0, gold: 7, steal: 1, r: 9 },
+  gob:   { name: 'Unpaid Goblin Intern', hp: 30, spd: 68, armor: 0, gold: 7, steal: 1, r: 9, fast: true },
+  mozzie: { name: 'Mozzie', hp: 9, spd: 60, armor: 0, gold: 2, steal: 1, r: 5, fast: true },
+  seagull: { name: 'Seagull, Chip-Motivated', hp: 34, spd: 50, armor: 0, gold: 8, steal: 1, r: 9, flyer: true },
+  medic: { name: 'Goblin First-Aider', hp: 75, spd: 33, armor: 1, gold: 14, steal: 1, r: 10, heals: true },
+  ratmum: { name: 'Rat Mum', hp: 130, spd: 27, armor: 1, gold: 16, steal: 2, r: 13, summons: 'baby', every: 4, kids: 2 },
+  baby: { name: 'Baby Rat', hp: 12, spd: 48, armor: 0, gold: 1, steal: 1, r: 6 },
+  crab: { name: 'Crab in a Bucket', hp: 60, spd: 31, armor: 2, gold: 14, steal: 1, r: 11, shield: 90 },
+  treasure: { name: 'Treasure Goblin', hp: 170, spd: 74, armor: 1, gold: 60, steal: 0, r: 10, fast: true, treasure: true },
   bog:   { name: 'Bog Bloke', hp: 140, spd: 25, armor: 1, gold: 18, steal: 2, r: 15 },
   pants: { name: 'Skeleton With Pants', hp: 85, spd: 34, armor: 5, gold: 15, steal: 1, r: 12 },
   kevin: { name: 'Kevin, the Slightly Larger Rat', hp: 1700, spd: 20, armor: 3, gold: 120, steal: 4, r: 22, boss: true,
@@ -441,6 +593,12 @@ const ENEMIES = {
     intro: 'SIR PANTSALOT. A king without pants. He will take yours.', tip: 'He grabs every bit of loot near him and wears it. Grab it first.' },
   chrisso: { name: 'Chrisso, Who Has Never Been Tipsy', hp: 2300, spd: 17, armor: 4, gold: 180, steal: 5, r: 21, boss: true, whiskyImmune: true,
     intro: "CHRISSO. Has never been tipsy in his life. Says it's genetic.", tip: 'Whisky does nothing to him. He drinks the puddles to heal and speed up. Keep them off his path.' },
+  mortimer: { name: 'Middle Manager Mortimer', hp: 2500, spd: 16, armor: 3, gold: 190, steal: 5, r: 18, boss: true, office: true,
+    intro: 'MIDDLE MANAGER MORTIMER. Just circling back on your survival.', tip: 'Paperwork makes him immune. Three different crew hitting him quickly gets the form approved.' },
+  bigmum: { name: 'Big Mum', hp: 3000, spd: 14, armor: 3, gold: 200, steal: 6, r: 24, boss: true, summons: 'baby', every: 3, kids: 3, enrage: true,
+    intro: "BIG MUM. Kevin's mum. She's heard what you did.", tip: 'She keeps having babies. Below a quarter health she gets cranky and twice as busy.' },
+  steve: { name: 'Steve, Who Is Not AFK', hp: 3400, spd: 19, armor: 5, gold: 260, steal: 6, r: 16, boss: true, steve: true, enrage: true,
+    intro: 'STEVE. A hero who is not AFK. Unbearable.', tip: 'He takes the least-defended road and steals credit from your towers. Below a quarter health he calls his fans.' },
   swoop: { name: 'Big Swoop', hp: 1500, spd: 30, armor: 1, gold: 160, steal: 5, r: 20, boss: true, flyer: true,
     intro: 'BIG SWOOP. It is swooping season.', tip: 'Flies straight at Gary and steals hats. Hatless crew stop working.' },
 };
@@ -450,6 +608,9 @@ const BOSS_ITEMS = {
   pantsalot: { name: "The King's Missing Pants", icon: '🩲', tier: 4 },
   swoop: { name: "Swooper's Feather", icon: '🪶', tier: 4 },
   chrisso: { name: "Chrisso's Stubby Holder", icon: '🥤', tier: 4 },
+  mortimer: { name: 'Lanyard of Authority', icon: '📛', tier: 4 },
+  bigmum: { name: "Big Mum's Wooden Spoon", icon: '🥄', tier: 4 },
+  steve: { name: "Steve's Participation Medal", icon: '🏅', tier: 4 },
 };
 
 const RARITY = [
@@ -494,6 +655,9 @@ const ITEM_DESC = {
   "The King's Missing Pants": 'Found them. He was wearing them on his head.',
   "Swooper's Feather": 'Earned during swooping season. You have the scars.',
   "Chrisso's Stubby Holder": 'Keeps it cold. Has never once held a drink that affected him.',
+  'Lanyard of Authority': 'Approved. Signed. Laminated.',
+  "Big Mum's Wooden Spoon": 'Has stirred a thousand casseroles and settled a thousand arguments.',
+  "Steve's Participation Medal": 'Steve has nine of these. He tells people they are for winning.',
 };
 const CHUCK_JUNK = ['👢', '🧱', '🐟', '🥫', '🪑'];
 
@@ -508,7 +672,7 @@ const CARDS = [
   { id: 'rush', name: 'Rush Hour', cursed: true, desc: 'Monsters move 20% faster. Every drop rolls rarity twice.', apply: G => { G.mods.enemySpeed *= 1.2; G.mods.rarityRolls += 1; } },
   { id: 'steve', name: "Steve's Watching", cursed: true, desc: 'Monsters have 25% more health. Kills pay 50% more gold.', apply: G => { G.mods.enemyHp *= 1.25; G.mods.goldMult *= 1.5; } },
   { id: 'snore', name: 'Gary Snores', desc: 'Monsters near Gary are slowed 35%.', apply: G => { G.mods.snore = .35; } },
-  { id: 'poke', name: 'Second Poke', desc: '+1 Poke Gary.', repeat: true, apply: G => { G.pokes += 1; } },
+  { id: 'poke', name: 'Sweet Dreams', desc: 'Gary\u2019s dream meter +40 right now.', repeat: true, apply: G => { G.meter = Math.min(100, (G.meter || 0) + 40); } },
   { id: 'magnet', name: 'Sticky Fingers', desc: 'Loot collects itself twice as fast. Snatching pays +15 gold.', apply: G => { G.mods.autoMult = .5; G.mods.snatchGold = 20; } },
   { id: 'undies', name: 'Spare Undies', desc: '+2 items on Gary\u2019s pile.', repeat: true, apply: G => { G.pile += 2; G.pileMax += 2; } },
   { id: 'smoko', name: 'Smoko Break', desc: 'All towers work 15% faster.', apply: G => { G.mods.fireRate *= 1.15; } },
@@ -521,7 +685,7 @@ const CARDS = [
 const SHED = [
   { id: 'float', name: 'Bigger Float', desc: '+20 starting gold per level.', costs: [30, 60, 100, 150, 220] },
   { id: 'undies', name: 'Spare Undies', desc: '+1 item on Gary\u2019s pile per level.', costs: [60, 130, 220] },
-  { id: 'coffee', name: 'Strong Coffee', desc: '+1 Poke Gary every run per level.', costs: [80, 180] },
+  { id: 'coffee', name: 'Warm Milk', desc: 'Gary\u2019s dream meter charges 12% faster per level.', costs: [80, 180] },
   { id: 'mates', name: 'Mates Rates', desc: 'Towers and upgrades 4% cheaper per level.', costs: [40, 80, 130, 190, 260] },
   { id: 'magnet', name: 'Fridge Magnet', desc: 'Loot collects 15% faster and drops 3% more often per level.', costs: [35, 80, 150] },
   { id: 'cards', name: 'Extra Card', desc: 'Pick from 4 cards after each wave instead of 3.', costs: [200] },
@@ -546,7 +710,10 @@ const JOBS = [
   { id: 'rare', t: n => 'Bank ' + n + ' Decent-or-better items', v: G => G.stats.banked.filter(i => i.tier >= 2).length, n: [3, 6, 12] },
   { id: 'combo', t: n => 'Hit a ' + n + '-kill combo', v: G => G.stats.bestCombo, n: [10, 18, 26], max: true },
   { id: 'flawless', t: () => 'Win a level with nothing stolen', v: G => G.won && G.mode !== 'endless' && G.stats.itemsLost === 0 ? 1 : 0, n: [1, 1, 1], max: true },
-  { id: 'pokes', t: n => 'Poke Gary ' + n + ' times', v: G => G.stats.pokes, n: [2, 5, 9] },
+  { id: 'pokes', t: n => 'Unleash Gary\u2019s dream ' + n + ' times', v: G => G.stats.dreams || 0, n: [2, 4, 7] },
+  { id: 'perfect', t: n => 'Get ' + n + ' perfect waves', v: G => G.stats.perfects || 0, n: [4, 8, 14] },
+  { id: 'synergy', t: n => 'Trigger ' + n + ' tower synergies', v: G => G.stats.syn || 0, n: [20, 60, 150] },
+  { id: 'ability', t: n => 'Use tower abilities ' + n + ' times', v: G => G.stats.abilities || 0, n: [3, 6, 10] },
   { id: 'nobonk', t: () => 'Win a level without a Bonk Booth', v: G => G.won && G.mode !== 'endless' && !G.stats.builtTypes.bonk ? 1 : 0, n: [1, 1, 1], max: true },
   { id: 'long', t: n => 'Reach wave ' + n + ' in the Long Nap', v: G => G.mode === 'endless' ? G.wave : 0, n: [8, 12, 16], max: true, req: m => (m.wins || 0) > 0 },
   { id: 'daily', t: () => 'Win a Daily Nap', v: G => G.mode === 'daily' && G.won ? 1 : 0, n: [1, 1, 1], max: true, req: m => (m.wins || 0) > 0 },
@@ -579,17 +746,17 @@ function dailySetup(meta, key) {
 
 // ---------- Long Nap (endless) ----------
 function genWave(G, w) {
-  const pool = ['rat', 'gob']; if (w >= 2) pool.push('skel'); if (w >= 4) pool.push('bog'); if (w >= 6) pool.push('pants');
+  const pool = ['rat', 'gob']; if (w >= 2) pool.push('skel', 'mozzie'); if (w >= 4) pool.push('bog', 'crab', 'seagull'); if (w >= 6) pool.push('pants', 'medic', 'ratmum');
   const total = Math.round(8 + w * 1.7), ng = Math.min(3, 1 + Math.floor(w / 3));
-  const p = G.map.gate ? undefined : (G.map.P.length > 1 ? 'alt' : undefined);
+  const p = G.map.entr ? 'any' : G.map.gate ? undefined : (G.map.P.length > 1 ? 'alt' : undefined);
   const out = []; let at = 0;
   for (let g = 0; g < ng; g++) {
     const t = pool[Math.floor(G.rng() * pool.length)];
-    const n = Math.max(1, Math.round(total / ng * (t === 'bog' ? .35 : t === 'pants' ? .5 : 1)));
+    const n = Math.max(1, Math.round(total / ng * ({ bog: .35, pants: .5, mozzie: 1.8, medic: .2, ratmum: .25, crab: .45, seagull: .5 }[t] || 1)));
     out.push({ t, n, gap: t === 'gob' ? .4 : t === 'rat' ? .5 : t === 'bog' ? 1.8 : t === 'pants' ? 1.2 : .8, at, p });
     at += 2 + G.rng() * 3;
   }
-  if (w % 10 === 0) { const bosses = ['chrisso', 'kevin', 'stack', 'pantsalot']; if (G.map.F) bosses.push('swoop'); out.push({ t: bosses[(w / 10 - 1) % bosses.length], n: 1, gap: 0, at: 2, p }); }
+  if (w % 10 === 0) { const bosses = ['chrisso', 'kevin', 'stack', 'mortimer', 'pantsalot', 'bigmum', 'steve']; if (G.map.F) bosses.push('swoop'); out.push({ t: bosses[(w / 10 - 1) % bosses.length], n: 1, gap: 0, at: 2, p }); }
   return out;
 }
 
@@ -597,11 +764,123 @@ const ULT_DESC = {
   chuck: 'Every 4th throw, Dazza launches a whole bathtub. Huge splash damage and a stun.',
   bonk: 'Every 5 seconds Marg slams the counter. A shockwave hits everything nearby and shoves them back.',
   nan: 'Crits chain rainbow lightning to 3 more monsters. 55% crit chance.',
-  sizzle: '+35% speed to every tower. Every 6 seconds, sausages rain from the sky onto up to 8 monsters.',
+  sizzle: '+26% speed to every tower. Every 6 seconds, sausages rain from the sky onto up to 8 monsters.',
   jezza: 'Three rainbow shots at once. Tipsy monsters take 45% more damage.',
   bev: 'Up to 4 bin chickens. Every 9 seconds, a storm of 12 pigeons sweeps the whole map.',
 };
 const ULT_LEVEL = 5;
+
+// ---------- Synergies ----------
+const SYNERGIES = [
+  { id: 'pubbrawl', name: 'Pub Brawl', desc: 'Big Marg\u2019s stuns last twice as long on tipsy monsters.', hint: 'Something about whisky and frying pans.' },
+  { id: 'queue', name: 'Queue Jumpers', desc: 'Splash damage hits 50% harder on monsters slowed or queuing at Uncle Tony\u2019s.', hint: 'A queue is just a crowd waiting to be hit.' },
+  { id: 'bad', name: 'Bad Influence', desc: 'Nan\u2019s crits knock tipsy monsters back up the road.', hint: 'Nan does not approve of drinking.' },
+  { id: 'binnight', name: 'Bin Night', desc: 'Dazza\u2019s junk hits 30% harder on monsters a bird is pecking.', hint: 'Dazza and the bin chickens both love a bin.' },
+  { id: 'duck', name: 'Sitting Duck', desc: '+30% crit chance for Nan against stunned monsters.', hint: 'Nan prefers a target that sits still.' },
+  { id: 'smoke', name: 'Smoke Signals', desc: 'Birds inside Uncle Tony\u2019s smoke peck 40% faster.', hint: 'Bin chickens can smell a sausage from anywhere.' },
+  { id: 'bbq', name: 'Barbecue Whisky', desc: 'Whisky puddles near Uncle Tony\u2019s grill catch fire.', hint: 'What happens if whisky meets a hot plate?' },
+  { id: 'wet', name: 'Wet and Wild', desc: 'Wading monsters take 30% more from bonks and pecks.', hint: 'Slippery monsters are easier to knock about.' },
+];
+
+// ---------- Gary's Dreams (player ultimate) ----------
+const DREAMS = {
+  swing: { name: 'Sleep Swing', icon: '🗡️', desc: 'Gary swings his sword in his sleep.', lv: ['A big sword arc around Gary', 'Wider, harder swing', 'Knocks monsters back up the road', 'Swings twice', 'SLEEPWALK: a giant ghost sword sweeps the whole map'] },
+  snore: { name: 'Thunder Snore', icon: '💤', desc: 'One almighty snore.', lv: ['A shockwave stuns monsters near Gary', 'Bigger wave, longer stun', 'Blows monsters back up the road', 'Leaves them groggy and slow', 'EARTHQUAKE SNORE: the whole map shakes'] },
+  rain: { name: 'Lost Property Rain', icon: '☔', desc: 'Everything Gary ever lost falls from the sky.', lv: ['6 lost items fall on monsters', '10 items', 'Leaves burning patches', 'Impacts stun', 'A whole caravan falls from the sky'] },
+  freeze: { name: 'Sunday Freeze', icon: '❄️', desc: 'Gary dreams it\u2019s Sunday. Nothing moves.', lv: ['Everything stops for 2 seconds', '3 seconds', 'Frozen monsters take 50% more damage', 'The ice shatters for damage', 'TIME REWIND: monsters slide back up the road'] },
+  blanket: { name: 'Static Blanket', icon: '⚡', desc: 'Gary rubs his socks on the blanket.', lv: ['Lightning chains through 8 monsters', 'Chains through 14', 'Shocked monsters take 20% more damage', 'Strikes twice', 'BLANKET OVERLOAD: every monster, three times'] },
+};
+const DREAM_ORDER = ['swing', 'snore', 'rain', 'freeze', 'blanket'];
+const DREAM_UNLOCK = { swing: 1, snore: 2, rain: 4, freeze: 6, blanket: 8 };
+const DREAM_COST = [0, 0, 4, 8, 14, 22];
+
+// ---------- Tower abilities (manual, from tier 2) ----------
+const ABIL = {
+  chuck: { name: 'Throw the Bin', desc: 'A whole wheelie bin. Big splash and a stun.', cd: 28 },
+  bonk: { name: 'Closing Time', desc: 'Shoves everything nearby back up the road and stuns it.', cd: 26 },
+  nan: { name: 'Disappointed', desc: 'For 5 seconds Nan fires three times faster and every needle crits.', cd: 30 },
+  sizzle: { name: 'Free Snags', desc: 'Every monster near the grill stops to queue for 3 seconds.', cd: 30 },
+  jezza: { name: 'Shout a Round', desc: 'Every monster in range goes tipsy for 6 seconds.', cd: 28 },
+  bev: { name: 'Feeding Frenzy', desc: 'Six bin chickens at once.', cd: 30 },
+};
+
+// ---------- Gary level + trinkets ----------
+const GARY_UNLOCKS = [
+  { L: 1, text: 'Sleep Swing dream and 1 trinket slot' },
+  { L: 2, text: 'Thunder Snore dream' },
+  { L: 3, text: 'Second trinket slot' },
+  { L: 4, text: 'Lost Property Rain dream' },
+  { L: 5, text: 'Chaos and Boss Rush modifiers' },
+  { L: 6, text: 'Sunday Freeze dream' },
+  { L: 7, text: 'Third trinket slot' },
+  { L: 8, text: 'Static Blanket dream' },
+  { L: 10, text: 'Golden pyjamas for Gary' },
+];
+function garyNeed(L) { return Math.round(150 * Math.pow(L, 1.2)); }
+function garyInfo(xp) { let L = 1, rem = xp || 0; while (L < 30 && rem >= garyNeed(L)) { rem -= garyNeed(L); L++; } return { L, into: rem, need: garyNeed(L) }; }
+function trinketSlots(meta) { const L = garyInfo(meta.garyXp).L; return L >= 7 ? 3 : L >= 3 ? 2 : 1; }
+const ITEM_FX = {
+  'Bucket': ['gold', 15], 'Single Sock': ['dream', .03], 'Soggy Chip': ['speed', .02], 'Bent Spoon': ['drop', .02], 'Rock (Ordinary)': ['dmg', .02],
+  'Thong of Mild Speed': ['speed', .04], 'Frying Pan': ['dmg', .04], 'Lucky Brick': ['drop', .04], 'Cork Hat': ['gold', 35],
+  'Thong of Swiftness': ['speed', .06], "Gary's Spare Helmet": ['pile', 1], 'Ring of Mild Inconvenience': ['slowGary', .2], 'Boot of Kicking': ['dmg', .06],
+  'Boomerang Brick': ['dmg', .09], "Nan's Good Scissors": ['crit', .08], "Gary's Sword": ['dream', .15],
+  "Nan's Spare Teeth": ['crit', .12], "Gary's Actual Crown": ['pile', 2],
+  "Kevin's Tail": ['killGold', .1], 'Trenchcoat of Many Pockets': ['cost', .08], "The King's Missing Pants": ['bossDmg', .12], "Swooper's Feather": ['flyerDmg', .25],
+  "Chrisso's Stubby Holder": ['tipsy', .5], 'Lanyard of Authority': ['abil', .2], "Big Mum's Wooden Spoon": ['dreamDmg', .25], "Steve's Participation Medal": ['gold', 100],
+};
+const FX_TEXT = {
+  gold: v => '+' + v + ' starting gold', dream: v => '+' + Math.round(v * 100) + '% dream charge', speed: v => '+' + Math.round(v * 100) + '% tower speed',
+  drop: v => '+' + Math.round(v * 100) + '% loot drops', dmg: v => '+' + Math.round(v * 100) + '% tower damage', pile: v => '+' + v + ' on Gary\u2019s pile',
+  slowGary: v => 'Monsters near Gary slowed ' + Math.round(v * 100) + '%', crit: v => '+' + Math.round(v * 100) + '% Nan crit chance', killGold: v => '+' + Math.round(v * 100) + '% gold from kills',
+  cost: v => 'Towers ' + Math.round(v * 100) + '% cheaper', bossDmg: v => '+' + Math.round(v * 100) + '% damage to bosses', flyerDmg: v => '+' + Math.round(v * 100) + '% damage to flyers',
+  tipsy: v => 'Tipsy lasts ' + Math.round(v * 100) + '% longer', abil: v => 'Abilities recharge ' + Math.round(v * 100) + '% faster', dreamDmg: v => '+' + Math.round(v * 100) + '% dream damage',
+};
+function itemFxText(name) { const f = ITEM_FX[name]; return f ? FX_TEXT[f[0]](f[1]) : ''; }
+function trinketTotals(meta) {
+  const t = {}; const slots = trinketSlots(meta);
+  (meta.equip || []).slice(0, slots).forEach(n => { if (n && meta.stash && meta.stash[n] && ITEM_FX[n]) { const [k, v] = ITEM_FX[n]; t[k] = (t[k] || 0) + v; } });
+  return t;
+}
+
+// ---------- Level modifiers ----------
+const MODS = [
+  { id: 'hard', name: 'Hard', desc: 'Monsters have 40% more health.' },
+  { id: 'speed', name: 'Speed', desc: 'Monsters move 20% faster.' },
+  { id: 'nomercy', name: 'No Mercy', desc: 'Gary only has 3 items to lose.' },
+  { id: 'chaos', name: 'Chaos', desc: 'Random monster mixes every wave.', gary: 5 },
+  { id: 'bossrush', name: 'Boss Rush', desc: 'Extra bosses on waves 3 and 6.', gary: 5 },
+];
+
+// ---------- Random events ----------
+const EVENTS = [
+  { id: 'merchant', name: 'A travelling merchant has set up shop', desc: 'Tap the cart near Gary to buy a card.' },
+  { id: 'treasure', name: 'A treasure goblin escaped onto the map', desc: 'Stop it for a pile of loot. It won\u2019t steal.' },
+  { id: 'bloodmoon', name: 'The moon has turned blood red', desc: 'Monsters are faster, but they drop more loot.' },
+  { id: 'casserole', name: 'Gary\u2019s mum dropped off a casserole', desc: '+2 items on Gary\u2019s pile.' },
+  { id: 'rainbow', name: 'Double rainbow', desc: '+15% crit chance this wave. Crits pay gold.' },
+];
+function genChaos(G, w) {
+  const pool = w < 3 ? ['rat', 'gob', 'skel', 'mozzie', 'crab'] : ['rat', 'gob', 'skel', 'bog', 'pants', 'mozzie', 'crab', 'medic', 'seagull', 'ratmum'];
+  const p = G.map.entr ? 'any' : G.map.gate ? undefined : (G.map.P.length > 1 ? 'alt' : undefined);
+  const out = []; let at = 0;
+  for (let g = 0; g < (w < 3 ? 2 : 3); g++) {
+    const t = pool[Math.floor(G.rng() * pool.length)];
+    const base = { rat: 9, gob: 10, skel: 7, bog: 3, pants: 4, mozzie: 18, crab: 4, medic: 2, seagull: 5, ratmum: 2 }[t];
+    out.push({ t, n: Math.max(1, Math.round(base * (.45 + w * .09))), gap: { mozzie: .12, gob: .4, rat: .5, bog: 1.8, pants: 1.1, medic: 3, ratmum: 2.5 }[t] || .8, at, p });
+    at += 3 + G.rng() * 3;
+  }
+  if (w === G.map.waves.length) out.push({ t: G.map.boss, n: 1, gap: 0, at: 3, p: G.map.entr ? 'e0' : p });
+  return out;
+}
+function leastDefended(G, pool) {
+  let best = pool[0], bv = 1e9;
+  for (const pi of pool) {
+    const P = G.map.P[pi]; let v = 0;
+    for (let d = 0; d < P.len; d += 12) { const q = posOn(P, d); G.towers.forEach((t, i) => { if (t) { const pd = G.map.pads[i]; if (Math.hypot(pd[0] - q.x, pd[1] - q.y) < 100) v++; } }); }
+    if (v < bv) { bv = v; best = pi; }
+  }
+  return best;
+}
 function xpFor(L) { return Math.round(60 * Math.pow(L, 1.45)); }
 const MAX_LEVEL = 20;
 function levelInfo(xp) {
@@ -613,11 +892,12 @@ function defaultMeta() {
   return { v: 3, xp: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, scrounging: 0 }, runs: 0, wins: 0, stash: {}, bestKept: 0,
     maps: {}, totals: { kills: 0, crits: 0, heists: 0, snatches: 0, banked: 0, pokes: 0, time: 0, bosses: {}, tipsy: 0, bestCombo: 0, rocksEarned: 0 },
     settings: { instantLoot: false, shake: true }, seenHow: false,
-    rocks: 0, shed: {}, jobs: [], jobsDone: 0, daily: { done: {}, count: 0 }, endlessBest: {}, jezzaSeen: false };
+    rocks: 0, shed: {}, jobs: [], jobsDone: 0, daily: { done: {}, count: 0 }, endlessBest: {}, jezzaSeen: false,
+    garyXp: 0, shards: 0, dreams: { swing: 1 }, dreamEquip: 'swing', equip: [null, null, null], synergies: {} };
 }
 function mapUnlocked(meta, i) { return i === 0 || !!(meta.maps[MAPS[i - 1].id] && meta.maps[MAPS[i - 1].id].wins > 0); }
 
-function newRun(meta, seed, mapIdx, mode, daily) {
+function newRun(meta, seed, mapIdx, mode, daily, runMods) {
   meta = meta || defaultMeta();
   mapIdx = mapIdx || 0; mode = mode || 'campaign';
   const map = MAPS[mapIdx];
@@ -644,6 +924,25 @@ function newRun(meta, seed, mapIdx, mode, daily) {
     over: false, won: false, eid: 0, lid: 0, kevinCd: 0, firstLoot: false, bossTold: {},
   };
   if (mode === 'daily' && daily) for (const id of daily.rules) applyCard(G, CARDS.find(c => c.id === id));
+  // trinkets
+  const tf = trinketTotals(meta);
+  G.gold += tf.gold || 0; G.pile += tf.pile || 0; G.pileMax += tf.pile || 0;
+  G.mods.costMult *= 1 - (tf.cost || 0); G.mods.dropBonus += tf.drop || 0; G.mods.nanCrit += tf.crit || 0;
+  G.mods.fireRate *= 1 + (tf.speed || 0); if (tf.slowGary) G.mods.snore = Math.max(G.mods.snore, tf.slowGary); G.mods.goldMult *= 1 + (tf.killGold || 0);
+  G.dmgAll = 1 + (tf.dmg || 0); G.bossDmg = 1 + (tf.bossDmg || 0); G.flyerDmg = 1 + (tf.flyerDmg || 0); G.tipsyMult = 1 + (tf.tipsy || 0);
+  G.abilMult = 1 - (tf.abil || 0); G.dreamDmg = 1 + (tf.dreamDmg || 0);
+  G.chargeMult = (1 + .12 * sh('coffee')) * (1 + (tf.dream || 0));
+  // dream
+  G.dream = meta.dreamEquip && (meta.dreams || {})[meta.dreamEquip] ? meta.dreamEquip : 'swing';
+  G.dreamLv = (meta.dreams || {})[G.dream] || 1; G.meter = 0; G.pend = []; G.synSeen = {};
+  // modifiers
+  G.runMods = runMods || {};
+  if (G.runMods.hard) G.mods.enemyHp *= 1.4;
+  if (G.runMods.chaos) G.gold += 100;
+  if (G.runMods.speed) G.mods.enemySpeed *= 1.2;
+  if (G.runMods.nomercy) { G.pile = G.pileMax = 3; }
+  G.modMult = 1 + .5 * Object.keys(G.runMods).filter(k => G.runMods[k]).length;
+  G.stats.perfects = 0; G.stats.dreams = 0; G.stats.syn = 0; G.stats.abilities = 0; G.stats.shards = 0;
   return G;
 }
 
@@ -664,7 +963,7 @@ function ultLocked(G, pad) {
   return !!(nx && nx.ult && (G.runL[def.skill] || 1) < ULT_LEVEL);
 }
 function sellValue(G, pad) { const t = G.towers[pad]; return t ? Math.floor(t.spent * .7) : 0; }
-function newTower(type, tier, spent) { return { type, tier: tier || 0, cd: .2, spent: spent || 0, qcd: 2, hatless: 0 }; }
+function newTower(type, tier, spent) { return { type, tier: tier || 0, cd: .2, spent: spent || 0, qcd: 2, hatless: 0, acd: 0 }; }
 function build(G, pad, type) {
   if (G.towers[pad] || G.over || !towerUnlocked(G.meta, type)) return false;
   const c = towerCost(G, type); if (G.gold < c) return false;
@@ -699,16 +998,44 @@ function startWave(G) {
   G.wave++; G.waveActive = true; G.stats.waveLost[G.wave - 1] = 0;
   G.shouting = G.mods.shoutRound; G.mods.shoutRound = 0;
   const q = [];
-  const def = G.mode === 'endless' ? genWave(G, G.wave) : G.map.waves[G.wave - 1];
-  for (const g of def) for (let i = 0; i < g.n; i++) q.push({ type: g.t, at: offset + g.at + i * g.gap, p: g.p });
+  let def = G.mode === 'endless' ? genWave(G, G.wave) : G.runMods.chaos ? genChaos(G, G.wave) : G.map.waves[G.wave - 1];
+  if (G.runMods.bossrush && (G.wave === 3 || G.wave === 6)) {
+    const pool = ['kevin', 'stack', 'pantsalot', 'chrisso', 'mortimer', 'bigmum'].filter(b => b !== G.map.boss);
+    def = def.concat([{ t: pool[(G.wave === 3 ? 0 : 1) + (G.mapIdx % 3)], n: 1, gap: 0, at: 4, p: G.map.entr ? 'e0' : undefined, mini: true }]);
+  }
+  // random event
+  G.event = null; G.merchant = null;
+  if (G.wave >= 2 && G.mode !== 'endless' && G.rng() < .24 && !(G.lastEventWave === G.wave - 1)) {
+    const evd = EVENTS[Math.floor(G.rng() * EVENTS.length)]; G.event = evd.id; G.lastEventWave = G.wave;
+    if (evd.id === 'casserole') { G.pile += 2; G.pileMax += 2; }
+    if (evd.id === 'treasure') def = def.concat([{ t: 'treasure', n: 1, gap: 0, at: 3, p: G.map.entr ? 'any' : undefined }]);
+    if (evd.id === 'merchant') { const pool = CARDS.filter(c => (c.repeat || !G.cards.includes(c.id)) && (!c.req || c.req(G.meta))); const offers = []; while (offers.length < 3 && pool.length) offers.push({ card: pool.splice(Math.floor(G.rng() * pool.length), 1)[0], price: [60, 90, 130][offers.length] }); G.merchant = { offers }; }
+    ev(G, 'event', { id: evd.id });
+  }
+  for (const g of def) for (let i = 0; i < g.n; i++) q.push({ type: g.t, at: offset + g.at + i * g.gap, p: g.p, mini: g.mini });
   q.sort((a, b) => a.at - b.at);
   G.spawnQ = q;
   ev(G, 'waveStart', { wave: G.wave });
   return true;
 }
 
-function choosePath(G, p) {
-  const n = G.map.P.length;
+function buyOffer(G, k) {
+  if (!G.merchant) return false; const o = G.merchant.offers[k]; if (!o || o.sold || G.gold < o.price) return false;
+  G.gold -= o.price; o.sold = true; applyCard(G, o.card); fx(G, 'pop', { x: 60, y: 520, text: 'Bought: ' + o.card.name, col: '#2F86D8', big: true }); return true;
+}
+function choosePath(G, p, type) {
+  const m = G.map, n = m.P.length, def = ENEMIES[type] || {};
+  if (m.entr) {
+    let ei = 0;
+    if (typeof p === 'string' && p[0] === 'e') ei = (+p.slice(1)) % m.entr.length;
+    else if (p === 'alt') ei = (G.altCount++) % m.entr.length;
+    else if (p === 'any') ei = Math.floor(G.rng() * m.entr.length);
+    const grp = m.entr[ei], sc = m.shortcut;
+    if (def.fast && sc != null && grp.includes(sc) && G.rng() < .8) return sc;
+    const pool = grp.filter(i => i !== sc);
+    if (def.steve) return leastDefended(G, pool);
+    return pool[Math.floor(G.rng() * pool.length)];
+  }
   if (n === 1) return 0;
   if (p === 'alt') return (G.altCount++) % n;
   if (typeof p === 'number') return Math.min(p, n - 1);
@@ -716,17 +1043,19 @@ function choosePath(G, p) {
 }
 function spawn(G, type, d, pi) {
   const def = ENEMIES[type];
-  const scale = (def.boss ? (G.mode === 'endless' ? 1 + Math.max(0, G.wave - 10) / 8 : 1) : (1 + .2 * (G.wave - 1)) * (G.mode === 'endless' ? 1 + .005 * (G.wave - 1) * (G.wave - 1) : 1)) * G.map.hpMult;
+  const scale = (def.boss ? (G.mode === 'endless' ? 1 + Math.max(0, G.wave - 10) / 8 : 1) : (1 + .23 * (G.wave - 1)) * (G.mode === 'endless' ? 1 + .005 * (G.wave - 1) * (G.wave - 1) : 1)) * G.map.hpMult;
   const hp = Math.round(def.hp * scale * G.mods.enemyHp);
-  const P = def.flyer ? G.map.F : G.map.P[pi || 0];
+  const P = def.flyer ? (type === 'swoop' && G.map.F ? G.map.F : G.map.FL[Math.floor(G.rng() * G.map.FL.length)]) : G.map.P[pi || 0];
   const e = { id: ++G.eid, type, name: def.name, hp, maxHp: hp, spd: def.spd * (.95 + G.rng() * .1) * (G.mode === 'endless' ? Math.min(1.4, 1 + .012 * (G.wave - 1)) : 1), armor: def.armor,
     gold: def.gold, steal: def.steal, r: def.r, boss: !!def.boss, flyer: !!def.flyer, P, pi: pi || 0, d: d == null ? -8 : d,
     x: 0, y: 0, dx: 1, dy: 1, stun: 0, queue: 0, grab: null, carry: null, items: 0, hit: 0, burn: 0, wob: G.rng() * 6,
-    nextShed: hp * .9, swoopCd: 3, tipsy: G.shouting && !def.boss ? 6 : 0 };
+    nextShed: hp * .9, swoopCd: 3, tipsy: G.shouting && !def.boss ? 6 : 0,
+    shield: def.shield ? Math.round(def.shield * scale * G.mods.enemyHp) : 0, scd: def.every || 0, hcd: 2, stamps: {}, open: 0, closedT: 0, creditCd: 7, dmgBy: {}, frozen: 0, groggy: 0, shocked: 0 };
+  if (G.event === 'bloodmoon') e.spd *= 1.2;
   if (e.tipsy) G.stats.tipsy++;
   const p = posOn(P, e.d); e.x = p.x; e.y = p.y;
   G.enemies.push(e);
-  if (e.boss) ev(G, 'boss', { type });
+  if (e.boss) ev(G, 'boss', { bt: type });
   return e;
 }
 
@@ -775,7 +1104,7 @@ function tapAt(G, x, y, radius) {
   if (best.claimed) {
     const e = G.enemies.find(e => e.id === best.claimed);
     if (e) { e.grab = null; e.emote = { k: 'denied', t: 1.2 }; }
-    G.stats.snatches++; G.gold += G.mods.snatchGold; G.xp.scrounging += 30;
+    G.stats.snatches++; G.gold += G.mods.snatchGold; G.xp.scrounging += 30; addMeter(G, 3);
     fx(G, 'pop', { x: best.x, y: best.y - 16, text: 'Snatched! +30 Scrounging', col: '#7A4FD0', big: true });
   } else {
     G.xp.scrounging += 15;
@@ -803,10 +1132,115 @@ function poke(G) {
   return ok;
 }
 
+function addMeter(G, v) {
+  if (G.over) return; const was = G.meter; G.meter = Math.min(100, G.meter + v * G.chargeMult);
+  if (was < 100 && G.meter >= 100) ev(G, 'dreamReady');
+}
+function canDream(G) { return G.meter >= 100 && G.waveActive && !G.over && G.enemies.length > 0; }
+function unleash(G) {
+  if (!canDream(G)) return false;
+  G.meter = 0; G.stats.dreams++;
+  const id = G.dream, L = G.dreamLv, w = G.wave, dm = G.dreamDmg;
+  fx(G, 'dream', { id, L }); ev(G, 'dream', { id, L });
+  const all = () => G.enemies.slice();
+  if (id === 'swing') {
+    const R = L >= 5 ? 9999 : [170, 220, 230, 240][L - 1];
+    const dmg = (150 + 25 * w) * [1, 1.4, 1.6, 1.8, 2.2][L - 1] * dm;
+    const hit = () => { fx(G, 'swing', { L }); fx(G, 'shake', { m: L >= 5 ? 10 : 6 }); for (const e of all()) if (R > 9000 || Math.hypot(e.x - GARY.x, e.y - GARY.y) < R || e.d >= e.P.len - R * 1.3) { if (L >= 3 && !e.boss) e.d = Math.max(0, e.d - 40); damage(G, e, dmg, { src: null, pierce: true, kind: 'dream' }); } };
+    hit(); if (L >= 4) G.pend.push({ t: .55, fn: hit });
+  } else if (id === 'snore') {
+    const R = L >= 5 ? 9999 : [260, 360, 400, 440][L - 1], st = [1.2, 1.6, 1.8, 2, 2.5][L - 1], dmg = (60 + 12 * w) * [1, 1.4, 1.6, 1.8, 3][L - 1] * dm;
+    fx(G, 'snore', { L, R }); fx(G, 'shake', { m: L >= 5 ? 12 : 5 });
+    for (const e of all()) if (Math.hypot(e.x - GARY.x, e.y - GARY.y) < R) {
+      e.stun = Math.max(e.stun, e.boss ? st * .4 : st); e.stunImm = st + .4;
+      if (L >= 3 && !e.boss) e.d = Math.max(0, e.d - 50); if (L >= 4) e.groggy = 4;
+      damage(G, e, dmg, { src: null, pierce: true, kind: 'dream' });
+    }
+  } else if (id === 'rain') {
+    const n = [6, 10, 12, 14, 16][L - 1], dmg = (110 + 15 * w) * [1, 1.1, 1.25, 1.4, 1.6][L - 1] * dm, es = all();
+    const icons = ['🪣', '🧦', '🥾', '🪑', '🍳', '🧱', '🎩', '🩴'];
+    for (let k = 0; k < n; k++) { const e = es[k % es.length]; G.projs.push({ kind: 'meteor', x: e.x + (G.rng() - .5) * 40, y: e.y - 260 - k * 25, dist0: 260, tid: e.id, tx: e.x, ty: e.y, spd: 480, dmg, L, icon: icons[k % icons.length], spin: rand(G, 0, 6) }); }
+    if (L >= 5) { const big = es.slice().sort((a, b) => b.hp - a.hp)[0]; G.projs.push({ kind: 'caravan', x: big.x, y: big.y - 420, dist0: 420, tid: big.id, tx: big.x, ty: big.y, spd: 420, dmg: (big.boss ? 1200 + 150 * w : 3000) * dm, L, spin: 0 }); }
+  } else if (id === 'freeze') {
+    const dur = [2, 3, 3, 3.5, 4][L - 1];
+    G.freezeL = L;
+    for (const e of all()) { e.frozen = e.boss ? dur * .6 : dur; e.frozenL = L; if (L >= 5 && !e.boss) e.d = Math.max(0, e.d - 80); }
+    fx(G, 'freeze', { L });
+  } else if (id === 'blanket') {
+    const cnt = [8, 14, 16, 18, 999][L - 1], dmg = (80 + 12 * w) * [1, 1.15, 1.3, 1.5, 1.8][L - 1] * dm;
+    const strike = () => {
+      let es = all(); if (!es.length) return;
+      let chain;
+      if (L >= 5) chain = es.slice().sort((a, b) => a.y - b.y);
+      else {
+        chain = []; let cur = es.sort((a, b) => b.d / b.P.len - a.d / a.P.len)[0];
+        const left = new Set(es);
+        while (cur && chain.length < cnt) { chain.push(cur); left.delete(cur); let nb = null, bd = 160; for (const e of left) { const d = Math.hypot(e.x - cur.x, e.y - cur.y); if (d < bd) { bd = d; nb = e; } } cur = nb; }
+      }
+      fx(G, 'chain', { pts: chain.map(e => [e.x, e.y]), big: true });
+      for (const e of chain) { if (L >= 3) e.shocked = 5; damage(G, e, dmg, { src: null, pierce: true, kind: 'zap' }); }
+    };
+    strike(); if (L >= 4) G.pend.push({ t: .6, fn: strike }); if (L >= 5) G.pend.push({ t: 1.2, fn: strike });
+  }
+  return true;
+}
+function synergy(G, id, x, y) {
+  G.stats.syn++;
+  if (!G.synSeen[id]) { G.synSeen[id] = 1; fx(G, 'synergy', { x, y, id }); ev(G, 'synergy', { id, first: !(G.meta.synergies || {})[id] }); G.meta.synergies = G.meta.synergies || {}; G.meta.synergies[id] = 1; }
+}
+function abilityReady(G, pad) { const t = G.towers[pad]; return !!(t && t.tier >= 1 && t.acd <= 0); }
+function activate(G, pad) {
+  const t = G.towers[pad]; if (!abilityReady(G, pad) || G.over || !G.waveActive) return false;
+  const tr = TOWERS[t.type].tiers[t.tier], px = G.map.pads[pad][0], py = G.map.pads[pad][1];
+  const high = G.map.pads[pad][2] === 'high' ? 1.2 : 1;
+  const near = r => G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= r);
+  const mult = G.skillMult[TOWERS[t.type].skill] * G.dmgAll;
+  let ok = false;
+  if (t.type === 'chuck') {
+    const es = near(tr.range * high * 1.5).filter(e => true).sort((a, b) => b.d - a.d);
+    if (es.length) { const tg = es[0]; G.projs.push({ kind: 'bin', x: px + 6, y: py - 22, sx: px, sy: py, dist0: Math.max(20, Math.hypot(tg.x - px, tg.y - py)), tid: tg.id, tx: tg.x, ty: tg.y, spd: 210, dmg: (tr.dmg[0] + tr.dmg[1]) * 2.5 * mult * (1 + .2 * t.tier), spin: 0 }); ok = true; }
+  } else if (t.type === 'bonk') {
+    const es = near(tr.range * high * 1.6).filter(e => !e.flyer);
+    if (es.length) { for (const e of es) { e.d = Math.max(0, e.d - (e.boss ? 15 : 60)); e.stun = Math.max(e.stun, e.boss ? .4 : 1); e.stunImm = 1.6; damage(G, e, tr.dmg * 2.5 * mult, { src: 'bonking', kind: 'slam', pad }); } fx(G, 'slam', { pad, x: px, y: py, closing: true }); fx(G, 'shake', { m: 6 }); ok = true; }
+  } else if (t.type === 'nan') {
+    if (G.enemies.length) { t.rage = 5; ok = true; fx(G, 'rage', { pad }); }
+  } else if (t.type === 'sizzle') {
+    const es = near(tr.aura * G.mods.sizzleRange * 1.5);
+    if (es.length) { for (const e of es) { e.queue = Math.max(e.queue, e.boss ? 1 : 3); e.emote = { k: 'snag', t: e.boss ? 1 : 3 }; } fx(G, 'freesnags', { pad, n: es.length }); ok = true; }
+  } else if (t.type === 'jezza') {
+    const es = near(tr.range * high * 1.3).filter(e => !e.flyer && !ENEMIES[e.type].whiskyImmune);
+    if (es.length) { for (const e of es) { if (e.tipsy <= 0) G.stats.tipsy++; e.tipsy = Math.max(e.tipsy, (e.boss ? 3 : 6) * G.tipsyMult); } fx(G, 'shout', { pad, x: px, y: py, r: tr.range * high * 1.3 }); ok = true; }
+  } else if (t.type === 'bev') {
+    const es = near(tr.range * high * 1.3).filter(e => !e.flyer);
+    if (es.length) { const m2 = G.skillMult.flocking * G.mods.birdDmg * G.dmgAll; for (let k = 0; k < 6; k++) G.birds.push({ id: ++G.bid, kind: 'ibis', pad, x: px + (k - 3) * 6, y: py - 22, tid: es[k % es.length].id, life: 8, pcd: .2, dmg: tr.dmg * m2, bin: true, ox: (G.rng() - .5) * 12, extra: true }); fx(G, 'frenzy', { pad }); ok = true; }
+  }
+  if (ok) { t.acd = ABIL[t.type].cd * G.abilMult; G.stats.abilities++; ev(G, 'ability', { tt: t.type }); }
+  return ok;
+}
 function damage(G, e, amt, o) {
   if (e.dead) return;
+  const isTower = !!o.src;
+  if (isTower) { amt *= G.dmgAll; if (e.boss) amt *= G.bossDmg; if (e.flyer) amt *= G.flyerDmg; }
+  if (e.frozen > 0 && (G.freezeL || 0) >= 3) amt *= 1.5;
+  if (e.shocked > 0) amt *= 1.2;
+  if (e.wading && (o.kind === 'bonk' || o.kind === 'peck')) { amt *= 1.3; synergy(G, 'wet', e.x, e.y); }
+  if ((o.kind === 'chuck' || o.kind === 'tub') && e.pecked > 0) { amt *= 1.3; synergy(G, 'binnight', e.x, e.y); }
+  // Mortimer's paperwork shield
+  if (e.type === 'mortimer' && !(e.open > 0) && o.kind !== 'dream' && o.kind !== 'zap') {
+    if (o.src) { e.stamps[o.src] = G.t; const n = Object.keys(e.stamps).filter(k => G.t - e.stamps[k] < 4).length; e.stampN = n;
+      if (n >= 3) { e.open = 6; e.stamps = {}; e.stampN = 0; e.closedT = 0; fx(G, 'approved', { x: e.x, y: e.y }); ev(G, 'approved'); } }
+    if (!(e.open > 0)) { if (G.rng() < .25) fx(G, 'pop', { x: e.x + 8, y: e.y - 34, text: 'Paperwork', col: '#7A6A5C' }); return; }
+  }
+  // crab bucket shield
+  if (e.shield > 0) {
+    const breaker = o.kind === 'bonk' || o.kind === 'slam' || o.kind === 'tub' || o.kind === 'bin' || o.kind === 'dream' || o.kind === 'meteor';
+    if (breaker) { e.shield = 0; fx(G, 'bucket', { x: e.x, y: e.y }); e.name = 'Crab, Bucketless'; e.spd *= 1.25; }
+    else { e.shield -= amt; e.hit = .1; e.hitKind = 'shield'; if (e.shield <= 0) { fx(G, 'bucket', { x: e.x, y: e.y }); e.name = 'Crab, Bucketless'; e.spd *= 1.25; } else { if (o.kind) fx(G, 'hit', { x: e.x, y: e.y, hk: 'shield', r: e.r, amt: 0 }); return; } }
+  }
+  if (e.type === 'steve' && o.pad != null) e.dmgBy[o.pad] = (e.dmgBy[o.pad] || 0) + amt;
   if (o.kind === 'whisky' && ENEMIES[e.type].whiskyImmune) { if (G.rng() < .5) fx(G, 'pop', { x: e.x + 10, y: e.y - 30, text: 'Immune', col: '#7A6A5C' }); return; }
   if (e.tipsy > 0) amt *= 1 + (e.vuln || .25); else if (e.vuln) e.vuln = 0;
+  if (o.kind === 'dream' || o.kind === 'meteor' || o.kind === 'caravan') amt *= 1; // dreams always land
   const eff = o.pierce ? amt : Math.max(1, amt - e.armor);
   e.hp -= eff; if (o.kind) { e.hit = .14; e.hitKind = o.kind; }
   if (o.kind) fx(G, 'hit', { x: e.x, y: e.y, hk: o.kind, crit: !!o.crit, r: e.r, amt: eff, icon: o.icon });
@@ -822,7 +1256,7 @@ function damage(G, e, amt, o) {
       fx(G, 'pop', { x: e.x, y: e.y - 34, text: 'A goblin fell out', col: '#3F6B2A', big: true });
     }
   }
-  if (e.hp <= 0) kill(G, e, o.src);
+  if (e.hp <= 0) { e.critKill = !!o.crit; kill(G, e, o.src); }
 }
 
 function kill(G, e, src) {
@@ -833,7 +1267,13 @@ function kill(G, e, src) {
   if (src && G.stats.killsBy[src] != null) G.stats.killsBy[src]++;
   G.combo = G.t - G.lastKill < 1.3 ? G.combo + 1 : 1; G.lastKill = G.t;
   if (G.combo > G.stats.bestCombo) G.stats.bestCombo = G.combo;
-  if (G.combo >= 10 && G.combo % 5 === 0) { const b = Math.floor(G.combo / 2); G.gold += b; fx(G, 'pop', { x: e.x, y: e.y - 30, text: 'Combo \u00d7' + G.combo + '! +' + b + ' gold', col: '#D9822B', big: true }); ev(G, 'combo', { n: G.combo }); }
+  addMeter(G, e.boss ? 20 : .6);
+  if (G.combo >= 10 && G.combo % 5 === 0) {
+    const b = Math.floor(G.combo / 2); G.gold += b; addMeter(G, 4);
+    const nm = G.combo >= 30 ? 'ABSOLUTE SCENES' : G.combo >= 20 ? 'Carnage!' : G.combo >= 15 ? 'Ripper!' : 'Tidy!';
+    fx(G, 'pop', { x: e.x, y: e.y - 30, text: 'Combo \u00d7' + G.combo + ' ' + nm + ' +' + b, col: '#D9822B', big: true }); ev(G, 'combo', { n: G.combo, nm });
+  }
+  if (G.event === 'rainbow' && e.critKill) G.gold += 3;
   fx(G, 'death', { x: e.x, y: e.y, r: e.r, type: e.type, gold: g });
   if (src) {
     const xp = Math.max(2, Math.round(e.maxHp / 7));
@@ -849,9 +1289,12 @@ function kill(G, e, src) {
     dropLoot(G, Object.assign({}, e, { d: e.d - 20 }), rollItem(G));
     dropLoot(G, Object.assign({}, e, { d: e.d - 40 }), rollItem(G));
     G.bossKilled = e.type; G.bossKills = (G.bossKills || 0) + 1;
-    ev(G, 'bossDead', { type: e.type });
+    ev(G, 'bossDead', { bt: e.type });
+  } else if (ENEMIES[e.type].treasure) {
+    for (let k = 0; k < 3; k++) dropLoot(G, Object.assign({}, e, { d: e.d - k * 14 }), rollItem(G));
+    fx(G, 'pop', { x: e.x, y: e.y - 30, text: 'Treasure!', col: '#E3A02C', big: true }); ev(G, 'treasure');
   } else {
-    let chance = .2 + G.mods.dropBonus + G.scroungeBonus;
+    let chance = .2 + G.mods.dropBonus + G.scroungeBonus + (G.event === 'bloodmoon' ? .25 : 0);
     if (G.enemies.some(b => b.type === 'pantsalot')) chance += .15;
     if (G.rng() < chance) dropLoot(G, e, rollItem(G));
   }
@@ -866,9 +1309,10 @@ function update(G, dt) {
   G.t += dt;
   if (G.kevinCd > 0) G.kevinCd -= dt;
   const map = G.map;
+  if (G.pend.length) for (const pe of G.pend.slice()) { pe.t -= dt; if (pe.t <= 0) { G.pend.splice(G.pend.indexOf(pe), 1); pe.fn(); if (G.over) return; } }
   if (G.waveActive) {
     G.waveT += dt;
-    while (G.spawnQ.length && G.spawnQ[0].at <= G.waveT) { const s = G.spawnQ.shift(); spawn(G, s.type, null, choosePath(G, s.p)); }
+    while (G.spawnQ.length && G.spawnQ[0].at <= G.waveT) { const s = G.spawnQ.shift(); const e = spawn(G, s.type, null, choosePath(G, s.p, s.type)); if (s.mini) { e.hp = e.maxHp = Math.round(e.maxHp * (G.wave <= 3 ? .38 : .55)); e.mini = true; } }
   }
   const sizzles = [];
   G.towers.forEach((t, i) => {
@@ -896,6 +1340,33 @@ function update(G, dt) {
     if (e.emote) { e.emote.t -= dt; if (e.emote.t <= 0) e.emote = null; }
     if (e.chug > 0) e.chug -= dt;
     if (e.pecked > 0) e.pecked -= dt;
+    if (e.groggy > 0) e.groggy -= dt;
+    if (e.shocked > 0) e.shocked -= dt;
+    if (e.frozen > 0) { e.frozen -= dt; if (e.frozen <= 0 && e.frozenL >= 4) { fx(G, 'shatter', { x: e.x, y: e.y }); damage(G, e, e.maxHp * (e.boss ? .05 : .15), { src: null, pierce: true, kind: 'dream' }); if (e.dead) continue; } }
+    const edef = ENEMIES[e.type];
+    if (edef.heals) { e.hcd -= dt; if (e.hcd <= 0) { e.hcd = 2; let any = false; for (const o of G.enemies) if (o !== e && Math.hypot(o.x - e.x, o.y - e.y) < 62 && o.hp < o.maxHp) { o.hp = Math.min(o.maxHp, o.hp + o.maxHp * (o.boss ? .015 : .08)); any = true; } if (any) fx(G, 'heal', { x: e.x, y: e.y }); } }
+    if (edef.summons && !(e.frozen > 0)) {
+      e.scd -= dt * (e.enraged ? 2 : 1);
+      if (e.scd <= 0) { e.scd = edef.every; for (let k = 0; k < edef.kids; k++) spawn(G, edef.summons, Math.max(0, e.d - 8 - k * 8), e.pi); fx(G, 'birth', { x: e.x, y: e.y }); }
+    }
+    if (edef.enrage && !e.enraged && e.hp < e.maxHp * .25) {
+      e.enraged = true; e.spd *= edef.steve ? 1.6 : 1.4; fx(G, 'enrage', { x: e.x, y: e.y, type: e.type }); ev(G, 'enrage', { tt: e.type }); fx(G, 'shake', { m: 6 });
+      if (edef.steve) for (let k = 0; k < 4; k++) spawn(G, 'gob', Math.max(0, e.d - 10 - k * 12), e.pi);
+    }
+    if (edef.office) {
+      if (e.open > 0) { e.open -= dt; if (e.open <= 0) fx(G, 'pop', { x: e.x, y: e.y - 40, text: 'Back to paperwork', col: '#7A6A5C', big: true }); }
+      else { e.closedT += dt; if (e.closedT > 14) { e.open = 5; e.closedT = 0; fx(G, 'pop', { x: e.x, y: e.y - 40, text: 'Gone to lunch. Unprotected!', col: '#2F86D8', big: true }); fx(G, 'approved', { x: e.x, y: e.y }); } }
+    }
+    if (edef.steve) {
+      e.creditCd -= dt;
+      if (e.creditCd <= 0) {
+        e.creditCd = 7; let best = -1, bv = 0;
+        for (const k in e.dmgBy) if (e.dmgBy[k] > bv && G.towers[k]) { bv = e.dmgBy[k]; best = +k; }
+        if (best < 0) G.towers.forEach((t, i) => { if (t && best < 0 && Math.hypot(map.pads[i][0] - e.x, map.pads[i][1] - e.y) < 120) best = i; });
+        if (best >= 0) { G.towers[best].hatless = 3; G.towers[best].credit = 3; fx(G, 'credit', { pad: best, x: e.x, y: e.y }); ev(G, 'credit'); }
+        e.dmgBy = {};
+      }
+    }
     if (e.type === 'chrisso') {
       for (const pd of G.puddles) if (!pd.drunk && Math.hypot(e.x - pd.x, e.y - pd.y) < pd.r + e.r * .3) {
         pd.drunk = true; pd.life = Math.min(pd.life, pd.t + .35);
@@ -905,15 +1376,16 @@ function update(G, dt) {
       }
     } else if (!e.flyer) for (const pd of G.puddles) {
       if (Math.hypot(e.x - pd.x, e.y - pd.y) < pd.r + e.r * .3) {
-        if (e.tipsy <= 0) { G.stats.tipsy++; G.xp.pouring += 2; }
-        e.tipsy = Math.max(e.tipsy, pd.tipsy * (e.boss ? .5 : 1)); if (pd.vuln) e.vuln = Math.max(e.vuln || 0, pd.vuln);
+        if (e.tipsy <= 0 && pd.tipsy > 0) { G.stats.tipsy++; G.xp.pouring += 2; }
+        if (pd.tipsy > 0) { e.tipsy = Math.max(e.tipsy, pd.tipsy * (e.boss ? .5 : 1) * G.tipsyMult); if (pd.vuln) e.vuln = Math.max(e.vuln || 0, pd.vuln); }
         if (pd.fire) { if (e.burn <= 0) fx(G, 'ignite', { x: e.x, y: e.y }); e.burn = Math.max(e.burn, 1.5); }
       }
     }
     if (e.tipsy > 0) e.tipsy -= dt;
     if (e.burn > 0) { e.burn -= dt; damage(G, e, burnDps * dt, { src: null, pierce: true }); if (e.dead) continue; }
     let moving = false;
-    if (e.stun > 0) e.stun -= dt;
+    if (e.frozen > 0) { /* frozen solid */ }
+    else if (e.stun > 0) e.stun -= dt;
     else if (e.queue > 0) e.queue -= dt;
     else if (e.grab) {
       const l = G.loot.find(l => l.id === e.grab.lid);
@@ -944,6 +1416,8 @@ function update(G, dt) {
       if (G.mods.snore && Math.hypot(GARY.x - e.x, GARY.y - e.y) < 130) slow = Math.max(slow, G.mods.snore);
       if (map.water && !e.flyer && e.y > map.water.y1 && e.y < map.water.y2) { slow = Math.max(slow, .3); e.wading = true; } else e.wading = false;
       if (e.pecked > 0) slow = Math.max(slow, .12);
+      if (e.groggy > 0) slow = Math.max(slow, .4);
+      e.sizzled = false; for (const s of sizzles) if (Math.hypot(s.x - e.x, s.y - e.y) <= s.r) e.sizzled = true;
       if (e.tipsy > 0) {
         slow = Math.max(slow, .25);
         if (!e.boss && G.rng() < dt * .4) { e.d = Math.max(0, e.d - 9); if (G.rng() < .4) fx(G, 'pop', { x: e.x + 6, y: e.y - e.r - 14, text: 'hic!', col: '#B8742A' }); }
@@ -952,6 +1426,7 @@ function update(G, dt) {
       if (e.chug > 0) spd *= 1.3;
       if (e.type === 'stack') spd *= 1 + (1 - e.hp / e.maxHp) * 1.3;
       e.d += spd * G.mods.enemySpeed * (G.map.spdMult || 1) * (1 - slow) * dt;
+      if (!e.flyer) { const sg = segAt(e.P, e.d); if (sg && sg.tp) { fx(G, 'portal', { x: sg.x1, y: sg.y1 }); e.d = sg.start + sg.len + .5; fx(G, 'portal', { x: sg.x2, y: sg.y2, out: true }); } }
       if (!e.flyer && (!e.carry || e.type === 'pantsalot')) {
         for (const l of G.loot) {
           if (!l.claimed && l.P === e.P && e.d >= l.d - 4 && e.d <= l.d + 10) {
@@ -974,6 +1449,7 @@ function update(G, dt) {
       }
     }
     const p = posOn(e.P, e.d); e.x = p.x; e.y = p.y; if (p.dx) e.dx = p.dx; e.dy = p.dy;
+    if (e.d >= e.P.len && ENEMIES[e.type].treasure) { e.dead = true; G.enemies.splice(G.enemies.indexOf(e), 1); fx(G, 'pop', { x: e.x, y: e.y - 20, text: 'It got away', col: '#7A6A5C', big: true }); continue; }
     if (e.d >= e.P.len) {
       const n = e.steal + (e.carry && e.type !== 'pantsalot' ? 1 : 0) + (e.type === 'pantsalot' ? e.items : 0);
       G.pile -= n; G.stats.itemsLost += n; G.stats.waveLost[G.wave - 1] = (G.stats.waveLost[G.wave - 1] || 0) + n;
@@ -988,7 +1464,11 @@ function update(G, dt) {
   G.towers.forEach((t, i) => {
     if (!t) return;
     const def = TOWERS[t.type], tr = def.tiers[t.tier];
-    const px = map.pads[i][0], py = map.pads[i][1];
+    const px = map.pads[i][0], py = map.pads[i][1], ptype = map.pads[i][2];
+    const RM = ptype === 'high' ? 1.2 : 1, SM = ptype === 'shady' ? 1.15 : 1;
+    if (t.acd > 0) t.acd -= dt;
+    if (t.rage > 0) t.rage -= dt;
+    if (t.credit > 0) t.credit -= dt;
     if (t.hatless > 0) { t.hatless -= dt; return; }
     if (t.type === 'sizzle') {
       if (tr.queue) {
@@ -1022,10 +1502,10 @@ function update(G, dt) {
           fx(G, 'storm', { pad: i }); ev(G, 'ultFire', { tt: 'bev' });
         }
       }
-      t.cd -= dt * (1 + buff) * G.mods.fireRate * G.mods.birdRate;
+      t.cd -= dt * (1 + buff) * G.mods.fireRate * G.mods.birdRate * SM;
       if (t.cd > 0) return;
-      const ground = G.enemies.filter(e => !e.flyer && Math.hypot(e.x - px, e.y - py) <= tr.range);
-      const mine = G.birds.filter(b => b.pad === i && b.kind === 'ibis').length;
+      const ground = G.enemies.filter(e => !e.flyer && Math.hypot(e.x - px, e.y - py) <= tr.range * RM);
+      const mine = G.birds.filter(b => b.pad === i && b.kind === 'ibis' && !b.extra).length;
       if (!ground.length || mine >= tr.max) { t.cd = .3; return; }
       t.cd = tr.every;
       const mult2 = G.skillMult.flocking * G.mods.birdDmg;
@@ -1033,15 +1513,15 @@ function update(G, dt) {
       G.birds.push({ id: ++G.bid, kind: 'ibis', pad: i, x: px + 8, y: py - 22, tid: ground[0].id, life: tr.life, pcd: .2, dmg: tr.dmg * mult2, bin: !!tr.binDay, ox: (G.rng() - .5) * 10, perched: false, hits: 0 });
       fx(G, 'summon', { pad: i, kind: 'ibis' });
       if (tr.pigeons) {
-        const any = G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= tr.range + 30);
+        const any = G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= tr.range * RM + 30);
         for (let k = 0; k < tr.pigeons && any.length; k++) G.birds.push({ id: ++G.bid, kind: 'pigeon', pad: i, x: px - 6 + k * 6, y: py - 18, tid: any[Math.floor(G.rng() * any.length)].id, life: 4, dmg: 6 * mult2, hits: 3 });
         fx(G, 'summon', { pad: i, kind: 'pigeon' });
       }
       return;
     }
-    t.cd -= dt * (1 + buff) * G.mods.fireRate;
+    t.cd -= dt * (1 + buff) * G.mods.fireRate * SM * (t.rage > 0 ? 3 : 1);
     if (t.cd > 0) return;
-    const inRange = G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= tr.range && !((t.type === 'bonk' || t.type === 'jezza') && e.flyer) && !(t.type === 'jezza' && ENEMIES[e.type].whiskyImmune));
+    const inRange = G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= tr.range * RM && !((t.type === 'bonk' || t.type === 'jezza') && e.flyer) && !(t.type === 'jezza' && ENEMIES[e.type].whiskyImmune));
     if (!inRange.length) { t.cd = 0; return; }
     t.cd = 1 / tr.rate;
     const warm = map.fire && Math.hypot(map.fire.x - px, map.fire.y - py) < 80 ? 1.2 : 1;
@@ -1066,7 +1546,7 @@ function update(G, dt) {
         if (icon === '🍉') dmg *= 1.2; if (icon === '📺') dmg *= 1.4;
         const sx = px + 6, sy = py - 22;
         G.projs.push({ kind: 'chuck', x: sx, y: sy, sx, sy, dist0: Math.max(20, Math.hypot(tg.x - sx, tg.y - sy)), tid: tg.id, tx: tg.x, ty: tg.y, spd: 250, dmg, icon,
-          splash: tr.splash || (icon === '📺' ? 26 : 0), src: 'chucking', spin: rand(G, 0, 6), flyerTarget: tg.flyer });
+          splash: tr.splash || (icon === '📺' ? 26 : 0), src: 'chucking', spin: rand(G, 0, 6), flyerTarget: tg.flyer, pad: i });
       }
     } else if (t.type === 'bonk') {
       if (tr.ult) {
@@ -1074,16 +1554,16 @@ function update(G, dt) {
         if (t.ucd <= 0) {
           t.ucd = tr.slamEvery;
           fx(G, 'slam', { pad: i, x: px, y: py }); fx(G, 'shake', { m: 7 }); ev(G, 'ultFire', { tt: 'bonk' });
-          for (const e of G.enemies.slice()) if (!e.flyer && Math.hypot(e.x - px, e.y - py) < 100) { e.d = Math.max(0, e.d - (e.boss ? 10 : 30)); damage(G, e, 60 * mult * (1 + .1 * (G.wave - 1)), { src: 'bonking', kind: 'slam' }); }
+          for (const e of G.enemies.slice()) if (!e.flyer && Math.hypot(e.x - px, e.y - py) < 100) { e.d = Math.max(0, e.d - (e.boss ? 10 : 30)); damage(G, e, 60 * mult * (1 + .1 * (G.wave - 1)), { src: 'bonking', kind: 'slam', pad: i }); }
         }
       }
       inRange.sort((a, b) => b.d - a.d);
       const tgs = tr.multi ? inRange : [inRange[0]];
       fx(G, 'swingPan', { pad: i, x: tgs[0].x });
       for (const e of tgs) {
-        if (!(e.stunImm > 0)) { const st = (tr.stun + G.mods.bonkStun) * (e.boss ? .35 : 1); e.stun = Math.max(e.stun, st); e.stunImm = st + 1.1; }
+        if (!(e.stunImm > 0)) { let st = (tr.stun + G.mods.bonkStun) * (e.boss ? .35 : 1); if (e.tipsy > 0) { st *= 2; synergy(G, 'pubbrawl', e.x, e.y); } e.stun = Math.max(e.stun, st); e.stunImm = st + 1.1; }
         G.xp.bonking += 1;
-        damage(G, e, tr.dmg * G.mods.bonkDmg * mult, { src: 'bonking', kind: 'bonk' });
+        damage(G, e, tr.dmg * G.mods.bonkDmg * mult, { src: 'bonking', kind: 'bonk', pad: i });
       }
     } else if (t.type === 'jezza') {
       inRange.sort((a, b) => ((a.tipsy > 0) - (b.tipsy > 0)) || (b.d - a.d));
@@ -1096,11 +1576,14 @@ function update(G, dt) {
     } else if (t.type === 'nan') {
       inRange.sort((a, b) => b.hp - a.hp);
       const tg = inRange[0];
-      const crit = G.rng() < tr.crit + G.mods.nanCrit;
+      let cc = tr.crit + G.mods.nanCrit + (G.event === 'rainbow' ? .15 : 0);
+      if (tg.stun > 0 || tg.frozen > 0) cc += .3;
+      const crit = t.rage > 0 || G.rng() < cc;
+      if (crit && (tg.stun > 0 || tg.frozen > 0) && t.rage <= 0) synergy(G, 'duck', tg.x, tg.y);
       fx(G, 'cast', { pad: i, crit });
       const sx = px - 6, sy = py - 20;
       G.projs.push({ kind: 'needle', x: sx, y: sy, sx, sy, dist0: Math.max(20, Math.hypot(tg.x - sx, tg.y - sy)), tid: tg.id, tx: tg.x, ty: tg.y, spd: 430,
-        dmg: tr.dmg * mult * (crit ? 3 : 1), crit, pierce: !!tr.pierce, chain: tr.chain || 0, src: 'muttering' });
+        dmg: tr.dmg * mult * (crit ? 3 : 1), crit, pierce: !!tr.pierce, chain: tr.chain || 0, src: 'muttering', pad: i });
     }
   });
 
@@ -1112,6 +1595,18 @@ function update(G, dt) {
     if (dist <= step + 4) {
       G.projs.splice(G.projs.indexOf(p), 1);
       if (p.kind === 'chuck') fx(G, 'junkBounce', { x: p.tx, y: p.ty, icon: p.icon });
+      if (p.kind === 'meteor' || p.kind === 'caravan') {
+        const R = p.kind === 'caravan' ? 75 : 34;
+        fx(G, p.kind === 'caravan' ? 'caravan' : 'meteor', { x: p.tx, y: p.ty, L: p.L }); fx(G, 'shake', { m: p.kind === 'caravan' ? 12 : 3 });
+        for (const e of G.enemies.slice()) if (Math.hypot(e.x - p.tx, e.y - p.ty) < R) { if (p.L >= 4 && !(e.stunImm > 0)) { e.stun = Math.max(e.stun, e.boss ? .3 : .8); e.stunImm = 1.4; } damage(G, e, p.kind === 'caravan' && e !== tg ? p.dmg * .3 : p.dmg, { src: null, pierce: true, kind: p.kind === 'caravan' ? 'caravan' : 'meteor' }); }
+        if (p.L >= 3) G.puddles.push({ id: ++G.lid, x: p.tx, y: p.ty, r: p.kind === 'caravan' ? 50 : 24, t: 0, life: 3, tipsy: 0, fire: true, patch: true });
+        continue;
+      }
+      if (p.kind === 'bin') {
+        fx(G, 'bin', { x: p.tx, y: p.ty }); fx(G, 'shake', { m: 6 });
+        for (const e of G.enemies.slice()) if (Math.hypot(e.x - p.tx, e.y - p.ty) < 58) { if (!(e.stunImm > 0)) { e.stun = Math.max(e.stun, e.boss ? .4 : 1); e.stunImm = 1.8; } damage(G, e, e === tg ? p.dmg : p.dmg * .6, { src: 'chucking', kind: 'bin' }); }
+        continue;
+      }
       if (p.kind === 'tub') {
         fx(G, 'tub', { x: p.tx, y: p.ty }); fx(G, 'shake', { m: 6 });
         for (const e of G.enemies.slice()) if (Math.hypot(e.x - p.tx, e.y - p.ty) < 62) {
@@ -1126,7 +1621,8 @@ function update(G, dt) {
         continue;
       }
       if (p.kind === 'whisky') {
-        const fire = p.fire || (map.fire && Math.hypot(map.fire.x - p.tx, map.fire.y - p.ty) < 75);
+        let fire = p.fire || (map.fire && Math.hypot(map.fire.x - p.tx, map.fire.y - p.ty) < 75);
+        if (!fire) G.towers.forEach((st, si) => { if (st && st.type === 'sizzle' && Math.hypot(map.pads[si][0] - p.tx, map.pads[si][1] - p.ty) < 60) { fire = true; synergy(G, 'bbq', p.tx, p.ty); } });
         G.puddles.push({ id: ++G.lid, x: p.tx, y: p.ty, r: p.pr, t: 0, life: p.life * (map.sticky ? 2 : 1), tipsy: p.tipsy, fire, rainbow: p.rainbow, vuln: p.vuln });
         fx(G, 'smash', { x: p.tx, y: p.ty, fire });
         if (tg) damage(G, tg, p.dmg, { src: 'pouring', kind: 'whisky' });
@@ -1136,8 +1632,9 @@ function update(G, dt) {
         fx(G, 'splash', { x: p.tx, y: p.ty, r: p.splash });
         for (const e of G.enemies.slice()) {
           const dd = Math.hypot(e.x - p.tx, e.y - p.ty);
-          if (e === tg) damage(G, e, p.dmg, { src: p.src, kind: 'chuck', icon: p.icon });
-          else if (dd <= p.splash) damage(G, e, p.dmg * .5, { src: p.src });
+          const q = e.queue > 0 || e.sizzled; if (q && (e === tg || dd <= p.splash)) synergy(G, 'queue', e.x, e.y);
+          if (e === tg) damage(G, e, p.dmg * (q ? 1.5 : 1), { src: p.src, kind: 'chuck', icon: p.icon, pad: p.pad });
+          else if (dd <= p.splash) damage(G, e, p.dmg * .5 * (q ? 1.5 : 1), { src: p.src, pad: p.pad });
         }
       } else if (tg) {
         if (p.crit) { G.stats.crits++; fx(G, 'pop', { x: tg.x + 8, y: tg.y - 22, text: 'Crit!', col: '#D0452F', big: true }); fx(G, 'shake', { m: 2.5 }); }
@@ -1149,7 +1646,8 @@ function update(G, dt) {
           }
           if (pts.length > 1) { fx(G, 'chain', { pts }); ev(G, 'ultFire', { tt: 'nan' }); }
         }
-        damage(G, tg, p.dmg, { src: p.src, crit: p.crit, pierce: p.pierce, kind: p.kind === 'needle' ? 'needle' : 'chuck', icon: p.icon });
+        if (p.crit && p.kind === 'needle' && tg.tipsy > 0 && !tg.boss) { tg.d = Math.max(0, tg.d - 25); synergy(G, 'bad', tg.x, tg.y); }
+        damage(G, tg, p.dmg, { src: p.src, crit: p.crit, pierce: p.pierce, kind: p.kind === 'needle' ? 'needle' : 'chuck', icon: p.icon, pad: p.pad });
       }
     } else { p.x += dx / dist * step; p.y += dy / dist * step; }
   }
@@ -1176,7 +1674,8 @@ function update(G, dt) {
       } else {
         b.x = tx; b.y = ty; b.perched = true; b.pcd -= dt; tg.pecked = .6;
         if (b.pcd <= 0) {
-          b.pcd = .5; b.peckT = .12;
+          let fast = false; for (const s2 of sizzles) if (Math.hypot(s2.x - b.x, s2.y - b.y) <= s2.r) fast = true;
+          b.pcd = fast ? .3 : .5; b.peckT = .12; if (fast) synergy(G, 'smoke', b.x, b.y);
           if (b.bin) {
             const floor = tg.boss ? ENEMIES[tg.type].armor / 2 : 0; if (tg.armor > floor) tg.armor = Math.max(floor, tg.armor - .5);
             if (tg.carry && tg.type !== 'pantsalot') { const it = tg.carry; tg.carry = null; tg.armor = Math.max(0, tg.armor - 1 - it.tier); bank(G, it, 'tap', tg.x, tg.y); G.stats.snatches++; fx(G, 'pop', { x: tg.x, y: tg.y - 36, text: 'Bin chicken nicked it back!', col: '#4E7DB8', big: true }); }
@@ -1202,12 +1701,18 @@ function update(G, dt) {
     G.waveActive = false;
     for (const l of G.loot.splice(0)) bank(G, l.item, 'auto', l.x, l.y);
     G.projs.length = 0;
-    const bonus = 20 + 4 * G.wave;
+    let bonus = 20 + 4 * G.wave;
+    const lostThis = G.stats.waveLost.slice(G.lastWaveCleared || 0, G.wave).reduce((a, b) => a + (b || 0), 0);
+    G.lastWaveCleared = G.wave;
+    addMeter(G, 5);
+    let perfect = false;
+    if (lostThis === 0) { perfect = true; const pb = 15 + 3 * G.wave; bonus += pb; G.stats.perfects++; if (G.stats.shards < 8) G.stats.shards++; addMeter(G, 20); ev(G, 'perfect', { bonus: pb }); }
+    G.event = null; G.merchant = null;
     G.gold += bonus;
     for (const s of sizzles) G.xp.sizzling += 18 * (s.tier + 1);
     G.puddles.length = 0; G.birds.length = 0;
     if (G.wave >= G.waveCount) { G.over = true; G.won = true; ev(G, 'over', { won: true }); }
-    else ev(G, 'waveEnd', { wave: G.wave, bonus });
+    else ev(G, 'waveEnd', { wave: G.wave, bonus, perfect });
   }
 }
 
@@ -1221,15 +1726,17 @@ function applyCard(G, card) { G.cards.push(card.id); card.apply(G); }
 
 // ---------- save / resume (between waves only) ----------
 function snapshot(G) {
-  return { v: 3, mode: G.mode, daily: G.daily, map: G.mapIdx, wave: G.wave, gold: G.gold, pile: G.pile, pileMax: G.pileMax, pokes: G.pokes, cards: G.cards.slice(),
+  return { v: 4, runMods: G.runMods, meter: G.meter, lastWaveCleared: G.lastWaveCleared, map: G.mapIdx, mode: G.mode, daily: G.daily, wave: G.wave, gold: G.gold, pile: G.pile, pileMax: G.pileMax, pokes: G.pokes, cards: G.cards.slice(),
     mods: Object.assign({}, G.mods), stats: JSON.parse(JSON.stringify(G.stats)), xp: Object.assign({}, G.xp), gate: G.gate, t: G.t,
     towers: G.towers.map(t => t ? { type: t.type, tier: t.tier, spent: t.spent } : null) };
 }
 function restoreRun(meta, s) {
-  const G = newRun(meta, (Date.now() ^ 0x9e3779b9) >>> 0, s.map, s.mode || 'campaign', s.daily);
+  const G = newRun(meta, (Date.now() ^ 0x9e3779b9) >>> 0, s.map, s.mode || 'campaign', s.daily, s.runMods);
   Object.assign(G, { wave: s.wave, gold: s.gold, pile: s.pile, pileMax: s.pileMax, pokes: s.pokes, cards: s.cards, gate: s.gate || 0, t: s.t || 0 });
   Object.assign(G.mods, s.mods); G.stats = Object.assign(G.stats, s.stats); G.xp = Object.assign(G.xp, s.xp);
   for (const k of SKILLS) { const L = levelInfo((meta.xp[k] || 0) + G.xp[k]).L; G.runL[k] = L; G.skillMult[k] = 1 + .03 * (L - 1); }
+  G.meter = s.meter || 0; G.lastWaveCleared = s.lastWaveCleared || s.wave;
+  for (const k of ['perfects', 'dreams', 'syn', 'abilities', 'shards']) G.stats[k] = G.stats[k] || 0;
   G.towers = G.map.pads.map((_, i) => s.towers[i] ? newTower(s.towers[i].type, s.towers[i].tier, s.towers[i].spent) : null);
   G.firstLoot = true;
   return G;
@@ -1271,7 +1778,18 @@ function finishRun(G) {
     return Object.assign({}, j, { p });
   }).filter(Boolean);
   ensureJobs(meta);
-  const rocks = rk.salvage + rk.boss + rk.jobs + rk.daily;
+  const rocks = Math.round((rk.salvage + rk.boss + rk.jobs + rk.daily) * G.modMult);
+  // Gary XP + dream shards
+  const gBefore = garyInfo(meta.garyXp || 0);
+  const garyGain = Math.round((G.stats.kills + (G.won ? 120 : 30) + 25 * G.stats.perfects + 40 * (G.bossKills || 0)) * G.modMult);
+  meta.garyXp = (meta.garyXp || 0) + garyGain;
+  const gAfter = garyInfo(meta.garyXp);
+  const garyUnlocks = GARY_UNLOCKS.filter(u => u.L > gBefore.L && u.L <= gAfter.L);
+  for (const id of DREAM_ORDER) if (DREAM_UNLOCK[id] <= gAfter.L && !(meta.dreams || {})[id]) { meta.dreams = meta.dreams || {}; meta.dreams[id] = 1; }
+  let shards = G.stats.shards + 2 * (G.bossKills || 0) + G.stats.banked.filter(i => i.tier >= 3).length + (dailyFirst ? 3 : 0) + jobsDone.length;
+  shards = Math.round(shards * (G.modMult > 1 ? 1.5 : 1));
+  meta.shards = (meta.shards || 0) + shards;
+  meta.totals.perfects = (meta.totals.perfects || 0) + G.stats.perfects; meta.totals.dreams = (meta.totals.dreams || 0) + G.stats.dreams;
   meta.rocks = (meta.rocks || 0) + rocks;
   // endless best
   let endlessBest = null, endlessNew = false;
@@ -1290,6 +1808,7 @@ function finishRun(G) {
     const ms = meta.maps[G.map.id] || (meta.maps[G.map.id] = { plays: 0, wins: 0, stars: 0, bestKept: 0 });
     firstWin = G.won && !ms.wins;
     ms.plays++; if (G.won) ms.wins++; ms.stars = Math.max(ms.stars, stars); ms.bestKept = Math.max(ms.bestKept, kept);
+    if (G.won) { ms.mods = ms.mods || {}; for (const k in G.runMods) if (G.runMods[k]) ms.mods[k] = true; }
   }
   const grid = [];
   const gn = G.mode === 'endless' ? G.wave : G.map.waves.length;
@@ -1300,11 +1819,11 @@ function finishRun(G) {
   }
   const banked = G.stats.banked.slice().sort((a, b) => b.tier - a.tier);
   return { before, after, gains, newFinds, kept, stars, firstWin, grid: grid.join(''), best: banked[0] || null, banked, stashFound: Object.keys(meta.stash).length,
-    rocks, rk, jobsDone, dailyFirst, endlessBest, endlessNew, jezzaNew };
+    rocks, rk, jobsDone, dailyFirst, endlessBest, endlessNew, jezzaNew, garyGain, gBefore, gAfter, garyUnlocks, shards, perfects: G.stats.perfects };
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { W, H, GARY, MAPS, posOn, SKILLS, SKILL_NAMES, SKILL_DESC, TOWERS, TIER_NOTES, ENEMIES, BOSS_ITEMS, RARITY, ITEMS, ALL_ITEMS, ITEM_DESC, STASH_TOTAL, CARDS,
-  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dailySetup, genWave, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
+  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dailySetup, genWave, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
 
 </script>
 <script>
@@ -1399,6 +1918,18 @@ const SFX = (function () {
     zap: () => { notes([1568, 2093, 1760, 2349, 2637], { type: 'square', t: .07, g: .035, step: .03, filter: 5000 }); noise({ t: .15, g: .05, f: 4000, type: 'bandpass', q: 4 }); },
     rain: () => { [0, 1, 2, 3, 4].forEach(k => tone({ f: 1400 - k * 180, f2: 500, t: .25, g: .04, delay: k * .06 })); },
     storm: () => { [0, 1, 2, 3, 4, 5, 6, 7].forEach(k => noise({ t: .05, g: .06, f: 1600 + Math.random() * 800, q: 2, delay: k * .05 })); tone({ f: 380, f2: 320, t: .3, g: .05, vib: 20, vibAmt: 30, delay: .1 }); tone({ f: 420, f2: 340, t: .3, g: .04, vib: 22, vibAmt: 30, delay: .25 }); },
+    dream: () => { notes([523, 784, 1047, 1568, 2093], { type: 'sine', t: .6, g: .06, step: .07 }); tone({ type: 'triangle', f: 262, t: 1, a: .2, g: .06 }); },
+    snore: () => { noise({ t: .9, g: .3, f: 120, f2: 60, type: 'lowpass' }); tone({ type: 'sawtooth', f: 70, f2: 45, t: .9, g: .1, filter: 300 }); },
+    freeze: () => { notes([2637, 2349, 2093, 1760, 1568], { type: 'sine', t: .3, g: .05, step: .05 }); noise({ t: .4, g: .08, f: 7000, type: 'highpass' }); },
+    shatter: () => { noise({ t: .2, g: .12, f: 5000, type: 'highpass' }); [0, 1].forEach(k => tone({ f: 2600 + k * 900, t: .1, g: .04, delay: k * .03 })); },
+    heal: () => notes([880, 1175], { type: 'sine', t: .18, g: .035, step: .06 }),
+    perfect: () => { notes([784, 988, 1175, 1568, 1976], { type: 'triangle', t: .35, g: .08, step: .08 }); noise({ t: .5, g: .04, f: 7000, type: 'highpass', delay: .3 }); },
+    synergy: () => notes([1319, 1760, 2217], { type: 'sine', t: .22, g: .05, step: .05 }),
+    portal: () => tone({ f: 300, f2: 1200, t: .25, g: .05, vib: 30, vibAmt: 60 }),
+    approved: () => { tone({ type: 'square', f: 220, f2: 120, t: .08, g: .1 }); notes([784, 1047], { type: 'triangle', t: .2, g: .06, step: .1, delay: .08 }); },
+    enrage: () => { tone({ type: 'sawtooth', f: 160, f2: 90, t: .6, g: .08, filter: 900 }); noise({ t: .4, g: .1, f: 400, type: 'lowpass' }); },
+    event: () => notes([660, 880, 660, 1320], { type: 'triangle', t: .16, g: .06, step: .09 }),
+    ready: () => notes([1047, 1568, 2093], { type: 'sine', t: .25, g: .06, step: .06 }),
     confetti: () => { notes([1047, 1319, 1568, 2093], { type: 'triangle', t: .3, g: .06, step: .05 }); noise({ t: .5, g: .05, f: 6000, type: 'highpass' }); },
   };
   function play(name, arg) {
@@ -1409,7 +1940,52 @@ const SFX = (function () {
     last[name] = now;
     try { S[name] && S[name](arg); } catch (e) {}
   }
-  return { play, unlock, setVolume, setMuted, _names: Object.keys(S), _raw: (n, a) => S[n](a), _state: () => ac ? ac.state : 'none' };
+  // ---------- procedural music ----------
+  let mGain = null, mTimer = 0, mMode = '', mStep = 0, mNext = 0, musicOn = true, musicVol = .35;
+  const CALM = { bpm: 96, chords: [[60, 64, 67], [55, 59, 62], [57, 60, 64], [53, 57, 60]], bass: [48, 43, 45, 41] };
+  const BOSS = { bpm: 132, chords: [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 56, 59]], bass: [45, 41, 43, 40] };
+  const mf = n => 440 * Math.pow(2, (n - 69) / 12);
+  function mtone(f, t0, dur, type, g, filt) {
+    const o = ac.createOscillator(), gg = ac.createGain(); o.type = type; o.frequency.value = f;
+    gg.gain.setValueAtTime(0, t0); gg.gain.linearRampToValueAtTime(g, t0 + .01); gg.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+    let n = o; if (filt) { const fl = ac.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = filt; o.connect(fl); n = fl; }
+    n.connect(gg); gg.connect(mGain); o.start(t0); o.stop(t0 + dur + .02);
+  }
+  function mnoise(t0, dur, g, f, type) {
+    const s = ac.createBufferSource(); s.buffer = noiseBuf; const fl = ac.createBiquadFilter(); fl.type = type || 'highpass'; fl.frequency.value = f;
+    const gg = ac.createGain(); gg.gain.setValueAtTime(g, t0); gg.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+    s.connect(fl); fl.connect(gg); gg.connect(mGain); s.start(t0, Math.random() * .5); s.stop(t0 + dur + .02);
+  }
+  function schedule() {
+    if (!ac || !mMode) return;
+    const S2 = mMode === 'boss' ? BOSS : CALM, spb = 60 / S2.bpm / 2;
+    while (mNext < ac.currentTime + .25) {
+      const bar = Math.floor(mStep / 8) % 4, st = mStep % 8, ch = S2.chords[bar];
+      if (mMode === 'boss') {
+        mtone(mf(S2.bass[bar] - 12), mNext, spb * .9, 'sawtooth', .07, 500);
+        if (st % 4 === 0) { mtone(90, mNext, .18, 'sine', .25); }
+        if (st % 4 === 2) mnoise(mNext, .12, .09, 1800);
+        if (st % 2 === 1) mnoise(mNext, .04, .04, 7000);
+        if (st === 0 || st === 3 || st === 6) ch.forEach(n => mtone(mf(n), mNext, spb * 1.6, 'square', .018, 1600));
+      } else {
+        if (st === 0) { mtone(mf(S2.bass[bar] - 12), mNext, spb * 7, 'triangle', .07); ch.forEach(n => mtone(mf(n), mNext, spb * 7.5, 'sine', .022)); }
+        const arp = [0, 1, 2, 1, 2, 0, 1, 2][st]; mtone(mf(ch[arp] + 12), mNext, spb * 1.5, 'triangle', .028, 3000);
+        if (st % 2 === 1) mnoise(mNext, .03, .015, 8000);
+      }
+      mNext += spb; mStep++;
+    }
+  }
+  function music(mode) {
+    if (!init()) return;
+    if (!mGain) { mGain = ac.createGain(); mGain.gain.value = musicOn && !muted ? musicVol : 0; mGain.connect(master); }
+    if (mode === mMode) return;
+    mMode = mode; mStep = 0; mNext = ac.currentTime + .05;
+    clearInterval(mTimer); if (mode) mTimer = setInterval(schedule, 90);
+  }
+  function setMusic(on) { musicOn = on; if (mGain) mGain.gain.value = on && !muted ? musicVol : 0; }
+  const _setMuted = setMuted;
+  setMuted = m => { _setMuted(m); if (mGain) mGain.gain.value = musicOn && !m ? musicVol : 0; };
+  return { play, unlock, setVolume, setMuted: m => setMuted(m), music, setMusic, _names: Object.keys(S), _raw: (n, a) => S[n](a), _state: () => ac ? ac.state : 'none' };
 })();
 
 </script>
@@ -1423,6 +1999,9 @@ const R = (function () {
     paddock: { g: '#CFC77A', gl: '#EADF9F', gd: '#ABA35A', path: '#D8B583', pe: '#A98657', pl: '#EFD9AE', grass: ['#9F9548', '#E6DA92'], flowers: ['#FFFFFF', '#F2C94C', '#E9A0B4', '#FF9A6B', '#B7A3F2'], tree: ['#5A8746', '#79A35C', '#A8CB80'], amb: 'seed', bunting: true, butterflies: true, ambCol: ['#FFFFFF', '#F7F0DA'], clouds: true },
     creek: { g: '#8FC27F', gl: '#BADCA2', gd: '#66995E', path: '#D6B588', pe: '#A5855C', pl: '#EDD9B2', grass: ['#5B8E4E', '#A5CE88'], flowers: ['#FFFFFF', '#9FC9F0', '#F6D35B', '#F59AC0', '#C6A8FF'], tree: ['#437C4A', '#619D5C', '#93C67C'], amb: 'leaf', bunting: true, butterflies: true, ambCol: ['#7FB061', '#A9CF7F', '#E3C35C'], clouds: true, water: ['#7CB8CA', '#BDE4EA', '#4F8FA6'] },
     garden: { g: '#8DB46E', gl: '#B5D18E', gd: '#66904F', path: '#D3B386', pe: '#9C7A52', pl: '#EAD3A8', grass: ['#567F45', '#A3C982'], flowers: ['#FFFFFF', '#F6D35B', '#F4A6B8'], tree: ['#3F6E48', '#5B8A56', '#86AD6E'], amb: 'firefly', ambCol: ['#FFE58A'], clouds: false, tint: true, tintCols: ['rgba(255,190,120,.16)', 'rgba(120,90,170,.18)'], lights: true },
+    suburb: { g: '#9BBF7E', gl: '#C3DBA0', gd: '#76A05F', path: '#CFC8BB', pe: '#9C958A', pl: '#E8E3D9', grass: ['#5E8C4E', '#A8CC86'], flowers: ['#FFFFFF', '#F6D35B', '#FF8FA3', '#8FD3FF'], tree: ['#4A8247', '#68A05A', '#97C676'], amb: 'leaf', ambCol: ['#7FB061', '#A9CF7F', '#E3C35C'], clouds: true, butterflies: true },
+    woods: { g: '#6F9C62', gl: '#94BD80', gd: '#4D7C49', path: '#C9A879', pe: '#8C7050', pl: '#E2CBA2', grass: ['#3F6E3E', '#8DB876'], flowers: ['#FFFFFF', '#C9B6F2', '#FF9AB8', '#FFE36E'], tree: ['#2F5E3B', '#467A4A', '#6E9F62'], amb: 'firefly', ambCol: ['#C8FF9A'], clouds: false, tint: true, tintCols: ['rgba(120,200,140,.10)', 'rgba(60,80,120,.18)'], mushrooms: true, butterflies: false },
+    fete: { g: '#A6C97F', gl: '#D0E4A6', gd: '#80A863', path: '#D9B784', pe: '#A9845A', pl: '#F1DCB2', grass: ['#6A9A50', '#B6D78A'], flowers: ['#FFFFFF', '#F6D35B', '#FF8FA3', '#8FD3FF', '#C6A8FF', '#FFB65C'], tree: ['#4C8547', '#6CA45A', '#9DCB78'], amb: 'petal', ambCol: ['#F8C8D4', '#FFFFFF', '#FBE29A', '#BDE6FF'], clouds: true, bunting: true, butterflies: true, tint: true, tintCols: ['rgba(255,200,140,.12)', 'rgba(255,140,180,.10)'], fete: true },
     dusk: { g: '#7F9E6A', gl: '#A6BE84', gd: '#5B7A4E', path: '#C9A174', pe: '#8F6C49', pl: '#E2C391', grass: ['#4F7046', '#94AE72'], flowers: ['#F7C6D0', '#FFE6A3'], tree: ['#3C6646', '#557D55', '#7E9F6A'], amb: 'firefly', ambCol: ['#FFE58A'], clouds: false, tint: true },
   };
   let ctx, W, H, scale = 1, dpr = 1, bgCanvas = null, bgKey = '';
@@ -1431,7 +2010,7 @@ const R = (function () {
   const snd = (n, a) => { if (typeof SFX !== 'undefined') SFX.play(n, a); };
   const RAINBOW = ['#FF5A5F', '#FF9F43', '#FECA57', '#4CD964', '#38B6FF', '#8E7CFF', '#FF6FD8'];
   const CHUNKS = { '👢': ['#8B5A2B', '#6B4423'], '🧱': ['#D2693C', '#B5502C'], '🐟': ['#6FB6E0', '#BFE6FA'], '🥫': ['#D94B3B', '#E8E8E8'], '🪑': ['#B5884F', '#8E6A3C'], '🍉': ['#E8505B', '#5BBF4A', '#FFFFFF'], '📺': ['#555555', '#9AD0F5'] };
-  let shake = 0, garySwing = 0, garyRoll = 0, gateAng = 0, lastT = 0, hintGate = true;
+  let shake = 0, garySwing = 0, garyRoll = 0, gateAng = 0, lastT = 0, hintGate = true, dreamT = 0, dreamId = '', freezeT = 0, garySwingL = 1;
   const reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   let settings = { shake: true };
 
@@ -1466,7 +2045,7 @@ const R = (function () {
   // ---------- seeded random for backgrounds ----------
   function srand(seed) { let s = seed % 2147483647; if (s <= 0) s += 2147483646; return () => (s = s * 16807 % 2147483647) / 2147483647; }
 
-  function roadPath(c, pts) { c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); }
+  function roadPath(c, pts) { c.beginPath(); pts.forEach((p, i) => (i && p[2] !== 'tp') ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); }
 
   function drawTreeOn(c, x, y, k, th, r) {
     flat(c, x + 6 * k, y + 18 * k, 20 * k, 6 * k, 'rgba(40,50,30,.22)');
@@ -1507,17 +2086,28 @@ const R = (function () {
     }
     // roads
     c.lineJoin = 'round';
-    for (const P of map.P) { roadPath(c, P.pts); c.strokeStyle = rgba(th.pe, .25); c.lineWidth = 44; c.stroke(); }
-    for (const P of map.P) { roadPath(c, P.pts); c.strokeStyle = th.pe; c.lineWidth = 33; c.stroke(); }
-    for (const P of map.P) { roadPath(c, P.pts); c.strokeStyle = th.path; c.lineWidth = 28; c.stroke(); }
-    for (const P of map.P) { roadPath(c, P.pts); c.strokeStyle = rgba(th.pl, .6); c.lineWidth = 11; c.stroke(); }
+    const order = map.P.map((P, i) => ({ P, i })).sort((a, b) => (b.i === map.shortcut) - (a.i === map.shortcut));
+    const wk = o => o.i === map.shortcut ? .55 : 1;
+    for (const o of order) { roadPath(c, o.P.pts); c.strokeStyle = rgba(th.pe, .25); c.lineWidth = 44 * wk(o); c.stroke(); }
+    for (const o of order) { roadPath(c, o.P.pts); c.strokeStyle = th.pe; c.lineWidth = 33 * wk(o); c.stroke(); }
+    for (const o of order) { roadPath(c, o.P.pts); c.strokeStyle = th.path; c.lineWidth = 28 * wk(o); c.stroke(); }
+    for (const o of order) { roadPath(c, o.P.pts); c.strokeStyle = rgba(th.pl, .6); c.lineWidth = 11 * wk(o); c.stroke(); }
+    if (map.shortcut != null) { const P = map.P[map.shortcut]; c.setLineDash([4, 6]); roadPath(c, P.pts); c.strokeStyle = 'rgba(120,90,50,.45)'; c.lineWidth = 2; c.stroke(); c.setLineDash([]); }
+    // direction chevrons so the route reads at a glance
+    const seenC = new Set();
+    for (const P of map.P) for (let d = 40; d < P.len - 30; d += 64) {
+      const sg = segAt(P, d); if (!sg || sg.tp) continue;
+      const q = posOn(P, d), key = Math.round(q.x / 30) + ',' + Math.round(q.y / 30); if (seenC.has(key)) continue; seenC.add(key);
+      const an = Math.atan2(sg.y2 - sg.y1, sg.x2 - sg.x1);
+      c.save(); c.translate(q.x, q.y); c.rotate(an); c.beginPath(); c.moveTo(-4, -5); c.lineTo(2, 0); c.lineTo(-4, 5); c.lineWidth = 2.4; c.lineCap = 'round'; c.lineJoin = 'round'; c.strokeStyle = rgba(th.pe, .55); c.stroke(); c.restore();
+    }
     for (const P of map.P) for (let d = 0; d < P.len; d += 7) {
       const p = posOn(P, d); if (r() < .5) flat(c, p.x + (r() - .5) * 22, p.y + (r() - .5) * 22, .9 + r() * 1.3, .8 + r(), rgba(th.pe, .6));
     }
     // burrows
     for (const P of map.P) {
       const s = P.pts[0]; const bx = Math.max(14, Math.min(W - 14, s[0])), by = Math.max(10, Math.min(H - 10, s[1]));
-      if (s[1] < 0 || s[0] < 0) { flat(c, bx, by, 19, 10, '#5A4330'); flat(c, bx, by + 1, 15, 7, '#2E2219'); }
+      if (s[1] < 0 || s[0] < 0 || s[0] > W) { flat(c, bx, by, 19, 10, '#5A4330'); flat(c, bx, by + 1, 15, 7, '#2E2219'); }
     }
     // creek
     if (map.water) {
@@ -1550,6 +2140,9 @@ const R = (function () {
       c.strokeStyle = '#6B4A30'; c.lineWidth = 3; c.lineCap = 'round';
       c.beginPath(); c.moveTo(f.x - 9, f.y + 4); c.lineTo(f.x + 8, f.y - 1); c.moveTo(f.x + 9, f.y + 4); c.lineTo(f.x - 8, f.y - 1); c.stroke();
     }
+    for (const b of (map.bins || [])) { const [x, y] = b; flat(c, x + 2, y + 9, 9, 3, 'rgba(40,30,20,.2)'); rr(c, x - 6, y - 8, 12, 16, 2); c.fillStyle = '#4E8C5A'; c.fill(); rr(c, x - 7, y - 10, 14, 3.5, 1.5); c.fillStyle = '#E3B23C'; c.fill(); }
+    if (th.mushrooms) for (let i = 0; i < 26; i++) { const x = r() * W, y = r() * H; flat(c, x, y + 2, 1.2, 3, '#F4EEE2'); flat(c, x, y - 1, 3.6, 2.4, r() < .5 ? '#D9534F' : '#E9A24A'); flat(c, x - 1, y - 1.6, .7, .7, '#FFFFFF'); }
+    if (th.fete) for (const [x, y, col] of [[25, 330, '#E0645A'], [345, 160, '#5C9BE0'], [335, 500, '#A66BE0']]) { flat(c, x + 2, y + 14, 16, 4, 'rgba(40,30,20,.2)'); c.beginPath(); c.moveTo(x - 14, y + 10); c.lineTo(x, y - 12); c.lineTo(x + 14, y + 10); c.closePath(); c.fillStyle = col; c.fill(); c.beginPath(); c.moveTo(x - 5, y + 10); c.lineTo(x, y - 12); c.lineTo(x + 5, y + 10); c.closePath(); c.fillStyle = '#FFF6E2'; c.fill(); }
     // picnic tables
     for (const tb of (map.tables || [])) {
       const [x, y] = tb;
@@ -1670,7 +2263,7 @@ const R = (function () {
         case 'built': { snd(f.up ? 'upgrade' : 'build'); const pad = G.map.pads[f.pad]; burst(pad[0], pad[1], 8, { kind: 'puff', col: ['#FFFFFF', '#F2EAD8'], sp: 35, life: .5, size: 5 }); if (f.up) burst(pad[0], pad[1] - 20, 12, { kind: 'star', col: ['#FFE07A', '#FFFFFF'], sp: 45, up: 40, life: .7, size: 2.6 }); break; }
         case 'sold': { snd('sell'); const pad = G.map.pads[f.pad]; burst(pad[0], pad[1] - 10, 10, { kind: 'puff', col: ['#FFFFFF', '#E8E0CC'], sp: 40, life: .6, size: 6 }); break; }
         case 'gate': snd('gate'); hintGate = false; burst(G.map.gate.x, G.map.gate.y, 6, { kind: 'dust', col: ['#E8D9B8'], sp: 30, life: .4, size: 3 }); break;
-        case 'swing': snd('bigwhoosh'); garySwing = 1; burst(GARY.x, GARY.y - 20, 18, { kind: 'star', col: ['#FFFFFF', '#FFE58A', '#BFE3FF'], sp: 120, life: .7, size: 3 }); break;
+        case 'swing': snd('bigwhoosh'); garySwing = 1; garySwingL = f.L || 1; burst(GARY.x, GARY.y - 20, 18, { kind: 'star', col: ['#FFFFFF', '#FFE58A', '#BFE3FF'], sp: 120, life: .7, size: 3 }); break;
         case 'roll': snd('boing'); garyRoll = 1; P({ kind: 'junk', x: GARY.x + 10, y: GARY.y - 18, vx: 70, vy: -100, g: 300, vr: 9, life: 1, icon: '🩴', size: 13 }); break;
         case 'steal': snd('steal'); for (let i = 0; i < f.n; i++) P({ kind: 'gem', x: GARY.x + (Math.random() - .5) * 30, y: GARY.y - 14, vx: (Math.random() - .5) * 160, vy: -140 - Math.random() * 60, g: 260, vr: 10, life: .9, size: 5, col: ['#F2C14E', '#E0645A', '#5C9BE0', '#A66BE0'][i % 4] }); break;
         case 'shake': if (settings.shake && !reduced) shake = Math.max(shake, f.m); break;
@@ -1683,6 +2276,35 @@ const R = (function () {
           if (f.fire) burst(f.x, f.y, 8, { kind: 'ember', col: ['#FFB04A', '#FF6A3A', '#FFE38A'], sp: 30, up: 50, life: .7, size: 2.4 });
           break;
         case 'chug': snd('glug'); burst(f.x, f.y - 20, 10, { kind: 'bubble', col: ['#F2C27A', '#FFFFFF'], sp: 30, up: 40, life: .8, size: 2.4 }); P({ kind: 'ring', x: f.x, y: f.y, life: .4, size: 12, col: '#F2C27A' }); break;
+        case 'dream': {
+          dreamT = 1.4; dreamId = f.id; snd('dream');
+          const D = DREAMS[f.id];
+          pop(W / 2, 120, D.name.toUpperCase() + (f.L > 1 ? ' Lv' + f.L : '') + '!', f.L >= 5 ? '#E5533D' : '#6C5CE0', true);
+          if (!reduced) flash = Math.max(flash, f.L >= 5 ? .35 : .2);
+          for (let k = 0; k < 12; k++) P({ kind: 'pz', x: GARY.x + (Math.random() - .5) * 60, y: GARY.y - 20, vx: (Math.random() - .5) * 60, vy: -60 - Math.random() * 60, life: 1.4, size: 10 + Math.random() * 10, col: f.L >= 5 ? RAINBOW[k % RAINBOW.length] : '#8E7CFF' });
+          if (f.id === 'swing' && f.L >= 5) P({ kind: 'ghostsword', x: 0, y: 0, life: .8 });
+          if (f.id === 'rain') snd('rain');
+          if (f.id === 'freeze') { snd('freeze'); freezeT = 1; }
+          break;
+        }
+        case 'snore': { snd('snore'); P({ kind: 'zwave', x: GARY.x, y: GARY.y, life: 1.1, size: Math.min(620, f.R), rainbow: f.L >= 5 }); if (f.L >= 5) for (let k = 0; k < 40; k++) P({ kind: 'dust', x: Math.random() * W, y: Math.random() * H, life: .8, size: 5, col: '#E8D9B8' }); break; }
+        case 'freeze': for (const e of G.enemies) burst(e.x, e.y - e.r, 4, { kind: 'ice', col: '#FFFFFF', sp: 30, life: .9, size: 4 }); break;
+        case 'shatter': snd('shatter'); burst(f.x, f.y - 8, 10, { kind: 'shard', col: ['#BDE6FF', '#FFFFFF', '#8FD3FF'], sp: 110, up: 40, g: 250, life: .6, size: 3 }); break;
+        case 'meteor': snd('thud'); P({ kind: 'ring', x: f.x, y: f.y, life: .35, size: 8, col: '#FFB04A' }); burst(f.x, f.y, 10, { kind: 'ember', col: ['#FFB04A', '#FF6A3A', '#FFE38A'], sp: 90, up: 40, g: 120, life: .6, size: 2.6 }); burst(f.x, f.y, 6, { kind: 'dust', col: ['#E8D9B8'], sp: 60, life: .5, size: 5 }); break;
+        case 'caravan': snd('slam'); snd('splash'); for (let k = 0; k < 4; k++) P({ kind: 'rring', x: f.x, y: f.y, life: .8 + k * .15, size: 14 + k * 10, hue0: k }); burst(f.x, f.y, 40, { kind: 'confetti', col: RAINBOW, sp: 220, up: 80, g: 200, life: 1.4, size: 3.5 }); P({ kind: 'comic', x: f.x, y: f.y - 30, life: .8, size: 34, rot: .2 }); pop(f.x, f.y - 30, 'CARAVAN!', '#E5533D', true); if (!reduced) flash = Math.max(flash, .3); break;
+        case 'synergy': { snd('synergy'); const S2 = SYNERGIES.find(s => s.id === f.id); burst(f.x, f.y - 10, 16, { kind: 'star', col: ['#7CF2C8', '#FFFFFF', '#8FD3FF'], sp: 90, life: .7, size: 3 }); pop(f.x, f.y - 34, 'SYNERGY: ' + (S2 ? S2.name : ''), '#1E9E7A', true); break; }
+        case 'heal': snd('heal'); for (let k = 0; k < 5; k++) P({ kind: 'cross', x: f.x + (Math.random() - .5) * 60, y: f.y - Math.random() * 20, vy: -30, life: .8, size: 6, col: '#4CD964' }); P({ kind: 'ring', x: f.x, y: f.y, life: .5, size: 20, col: 'rgba(76,217,100,.7)' }); break;
+        case 'birth': burst(f.x, f.y - 6, 6, { kind: 'star', col: ['#FFC3DD', '#FFFFFF'], sp: 40, life: .4, size: 2.4 }); break;
+        case 'enrage': snd('enrage'); pop(f.x, f.y - 50, 'ENRAGED!', '#E5533D', true); for (let k = 0; k < 3; k++) P({ kind: 'ring', x: f.x, y: f.y, life: .6 + k * .1, size: 12 + k * 8, col: '#FF5A5F' }); if (!reduced) flash = Math.max(flash, .12); break;
+        case 'approved': snd('approved'); P({ kind: 'comic', x: f.x, y: f.y - 44, life: .7, size: 22, rot: -.2 }); burst(f.x, f.y - 20, 20, { kind: 'confetti', col: ['#FFFFFF', '#FFE07A', '#8FD3FF'], sp: 120, up: 60, g: 160, life: 1, size: 3 }); break;
+        case 'credit': { snd('steal'); const pd = G.map.pads[f.pad]; pop(pd[0], pd[1] - 54, 'Steve took the credit', '#C0303C', true); P({ kind: 'ring', x: pd[0], y: pd[1] - 16, life: .5, size: 10, col: '#C0303C' }); break; }
+        case 'bucket': snd('clatter'); P({ kind: 'junk', x: f.x, y: f.y - 16, vx: (Math.random() - .5) * 80, vy: -140, g: 340, vr: 10, life: .9, icon: '🪣', size: 13 }); pop(f.x, f.y - 30, 'Bucket off!', '#5E6B76', true); break;
+        case 'portal': snd('portal'); P({ kind: 'portalring', x: f.x, y: f.y, life: .45, size: 8, col: f.out ? '#7CF2C8' : '#C6A8FF' }); burst(f.x, f.y, 6, { kind: 'star', col: f.out ? ['#7CF2C8', '#FFFFFF'] : ['#C6A8FF', '#FFFFFF'], sp: 50, life: .4, size: 2.4 }); break;
+        case 'bin': snd('slam'); P({ kind: 'comic', x: f.x, y: f.y - 24, life: .5, size: 24, rot: .3 }); pop(f.x, f.y - 24, 'BIN!', '#3E8B3A', true); burst(f.x, f.y, 18, { kind: 'chunk', col: ['#5FA05A', '#8B5A2B', '#D94B3B', '#E8E8E8'], sp: 140, up: 80, g: 320, life: .8, size: 3 }); P({ kind: 'ring', x: f.x, y: f.y, life: .5, size: 12, col: '#BFE3A8' }); break;
+        case 'rage': { snd('enrage'); const pd = G.map.pads[f.pad]; pop(pd[0], pd[1] - 56, 'DISAPPOINTED', '#E2509A', true); for (let k = 0; k < 3; k++) P({ kind: 'rring', x: pd[0], y: pd[1] - 14, life: .6 + k * .1, size: 8 + k * 5, hue0: k }); break; }
+        case 'freesnags': { snd('rain'); const pd = G.map.pads[f.pad]; pop(pd[0], pd[1] - 56, 'FREE SNAGS!', '#C2622E', true); burst(pd[0], pd[1] - 20, 14, { kind: 'chunk', col: ['#B5653A', '#D27A45'], sp: 120, up: 120, g: 260, life: 1, size: 3.5 }); break; }
+        case 'shout': { snd('glug'); pop(f.x, f.y - 56, 'SHOUT A ROUND!', '#C8822A', true); for (let k = 0; k < 3; k++) P({ kind: 'ring', x: f.x, y: f.y, life: .6 + k * .1, size: f.r * .3 + k * 10, col: '#F2C27A' }); break; }
+        case 'frenzy': { const pd = G.map.pads[f.pad]; pop(pd[0], pd[1] - 56, 'FEEDING FRENZY!', '#4E7DB8', true); snd('squawk'); snd('storm'); burst(pd[0], pd[1] - 24, 20, { kind: 'feather', col: ['#FFFFFF', '#F1EEE6'], sp: 90, up: 30, g: 30, life: 1.2, size: 3.5 }); break; }
         case 'ultimate': {
           snd('ultimate'); const pad = G.map.pads[f.pad];
           P({ kind: 'pillar', x: pad[0], y: pad[1], life: 1.4, size: 30 });
@@ -1709,7 +2331,7 @@ const R = (function () {
           break;
         }
         case 'chain': {
-          snd('zap'); P({ kind: 'bolt', x: 0, y: 0, life: .45, pts: f.pts, seed: Math.random() * 100 });
+          snd('zap'); P({ kind: 'bolt', x: 0, y: 0, life: f.big ? .6 : .45, pts: f.pts, seed: Math.random() * 100, big: f.big });
           for (const pt of f.pts) burst(pt[0], pt[1] - 6, 8, { kind: 'star', col: RAINBOW, sp: 80, life: .5, size: 2.8 });
           break;
         }
@@ -1752,6 +2374,7 @@ const R = (function () {
     for (const p of pops) p.t += dt; for (let i = pops.length - 1; i >= 0; i--) if (pops[i].t > (pops[i].big ? 1.2 : .95)) pops.splice(i, 1);
     for (const f of flyers) f.t += dt; for (let i = flyers.length - 1; i >= 0; i--) if (flyers[i].t > .6) { const f = flyers[i]; burst(f.tx, f.ty, 5, { kind: 'star', col: [RARITY[f.item.tier].c, '#FFFFFF'], sp: 30, life: .35, size: 2 }); flyers.splice(i, 1); }
     for (const k in towerAnim) towerAnim[k].t += dt;
+    dreamT = Math.max(0, dreamT - dt); freezeT = Math.max(0, freezeT - dt * .5);
     shake = Math.max(0, shake - dt * 18); garySwing = Math.max(0, garySwing - dt * 1.4); garyRoll = Math.max(0, garyRoll - dt * 1.2);
   }
 
@@ -1783,6 +2406,24 @@ const R = (function () {
       case 'junk': ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = a; emoji(p.icon, 0, 0, p.size); ctx.restore(); ctx.globalAlpha = 1; break;
       case 'hat': ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = a; soft(ctx, 0, 0, 7, 3.5, '#D9534F'); ctx.restore(); ctx.globalAlpha = 1; break;
       case 'smoke': flat(ctx, p.x, p.y, p.size * (1 + p.t), p.size * (1 + p.t), p.col, a * .45); break;
+      case 'pz': ctx.globalAlpha = a; text('z', p.x, p.y, p.size, p.col, { display: true, weight: 700 }); ctx.globalAlpha = 1; break;
+      case 'zwave': {
+        const R0 = p.t / p.life * p.size; ctx.globalAlpha = a * .8;
+        for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(1, R0 - k * 22), Math.PI * 1.0, Math.PI * 2); ctx.lineWidth = 6 - k * 1.5; ctx.strokeStyle = p.rainbow ? RAINBOW[(k * 2 + Math.floor(p.t * 10)) % RAINBOW.length] : ['#C9B6FF', '#8E7CFF', '#FFFFFF'][k]; ctx.stroke(); }
+        for (let k = 0; k < 6; k++) { const an = Math.PI + k * Math.PI / 5; text('Z', p.x + Math.cos(an) * R0, p.y + Math.sin(an) * R0, 12 + k % 3 * 3, '#6C5CE0', { display: true, outline: 3 }); }
+        ctx.globalAlpha = 1; break;
+      }
+      case 'ghostsword': {
+        const k = Math.min(1, p.t / p.life), an = -2.4 + k * 3.4;
+        ctx.save(); ctx.translate(GARY.x, GARY.y + 20); ctx.rotate(an); ctx.globalAlpha = (1 - k) * .85 + .1;
+        const g = ctx.createLinearGradient(0, 0, 0, -640); g.addColorStop(0, 'rgba(255,255,255,.9)'); g.addColorStop(1, 'rgba(180,170,255,.2)');
+        ctx.beginPath(); ctx.moveTo(-14, -40); ctx.lineTo(0, -660); ctx.lineTo(14, -40); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+        for (let q = 0; q < RAINBOW.length; q++) { ctx.beginPath(); ctx.moveTo(-16 - q * 2, -40); ctx.lineTo(0, -660); ctx.lineTo(16 + q * 2, -40); ctx.strokeStyle = RAINBOW[q]; ctx.globalAlpha = .25 * (1 - k); ctx.lineWidth = 2; ctx.stroke(); }
+        ctx.globalAlpha = 1; ctx.fillStyle = '#E3A02C'; ctx.fillRect(-26, -44, 52, 8); ctx.restore(); break;
+      }
+      case 'ice': ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = a; ctx.strokeStyle = p.col; ctx.lineWidth = 1.4; ctx.beginPath(); for (let i = 0; i < 3; i++) { const an = i * Math.PI / 3; ctx.moveTo(-Math.cos(an) * p.size, -Math.sin(an) * p.size); ctx.lineTo(Math.cos(an) * p.size, Math.sin(an) * p.size); } ctx.stroke(); ctx.restore(); ctx.globalAlpha = 1; break;
+      case 'cross': ctx.globalAlpha = a; ctx.fillStyle = p.col; ctx.fillRect(p.x - p.size * .2, p.y - p.size * .6, p.size * .4, p.size * 1.2); ctx.fillRect(p.x - p.size * .6, p.y - p.size * .2, p.size * 1.2, p.size * .4); ctx.globalAlpha = 1; break;
+      case 'portalring': { const R0 = p.size * (1 + p.t * 2); ctx.globalAlpha = a; ctx.beginPath(); ctx.arc(p.x, p.y, R0, 0, 7); ctx.lineWidth = 3; ctx.strokeStyle = p.col; ctx.stroke(); ctx.globalAlpha = 1; break; }
       case 'pillar': {
         const al = Math.sin(Math.min(1, p.t / p.life) * Math.PI);
         const g = ctx.createLinearGradient(p.x - p.size, 0, p.x + p.size, 0); RAINBOW.forEach((c, k) => g.addColorStop(k / (RAINBOW.length - 1), c));
@@ -1798,7 +2439,7 @@ const R = (function () {
             ctx.moveTo(x1, y1 - 8);
             for (let k = 1; k <= 6; k++) { const tt = k / 6, j = k < 6 ? (Math.sin(p.seed + k * 7.3 + i * 3 + p.t * 40) * 6) : 0; ctx.lineTo(x1 + (x2 - x1) * tt + j, y1 - 8 + (y2 - y1) * tt + j * .6); }
           }
-          ctx.lineWidth = pass ? 1.6 : 5; ctx.strokeStyle = pass ? '#FFFFFF' : RAINBOW[Math.floor(p.t * 20) % RAINBOW.length]; ctx.stroke();
+          ctx.lineWidth = (pass ? 1.6 : 5) * (p.big ? 1.6 : 1); ctx.strokeStyle = pass ? '#FFFFFF' : RAINBOW[Math.floor(p.t * 20) % RAINBOW.length]; ctx.stroke();
         }
         ctx.globalAlpha = 1; break;
       }
@@ -1838,6 +2479,20 @@ const R = (function () {
     ctx.fillStyle = '#F6E9CC'; ctx.fillRect(-3.2, -.5, 6.4, 3.2);
     ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(-2.4, -3.5, 1, 7);
     ctx.restore();
+  }
+
+  function padDecor(p) {
+    if (p[2] === 'high') {
+      flat(ctx, p[0] + 2, p[1] + 10, 30, 10, 'rgba(40,30,20,.18)');
+      const g = ctx.createRadialGradient(p[0] - 6, p[1] - 4, 2, p[0], p[1] + 4, 30); g.addColorStop(0, '#B9D98C'); g.addColorStop(1, '#6E9B55');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(p[0], p[1] + 4, 28, 13, 0, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(70,100,50,.5)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.strokeStyle = '#6B4A2A'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(p[0] + 22, p[1] + 4); ctx.lineTo(p[0] + 22, p[1] - 14); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(p[0] + 22, p[1] - 14); ctx.lineTo(p[0] + 31, p[1] - 11); ctx.lineTo(p[0] + 22, p[1] - 8); ctx.closePath(); ctx.fillStyle = '#E0645A'; ctx.fill();
+    } else if (p[2] === 'shady') {
+      ctx.globalAlpha = .22; for (const [dx, dy, rr2] of [[-10, -6, 12], [8, -10, 10], [2, 4, 14]]) flat(ctx, p[0] + dx, p[1] + dy, rr2, rr2 * .7, '#22402A'); ctx.globalAlpha = 1;
+      flat(ctx, p[0] + 21, p[1] - 6, 3.4, 1.8, '#5E9150'); flat(ctx, p[0] + 24, p[1] - 3, 3, 1.6, '#7FB061');
+    }
   }
 
   // ---------- characters ----------
@@ -1888,6 +2543,7 @@ const R = (function () {
       const gl = ctx.createRadialGradient(x, y - 14, 0, x, y - 14, 34); gl.addColorStop(0, 'rgba(255,230,140,.45)'); gl.addColorStop(1, 'rgba(255,230,140,0)'); ctx.fillStyle = gl; ctx.fillRect(x - 34, y - 48, 68, 68);
       if (Math.random() < .12) P({ kind: 'star', x: x + (Math.random() - .5) * 30, y: y - Math.random() * 30, vy: -25, life: .8, size: 2.2, col: RAINBOW[Math.floor(Math.random() * RAINBOW.length)] });
     }
+    padDecor(G.map.pads[i]);
     // pallet base
     flat(ctx, x, y + 5, 21, 7, 'rgba(40,30,20,.18)');
     rr(ctx, x - 17, y - 6, 34, 15, 4); const pg = ctx.createLinearGradient(0, y - 6, 0, y + 9); pg.addColorStop(0, '#D8B07A'); pg.addColorStop(1, '#B48A58'); ctx.fillStyle = pg; ctx.fill();
@@ -2009,8 +2665,8 @@ const R = (function () {
     if (!e.flyer) flat(ctx, e.x, e.y + r * .65, r * .95, r * .3, 'rgba(40,30,20,.2)');
     ctx.save(); ctx.translate(x, y + r * .6); if (e.tipsy > 0 && !e.flyer) ctx.rotate(Math.sin(time * 6 + e.wob) * .2); ctx.scale(sx * (e.dx < 0 ? -1 : 1), sy); ctx.translate(0, -r * .6);
     const tp = e.type;
-    if (tp === 'rat' || tp === 'kevin') {
-      const body = tp === 'kevin' ? '#958A80' : '#A99D93';
+    if (tp === 'rat' || tp === 'kevin' || tp === 'ratmum' || tp === 'baby' || tp === 'bigmum') {
+      const body = { kevin: '#958A80', baby: '#E8B6B0', ratmum: '#B3A69B', bigmum: '#8D7F74' }[tp] || '#A99D93';
       if (tp === 'kevin') { ctx.beginPath(); ctx.moveTo(-r * .2, -r * .5); ctx.quadraticCurveTo(-r * 1.4, -r * .2, -r * 1.2, r * .55); ctx.lineTo(r * .2, r * .3); ctx.closePath(); ctx.fillStyle = '#C0484A'; ctx.fill(); }
       ctx.strokeStyle = '#E2A39C'; ctx.lineWidth = Math.max(1.4, r * .14); ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-r * .85, r * .15); ctx.bezierCurveTo(-r * 1.6, r * .1, -r * 1.7, -r * .7, -r * 1.25, -r * .8); ctx.stroke();
       if (moving) { const f = Math.sin(ph * 2) * 2; flat(ctx, -r * .4 + f, r * .62, r * .2, r * .13, '#E8A7A0'); flat(ctx, r * .35 - f, r * .62, r * .2, r * .13, '#E8A7A0'); }
@@ -2022,6 +2678,11 @@ const R = (function () {
       if (tp === 'kevin') { ctx.strokeStyle = '#4A3A3A'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(r * .65, -r * .55); ctx.lineTo(r * 1.08, -r * .48); ctx.stroke(); }
       flat(ctx, r * 1.3, -r * .12, r * .13, r * .11, '#E8879A');
       ctx.strokeStyle = 'rgba(80,70,70,.5)'; ctx.lineWidth = .6; ctx.beginPath(); ctx.moveTo(r * 1.2, -r * .05); ctx.lineTo(r * 1.65, -r * .15); ctx.moveTo(r * 1.2, 0); ctx.lineTo(r * 1.65, r * .08); ctx.stroke();
+      if (tp === 'ratmum' || tp === 'bigmum') {
+        ctx.beginPath(); ctx.ellipse(r * .1, r * .15, r * .55, r * .45, 0, 0, 7); ctx.fillStyle = '#F6C6D4'; ctx.fill(); ctx.strokeStyle = '#D98AA5'; ctx.lineWidth = 1; ctx.stroke();
+        for (let q = 0; q < 3; q++) flat(ctx, r * (.35 + q * .22), -r * .85, r * .12, r * .12, ['#8FD3FF', '#FFD35C', '#FF8FA3'][q]);
+        if (tp === 'bigmum') { ctx.save(); ctx.translate(-r * .9, -r * .1); ctx.rotate(-.6 + Math.sin(time * 6) * .2); rr(ctx, -2, -r * .7, 4, r * 1.2, 2); ctx.fillStyle = '#C49465'; ctx.fill(); ctx.restore(); if (e.enraged && Math.random() < .2) P({ kind: 'smoke', x: e.x + r * .5, y: e.y - r * 1.4, vy: -30, life: .6, size: 3, col: '#FF8A8A' }); }
+      }
       if (tp === 'kevin') {
         const cx = r * .55, cy = -r * 1.08;
         ctx.beginPath(); ctx.moveTo(cx - 8, cy + 4); ctx.lineTo(cx - 8, cy - 4); ctx.lineTo(cx - 4, cy - 1); ctx.lineTo(cx, cy - 7); ctx.lineTo(cx + 4, cy - 1); ctx.lineTo(cx + 8, cy - 4); ctx.lineTo(cx + 8, cy + 4); ctx.closePath();
@@ -2047,8 +2708,9 @@ const R = (function () {
         const cg = ctx.createLinearGradient(0, cy - 6, 0, cy + 4); cg.addColorStop(0, '#FFE58A'); cg.addColorStop(1, '#D9A030'); ctx.fillStyle = cg; ctx.fill();
         for (let q = 0; q < Math.min(5, e.items); q++) { ctx.save(); ctx.translate(-r * .7 + q * 5, -r * .1); soft(ctx, 0, 0, 3, 3.6, ['#B8C2CC', '#C9A040', '#7FA0C8', '#A9B7A0', '#C97A7A'][q], { lw: .7 }); ctx.restore(); }
       }
-    } else if (tp === 'gob') {
-      const body = '#8DBB62';
+    } else if (tp === 'gob' || tp === 'medic' || tp === 'treasure') {
+      const body = tp === 'treasure' ? '#A9C35A' : '#8DBB62';
+      if (tp === 'treasure') { soft(ctx, -r * .7, -r * .2, r * .75, r * .7, '#C9A04A', { lw: 1 }); text('$', -r * .7, -r * .2, r * .8, '#7A5A1A'); if (Math.random() < .2) P({ kind: 'star', x: e.x + (Math.random() - .5) * 16, y: e.y - 10, vy: -20, life: .5, size: 2, col: '#FFE07A' }); }
       ctx.beginPath(); ctx.moveTo(-r * .35, -r * 1.15); ctx.quadraticCurveTo(-r * 1.4, -r * 1.6, -r * 1.25, -r * .9); ctx.quadraticCurveTo(-r * .7, -r * .8, -r * .3, -r * .75); ctx.fillStyle = shade(body, .05); ctx.fill();
       ctx.beginPath(); ctx.moveTo(r * .35, -r * 1.15); ctx.quadraticCurveTo(r * 1.4, -r * 1.6, r * 1.25, -r * .9); ctx.quadraticCurveTo(r * .7, -r * .8, r * .3, -r * .75); ctx.fill();
       soft(ctx, 0, 0, r * .75, r * .78, body);
@@ -2056,7 +2718,8 @@ const R = (function () {
       eye(-r * .25, -r * 1.02, r * .17); eye(r * .28, -r * 1.02, r * .17);
       ctx.strokeStyle = '#D9534F'; ctx.lineWidth = .9; ctx.beginPath(); ctx.moveTo(-3, -r * .45); ctx.lineTo(0, r * .2); ctx.lineTo(3, -r * .45); ctx.stroke();
       rr(ctx, -2.8, r * .12, 5.6, 4.2, 1); ctx.fillStyle = '#FFFFFF'; ctx.fill();
-      rr(ctx, r * .55, -r * .2, 3.5, 4.5, 1); ctx.fillStyle = '#F4EFE6'; ctx.fill(); flat(ctx, r * .55 + 1.75, -r * .2, 1.8, .7, '#7A4E2E');
+      if (tp === 'gob') { rr(ctx, r * .55, -r * .2, 3.5, 4.5, 1); ctx.fillStyle = '#F4EFE6'; ctx.fill(); flat(ctx, r * .55 + 1.75, -r * .2, 1.8, .7, '#7A4E2E'); }
+      if (tp === 'medic') { ctx.save(); ctx.beginPath(); ctx.ellipse(0, 0, r * .74, r * .78, 0, 0, 7); ctx.clip(); ctx.fillStyle = '#FF9A2E'; ctx.fillRect(-r, -r * .6, r * 2, r * 1.6); ctx.fillStyle = '#F4F4F4'; ctx.fillRect(-r, -r * .05, r * 2, 2); ctx.fillRect(-r, r * .35, r * 2, 2); ctx.restore(); rr(ctx, r * .45, -r * .1, 7, 6, 1.5); ctx.fillStyle = '#FFFFFF'; ctx.fill(); ctx.fillStyle = '#E0453A'; ctx.fillRect(r * .45 + 2.8, -r * .1 + 1, 1.4, 4); ctx.fillRect(r * .45 + 1.5, -r * .1 + 2.3, 4, 1.4); }
     } else if (tp === 'bog') {
       const body = '#7D9152';
       soft(ctx, 0, 0, r, r * .92, body);
@@ -2108,7 +2771,42 @@ const R = (function () {
       ctx.strokeStyle = '#7A3A30'; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(-r * .15, hy + r * .25); ctx.quadraticCurveTo(r * .08, hy + r * .36, r * .25, hy + r * .2); ctx.stroke();
       flat(ctx, -r * .32, hy + r * .2, r * .1, r * .06, 'rgba(230,90,80,.5)'); flat(ctx, r * .32, hy + r * .2, r * .1, r * .06, 'rgba(230,90,80,.5)');
       if (e.chug > 0 && Math.random() < .15) P({ kind: 'bubble', x: e.x + r * .8, y: e.y - r * 1.2, vy: -25, life: .7, size: 2, col: '#F2C27A' });
-    } else if (tp === 'swoop') {
+    } else if (tp === 'mozzie') {
+      const fl = Math.sin(time * 60 + e.wob) * .5 + .5;
+      ctx.globalAlpha = .55; flat(ctx, -2, -r * 1.1, 3 + fl * 2, 1.6, '#DDF1FF'); flat(ctx, 2, -r * 1.1, 3 + fl * 2, 1.6, '#DDF1FF'); ctx.globalAlpha = 1;
+      soft(ctx, 0, -r * .5, r * .9, r * .55, '#5A4636', { lw: .6 }); flat(ctx, r * .7, -r * .7, r * .45, r * .45, '#3E3028');
+      ctx.strokeStyle = '#3E3028'; ctx.lineWidth = .7; ctx.beginPath(); ctx.moveTo(r * 1.1, -r * .7); ctx.lineTo(r * 2, -r * .4); ctx.stroke(); flat(ctx, r * .85, -r * .85, .8, .8, '#FF6A5A');
+    } else if (tp === 'crab') {
+      ctx.strokeStyle = '#B5402F'; ctx.lineWidth = 1.6; ctx.beginPath(); for (const s2 of [-1, 1]) for (let q = 0; q < 3; q++) { ctx.moveTo(s2 * r * .5, r * .2); ctx.lineTo(s2 * r * (1 + q * .12), r * (.5 + q * .15) + (moving ? Math.sin(ph * 3 + q) * 1.5 : 0)); } ctx.stroke();
+      soft(ctx, 0, 0, r * .9, r * .6, '#E0573F');
+      soft(ctx, -r * 1.05, -r * .35, r * .32, r * .28, '#E0573F', { lw: .8 }); soft(ctx, r * 1.05, -r * .35, r * .32, r * .28, '#E0573F', { lw: .8 });
+      ctx.strokeStyle = '#B5402F'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(-r * .25, -r * .4); ctx.lineTo(-r * .3, -r * .8); ctx.moveTo(r * .25, -r * .4); ctx.lineTo(r * .3, -r * .8); ctx.stroke();
+      eye(-r * .3, -r * .85, r * .13); eye(r * .3, -r * .85, r * .13);
+      if (e.shield > 0) { ctx.beginPath(); ctx.moveTo(-r * .75, -r * .5); ctx.lineTo(-r * .55, -r * 1.55); ctx.lineTo(r * .55, -r * 1.55); ctx.lineTo(r * .75, -r * .5); ctx.closePath(); const bg = ctx.createLinearGradient(-r, 0, r, 0); bg.addColorStop(0, '#C7D3DC'); bg.addColorStop(1, '#8A99A6'); ctx.fillStyle = bg; ctx.fill(); ctx.strokeStyle = '#5E6B76'; ctx.lineWidth = 1; ctx.stroke(); ctx.beginPath(); ctx.arc(0, -r * .9, r * .65, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+    } else if (tp === 'mortimer') {
+      ctx.strokeStyle = '#7A2E3A'; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(-3, r * .5); ctx.lineTo(-4, r * 1); ctx.moveTo(3, r * .5); ctx.lineTo(4, r * 1); ctx.stroke();
+      soft(ctx, 0, 0, r * .75, r * .75, '#2F4E7A');
+      ctx.fillStyle = '#F4F4F4'; ctx.beginPath(); ctx.moveTo(-3, -r * .7); ctx.lineTo(0, -r * .35); ctx.lineTo(3, -r * .7); ctx.fill();
+      ctx.strokeStyle = '#E0453A'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-3, -r * .7); ctx.lineTo(0, r * .1); ctx.lineTo(3, -r * .7); ctx.stroke(); rr(ctx, -3, r * .05, 6, 5, 1); ctx.fillStyle = '#FFFFFF'; ctx.fill();
+      soft(ctx, 0, -r * 1.05, r * .55, r * .5, '#C9574A', { lw: 1 });
+      ctx.fillStyle = '#7A2E3A'; ctx.beginPath(); ctx.moveTo(-r * .4, -r * 1.4); ctx.lineTo(-r * .25, -r * 1.8); ctx.lineTo(-r * .1, -r * 1.45); ctx.fill(); ctx.beginPath(); ctx.moveTo(r * .4, -r * 1.4); ctx.lineTo(r * .25, -r * 1.8); ctx.lineTo(r * .1, -r * 1.45); ctx.fill();
+      eye(-r * .2, -r * 1.05, r * .1); eye(r * .2, -r * 1.05, r * .1);
+      ctx.strokeStyle = '#3B2F2A'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(-r * .32, -r * 1.25); ctx.lineTo(-r * .1, -r * 1.2); ctx.moveTo(r * .32, -r * 1.25); ctx.lineTo(r * .1, -r * 1.2); ctx.stroke();
+      ctx.save(); ctx.translate(r * .8, -r * .1); ctx.rotate(.15); rr(ctx, -5, -7, 10, 13, 1.5); ctx.fillStyle = '#C49465'; ctx.fill(); rr(ctx, -4, -5, 8, 10, 1); ctx.fillStyle = '#FFFFFF'; ctx.fill(); ctx.restore();
+    } else if (tp === 'steve') {
+      if (e.enraged) { ctx.globalAlpha = .35 + .2 * Math.sin(time * 12); flat(ctx, 0, -r * .4, r * 1.3, r * 1.5, '#FF5A5F'); ctx.globalAlpha = 1; }
+      ctx.beginPath(); ctx.moveTo(-r * .55, -r * .7); ctx.quadraticCurveTo(-r * 1.2, r * .2, -r * .8, r * .95); ctx.lineTo(r * .4, r * .7); ctx.closePath(); ctx.fillStyle = '#C0303C'; ctx.fill();
+      const sw = moving ? Math.sin(ph * 2) * 3 : 0;
+      ctx.strokeStyle = '#8E99A3'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-3, r * .4); ctx.lineTo(-3 + sw * .4, r * 1); ctx.moveTo(3, r * .4); ctx.lineTo(3 - sw * .4, r * 1); ctx.stroke();
+      const ag = ctx.createLinearGradient(-r, 0, r, 0); ag.addColorStop(0, '#F4F7FA'); ag.addColorStop(.5, '#BFC9D2'); ag.addColorStop(1, '#8E99A3');
+      ctx.beginPath(); ctx.ellipse(0, 0, r * .72, r * .78, 0, 0, 7); ctx.fillStyle = ag; ctx.fill(); ctx.strokeStyle = '#6E7A85'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#F2C14E'; ctx.fillRect(-1.5, -r * .6, 3, r * 1.1);
+      soft(ctx, 0, -r * 1.05, r * .55, r * .52, '#F2C6A4', { lw: 1 });
+      ctx.beginPath(); ctx.moveTo(-r * .55, -r * 1.15); ctx.quadraticCurveTo(-r * .1, -r * 1.85, r * .65, -r * 1.25); ctx.quadraticCurveTo(r * .1, -r * 1.35, -r * .55, -r * 1.15); ctx.fillStyle = '#F2D06A'; ctx.fill();
+      eye(-r * .18, -r * 1.05, r * .09); eye(r * .22, -r * 1.05, r * .09);
+      ctx.strokeStyle = '#7A3A30'; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.arc(r * .05, -r * .9, r * .22, .1, Math.PI - .1); ctx.stroke(); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-r * .12, -r * .9, r * .34, 1.6);
+      ctx.save(); ctx.translate(r * .8, -r * .2); ctx.rotate(-.5 + (moving ? Math.sin(ph) * .2 : 0)); ctx.strokeStyle = '#DCE3E8'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -r * 1.3); ctx.stroke(); ctx.fillStyle = '#B8863B'; ctx.fillRect(-4, -1, 8, 2.5); ctx.restore();
+    } else if (tp === 'swoop' || tp === 'seagull') {
       // drawn separately (flying)
     }
     if (e.hit > 0 && tp !== 'swoop') { ctx.globalAlpha = Math.min(.55, e.hit * 4); flat(ctx, 0, -r * .3, r, r * 1.05, '#FFFFFF'); ctx.globalAlpha = 1; }
@@ -2119,9 +2817,19 @@ const R = (function () {
       if (Math.random() < .06) P({ kind: 'bubble', x: x + (Math.random() - .5) * r, y: hy - r * .6, vy: -22, vx: (Math.random() - .5) * 8, life: .9, size: 1.5 + Math.random() * 1.5, col: '#F2C27A' });
     }
     if (tp === 'swoop') drawSwoop(e, time);
+    if (tp === 'seagull') drawGull(e, time);
+    if (e.frozen > 0) { ctx.globalAlpha = .55; rr(ctx, x - r * 1.1, y - r * 1.9, r * 2.2, r * 2.6, 4); ctx.fillStyle = '#BDE6FF'; ctx.fill(); ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 1.2; ctx.stroke(); ctx.globalAlpha = 1; flat(ctx, x - r * .5, y - r * 1.4, 2, 4, 'rgba(255,255,255,.8)'); }
+    if (e.groggy > 0 && Math.random() < .05) P({ kind: 'pz', x: x + 6, y: y - r * 1.6, vy: -14, vx: 6, life: 1, size: 7, col: '#8E7CFF' });
+    if (e.shocked > 0 && Math.random() < .12) P({ kind: 'spark', x: x + (Math.random() - .5) * r * 2, y: y - Math.random() * r * 2, life: .2, size: 1.6, col: '#9AD8FF' });
+    if (tp === 'mortimer' && !(e.open > 0)) {
+      ctx.globalAlpha = .28 + .08 * Math.sin(time * 4); ctx.beginPath(); ctx.arc(x, y - r * .6, r * 1.45, 0, 7); ctx.fillStyle = '#9AD8FF'; ctx.fill(); ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.arc(x, y - r * .6, r * 1.45, 0, 7); ctx.strokeStyle = 'rgba(80,150,220,.7)'; ctx.lineWidth = 1.4; ctx.stroke();
+      for (let k = 0; k < 3; k++) { const sx2 = x - 12 + k * 12, sy2 = y - r * 2.6; rr(ctx, sx2 - 5, sy2 - 5, 10, 10, 2); ctx.fillStyle = k < (e.stampN || 0) ? '#E0453A' : '#FFFBF0'; ctx.fill(); ctx.strokeStyle = '#7A6A5C'; ctx.lineWidth = 1; ctx.stroke(); if (k < (e.stampN || 0)) text('\u2713', sx2, sy2 + .5, 8, '#FFFFFF'); }
+    }
+    if (tp === 'mortimer' && e.open > 0) { text('APPROVED', x, y - r * 2.6, 10, '#3E8B3A', { outline: 3 }); }
     if (e.wading) { ctx.globalAlpha = .6; flat(ctx, e.x, e.y + r * .45, r * 1.1, r * .32, '#9ED0DC'); ctx.globalAlpha = 1; if (Math.random() < .05) P({ kind: 'ring', x: e.x, y: e.y + r * .45, life: .6, size: r * .6, col: 'rgba(220,245,250,.8)' }); }
     if (e.burn > 0) { for (let q = 0; q < 2; q++) { const fx2 = e.x + (q ? 4 : -4), fy = e.y - r * .4; const h = 6 + Math.sin(time * 18 + q) * 2; ctx.beginPath(); ctx.moveTo(fx2 - 3, fy); ctx.quadraticCurveTo(fx2, fy - h * 1.6, fx2 + 3, fy); ctx.fillStyle = 'rgba(255,140,60,.85)'; ctx.fill(); } if (Math.random() < .15) P({ kind: 'ember', x: e.x, y: e.y - r, vy: -40, vx: (Math.random() - .5) * 20, life: .5, size: 1.6, col: '#FFB04A' }); }
-    const top = (e.flyer ? e.y - 30 : y) - r * (tp === 'skel' || tp === 'pants' || tp === 'gob' || tp === 'stack' || tp === 'pantsalot' ? 1.9 : tp === 'chrisso' ? 1.7 : 1.35);
+    const top = (e.flyer ? e.y - 30 : y) - r * (tp === 'skel' || tp === 'pants' || tp === 'gob' || tp === 'medic' || tp === 'treasure' || tp === 'stack' || tp === 'pantsalot' || tp === 'mortimer' || tp === 'steve' ? 1.9 : tp === 'chrisso' ? 1.7 : tp === 'crab' && e.shield > 0 ? 1.7 : 1.35);
     if (e.hp < e.maxHp && !e.boss) {
       const w = Math.max(16, r * 2); rr(ctx, x - w / 2 - 1, top - 6, w + 2, 4.5, 2.2); ctx.fillStyle = 'rgba(40,30,25,.55)'; ctx.fill();
       rr(ctx, x - w / 2, top - 5, w * Math.max(0, e.hp / e.maxHp), 2.5, 1.2); ctx.fillStyle = '#8BD06A'; ctx.fill();
@@ -2149,6 +2857,19 @@ const R = (function () {
       else if (em.k === 'denied') text('?!', bx + 7, by, 11, '#3B2F2A');
       else if (em.k === 'snag') emoji('🌭', bx + 7, by, 11);
     }
+  }
+  function drawGull(e, time) {
+    const x = e.x, y = e.y - 30, r = e.r, flap = Math.sin(time * 12 + e.wob) * .6;
+    flat(ctx, e.x + 6, e.y + 8, r * .9, r * .3, 'rgba(40,30,20,.15)');
+    ctx.save(); ctx.translate(x, y); ctx.scale(e.dx < 0 ? -1 : 1, 1);
+    for (const s of [-1, 1]) { ctx.save(); ctx.rotate(s * (.2 + flap * .6)); ctx.beginPath(); ctx.ellipse(s * r * .9, -2, r * 1.1, r * .32, s * .2, 0, 7); ctx.fillStyle = '#E6EAEE'; ctx.fill(); ctx.beginPath(); ctx.ellipse(s * r * 1.7, -2.5, r * .35, r * .2, s * .2, 0, 7); ctx.fillStyle = '#3E4650'; ctx.fill(); ctx.restore(); }
+    soft(ctx, 0, 0, r * .8, r * .55, '#FAFBFC', { lw: .8 });
+    soft(ctx, r * .6, -r * .3, r * .38, r * .34, '#FFFFFF', { lw: .8 });
+    eye(r * .72, -r * .38, r * .09);
+    ctx.beginPath(); ctx.moveTo(r * .9, -r * .3); ctx.lineTo(r * 1.4, -r * .2); ctx.lineTo(r * .9, -r * .15); ctx.closePath(); ctx.fillStyle = '#F2C14E'; ctx.fill(); flat(ctx, r * 1.25, -r * .2, 1.2, 1.2, '#E0453A');
+    if (e.hit > 0) { ctx.globalAlpha = Math.min(.55, e.hit * 4); flat(ctx, 0, 0, r, r * .7, '#FFFFFF'); ctx.globalAlpha = 1; }
+    ctx.restore();
+    if (Math.random() < .01) P({ kind: 'junk', x, y, vx: 0, vy: -10, g: 120, vr: 4, life: .8, icon: '🍟', size: 9 });
   }
   function drawSwoop(e, time) {
     const x = e.x, y = e.y - 30, r = e.r, flap = Math.sin(time * 10) * .7;
@@ -2230,8 +2951,9 @@ const R = (function () {
     ctx.restore();
     if (garySwing > 0) {
       const a = garySwing; ctx.globalAlpha = a;
-      ctx.beginPath(); ctx.arc(GARY.x, GARY.y, 40 + (1 - a) * 230, Math.PI * 1.08, Math.PI * 1.92); ctx.lineWidth = 14 * a + 2; ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.stroke();
-      ctx.lineWidth = 4; ctx.strokeStyle = '#FFE58A'; ctx.stroke(); ctx.globalAlpha = 1;
+      const RR = [230, 280, 290, 300, 330][garySwingL - 1] || 230;
+      ctx.beginPath(); ctx.arc(GARY.x, GARY.y, 40 + (1 - a) * RR, Math.PI * 1.08, Math.PI * 1.92); ctx.lineWidth = (14 + garySwingL * 3) * a + 2; ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.stroke();
+      ctx.lineWidth = 4 + garySwingL; ctx.strokeStyle = garySwingL >= 3 ? RAINBOW[Math.floor((1 - a) * 14) % RAINBOW.length] : '#FFE58A'; ctx.stroke(); ctx.globalAlpha = 1;
     }
     if (!sit && !lost) for (let i = 0; i < 3; i++) { const ph = (time * .5 + i / 3) % 1; ctx.globalAlpha = (1 - ph) * .9; text('z', gx + 40 + ph * 14 + i * 2, gy - 18 - ph * 26, 8 + i * 3, '#5A6B8A', { display: true, weight: 700 }); ctx.globalAlpha = 1; }
   }
@@ -2256,8 +2978,54 @@ const R = (function () {
 
   // ---------- map features ----------
   const LIGHT_STRINGS = [[[0, 22], [180, 52], [360, 18]], [[0, 300], [70, 318], [140, 300]], [[200, 248], [260, 262], [360, 238]]];
+  const SHORT = { rat: 'Rats', gob: 'Goblins', skel: 'Skeletons', bog: 'Bog Blokes', pants: 'Pants Skellies', mozzie: 'Mozzies', seagull: 'Seagulls', medic: 'First-Aiders', ratmum: 'Rat Mums', crab: 'Crabs', treasure: 'Treasure!' };
+  function previewBubbles(G) {
+    if (G.waveActive || G.over || G.wave >= G.waveCount || G.mode === 'endless' || (G.runMods && G.runMods.chaos)) return;
+    const def = G.map.waves[G.wave]; if (!def) return;
+    const m = G.map, buckets = {};
+    const add = (key, pos, t, n) => { const b = buckets[key] || (buckets[key] = { pos, items: {} }); b.items[t] = (b.items[t] || 0) + n; };
+    for (const g of def) {
+      const D = ENEMIES[g.t];
+      if (D.flyer) { add('fly', [180, 26], g.t, g.n); continue; }
+      let eIdx = [0];
+      if (m.entr) { if (typeof g.p === 'string' && g.p[0] === 'e') eIdx = [+g.p.slice(1)]; else if (g.p === 'alt' || g.p === 'any') eIdx = m.entr.map((_, i) => i); }
+      else if (m.P.length > 1 && (g.p === 'alt')) eIdx = m.P.map((_, i) => i);
+      else if (typeof g.p === 'number') eIdx = [g.p];
+      const per = Math.ceil(g.n / eIdx.length);
+      for (const ei of eIdx) { const pi = m.entr ? m.entr[ei][0] : ei; const s = m.P[pi].pts[0]; add('e' + ei, [Math.max(54, Math.min(W - 54, s[0])), Math.max(28, Math.min(H - 60, s[1] < 0 ? 26 : s[1]))], g.t, per); }
+    }
+    const tt = performance.now() / 1000;
+    for (const k in buckets) {
+      const b = buckets[k], lines = Object.keys(b.items).map(t => (ENEMIES[t].boss ? ENEMIES[t].name.split(',')[0] : SHORT[t] || t) + ' \u00d7' + b.items[t]);
+      const boss = Object.keys(b.items).some(t => ENEMIES[t].boss);
+      ctx.font = '800 9.5px ' + FONT; const w = Math.max(...lines.map(l => ctx.measureText(l).width)) + 14, h = 8 + lines.length * 12;
+      let x = b.pos[0], y = b.pos[1] + 18 + Math.sin(tt * 3) * 1.5; x = Math.max(w / 2 + 4, Math.min(W - w / 2 - 4, x));
+      rr(ctx, x - w / 2, y, w, h, 7); ctx.fillStyle = boss ? 'rgba(160,30,40,.86)' : 'rgba(50,40,35,.82)'; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x - 5, y); ctx.lineTo(x, y - 6); ctx.lineTo(x + 5, y); ctx.fill();
+      lines.forEach((l, i) => text(l, x, y + 10 + i * 12, 9.5, '#FFF6E2'));
+    }
+  }
   function drawFeatures(G, time, dt) {
     const map = G.map;
+    for (const P of map.P) for (const sg of P.segs) if (sg.tp) {
+      for (const [px, py, col] of [[sg.x1, sg.y1, '#C6A8FF'], [sg.x2, sg.y2, '#7CF2C8']]) {
+        for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4 + time * .5; flat(ctx, px + Math.cos(an) * 20, py + Math.sin(an) * 12 + 2, 2.4, 3, '#F4EEE2'); flat(ctx, px + Math.cos(an) * 20, py + Math.sin(an) * 12, 3.6, 2.4, '#D9534F'); }
+        ctx.save(); ctx.translate(px, py); ctx.rotate(time * 2);
+        for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(0, 0, 14 - k * 4, 8 - k * 2.4, 0, k, k + 4.2); ctx.lineWidth = 2.4; ctx.strokeStyle = col; ctx.globalAlpha = .9 - k * .2; ctx.stroke(); }
+        ctx.restore(); ctx.globalAlpha = 1;
+        const g = ctx.createRadialGradient(px, py, 0, px, py, 18); g.addColorStop(0, rgba(col, .5)); g.addColorStop(1, rgba(col, 0)); ctx.fillStyle = g; ctx.fillRect(px - 18, py - 18, 36, 36);
+      }
+    }
+    if (G.event === 'bloodmoon') { ctx.fillStyle = 'rgba(160,20,40,.13)'; ctx.fillRect(0, 0, W, H); const g = ctx.createRadialGradient(320, 40, 0, 320, 40, 26); g.addColorStop(0, '#FF6A6A'); g.addColorStop(.7, '#C0303C'); g.addColorStop(1, 'rgba(192,48,60,0)'); ctx.fillStyle = g; ctx.fillRect(290, 10, 60, 60); }
+    if (G.event === 'rainbow') { for (let k = 0; k < RAINBOW.length; k++) { ctx.beginPath(); ctx.arc(180, 260, 300 - k * 7, Math.PI * 1.1, Math.PI * 1.9); ctx.lineWidth = 7; ctx.strokeStyle = RAINBOW[k]; ctx.globalAlpha = .22; ctx.stroke(); } ctx.globalAlpha = 1; }
+    if (G.merchant && G.merchant.offers.some(o => !o.sold)) {
+      const mx = 44, my = 552, b2 = Math.sin(time * 4) * 2;
+      flat(ctx, mx, my + 12, 24, 6, 'rgba(40,30,20,.2)');
+      rr(ctx, mx - 20, my - 8, 40, 18, 3); ctx.fillStyle = '#A9784A'; ctx.fill();
+      for (let k = 0; k < 4; k++) { ctx.fillStyle = k % 2 ? '#FFF6E2' : '#5C9BE0'; ctx.fillRect(mx - 22 + k * 11, my - 22, 11, 8); }
+      flat(ctx, mx - 12, my + 10, 5, 5, '#3B2F2A'); flat(ctx, mx + 12, my + 10, 5, 5, '#3B2F2A');
+      rr(ctx, mx - 22, my - 46 + b2, 44, 18, 9); ctx.fillStyle = '#FFE07A'; ctx.fill(); text('SHOP', mx, my - 37 + b2, 10, '#3B2F2A');
+    }
     if (THEMES[map.theme].lights) {
       LIGHT_STRINGS.forEach((s, si) => {
         ctx.strokeStyle = 'rgba(60,45,35,.55)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(s[0][0], s[0][1]); ctx.quadraticCurveTo(s[1][0], s[1][1] + 12, s[2][0], s[2][1]); ctx.stroke();
@@ -2330,7 +3098,7 @@ const R = (function () {
     G.towers.forEach((t, i) => { if (t && t.type === 'sizzle') { const r = TOWERS.sizzle.tiers[t.tier].aura * G.mods.sizzleRange, p = map.pads[i]; const g = ctx.createRadialGradient(p[0], p[1], r * .4, p[0], p[1], r); g.addColorStop(0, 'rgba(255,240,200,0)'); g.addColorStop(1, 'rgba(255,240,200,.16)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 7); ctx.fill(); } });
     if (opts.selPad >= 0) {
       const p = map.pads[opts.selPad], t = G.towers[opts.selPad];
-      const rng = t ? (t.type === 'sizzle' ? TOWERS.sizzle.tiers[t.tier].aura * G.mods.sizzleRange : TOWERS[t.type].tiers[t.tier].range) : 90;
+      const rng = (t ? (t.type === 'sizzle' ? TOWERS.sizzle.tiers[t.tier].aura * G.mods.sizzleRange : TOWERS[t.type].tiers[t.tier].range) : 90) * (p[2] === 'high' && !(t && t.type === 'sizzle') ? 1.2 : 1);
       ctx.beginPath(); ctx.arc(p[0], p[1], rng, 0, 7); ctx.fillStyle = 'rgba(255,240,180,.16)'; ctx.fill(); ctx.setLineDash([5, 6]); ctx.lineWidth = 1.6; ctx.strokeStyle = 'rgba(80,60,40,.45)'; ctx.stroke(); ctx.setLineDash([]);
     }
     // pads
@@ -2338,6 +3106,7 @@ const R = (function () {
       if (G.towers[i]) return;
       const afford = G.gold >= towerCost(G, 'chuck') && !G.over;
       if (afford) { const a = .3 + .2 * Math.sin(time * 3 + i); const g = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], 26); g.addColorStop(0, 'rgba(255,245,190,' + a + ')'); g.addColorStop(1, 'rgba(255,245,190,0)'); ctx.fillStyle = g; ctx.fillRect(p[0] - 26, p[1] - 26, 52, 52); }
+      padDecor(p);
       flat(ctx, p[0], p[1] + 4, 20, 6, 'rgba(40,30,20,.15)');
       rr(ctx, p[0] - 17, p[1] - 7, 34, 15, 4); const pg = ctx.createLinearGradient(0, p[1] - 7, 0, p[1] + 8); pg.addColorStop(0, '#DDB884'); pg.addColorStop(1, '#B98F5C'); ctx.fillStyle = pg; ctx.fill();
       ctx.strokeStyle = 'rgba(90,60,35,.45)'; ctx.lineWidth = 1; ctx.beginPath(); for (const dx of [-8, 0, 8]) { ctx.moveTo(p[0] + dx, p[1] - 7); ctx.lineTo(p[0] + dx, p[1] + 8); } ctx.stroke();
@@ -2364,7 +3133,8 @@ const R = (function () {
     for (const p of G.projs) {
       let tr = trails.get(p); if (!tr) { tr = []; trails.set(p, tr); }
       const rem0 = Math.hypot(p.tx - p.x, p.ty - p.y), k0 = Math.max(0, Math.min(1, 1 - rem0 / p.dist0));
-      const h0 = p.kind === 'needle' || p.kind === 'snag' ? 0 : p.kind === 'tub' ? Math.sin(k0 * Math.PI) * Math.min(80, p.dist0 * .7) : Math.sin(k0 * Math.PI) * Math.min(p.kind === 'whisky' ? 48 : 42, p.dist0 * (p.kind === 'whisky' ? .45 : .4));
+      if (p.kind === 'meteor' || p.kind === 'caravan') { /* no trail */ }
+      const h0 = p.kind === 'needle' || p.kind === 'snag' || p.kind === 'meteor' || p.kind === 'caravan' ? 0 : p.kind === 'bin' ? Math.sin(k0 * Math.PI) * Math.min(90, p.dist0 * .7) : p.kind === 'tub' ? Math.sin(k0 * Math.PI) * Math.min(80, p.dist0 * .7) : Math.sin(k0 * Math.PI) * Math.min(p.kind === 'whisky' ? 48 : 42, p.dist0 * (p.kind === 'whisky' ? .45 : .4));
       tr.push([p.x, p.y - h0]); if (tr.length > 9) tr.shift();
       if (tr.length > 1) {
         for (let k = 2; k < tr.length; k += 2) {
@@ -2372,6 +3142,20 @@ const R = (function () {
           ctx.strokeStyle = p.crit ? RAINBOW[k % RAINBOW.length] : p.kind === 'whisky' ? 'rgba(233,162,74,' + al * .7 + ')' : p.kind === 'needle' ? 'rgba(255,150,200,' + al * .7 + ')' : 'rgba(255,255,255,' + al * .75 + ')';
           ctx.lineWidth = (p.crit ? 3.5 : 2.6) * al; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(tr[k - 2][0], tr[k - 2][1]); ctx.lineTo(tr[k][0], tr[k][1]); ctx.stroke();
         }
+      }
+      if (p.kind === 'meteor' || p.kind === 'caravan') {
+        const big = p.kind === 'caravan';
+        flat(ctx, p.tx, p.ty + 4, big ? 26 : 8, big ? 8 : 3, 'rgba(40,30,20,' + (big ? .3 : .2) + ')');
+        for (let k = 0; k < 3; k++) { const g = ctx.createRadialGradient(p.x, p.y - 8 - k * 8, 0, p.x, p.y - 8 - k * 8, (big ? 18 : 8) - k * 2); g.addColorStop(0, 'rgba(255,200,90,.7)'); g.addColorStop(1, 'rgba(255,120,60,0)'); ctx.fillStyle = g; ctx.fillRect(p.x - 20, p.y - 40, 40, 40); }
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.spin); emoji(big ? '🚐' : p.icon, 0, 0, big ? 40 : 16); ctx.restore();
+        if (Math.random() < .6) P({ kind: 'ember', x: p.x + (Math.random() - .5) * 8, y: p.y - 6, vy: -30, life: .4, size: 2, col: '#FFB04A' });
+        continue;
+      }
+      if (p.kind === 'bin') {
+        const rem = Math.hypot(p.tx - p.x, p.ty - p.y), k = Math.max(0, Math.min(1, 1 - rem / p.dist0)), h = Math.sin(k * Math.PI) * Math.min(90, p.dist0 * .7);
+        flat(ctx, p.x, p.y + 4, 10, 3, 'rgba(40,30,20,.25)');
+        ctx.save(); ctx.translate(p.x, p.y - h); ctx.rotate(k * 9); rr(ctx, -8, -11, 16, 22, 3); ctx.fillStyle = '#4E9A52'; ctx.fill(); rr(ctx, -9, -13, 18, 4, 2); ctx.fillStyle = '#356B35'; ctx.fill(); ctx.restore();
+        continue;
       }
       if (p.kind === 'tub') {
         const rem = Math.hypot(p.tx - p.x, p.ty - p.y), k = Math.max(0, Math.min(1, 1 - rem / p.dist0));
@@ -2425,6 +3209,17 @@ const R = (function () {
       ctx.globalAlpha = 1 - Math.max(0, k - .8) * 5; emoji(f.item.icon, x, y, 13 + Math.sin(k * Math.PI) * 4); ctx.globalAlpha = 1;
     }
     drawClouds(G, time);
+    // ability ready badges
+    G.towers.forEach((t, i) => {
+      if (!t || !abilityReady(G, i) || !G.waveActive) return;
+      const p = map.pads[i], bx = p[0] + 16, by = p[1] - 44 + Math.sin(time * 5 + i) * 2;
+      const g = ctx.createRadialGradient(bx, by, 0, bx, by, 13); g.addColorStop(0, 'rgba(255,230,120,.9)'); g.addColorStop(1, 'rgba(255,230,120,0)'); ctx.fillStyle = g; ctx.fillRect(bx - 13, by - 13, 26, 26);
+      ctx.beginPath(); ctx.arc(bx, by, 7.5, 0, 7); ctx.fillStyle = '#FFD24A'; ctx.fill(); ctx.strokeStyle = '#C98A1E'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(bx + 1, by - 5); ctx.lineTo(bx - 3, by + 1); ctx.lineTo(bx, by + 1); ctx.lineTo(bx - 1, by + 5); ctx.lineTo(bx + 3, by - 1); ctx.lineTo(bx, by - 1); ctx.closePath(); ctx.fillStyle = '#3B2F2A'; ctx.fill();
+    });
+    previewBubbles(G);
+    if (dreamT > 0) { const a = Math.min(1, dreamT) * .45; const g = ctx.createRadialGradient(W / 2, H / 2, H * .25, W / 2, H / 2, H * .75); g.addColorStop(0, 'rgba(120,100,255,0)'); g.addColorStop(1, 'rgba(110,80,230,' + a + ')'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
+    if (G.enemies.some(e => e.frozen > 0)) { ctx.fillStyle = 'rgba(170,220,255,.16)'; ctx.fillRect(0, 0, W, H); }
     for (const n of nums) {
       const dur = n.crit ? 1.1 : .7, a = 1 - n.t / dur, rise = n.t * (n.crit ? 30 : 38) - (n.t < .12 ? 0 : 0);
       const sc = n.crit ? 1 + Math.max(0, .2 - n.t) * 4 : 1 + Math.max(0, .1 - n.t) * 3;
@@ -2458,7 +3253,7 @@ const R = (function () {
     for (let k = 0; k < 70; k++) P({ kind: 'confetti', x: Math.random() * W, y: -10 - Math.random() * 60, vx: (Math.random() - .5) * 40, vy: 60 + Math.random() * 80, g: 40, rot: Math.random() * 6, vr: (Math.random() - .5) * 10, life: 2.4 + Math.random(), size: 3 + Math.random() * 2, col: RAINBOW[k % RAINBOW.length] });
   }
   function takeHitstop() { const h = hitstop; hitstop = 0; return h; }
-  function reset() { nums.length = 0; flash = 0; hitstop = 0; parts.length = 0; pops.length = 0; flyers.length = 0; for (const k in towerAnim) delete towerAnim[k]; shake = 0; garySwing = 0; garyRoll = 0; hintGate = true; }
+  function reset() { dreamT = 0; freezeT = 0; nums.length = 0; flash = 0; hitstop = 0; parts.length = 0; pops.length = 0; flyers.length = 0; for (const k in towerAnim) delete towerAnim[k]; shake = 0; garySwing = 0; garyRoll = 0; hintGate = true; }
   return { frame, reset, celebrate, takeHitstop, invalidate: () => { bgKey = ''; } };
 })();
 
@@ -2468,10 +3263,14 @@ const R = (function () {
 (function () {
   const $ = id => document.getElementById(id);
   const stage = $('stage'), C = $('cv'), ctx = C.getContext('2d');
-  const KEY = 'hml.meta.v3', RUNKEY = 'hml.run.v3';
+  const KEY = 'hml.meta.v3', RUNKEY = 'hml.run.v4';
   let scale = 1, dpr = 1;
   let meta = loadMeta(), G = null, state = 'home', paused = false, speed = 1, selPad = -1, sheetMode = null, menuOpen = false, menuTab = 'skills';
-  let toldEarly = false, jobToasted = {}, jobTick = 0;
+  let toldEarly = false, jobToasted = {}, jobTick = 0, bossOn = false, bannerTimer = 0;
+  function banner(title, sub, kind) {
+    const b = $('banner'); b.className = 'show ' + (kind || ''); b.innerHTML = '<b>' + title + '</b>' + (sub ? '<span>' + sub + '</span>' : '');
+    clearTimeout(bannerTimer); bannerTimer = setTimeout(() => { b.className = ''; }, kind === 'boss' ? 2800 : 1900);
+  }
   let lastHud = '', toldGrab = false, toldHat = false, lastSaved = null, homeMap = 0, pointerDown = false, storageOk = true;
 
   // ---------- saving ----------
@@ -2480,7 +3279,11 @@ const R = (function () {
     const out = Object.assign(d, m, { v: 3, xp: Object.assign(d.xp, m.xp || {}), stash: m.stash || {}, maps: m.maps || {},
       totals: Object.assign(d.totals, m.totals || {}), settings: Object.assign(d.settings, { sound: true, volume: .6 }, m.settings || {}),
       shed: m.shed || {}, rocks: m.rocks || 0, jobs: m.jobs || [], jobsDone: m.jobsDone || 0,
-      daily: Object.assign({ done: {}, count: 0 }, m.daily || {}), endlessBest: m.endlessBest || {} });
+      daily: Object.assign({ done: {}, count: 0 }, m.daily || {}), endlessBest: m.endlessBest || {},
+      dreams: Object.assign({ swing: 1 }, m.dreams || {}), equip: (m.equip || [null, null, null]).concat([null, null, null]).slice(0, 3), synergies: m.synergies || {}, shards: m.shards || 0 });
+    if (m.garyXp == null) out.garyXp = Math.min(4500, ((out.totals && out.totals.kills) || 0) + (out.wins || 0) * 100);
+    const gl = garyInfo(out.garyXp).L; for (const id of DREAM_ORDER) if (DREAM_UNLOCK[id] <= gl && !out.dreams[id]) out.dreams[id] = 1;
+    if (!out.dreams[out.dreamEquip]) out.dreamEquip = 'swing';
     ensureJobs(out); return out;
   }
   function loadMeta() {
@@ -2489,7 +3292,7 @@ const R = (function () {
       const old = localStorage.getItem('hml.meta.v1');
       if (old) { const o = JSON.parse(old); const m = mergeMeta(o); if (o.wins) m.maps.nap = { plays: o.runs || 0, wins: o.wins, stars: 1, bestKept: o.bestKept || 0 }; return m; }
     } catch (e) {}
-    const d = defaultMeta(); d.settings.sound = true; d.settings.volume = .6; ensureJobs(d); return d;
+    const d = defaultMeta(); d.settings.sound = true; d.settings.volume = .6; d.settings.music = true; ensureJobs(d); return d;
   }
   function saveMeta() {
     try { localStorage.setItem(KEY, JSON.stringify(meta)); lastSaved = new Date(); storageOk = true; flashSaved(); return true; }
@@ -2519,7 +3322,7 @@ const R = (function () {
 
   // ---------- HUD ----------
   function hud() {
-    const key = G ? [G.gold, G.wave, G.pile, G.pileMax, G.pokes, G.waveActive, paused, speed, G.over, state, canCallEarly(G)].join('|') : 'none|' + state;
+    const key = G ? [G.gold, G.wave, G.pile, G.pileMax, Math.floor(G.meter), G.enemies.length > 0, G.waveActive, paused, speed, G.over, state, canCallEarly(G)].join('|') : 'none|' + state;
     if (key !== lastHud) {
       lastHud = key;
       $('gold').textContent = G ? G.gold : '\u2013';
@@ -2527,7 +3330,10 @@ const R = (function () {
       const pips = []; if (G) for (let i = 0; i < G.pileMax; i++) pips.push('<i class="pip' + (i < G.pile ? '' : ' gone') + '"></i>');
       $('pile').innerHTML = pips.join('');
       const playing = G && state === 'play';
-      const pb = $('pokeBtn'); pb.textContent = 'Poke Gary (' + (G ? G.pokes : 0) + ')'; pb.disabled = !(playing && G.pokes > 0 && G.waveActive && !G.over);
+      const pb = $('pokeBtn'), pct = G ? Math.floor(G.meter) : 0, ready = G && canDream(G);
+      pb.style.setProperty('--fill', pct + '%'); pb.classList.toggle('ready', !!ready);
+      pb.innerHTML = G ? (ready ? '<b>UNLEASH</b><small>' + DREAMS[G.dream].name + '</small>' : '<b>Gary\u2019s Dream</b><small>' + pct + '%</small>') : '<b>Gary\u2019s Dream</b>';
+      pb.disabled = !(playing && ready);
       const sb = $('startBtn');
       if (G && G.waveActive && canCallEarly(G)) { sb.textContent = 'Send next early +' + earlyBonus(G); sb.disabled = !playing; sb.classList.add('early'); }
       else if (G && G.waveActive) { sb.textContent = 'Wave ' + G.wave + (isFinite(G.waveCount) ? '/' + G.waveCount : ''); sb.disabled = true; sb.classList.remove('early'); }
@@ -2537,8 +3343,11 @@ const R = (function () {
       $('menuBtn').disabled = state === 'draft' || state === 'results';
       if (sheetMode) renderSheet();
     }
-    const boss = G && G.enemies.find(e => e.boss);
+    if (G && state === 'play' && !toldAbility && G.waveActive && G.towers.some((t, i) => abilityReady(G, i))) { toldAbility = true; if (!meta.toldAbility) { meta.toldAbility = 1; toast('A lightning badge means a tower\u2019s ability is ready. Tap the tower to use it.', 'big'); } }
+    if (sheetMode === 'tower' && G && performance.now() - lastSheetR > 500) { lastSheetR = performance.now(); renderSheet(); }
+    const boss = G && G.enemies.find(e => e.boss && !e.mini);
     const bb = $('bossbar');
+    if (!!boss !== bossOn) { bossOn = !!boss; stage.classList.toggle('bossfight', bossOn); if (meta.settings.music !== false) SFX.music(bossOn ? 'boss' : (G && state === 'play' ? 'calm' : '')); }
     stage.classList.toggle('boss', !!boss);
     if (boss) { bb.hidden = false; $('bossfill').style.width = Math.max(0, 100 * boss.hp / boss.maxHp) + '%'; $('bossname').textContent = boss.name; }
     else bb.hidden = true;
@@ -2562,14 +3371,23 @@ const R = (function () {
       else if (e.type === 'stolen') toast(e.carry ? 'Gone, with ' + e.carry.name + '. -' + e.n + ' from the pile.' : e.n + (e.n > 1 ? ' items' : ' item') + ' nicked from the pile.', 'bad');
       else if (e.type === 'waveStart') SFX.play('wave');
       else if (e.type === 'rareDrop') { SFX.play('rare'); toast(RARITY[e.item.tier].k + ' drop: ' + e.item.name, 'rare'); }
-      else if (e.type === 'boss') { SFX.play('boss'); const d = ENEMIES[e.type]; toast(d.intro, 'big'); setTimeout(() => toast(d.tip), 2600); }
-      else if (e.type === 'bossDead') toast(ENEMIES[e.type].name.split(',')[0] + ' is down. Loot everywhere.', 'rare');
+      else if (e.type === 'boss') { SFX.play('boss'); const d = ENEMIES[e.bt]; const parts = d.intro.split('. '); banner(parts[0], parts.slice(1).join('. '), 'boss'); setTimeout(() => toast(d.tip, 'big'), 2900); }
+      else if (e.type === 'bossDead') { banner(ENEMIES[e.bt].name.split(',')[0] + ' is down!', 'Loot everywhere.', 'win'); }
+      else if (e.type === 'perfect') { SFX.play('perfect'); banner('PERFECT DEFENCE', '+' + e.bonus + ' gold, a Dream Shard and dream charge', 'perfect'); }
+      else if (e.type === 'synergy' && e.first) toast('New synergy: ' + SYNERGIES.find(s => s.id === e.id).name + '. ' + SYNERGIES.find(s => s.id === e.id).desc, 'rare');
+      else if (e.type === 'dreamReady') { SFX.play('ready'); if (!toldDream) { toldDream = true; toast('Gary\u2019s dream is ready. Tap UNLEASH when it counts.', 'big'); } }
+      else if (e.type === 'event') { SFX.play('event'); const E = EVENTS.find(x => x.id === e.id); banner(E.name, E.desc, 'event'); }
+      else if (e.type === 'approved') toast('Mortimer\u2019s form is approved. Hit him now!', 'rare');
+      else if (e.type === 'credit' && !toldCredit) { toldCredit = true; toast('Steve took credit for a tower\u2019s work. It\u2019s sulking for 3 seconds.', 'bad'); }
+      else if (e.type === 'enrage') toast(ENEMIES[e.tt].name.split(',')[0] + ' is ENRAGED!', 'bad');
+      else if (e.type === 'treasure') SFX.play('rare');
       else if (e.type === 'hatsteal' && !toldHat) { toldHat = true; toast('Big Swoop nicked a hat. That crew is too scared to work for a bit.', 'bad'); }
       else if (e.type === 'chug') toast('Chrisso drank a whisky puddle. He feels great. Keep Jezza\u2019s puddles off his path.', 'bad');
       else if (e.type === 'ultimate') toast('ULTIMATE unlocked: ' + TIER_NOTES[e.tt][3].replace('ULTIMATE: ', '') + '!', 'rare');
       else if (e.type === 'levelUp') toast('Level up! ' + SKILL_NAMES[e.s] + ' ' + e.L + '. Your crew just got better.', 'rare');
       else if (e.type === 'poke') toast(e.ok ? 'Gary swung his sword in his sleep.' : 'Gary rolled over and knocked his thong off the pile.', e.ok ? 'rare' : 'bad');
       else if (e.type === 'waveEnd') { saveRun(); setTimeout(() => showDraft(e.wave, e.bonus), 550); }
+      else if (e.type === 'dream') { /* visuals in renderer */ }
       else if (e.type === 'over') { if (G.won) { R.celebrate(); SFX.play('win'); } else SFX.play('lose'); setTimeout(showResults, G.won ? 1400 : 1500); }
     }
     jobTick -= 1;
@@ -2587,6 +3405,7 @@ const R = (function () {
     const p = logical(ev);
     const gt = G.map.gate;
     if (gt && Math.abs(p.x - gt.x) < 32 && p.y > gt.y - 44 && p.y < gt.y + 26 && !G.over) { toggleGate(G); return; }
+    if (G.merchant && G.merchant.offers.some(o => !o.sold) && Math.abs(p.x - 44) < 30 && p.y > 500 && p.y < 575) { showMerchant(); return; }
     if (!paused && tapAt(G, p.x, p.y)) { pointerDown = true; return; }
     let hit = -1;
     G.map.pads.forEach((pd, i) => { if (Math.abs(p.x - pd[0]) < 22 && p.y > pd[1] - 46 && p.y < pd[1] + 16) hit = i; });
@@ -2598,6 +3417,7 @@ const R = (function () {
 
   // ---------- build sheet ----------
   let sellArmed = -1, sheetOpenedAt = 0;
+  function padNote(i) { const t = G.map.pads[i][2]; return t === 'high' ? '<p class="padnote high">High ground: +20% range.</p>' : t === 'shady' ? '<p class="padnote shady">Shady spot: crew work 15% faster.</p>' : ''; }
   function closeSheet() { selPad = -1; sheetMode = null; sellArmed = -1; $('sheet').hidden = true; }
   function renderSheet() {
     const s = $('sheet'); if (!G || !sheetMode || selPad < 0) { s.hidden = true; return; }
@@ -2605,7 +3425,7 @@ const R = (function () {
     if (sheetMode === 'build' && G.towers[selPad]) sheetMode = 'tower';
     if (sheetMode === 'tower' && !G.towers[selPad]) sheetMode = 'build';
     if (sheetMode === 'build') {
-      s.innerHTML = '<div class="sheet-head"><span>Build here</span><button class="x" data-act="close">Close</button></div><div class="cards4">' +
+      s.innerHTML = '<div class="sheet-head"><span>Build here</span><button class="x" data-act="close">Close</button></div>' + padNote(selPad) + '<div class="cards4">' +
         Object.keys(TOWERS).map(k => {
           const d = TOWERS[k], c = towerCost(G, k), ok = G.gold >= c;
           if (!towerUnlocked(meta, k)) return '<button class="tcard locked" disabled><b>' + d.name + '</b><small>' + d.crew + '</small><span class="blurb">Joins after ' + (d.unlockWins === 1 ? 'your first win' : 'you\u2019ve won ' + d.unlockWins + ' times') + '.</span></button>';
@@ -2618,8 +3438,12 @@ const R = (function () {
       if (uc == null) upBtn = '<button class="btn ultdone" disabled>Ultimate reached</button>';
       else if (locked) upBtn = '<button class="btn" disabled>Ultimate unlocks at ' + SKILL_NAMES[d.skill] + ' ' + ULT_LEVEL + ' (you\u2019re ' + lvl + ')</button>';
       else upBtn = '<button class="btn ' + (isUlt ? 'ultbtn' : 'primary') + '" data-act="up"' + (G.gold >= uc ? '' : ' disabled') + '>' + (isUlt ? TIER_NOTES[t.type][t.tier + 1] : 'Upgrade: ' + TIER_NOTES[t.type][t.tier + 1]) + ' (' + uc + ')</button>';
+      const A = ABIL[t.type], ar = abilityReady(G, selPad);
+      const abil = t.tier < 1 ? '<p class="abil locked">Ability <b>' + A.name + '</b> unlocks at tier 2.</p>'
+        : '<button class="btn abilbtn' + (ar && G.waveActive ? ' ready' : '') + '" data-act="abil"' + (ar && G.waveActive ? '' : ' disabled') + '><b>' + A.name + '</b><small>' + (ar ? (G.waveActive ? A.desc : 'Ready. Use it during a wave.') : 'Recharging: ' + Math.ceil(t.acd) + 's') + '</small></button>';
       s.innerHTML = '<div class="sheet-head"><span>' + d.name + '</span><button class="x" data-act="close">Close</button></div>' +
-        '<p class="tinfo">' + d.crew + ', ' + SKILL_NAMES[d.skill] + ' level ' + lvl + '. Tier ' + (t.tier + 1) + ' of 4: ' + TIER_NOTES[t.type][t.tier] + '.' + (t.hatless > 0 ? ' Lost their hat. Too scared to work.' : '') + '</p>' +
+        abil + padNote(selPad) +
+        '<p class="tinfo">' + d.crew + ', ' + SKILL_NAMES[d.skill] + ' level ' + lvl + '. Tier ' + (t.tier + 1) + ' of 4: ' + TIER_NOTES[t.type][t.tier] + '.' + (t.hatless > 0 ? (t.credit > 0 ? ' Steve took the credit. Sulking.' : ' Lost their hat. Too scared to work.') : '') + '</p>' +
         (isUlt || d.tiers[t.tier].ult ? '<p class="ultdesc">' + ULT_DESC[t.type] + '</p>' : '') +
         '<div class="row2">' + upBtn + '<button class="btn' + (sellArmed === selPad ? ' danger' : '') + '" data-act="sell">' + (sellArmed === selPad ? 'Tap again to sell' : 'Sell for ' + sellValue(G, selPad)) + '</button></div>';
     }
@@ -2635,6 +3459,7 @@ const R = (function () {
     if (b.dataset.build) { const k = b.dataset.build; if (build(G, selPad, k) && k === 'jezza' && !meta.jezzaQuip) { meta.jezzaQuip = 1; toast('Jezza: \u201cIt\u2019s a waste of good whisky. Luckily it\u2019s not good whisky.\u201d', 'big'); }
       else if (G.towers[selPad] && k === 'bev' && !meta.bevQuip) { meta.bevQuip = 1; toast('Bev: \u201cThey\u2019re not pests. They\u2019re colleagues.\u201d', 'big'); } closeSheet(); }
     else if (b.dataset.act === 'up') { sellArmed = -1; upgrade(G, selPad); renderSheet(); }
+    else if (b.dataset.act === 'abil') { if (activate(G, selPad)) { SFX.play('ability'); closeSheet(); } else { toast('Nothing in range to hit.'); } }
     else if (b.dataset.act === 'sell') { sell(G, selPad); closeSheet(); }
     else if (b.dataset.act === 'close') closeSheet();
     lastHud = ''; saveRun();
@@ -2646,7 +3471,7 @@ const R = (function () {
     if (!G.waveActive) { saveRun(); if (startWave(G)) { closeSheet(); lastHud = ''; } }
     else if (canCallEarly(G)) { startWave(G); lastHud = ''; if (!toldEarly) { toldEarly = true; toast('Called early: bonus gold, but no card for that wave.'); } }
   });
-  $('pokeBtn').addEventListener('click', () => { if (G) { poke(G); lastHud = ''; } });
+  $('pokeBtn').addEventListener('click', () => { if (G && state === 'play' && !paused) { unleash(G); lastHud = ''; } });
   $('pauseBtn').addEventListener('click', () => { paused = !paused; lastHud = ''; });
   $('speedBtn').addEventListener('click', () => { speed = speed === 1 ? 2 : 1; lastHud = ''; });
   $('menuBtn').addEventListener('click', () => openMenu(G ? 'skills' : 'skills'));
@@ -2677,6 +3502,7 @@ const R = (function () {
     return '<div class="jobs">' + list.map(j => { const p = jobLive(j, G2); return '<div class="job"><div class="jt"><span>' + jobText(j) + '</span><b>+' + j.reward + '</b></div><div class="bar"><i style="width:' + Math.round(100 * p / j.n) + '%"></i></div><small>' + Math.floor(p) + ' / ' + j.n + '</small></div>'; }).join('') + '</div>';
   }
   function showHome() {
+    SFX.music(''); bossOn = false; stage.classList.remove('bossfight');
     state = 'home'; G = null; menuOpen = false; closeSheet(); R.reset(); lastHud = '';
     ensureJobs(meta);
     const run = loadRun();
@@ -2693,11 +3519,20 @@ const R = (function () {
     const bestEndless = Math.max(0, ...Object.values(meta.endlessBest || {}));
     const jezzaBanner = towerUnlocked(meta, 'jezza') && !meta.jezzaSeen ? '<div class="banner"><b>New crew: Jezza</b><span>He throws whisky. Tipsy monsters stumble, slow down and take 25% more damage. Find him in the build menu.</span></div>' : '';
     if (jezzaBanner) { meta.jezzaSeen = true; saveMeta(); }
+    if (!meta.runs && !run) {
+      openModal('<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff. Stop them.</p>' +
+        '<ul class="how first"><li><b>Tap a wooden pad</b> to build a tower.</li><li><b>Tap Start wave</b> and watch your crew go.</li><li><b>Loot</b> drops on the road. Grab it before monsters wear it.</li><li><b>Gary\u2019s Dream</b> fills as you fight. Unleash it when things get hairy.</li></ul>' +
+        '<button class="btn primary big" id="firstBtn" data-focus>Defend Gary</button>' +
+        '<p class="clive">\u201cAny questions? Good, because I\u2019m not qualified to answer them.\u201d <span>Clive, Volunteer Coordinator</span></p>', 'home');
+      $('firstBtn').onclick = () => startLevel(0);
+      return;
+    }
     const bevBanner = !jezzaBanner && towerUnlocked(meta, 'bev') && !meta.bevSeen ? '<div class="banner"><b>New crew: Bev</b><span>Bev summons bin chickens that peck and pester monsters. Pigeons join at tier 2. Find her in the build menu.</span></div>' : '';
     if (bevBanner) { meta.bevSeen = true; saveMeta(); }
     openModal(
       '<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + jezzaBanner + bevBanner +
       (runMap ? '<button class="btn primary big cont" id="contBtn" data-focus>Continue: ' + (run.mode === 'endless' ? 'Long Nap' : run.mode === 'daily' ? 'Daily Nap' : runMap.name) + ', wave ' + (run.wave + 1) + '</button>' : '') +
+      garyCard() +
       '<div class="rockrow"><span class="rockic" aria-hidden="true"></span><span><b>' + (meta.rocks || 0) + '</b> Shiny Rocks</span><button class="btn" id="shedBtn">Clive\u2019s Shed</button></div>' +
       '<h2 class="h2">Odd jobs</h2>' + jobsHTML(meta.jobs, null) +
       '<h2 class="h2">Play</h2>' +
@@ -2706,16 +3541,85 @@ const R = (function () {
       '<h2 class="h2">Levels</h2><div class="levels">' + levels + '</div>' +
       (run ? '<p class="small">Starting something new replaces your saved run.</p>' : '') +
       '<details class="how"' + (meta.runs ? '' : ' open') + '><summary>How to play</summary><ul>' +
-      '<li>Tap a wooden pad to build. Tap a tower to upgrade it.</li><li>Monsters drop loot. It collects itself, but tap or swipe it to grab it first. Monsters that reach it pick it up and get tougher.</li><li>Kill fast for combos. Call the next wave early for bonus gold.</li><li>Level a crew\u2019s skill to 5 to unlock their tier 4 ULTIMATE.</li><li>Poke Gary once a run. Usually he swings his sword. Usually.</li><li>Every run levels your crew, earns Shiny Rocks for Clive\u2019s Shed, and chips away at your odd jobs.</li></ul></details>' +
+      '<li>Tap a wooden pad to build. Tap a tower to upgrade it.</li><li>Monsters drop loot. It collects itself, but tap or swipe it to grab it first. Monsters that reach it pick it up and get tougher.</li><li>Kill fast for combos. Call the next wave early for bonus gold.</li><li>Level a crew\u2019s skill to 5 to unlock their tier 4 ULTIMATE.</li><li>Gary\u2019s dream meter fills as you fight. Tap UNLEASH for a huge attack.</li><li>Towers at tier 2 get an ability. Tap the tower when you see the lightning badge.</li><li>Some crew combos trigger hidden synergies. Find them all.</li><li>Every run levels your crew, earns Shiny Rocks for Clive\u2019s Shed, and chips away at your odd jobs.</li></ul></details>' +
       '<p class="clive">\u201cAny questions? Good, because I\u2019m not qualified to answer them.\u201d <span>Clive, Volunteer Coordinator</span></p>', 'home');
     if ($('contBtn')) $('contBtn').onclick = () => continueRun(run);
     $('shedBtn').onclick = showShed;
+    $('gearBtn').onclick = () => showGear('dreams');
     if (won) { $('dailyBtn').onclick = () => startDaily(); $('longBtn').onclick = () => pickLong(); }
     $('modalCard').querySelectorAll('.level').forEach(b => {
-      b.onclick = () => startLevel(+b.dataset.map);
+      b.onclick = () => showLevel(+b.dataset.map);
       b.onfocus = b.onmouseenter = () => { homeMap = +b.dataset.map; };
     });
   }
+  function garyCard() {
+    const gi = garyInfo(meta.garyXp), nextU = GARY_UNLOCKS.find(x => x.L > gi.L);
+    const D = DREAMS[meta.dreamEquip] || DREAMS.swing, dl = meta.dreams[meta.dreamEquip] || 1;
+    return '<div class="garycard"><div class="gtop"><b>Gary, Level ' + gi.L + '</b><span>' + gi.into + ' / ' + gi.need + ' XP</span></div><div class="bar"><i style="width:' + Math.round(100 * gi.into / gi.need) + '%"></i></div>' +
+      (nextU ? '<small>Level ' + nextU.L + ': ' + nextU.text + '</small>' : '<small>Max unlocks reached. Gary is living his best life.</small>') +
+      '<div class="grow"><span>Dream: <b>' + D.icon + ' ' + D.name + ' Lv' + dl + '</b></span><span><i class="shardic"></i>' + (meta.shards || 0) + '</span><button class="btn" id="gearBtn">Gary\u2019s Gear</button></div></div>';
+  }
+  function showLevel(i) {
+    const m = MAPS[i], ms = meta.maps[m.id] || {}, won = (ms.wins || 0) > 0, gl = garyInfo(meta.garyXp).L;
+    const pick = Object.assign({}, levelMods[i] || {});
+    const render = () => {
+      const n = Object.keys(pick).filter(k => pick[k]).length;
+      openModal('<div class="menu-head"><h2 class="title sm">' + (i + 1) + '. ' + m.name + '</h2><button class="btn" id="lvBack">Back</button></div>' +
+        '<p class="lede sm">' + m.blurb + '</p>' + starsHTML(ms.stars || 0) +
+        '<p class="small">Boss: ' + ENEMIES[m.boss].name.split(',')[0] + (ms.bestKept ? '. Best: Gary kept ' + ms.bestKept + '.' : '.') + '</p>' +
+        '<h3>Modifiers</h3>' + (won ? '<div class="mods">' + MODS.map(md => {
+          const lock = md.gary && gl < md.gary, done = ms.mods && ms.mods[md.id];
+          return '<button class="modchip' + (pick[md.id] ? ' on' : '') + (lock ? ' locked' : '') + '" data-mod="' + md.id + '"' + (lock ? ' disabled' : '') + '><b>' + md.name + (done ? ' \u2713' : '') + '</b><small>' + (lock ? 'Gary level ' + md.gary : md.desc) + '</small></button>';
+        }).join('') + '</div><p class="small">' + (n ? 'Rewards \u00d7' + (1 + .5 * n).toFixed(1) + ' (rocks, Gary XP and shards).' : 'Turn some on for bigger rewards.') + '</p>' : '<p class="small">Win this level once to unlock Hard, Speed, No Mercy, Chaos and Boss Rush.</p>') +
+        '<div class="row3"><button class="btn primary big" id="lvPlay">Play' + (n ? ' (' + n + ' mod' + (n > 1 ? 's' : '') + ')' : '') + '</button></div>', 'menu');
+      $('lvBack').onclick = showHome;
+      $('lvPlay').onclick = () => { levelMods[i] = pick; startLevel(i, pick); };
+      $('modalCard').querySelectorAll('.modchip').forEach(b => b.onclick = () => { pick[b.dataset.mod] = !pick[b.dataset.mod]; render(); });
+    };
+    homeMap = i; render();
+  }
+  function showGear(tab) {
+    const gl = garyInfo(meta.garyXp).L, slots = trinketSlots(meta);
+    let body = '';
+    if (tab === 'dreams') {
+      body = '<p class="small">Gary\u2019s dream is your big manual attack. Level dreams with Dream Shards from perfect waves, bosses and rare loot.</p>' + DREAM_ORDER.map(id => {
+        const D = DREAMS[id], L = meta.dreams[id] || 0, unl = DREAM_UNLOCK[id] <= gl && L > 0, eq = meta.dreamEquip === id, cost = DREAM_COST[L + 1];
+        let pips = ''; for (let k = 1; k <= 5; k++) pips += '<i class="dp' + (k <= L ? ' on' : '') + (k === 5 ? ' five' : '') + '"></i>';
+        return '<div class="dream' + (eq ? ' eq' : '') + (unl ? '' : ' locked') + '"><div class="dhead"><span class="dic">' + D.icon + '</span><div><b>' + D.name + (unl ? ' Lv' + L : '') + '</b><small>' + (unl ? D.desc : 'Unlocks at Gary level ' + DREAM_UNLOCK[id]) + '</small></div></div>' +
+          (unl ? '<div class="pips">' + pips + '</div><p class="dlv">Now: ' + D.lv[L - 1] + (L < 5 ? '<br>Next: ' + D.lv[L] : '') + '</p><div class="row2b">' +
+          (eq ? '<button class="btn" disabled>Equipped</button>' : '<button class="btn" data-eq="' + id + '">Equip</button>') +
+          (L < 5 ? '<button class="btn' + ((meta.shards || 0) >= cost ? ' ultbtn' : '') + '" data-up="' + id + '"' + ((meta.shards || 0) >= cost ? '' : ' disabled') + '>Level up (' + cost + ' shards)</button>' : '<button class="btn ultdone" disabled>Maxed. Oh yes.</button>') + '</div>' : '') + '</div>';
+      }).join('');
+    } else {
+      const found = ALL_ITEMS.filter(it => meta.stash[it.name]);
+      body = '<p class="small">Equip loot as trinkets for small bonuses. Slots: ' + slots + ' of 3 (more at Gary levels 3 and 7).</p><div class="slots">' +
+        [0, 1, 2].map(k => { const n = meta.equip[k]; const it = n && ALL_ITEMS.find(x => x.name === n); return '<button class="slot' + (k >= slots ? ' locked' : '') + '" data-slot="' + k + '"' + (k >= slots || !it ? ' disabled' : '') + '>' + (k >= slots ? '<small>Locked</small>' : it ? '<span>' + it.icon + '</span><small>' + itemFxText(n) + '</small><em>Tap to remove</em>' : '<small>Empty</small>') + '</button>'; }).join('') + '</div>' +
+        '<div class="sdetail" id="stDetail">' + found.length + ' of ' + STASH_TOTAL + ' items found. Tap one to see it.</div><div class="sgrid">' + ALL_ITEMS.map((it, i) => {
+          const n = meta.stash[it.name] || 0, c = RARITY[it.tier].c, on = meta.equip.includes(it.name);
+          return '<button class="stile' + (n ? '' : ' unk') + (on ? ' on' : '') + '" style="--rc:' + c + '" data-si="' + i + '">' + (n ? '<span>' + it.icon + '</span>' + (n > 1 ? '<i>' + n + '</i>' : '') : '<span>?</span>') + '</button>';
+        }).join('') + '</div>';
+    }
+    const inMenu = menuOpen;
+    openModal('<div class="menu-head"><h2 class="title sm">Gary\u2019s Gear</h2><button class="btn" id="gBack">' + (inMenu ? 'Back to game' : 'Back') + '</button></div>' +
+      '<p class="lede sm"><i class="shardic"></i> ' + (meta.shards || 0) + ' Dream Shards</p>' +
+      '<div class="tabs two"><button class="tab' + (tab === 'dreams' ? ' on' : '') + '" data-gt="dreams">Dreams</button><button class="tab' + (tab === 'trinkets' ? ' on' : '') + '" data-gt="trinkets">Trinkets</button></div>' + body, 'menu');
+    $('gBack').onclick = () => { if (inMenu) closeMenu(); else showHome(); };
+    $('modalCard').querySelectorAll('[data-gt]').forEach(b => b.onclick = () => showGear(b.dataset.gt));
+    $('modalCard').querySelectorAll('[data-eq]').forEach(b => b.onclick = () => { meta.dreamEquip = b.dataset.eq; saveMeta(); if (G && G.wave === 0) { G.dream = meta.dreamEquip; G.dreamLv = meta.dreams[G.dream]; } showGear('dreams'); });
+    $('modalCard').querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const id = b.dataset.up, L = meta.dreams[id], cost = DREAM_COST[L + 1]; if ((meta.shards || 0) >= cost && L < 5) { meta.shards -= cost; meta.dreams[id] = L + 1; saveMeta(); SFX.play('ultimate'); if (G && G.dream === id) G.dreamLv = L + 1; } showGear('dreams'); });
+    $('modalCard').querySelectorAll('[data-slot]').forEach(b => b.onclick = () => { meta.equip[+b.dataset.slot] = null; saveMeta(); showGear('trinkets'); });
+    $('modalCard').querySelectorAll('.stile').forEach(b => b.onclick = () => {
+      const it = ALL_ITEMS[+b.dataset.si], n = meta.stash[it.name] || 0, c = RARITY[it.tier].c, on = meta.equip.includes(it.name);
+      if (!n) { $('stDetail').innerHTML = '<b>Not found yet</b> <span style="color:' + c + '">' + RARITY[it.tier].k + '</span><br>' + (it.boss ? 'Dropped by ' + ENEMIES[it.boss].name.split(',')[0] + '.' : 'Keep scrounging.'); return; }
+      $('stDetail').innerHTML = '<b>' + it.icon + ' ' + it.name + '</b> <span style="color:' + c + '">' + RARITY[it.tier].k + '</span><br>' + (ITEM_DESC[it.name] || '') + '<br><b class="fxline">' + itemFxText(it.name) + '</b><br><button class="btn" id="eqBtn">' + (on ? 'Unequip' : 'Equip as trinket') + '</button>';
+      $('eqBtn').onclick = () => {
+        if (on) meta.equip[meta.equip.indexOf(it.name)] = null;
+        else { let k = meta.equip.findIndex((x, i) => i < slots && !x); if (k < 0) k = 0; meta.equip[k] = it.name; }
+        saveMeta(); SFX.play('coin'); showGear('trinkets');
+      };
+    });
+  }
+  const levelMods = {};
   function showShed() {
     const rows = SHED.map(s => {
       const L = shedLevel(meta, s.id), max = L >= s.costs.length, cost = max ? 0 : s.costs[L];
@@ -2738,13 +3642,13 @@ const R = (function () {
     $('lnBack').onclick = showHome;
     $('modalCard').querySelectorAll('[data-l]').forEach(b => b.onclick = () => startLong(+b.dataset.l));
   }
-  function newGame(mapIdx, mode, daily) {
+  function newGame(mapIdx, mode, daily, mods) {
     clearRun(); closeModal();
-    G = newRun(meta, (daily ? daily.key : (Date.now() ^ (Math.random() * 1e9))) >>> 0, mapIdx, mode, daily);
+    G = newRun(meta, (daily ? daily.key : (Date.now() ^ (Math.random() * 1e9))) >>> 0, mapIdx, mode, daily, mods);
     homeMap = mapIdx; begin();
   }
-  function startLevel(i) {
-    newGame(i, 'campaign');
+  function startLevel(i, mods) {
+    newGame(i, 'campaign', null, mods || levelMods[i]);
     if (!meta.runs) toast('Tap a glowing pad to build. Then tap Start wave.', 'big');
     else toast(G.map.name + '. ' + G.map.blurb, 'big');
   }
@@ -2759,7 +3663,19 @@ const R = (function () {
     homeMap = G.mapIdx; begin();
     toast('Back on ' + G.map.name + '. Tap Start wave when ready.', 'big');
   }
-  function begin() { state = 'play'; paused = false; toldGrab = false; toldHat = false; jobToasted = {}; jobTick = 60; lastHud = ''; closeSheet(); R.reset(); $('toasts').innerHTML = ''; }
+  let toldDream = false, toldCredit = false, lastSheetR = 0, toldAbility = false;
+  function begin() { if (meta.settings.music !== false) SFX.music('calm'); toldDream = false; toldCredit = false; state = 'play'; paused = false; toldGrab = false; toldHat = false; jobToasted = {}; jobTick = 60; lastHud = ''; closeSheet(); R.reset(); $('toasts').innerHTML = ''; }
+
+  function showMerchant() {
+    if (!G || !G.merchant) return;
+    state = 'draft';
+    const offers = G.merchant.offers;
+    openModal('<h2 class="title sm">The Travelling Merchant</h2><p class="lede">\u201cEverything must go. Mostly to you.\u201d</p><div class="drafts">' +
+      offers.map((o, k) => '<button class="dcard' + (o.card.cursed ? ' cursed' : '') + '" data-k="' + k + '"' + (o.sold || G.gold < o.price ? ' disabled' : '') + '><b>' + o.card.name + ' \u00b7 ' + o.price + ' gold</b><span>' + (o.sold ? 'Sold' : o.card.desc) + '</span></button>').join('') +
+      '</div><div class="row3"><button class="btn big" id="mBack">Back to the fight</button></div>', '', 500);
+    $('modalCard').querySelectorAll('.dcard').forEach(b => b.onclick = ev => { if (!deliberate(ev, b)) return; if (buyOffer(G, +b.dataset.k)) { SFX.play('coin'); showMerchant(); } });
+    $('mBack').onclick = ev => { if (!deliberate(ev, $('mBack'))) return; closeModal(); state = 'play'; lastHud = ''; };
+  }
 
   // ---------- draft ----------
   function showDraft(wave, bonus) {
@@ -2806,7 +3722,10 @@ const R = (function () {
     if (r.dailyFirst) unlockLine += '<p class="unlockmap">Daily Nap won: double XP and +20 rocks.</p>';
     const rk = r.rk, parts = [];
     if (rk.salvage) parts.push(rk.salvage + ' from loot'); if (rk.boss) parts.push(rk.boss + ' boss bounty'); if (rk.jobs) parts.push(rk.jobs + ' from jobs'); if (rk.daily) parts.push(rk.daily + ' daily');
-    const rocksLine = '<div class="rockrow res"><span class="rockic" aria-hidden="true"></span><span><b>+' + r.rocks + '</b> Shiny Rocks' + (parts.length ? ' <small>(' + parts.join(', ') + ')</small>' : '') + '</span></div>';
+    const gUnl = r.garyUnlocks.map(u2 => '<p class="unlockmap">Gary level ' + u2.L + ': ' + u2.text + '</p>').join('');
+    const garyLine = '<div class="garycard res"><div class="gtop"><b>Gary, Level ' + r.gAfter.L + (r.gAfter.L > r.gBefore.L ? ' \u2b06' : '') + '</b><span>+' + r.garyGain + ' XP</span></div><div class="bar"><i style="width:' + Math.round(100 * r.gAfter.into / r.gAfter.need) + '%"></i></div>' +
+      '<small>' + r.perfects + ' perfect wave' + (r.perfects === 1 ? '' : 's') + '. +' + r.shards + ' Dream Shard' + (r.shards === 1 ? '' : 's') + (G.modMult > 1 ? '. Modifier bonus \u00d7' + G.modMult.toFixed(1) : '') + '.</small></div>' + gUnl;
+    const rocksLine = garyLine + '<div class="rockrow res"><span class="rockic" aria-hidden="true"></span><span><b>+' + r.rocks + '</b> Shiny Rocks' + (parts.length ? ' <small>(' + parts.join(', ') + ')</small>' : '') + '</span></div>';
     const cheapest = SHED.map(s => ({ s, L: shedLevel(meta, s.id) })).filter(o => o.L < o.s.costs.length).sort((a, b) => a.s.costs[a.L] - b.s.costs[b.L])[0];
     const shedHint = cheapest ? (meta.rocks >= cheapest.s.costs[cheapest.L] ? '<p class="next">You can afford ' + cheapest.s.name + ' in Clive\u2019s Shed.</p>' : '<p class="small">' + (cheapest.s.costs[cheapest.L] - meta.rocks) + ' more rocks for ' + cheapest.s.name + '.</p>') : '';
     const jobsLine = (r.jobsDone.length ? r.jobsDone.map(j => '<p class="jobdone">Job done: ' + j.text + ' <b>+' + j.reward + '</b></p>').join('') : '') + '<h3>Odd jobs</h3>' + jobsHTML(meta.jobs, null);
@@ -2834,8 +3753,8 @@ const R = (function () {
   }
 
   // ---------- menu ----------
-  const TABS = [['skills', 'Skills'], ['stash', 'Stash'], ['stats', 'Stats'], ['settings', 'Settings']];
-  function openMenu(tab) { menuOpen = true; menuTab = tab || menuTab; closeSheet(); renderMenu(); }
+  const TABS = [['skills', 'Skills'], ['gary', 'Gary'], ['synergy', 'Synergies'], ['stats', 'Stats'], ['settings', 'Settings']];
+  function openMenu(tab) { menuOpen = true; menuTab = tab || menuTab; closeSheet(); if (menuTab === 'gary') { menuTab = 'skills'; } renderMenu(); }
   function closeMenu() {
     menuOpen = false;
     if (state === 'home') showHome();
@@ -2860,9 +3779,14 @@ const R = (function () {
           return '<button class="stile' + (n ? '' : ' unk') + '" style="--rc:' + c + '" data-si="' + i + '" aria-label="' + (n ? it.name : 'Not found yet') + '">' + (n ? '<span>' + it.icon + '</span>' + (n > 1 ? '<i>' + n + '</i>' : '') : '<span>?</span>') + '</button>';
         }).join('') + '</div>';
     }
+    if (menuTab === 'synergy') {
+      const found = SYNERGIES.filter(s2 => meta.synergies[s2.id]).length;
+      return '<p class="small">Some crew combos do something special. ' + found + ' of ' + SYNERGIES.length + ' discovered.</p>' + SYNERGIES.map(s2 => meta.synergies[s2.id]
+        ? '<div class="syn found"><b>' + s2.name + '</b><span>' + s2.desc + '</span></div>' : '<div class="syn"><b>???</b><span>Hint: ' + s2.hint + '</span></div>').join('');
+    }
     if (menuTab === 'stats') {
       const T = meta.totals;
-      const rows = [['Shiny Rocks earned', T.rocksEarned || 0], ['Odd jobs done', meta.jobsDone || 0], ['Daily Naps won', meta.daily.count || 0], ['Best Long Nap', Math.max(0, ...Object.values(meta.endlessBest || {})) ? 'Wave ' + Math.max(...Object.values(meta.endlessBest)) : 'Not yet'], ['Best combo', T.bestCombo || 0], ['Monsters made tipsy', T.tipsy || 0], ['Runs', meta.runs], ['Wins', meta.wins], ['Time with Gary', fmtTime(T.time || 0)], ['Monsters stopped', T.kills], ['Nan crits', T.crits], ['Monsters that wore his stuff', T.heists], ['Loot snatched back', T.snatches], ['Loot banked', T.banked], ['Gary poked', T.pokes]];
+      const rows = [['Gary level', garyInfo(meta.garyXp).L], ['Perfect waves', T.perfects || 0], ['Dreams unleashed', T.dreams || 0], ['Shiny Rocks earned', T.rocksEarned || 0], ['Odd jobs done', meta.jobsDone || 0], ['Daily Naps won', meta.daily.count || 0], ['Best Long Nap', Math.max(0, ...Object.values(meta.endlessBest || {})) ? 'Wave ' + Math.max(...Object.values(meta.endlessBest)) : 'Not yet'], ['Best combo', T.bestCombo || 0], ['Monsters made tipsy', T.tipsy || 0], ['Runs', meta.runs], ['Wins', meta.wins], ['Time with Gary', fmtTime(T.time || 0)], ['Monsters stopped', T.kills], ['Nan crits', T.crits], ['Monsters that wore his stuff', T.heists], ['Loot snatched back', T.snatches], ['Loot banked', T.banked], ['Gary poked', T.pokes]];
       const bosses = MAPS.map(m => '<li><span>' + ENEMIES[m.boss].name.split(',')[0] + '</span><b>' + ((T.bosses || {})[m.boss] || 0) + '</b></li>').join('');
       const lv = MAPS.map((m, i) => { const ms = meta.maps[m.id]; return '<li><span>' + (i + 1) + '. ' + m.name + '</span>' + (ms ? starsHTML(ms.stars) + '<b>' + ms.wins + '/' + ms.plays + '</b>' : '<b>' + (mapUnlocked(meta, i) ? 'Not played' : 'Locked') + '</b>') + '</li>'; }).join('');
       return '<ul class="statlist">' + rows.map(r => '<li><span>' + r[0] + '</span><b>' + r[1] + '</b></li>').join('') + '</ul><h3>Bosses beaten</h3><ul class="statlist">' + bosses + '</ul><h3>Levels (wins / plays)</h3><ul class="statlist">' + lv + '</ul>';
@@ -2871,6 +3795,7 @@ const R = (function () {
     const ls = lastSaved ? lastSaved.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : 'not yet this session';
     return '<label class="tog"><input type="checkbox" id="setInstant"' + (meta.settings.instantLoot ? ' checked' : '') + '><span><b>Instant loot</b><small>Loot goes straight to Gary. Monsters can\u2019t steal it. Less chaos, fewer laughs.</small></span></label>' +
       '<label class="tog"><input type="checkbox" id="setSound"' + (meta.settings.sound !== false ? ' checked' : '') + '><span><b>Sound effects</b><small>Bonks, smashes, squawks and a little fanfare when you level up.</small></span></label>' +
+      '<label class="tog"><input type="checkbox" id="setMusic"' + (meta.settings.music !== false ? ' checked' : '') + '><span><b>Music</b><small>A chilled tune, and something tense when a boss turns up.</small></span></label>' +
       '<label class="slider"><span>Volume</span><input type="range" id="setVol" min="0" max="1" step="0.05" value="' + (meta.settings.volume == null ? .6 : meta.settings.volume) + '"></label>' +
       '<label class="tog"><input type="checkbox" id="setShake"' + (meta.settings.shake ? ' checked' : '') + '><span><b>Screen shake</b><small>On crits, Gary\u2019s sword and stolen loot.</small></span></label>' +
       '<h3>Saving</h3><p class="small">' + (storageOk ? 'Progress saves on this device after every build, every wave and every run. Last saved: ' + ls + '.' : 'This browser is blocking storage, so progress won\u2019t survive a reload here. Use a save code to keep it.') + '</p>' +
@@ -2886,7 +3811,7 @@ const R = (function () {
       '<div class="tabbody">' + menuBody() + '</div>' +
       (inRun ? '<div class="menu-foot"><button class="btn" id="quitBtn">Save and quit to levels</button><p class="small">Your run resumes from the start of the current wave.</p></div>' : ''), 'menu');
     $('menuClose').onclick = closeMenu;
-    $('modalCard').querySelectorAll('.tab').forEach(b => b.onclick = () => { menuTab = b.dataset.tab; renderMenu(); });
+    $('modalCard').querySelectorAll('.tab').forEach(b => b.onclick = () => { if (b.dataset.tab === 'gary') { showGear('dreams'); return; } menuTab = b.dataset.tab; renderMenu(); });
     if ($('quitBtn')) $('quitBtn').onclick = () => { if (G && !G.waveActive) saveRun(); saveMeta(); menuOpen = false; showHome(); };
     if (menuTab === 'stash') {
       $('modalCard').querySelectorAll('.stile').forEach(b => b.onclick = () => {
@@ -2898,6 +3823,7 @@ const R = (function () {
     if (menuTab === 'settings') {
       $('setInstant').onchange = e => { meta.settings.instantLoot = e.target.checked; if (G) G.instantLoot = e.target.checked; saveMeta(); };
       $('setShake').onchange = e => { meta.settings.shake = e.target.checked; saveMeta(); };
+      $('setMusic').onchange = e => { meta.settings.music = e.target.checked; SFX.setMusic(e.target.checked); if (e.target.checked && G) SFX.music(bossOn ? 'boss' : 'calm'); saveMeta(); };
       $('setSound').onchange = e => { meta.settings.sound = e.target.checked; applySound(); saveMeta(); if (e.target.checked) SFX.play('pick'); };
       $('setVol').oninput = e => { meta.settings.volume = +e.target.value; applySound(); };
       $('setVol').onchange = () => { saveMeta(); SFX.play('coin'); };
@@ -2942,7 +3868,7 @@ const R = (function () {
     requestAnimationFrame(frame);
   }
   let stopUntil = 0;
-  function applySound() { SFX.setMuted(meta.settings.sound === false); SFX.setVolume(meta.settings.volume == null ? .6 : meta.settings.volume); }
+  function applySound() { SFX.setMuted(meta.settings.sound === false); SFX.setVolume(meta.settings.volume == null ? .6 : meta.settings.volume); SFX.setMusic(meta.settings.music !== false); }
   const unlockAudio = () => { SFX.unlock(); applySound(); };
   document.addEventListener('pointerdown', unlockAudio, true);
   document.addEventListener('keydown', unlockAudio, true);
