@@ -4,6 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hold My Loot</title>
+<meta name="hml-build" content="9">
+<script>
+// Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
+window.HML_BUILD = 9;
+window.__checkUpdate = function () {
+  return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      var m = t.match(/name="hml-build" content="(\d+)"/);
+      var latest = m ? +m[1] : 0;
+      return latest > window.HML_BUILD ? latest : 0;
+    })
+    .catch(function () { return 0; });
+};
+window.__applyUpdate = function (latest) {
+  if (location.search.indexOf('v=' + latest) === -1) location.replace(location.pathname + '?v=' + latest);
+};
+window.__checkUpdate().then(function (latest) { if (latest) window.__applyUpdate(latest); });
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -309,6 +329,22 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 }
 .how.first { background: var(--paper2); border-radius: 16px; padding: 12px 14px 10px 30px; font-size: 15.5px; line-height: 1.4; margin: 6px 0 14px; }
 .how.first li { margin-bottom: 6px; }
+.whatsnew { background: linear-gradient(135deg, #FFF1C8, #FDE3EC); border: 1.5px solid #EAC66A; border-radius: 18px; padding: 10px 12px; margin: 0 0 12px; }
+.whatsnew .wn-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.whatsnew b { font-family: Fraunces, Georgia, serif; font-size: 17px; }
+.whatsnew ul { margin: 6px 0 2px; padding-left: 18px; font-size: 14px; font-weight: 700; line-height: 1.35; }
+.whatsnew .btn { min-height: 36px; padding: 6px 12px; font-size: 13.5px; }
+.cl { background: var(--paper2); border-radius: 14px; padding: 9px 12px; margin-bottom: 8px; }
+.cl b { font-size: 15px; } .cl small { color: var(--muted); font-weight: 800; margin-left: 6px; }
+.cl ul { margin: 5px 0 0; padding-left: 18px; font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+.wnlink { background: none; border: 0; color: #4E7DB8; font: 800 13.5px Nunito, sans-serif; text-decoration: underline; cursor: pointer; padding: 4px 0; }
+.elitebtn { background: linear-gradient(110deg, #C98A1E 0%, #FFE9A0 25%, #FFD24A 40%, #FFFBE0 50%, #FFD24A 60%, #C98A1E 100%); background-size: 250% 100%; animation: shimmer 2.2s linear infinite; border-color: #8A5A12; box-shadow: 0 3px 0 #8A5A12, 0 0 16px rgba(255,200,60,.7); font-weight: 900; color: #3B2410; }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+.elitedone { background: linear-gradient(90deg, #FFF3C8, #FFE9A0); color: #8A5A12; }
+.ultdesc.elite { background: linear-gradient(90deg, rgba(255,210,74,.28), rgba(255,240,180,.4)); border: 1.5px solid #E8B23C; }
+#banner.elite { background: radial-gradient(circle at 50% 0%, #FFFBE0, #FFD24A 60%, #C98A1E); border: 2px solid #8A5A12; box-shadow: 0 0 40px rgba(255,200,60,.9), 0 12px 34px rgba(40,30,20,.35); }
+#banner.elite b { font-size: 40px; letter-spacing: 3px; color: #5A3A08; text-shadow: 0 2px 0 #FFF6D0; }
+#banner.elite span { font-size: 16px; font-weight: 900; color: #3B2410; }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
@@ -536,8 +572,8 @@ for (const m of MAPS) {
   if (m.F) m.FL.push(m.F);
 }
 
-const SKILLS = ['chucking', 'bonking', 'muttering', 'sizzling', 'pouring', 'flocking', 'scrounging'];
-const SKILL_NAMES = { chucking: 'Chucking', bonking: 'Bonking', muttering: 'Muttering', sizzling: 'Sizzling', pouring: 'Pouring', flocking: 'Flocking', scrounging: 'Scrounging' };
+const SKILLS = ['chucking', 'bonking', 'muttering', 'sizzling', 'pouring', 'flocking', 'hyping', 'scrounging'];
+const SKILL_NAMES = { chucking: 'Chucking', bonking: 'Bonking', muttering: 'Muttering', sizzling: 'Sizzling', pouring: 'Pouring', flocking: 'Flocking', hyping: 'Hyping', scrounging: 'Scrounging' };
 const SKILL_DESC = {
   chucking: 'Dazza\u2019s Chuckery. +3% damage per level.',
   bonking: 'Big Marg\u2019s Bonk Booth. +3% damage per level.',
@@ -545,31 +581,35 @@ const SKILL_DESC = {
   sizzling: 'Uncle Tony\u2019s Sausage Sizzle. +3% buff per level.',
   pouring: 'Jezza\u2019s Top Shelf. +3% splash and impact per level.',
   flocking: 'Bev\u2019s bin chickens and pigeons. +3% peck damage per level.',
+  hyping: 'DJ Brendo\u2019s Doof Ute. +3% tips and buffs per level.',
   scrounging: 'Loot. More drops and faster auto-collect per level.',
 };
 
 const TOWERS = {
   chuck: { name: 'The Chuckery', crew: 'Dazza', skill: 'chucking', cost: 50, blurb: 'Throws whatever is in the bin.',
-    tiers: [{ dmg: [7, 14], rate: 1.0, range: 90 }, { cost: 60, dmg: [11, 19], rate: 1.1, range: 94 }, { cost: 95, dmg: [15, 27], rate: 1.2, range: 98, splash: 34 }, { cost: 220, dmg: [20, 34], rate: 1.35, range: 106, splash: 40, ult: true, tubEvery: 4 }] },
+    tiers: [{ dmg: [7, 14], rate: 1.0, range: 90 }, { cost: 60, dmg: [11, 19], rate: 1.1, range: 94 }, { cost: 95, dmg: [15, 27], rate: 1.2, range: 98, splash: 34 }, { cost: 220, dmg: [20, 34], rate: 1.35, range: 106, splash: 40, ult: true, tubEvery: 4 }, { cost: 420, dmg: [26, 44], rate: 1.5, range: 114, splash: 48, ult: true, elite: true, tubEvery: 3, multi: 3 }] },
   bonk: { name: 'Bonk Booth', crew: 'Big Marg', skill: 'bonking', cost: 60, blurb: 'Frying pan. Short range. Stuns. Can\u2019t reach flyers.',
-    tiers: [{ dmg: 15, rate: .9, range: 60, stun: .5 }, { cost: 60, dmg: 21, rate: 1.0, range: 62, stun: .7 }, { cost: 100, dmg: 27, rate: 1.05, range: 66, stun: .8, multi: true }, { cost: 210, dmg: 34, rate: 1.15, range: 72, stun: .9, multi: true, ult: true, slamEvery: 5 }] },
+    tiers: [{ dmg: 15, rate: .9, range: 60, stun: .5 }, { cost: 60, dmg: 21, rate: 1.0, range: 62, stun: .7 }, { cost: 100, dmg: 27, rate: 1.05, range: 66, stun: .8, multi: true }, { cost: 210, dmg: 34, rate: 1.15, range: 72, stun: .9, multi: true, ult: true, slamEvery: 5 }, { cost: 400, dmg: 46, rate: 1.25, range: 80, stun: 1, multi: true, ult: true, elite: true, slamEvery: 3, slamR: 125 }] },
   nan: { name: "Nan's Porch", crew: 'Nan Beryl', skill: 'muttering', cost: 85, blurb: 'Knitting needles. Huge crits. Long range.',
-    tiers: [{ dmg: 30, rate: .5, range: 125, crit: .4 }, { cost: 80, dmg: 44, rate: .55, range: 130, crit: .45 }, { cost: 125, dmg: 60, rate: .6, range: 135, crit: .5, pierce: true }, { cost: 240, dmg: 78, rate: .66, range: 142, crit: .55, pierce: true, ult: true, chain: 3 }] },
+    tiers: [{ dmg: 30, rate: .5, range: 125, crit: .4 }, { cost: 80, dmg: 44, rate: .55, range: 130, crit: .45 }, { cost: 125, dmg: 60, rate: .6, range: 135, crit: .5, pierce: true }, { cost: 240, dmg: 78, rate: .66, range: 142, crit: .55, pierce: true, ult: true, chain: 3 }, { cost: 450, dmg: 100, rate: .75, range: 152, crit: .7, pierce: true, ult: true, elite: true, chain: 5 }] },
   sizzle: { name: 'Sausage Sizzle', crew: 'Uncle Tony', skill: 'sizzling', cost: 70, blurb: 'No damage. Speeds up every tower on the map, and slows monsters nearby.',
-    tiers: [{ aura: 75, buff: .08, slow: .25 }, { cost: 70, aura: 82, buff: .12, slow: .3 }, { cost: 110, aura: 90, buff: .17, slow: .35, queue: true }, { cost: 200, aura: 100, buff: .26, slow: .4, queue: true, ult: true, snagEvery: 6 }] },
+    tiers: [{ aura: 75, buff: .08, slow: .25 }, { cost: 70, aura: 82, buff: .12, slow: .3 }, { cost: 110, aura: 90, buff: .17, slow: .35, queue: true }, { cost: 200, aura: 100, buff: .26, slow: .4, queue: true, ult: true, snagEvery: 6 }, { cost: 380, aura: 115, buff: .35, slow: .45, queue: true, ult: true, elite: true, snagEvery: 4, snagN: 12 }] },
   jezza: { name: "Jezza's Top Shelf", crew: 'Jezza', skill: 'pouring', cost: 80, unlockWins: 1, blurb: 'Throws whisky. Tipsy monsters stumble, slow down and take 25% more damage.',
-    tiers: [{ rate: .55, range: 95, pr: 24, life: 3, tipsy: 2.5, dmg: 8 }, { cost: 70, rate: .65, range: 100, pr: 30, life: 3.5, tipsy: 3, dmg: 12 }, { cost: 115, rate: .7, range: 105, pr: 34, life: 4, tipsy: 3.5, dmg: 16, fire: true }, { cost: 220, rate: .8, range: 112, pr: 38, life: 4.5, tipsy: 4, dmg: 22, fire: true, ult: true, spread: 3, vuln: .45 }] },
+    tiers: [{ rate: .55, range: 95, pr: 24, life: 3, tipsy: 2.5, dmg: 8 }, { cost: 70, rate: .65, range: 100, pr: 30, life: 3.5, tipsy: 3, dmg: 12 }, { cost: 115, rate: .7, range: 105, pr: 34, life: 4, tipsy: 3.5, dmg: 16, fire: true }, { cost: 220, rate: .8, range: 112, pr: 38, life: 4.5, tipsy: 4, dmg: 22, fire: true, ult: true, spread: 3, vuln: .45 }, { cost: 420, rate: .9, range: 120, pr: 44, life: 5.5, tipsy: 4.5, dmg: 30, fire: true, ult: true, elite: true, spread: 4, vuln: .6 }] },
 };
 TOWERS.bev = { name: "Bev's Bin Chickens", crew: 'Bev', skill: 'flocking', cost: 70, unlockWins: 2, blurb: 'Summons bin chickens that peck and pester monsters. Pigeons join at tier 2.',
-  tiers: [{ range: 115, every: 3.2, max: 2, dmg: 6.5, life: 6 }, { cost: 70, range: 120, every: 2.8, max: 3, dmg: 8.5, life: 6.5, pigeons: 2 }, { cost: 110, range: 125, every: 2.5, max: 3, dmg: 11, life: 7, pigeons: 3, binDay: true }, { cost: 220, range: 135, every: 2.1, max: 4, dmg: 14, life: 8, pigeons: 4, binDay: true, ult: true, stormEvery: 9 }] };
+  tiers: [{ range: 115, every: 3.2, max: 2, dmg: 6.5, life: 6 }, { cost: 70, range: 120, every: 2.8, max: 3, dmg: 8.5, life: 6.5, pigeons: 2 }, { cost: 110, range: 125, every: 2.5, max: 3, dmg: 11, life: 7, pigeons: 3, binDay: true }, { cost: 220, range: 135, every: 2.1, max: 4, dmg: 14, life: 8, pigeons: 4, binDay: true, ult: true, stormEvery: 9 }, { cost: 420, range: 145, every: 1.8, max: 6, dmg: 18, life: 9, pigeons: 5, binDay: true, ult: true, elite: true, stormEvery: 6, stormN: 18 }] };
+TOWERS.dj = { name: "DJ Brendo's Doof Ute", crew: 'DJ Brendo', skill: 'hyping', cost: 90, unlockWins: 3, blurb: 'Never attacks. Earns gold every wave and pumps up nearby towers: more range, faster attacks.',
+  tiers: [{ aura: 80, rng: .1, spd: .1, tip: 30 }, { cost: 80, aura: 88, rng: .15, spd: .15, tip: 50 }, { cost: 120, aura: 96, rng: .2, spd: .2, tip: 75 }, { cost: 230, aura: 105, rng: .25, spd: .25, tip: 100, ult: true, dropEvery: 8 }, { cost: 420, aura: 125, rng: .32, spd: .35, tip: 150, ult: true, elite: true, dropEvery: 5, global: .1 }] };
 function towerUnlocked(meta, type) { const u = TOWERS[type].unlockWins; return !u || (meta.wins || 0) >= u; }
 const TIER_NOTES = {
-  chuck: ['Random junk, random damage', 'Heavier junk', 'Junk splashes', 'ULTIMATE: Throw the Bathtub'],
-  bonk: ['Bonks one, stuns briefly', 'Harder bonks, longer stun', 'Bonks everything in reach', 'ULTIMATE: Last Drinks shockwave'],
-  nan: ['40% crit chance', 'Sharper needles', 'Needles ignore armour', 'ULTIMATE: Rainbow chain crits'],
-  sizzle: ['+8% speed to every tower, slows monsters nearby', '+12% speed to every tower, bigger slow', 'Free snags: +17% everywhere, monsters queue', 'ULTIMATE: Snag Rain'],
-  jezza: ['Whisky puddle: monsters go tipsy', 'Bigger splash, longer hangover', 'Flaming Dram: the puddle catches fire', 'ULTIMATE: Rainbow Shots'],
-  bev: ['Summons 2 bin chickens to peck and pester', 'Up to 3 birds, plus pigeons that hit flyers', 'Bin Day: birds nick loot back and peck off armour', 'ULTIMATE: Pigeon Storm'],
+  chuck: ['Random junk, random damage', 'Heavier junk', 'Junk splashes', 'ULTIMATE: Throw the Bathtub', 'ELITE: Lord of the Bins'],
+  bonk: ['Bonks one, stuns briefly', 'Harder bonks, longer stun', 'Bonks everything in reach', 'ULTIMATE: Last Drinks shockwave', 'ELITE: Bouncer Supreme'],
+  nan: ['40% crit chance', 'Sharper needles', 'Needles ignore armour', 'ULTIMATE: Rainbow chain crits', 'ELITE: Nan Eternal'],
+  sizzle: ['+8% speed to every tower, slows monsters nearby', '+12% speed to every tower, bigger slow', 'Free snags: +17% everywhere, monsters queue', 'ULTIMATE: Snag Rain', 'ELITE: Grill Master'],
+  jezza: ['Whisky puddle: monsters go tipsy', 'Bigger splash, longer hangover', 'Flaming Dram: the puddle catches fire', 'ULTIMATE: Rainbow Shots', 'ELITE: Top Shelf Legend'],
+  bev: ['Summons 2 bin chickens to peck and pester', 'Up to 3 birds, plus pigeons that hit flyers', 'Bin Day: birds nick loot back and peck off armour', 'ULTIMATE: Pigeon Storm', 'ELITE: Queen of the Bin Chickens'],
+  dj: ['+30 gold tips a wave, nearby towers +10% range and speed', '+50 tips, +15% range and speed', '+75 tips, +20% range and speed', 'ULTIMATE: Drop the Bass', 'ELITE: The Headliner'],
 };
 
 const ENEMIES = {
@@ -678,6 +718,7 @@ const CARDS = [
   { id: 'smoko', name: 'Smoko Break', desc: 'All towers work 15% faster.', apply: G => { G.mods.fireRate *= 1.15; } },
   { id: 'topshelf', name: 'Top Shelf', desc: 'Jezza\u2019s whisky puddles are 35% bigger and last longer.', req: m => towerUnlocked(m, 'jezza'), apply: G => { G.mods.puddleMult *= 1.35; G.mods.puddleLife *= 1.3; } },
   { id: 'chips', name: 'Dropped Chips', desc: 'Bev\u2019s birds turn up 30% faster and peck 20% harder.', req: m => towerUnlocked(m, 'bev'), apply: G => { G.mods.birdRate *= 1.3; G.mods.birdDmg *= 1.2; } },
+  { id: 'headliner', name: 'Headliner Booking', desc: 'DJ Brendo\u2019s tips are 50% bigger for the rest of the run.', req: m => towerUnlocked(m, 'dj'), apply: G => { G.mods.tipMult *= 1.5; } },
   { id: 'shout', name: 'Shout a Round', desc: 'Every monster in the next wave starts tipsy.', req: m => towerUnlocked(m, 'jezza'), apply: G => { G.mods.shoutRound = 1; } },
 ];
 
@@ -713,6 +754,7 @@ const JOBS = [
   { id: 'pokes', t: n => 'Unleash Gary\u2019s dream ' + n + ' times', v: G => G.stats.dreams || 0, n: [2, 4, 7] },
   { id: 'perfect', t: n => 'Get ' + n + ' perfect waves', v: G => G.stats.perfects || 0, n: [4, 8, 14] },
   { id: 'synergy', t: n => 'Trigger ' + n + ' tower synergies', v: G => G.stats.syn || 0, n: [20, 60, 150] },
+  { id: 'tips', t: n => 'Earn ' + n + ' gold from DJ tips', v: G => G.stats.tips || 0, n: [150, 400, 900], req: m => towerUnlocked(m, 'dj') },
   { id: 'ability', t: n => 'Use tower abilities ' + n + ' times', v: G => G.stats.abilities || 0, n: [3, 6, 10] },
   { id: 'nobonk', t: () => 'Win a level without a Bonk Booth', v: G => G.won && G.mode !== 'endless' && !G.stats.builtTypes.bonk ? 1 : 0, n: [1, 1, 1], max: true },
   { id: 'long', t: n => 'Reach wave ' + n + ' in the Long Nap', v: G => G.mode === 'endless' ? G.wave : 0, n: [8, 12, 16], max: true, req: m => (m.wins || 0) > 0 },
@@ -768,7 +810,18 @@ const ULT_DESC = {
   jezza: 'Three rainbow shots at once. Tipsy monsters take 45% more damage.',
   bev: 'Up to 4 bin chickens. Every 9 seconds, a storm of 12 pigeons sweeps the whole map.',
 };
-const ULT_LEVEL = 5;
+const ULT_LEVEL = 5, ELITE_LEVEL = 8;
+ULT_DESC.dj = 'Every 8 seconds the bass drops: nearby towers attack 60% faster for 3 seconds and monsters get blown back.';
+const ELITE_DESC = {
+  chuck: 'Dazza, Lord of the Bins. Three throws at once, and a bathtub every third shot.',
+  bonk: 'Big Marg, Bouncer Supreme. A huge shockwave every 3 seconds.',
+  nan: 'Nan Eternal. 70% crits that chain through 5 monsters.',
+  sizzle: 'Uncle Tony, Grill Master. +35% speed everywhere and Snag Rain on 12 monsters every 4 seconds.',
+  jezza: 'Jezza, Top Shelf Legend. Four rainbow shots. Tipsy monsters take 60% more damage.',
+  bev: 'Bev, Queen of the Bin Chickens. Six golden ibises and an 18-pigeon storm every 6 seconds.',
+  dj: 'DJ Brendo, The Headliner. +150 tips a wave, huge aura, the bass drops every 5 seconds, and every tower on the map gets +10% speed.',
+};
+const ELITE_TITLE = { chuck: 'Dazza, Lord of the Bins', bonk: 'Big Marg, Bouncer Supreme', nan: 'Nan Eternal', sizzle: 'Uncle Tony, Grill Master', jezza: 'Jezza, Top Shelf Legend', bev: 'Bev, Queen of the Bin Chickens', dj: 'DJ Brendo, The Headliner' };
 
 // ---------- Synergies ----------
 const SYNERGIES = [
@@ -779,6 +832,7 @@ const SYNERGIES = [
   { id: 'duck', name: 'Sitting Duck', desc: '+30% crit chance for Nan against stunned monsters.', hint: 'Nan prefers a target that sits still.' },
   { id: 'smoke', name: 'Smoke Signals', desc: 'Birds inside Uncle Tony\u2019s smoke peck 40% faster.', hint: 'Bin chickens can smell a sausage from anywhere.' },
   { id: 'bbq', name: 'Barbecue Whisky', desc: 'Whisky puddles near Uncle Tony\u2019s grill catch fire.', hint: 'What happens if whisky meets a hot plate?' },
+  { id: 'backyard', name: 'Backyard Bash', desc: 'DJ Brendo earns 50% more tips when Uncle Tony\u2019s grill is in his crowd.', hint: 'Music and a barbecue. What could go right?' },
   { id: 'wet', name: 'Wet and Wild', desc: 'Wading monsters take 30% more from bonks and pecks.', hint: 'Slippery monsters are easier to knock about.' },
 ];
 
@@ -802,6 +856,7 @@ const ABIL = {
   sizzle: { name: 'Free Snags', desc: 'Every monster near the grill stops to queue for 3 seconds.', cd: 30 },
   jezza: { name: 'Shout a Round', desc: 'Every monster in range goes tipsy for 6 seconds.', cd: 28 },
   bev: { name: 'Feeding Frenzy', desc: 'Six bin chickens at once.', cd: 30 },
+  dj: { name: 'Hype Train', desc: 'Every tower on the map attacks 50% faster for 6 seconds.', cd: 32 },
 };
 
 // ---------- Gary level + trinkets ----------
@@ -889,7 +944,7 @@ function levelInfo(xp) {
   return { L, into: rem, need, max: L >= MAX_LEVEL };
 }
 function defaultMeta() {
-  return { v: 3, xp: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, scrounging: 0 }, runs: 0, wins: 0, stash: {}, bestKept: 0,
+  return { v: 3, xp: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, hyping: 0, scrounging: 0 }, runs: 0, wins: 0, stash: {}, bestKept: 0,
     maps: {}, totals: { kills: 0, crits: 0, heists: 0, snatches: 0, banked: 0, pokes: 0, time: 0, bosses: {}, tipsy: 0, bestCombo: 0, rocksEarned: 0 },
     settings: { instantLoot: false, shake: true }, seenHow: false,
     rocks: 0, shed: {}, jobs: [], jobsDone: 0, daily: { done: {}, count: 0 }, endlessBest: {}, jezzaSeen: false,
@@ -916,11 +971,11 @@ function newRun(meta, seed, mapIdx, mode, daily, runMods) {
     gold: map.gold + 20 * sh('float') + (mode === 'endless' ? 120 : 0), pile: 10 + sh('undies'), pileMax: 10 + sh('undies'), pokes: 1 + sh('coffee'), cards: [],
     mods: { costMult: 1 - .04 * sh('mates'), dropBonus: .03 * sh('magnet'), chuckMulti: 1, nanCrit: 0, bonkStun: 0, bonkDmg: 1, sizzleRange: 1,
       enemySpeed: 1, enemyHp: 1, goldMult: 1, rarityRolls: 1, snore: 0, tapRadius: 38, snatchGold: 5, fireRate: 1, autoMult: 1 - .15 * sh('magnet'),
-      puddleMult: 1, puddleLife: 1, shoutRound: 0, birdRate: 1, birdDmg: 1 },
+      puddleMult: 1, puddleLife: 1, shoutRound: 0, birdRate: 1, birdDmg: 1, tipMult: 1 },
     stats: { kills: 0, crits: 0, taps: 0, snatches: 0, itemsLost: 0, waveLost: [], banked: [], heists: 0, pokes: 0,
-      killsBy: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0 }, tipsy: 0, bestCombo: 0, builtTypes: {} },
-    xp: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, scrounging: 0 },
-    birds: [], bid: 0,
+      killsBy: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, hyping: 0 }, tips: 0, tipsy: 0, bestCombo: 0, builtTypes: {} },
+    xp: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, hyping: 0, scrounging: 0 },
+    birds: [], bid: 0, hypeT: 0,
     over: false, won: false, eid: 0, lid: 0, kevinCd: 0, firstLoot: false, bossTold: {},
   };
   if (mode === 'daily' && daily) for (const id of daily.rules) applyCard(G, CARDS.find(c => c.id === id));
@@ -960,7 +1015,8 @@ function upgradeCost(G, pad) {
 function ultLocked(G, pad) {
   const t = G.towers[pad]; if (!t) return false;
   const def = TOWERS[t.type], nx = def.tiers[t.tier + 1];
-  return !!(nx && nx.ult && (G.runL[def.skill] || 1) < ULT_LEVEL);
+  const L = G.runL[def.skill] || 1;
+  return !!(nx && ((nx.elite && L < ELITE_LEVEL) || (nx.ult && L < ULT_LEVEL)));
 }
 function sellValue(G, pad) { const t = G.towers[pad]; return t ? Math.floor(t.spent * .7) : 0; }
 function newTower(type, tier, spent) { return { type, tier: tier || 0, cd: .2, spent: spent || 0, qcd: 2, hatless: 0, acd: 0 }; }
@@ -974,7 +1030,8 @@ function build(G, pad, type) {
 function upgrade(G, pad) {
   const c = upgradeCost(G, pad); if (c == null || G.gold < c || ultLocked(G, pad)) return false;
   G.gold -= c; const t = G.towers[pad]; t.tier++; t.spent += c;
-  if (TOWERS[t.type].tiers[t.tier].ult) { t.ucd = 2; fx(G, 'ultimate', { pad, type: t.type }); ev(G, 'ultimate', { tt: t.type }); fx(G, 'shake', { m: 6 }); }
+  if (TOWERS[t.type].tiers[t.tier].elite) { t.ucd = 2; fx(G, 'elite', { pad, tt: t.type }); ev(G, 'elite', { tt: t.type }); fx(G, 'shake', { m: 10 }); }
+  else if (TOWERS[t.type].tiers[t.tier].ult) { t.ucd = 2; fx(G, 'ultimate', { pad, type: t.type }); ev(G, 'ultimate', { tt: t.type }); fx(G, 'shake', { m: 6 }); }
   else fx(G, 'built', { pad, up: true });
   ev(G, 'changed');
   return true;
@@ -1214,6 +1271,7 @@ function activate(G, pad) {
     const es = near(tr.range * high * 1.3).filter(e => !e.flyer);
     if (es.length) { const m2 = G.skillMult.flocking * G.mods.birdDmg * G.dmgAll; for (let k = 0; k < 6; k++) G.birds.push({ id: ++G.bid, kind: 'ibis', pad, x: px + (k - 3) * 6, y: py - 22, tid: es[k % es.length].id, life: 8, pcd: .2, dmg: tr.dmg * m2, bin: true, ox: (G.rng() - .5) * 12, extra: true }); fx(G, 'frenzy', { pad }); ok = true; }
   }
+  if (t.type === 'dj') { G.hypeT = 6; fx(G, 'hype', { pad }); ok = true; }
   if (ok) { t.acd = ABIL[t.type].cd * G.abilMult; G.stats.abilities++; ev(G, 'ability', { tt: t.type }); }
   return ok;
 }
@@ -1264,6 +1322,7 @@ function kill(G, e, src) {
   const i = G.enemies.indexOf(e); if (i >= 0) G.enemies.splice(i, 1);
   const g = Math.round(e.gold * G.mods.goldMult);
   G.gold += g; G.stats.kills++;
+  if (G.djs && G.djs.length) for (const d of G.djs) if (Math.hypot(d.x - e.x, d.y - e.y) <= d.r) { G.gold += 1; G.stats.tips = (G.stats.tips || 0) + 1; G.xp.hyping += 1; break; }
   if (src && G.stats.killsBy[src] != null) G.stats.killsBy[src]++;
   G.combo = G.t - G.lastKill < 1.3 ? G.combo + 1 : 1; G.lastKill = G.t;
   if (G.combo > G.stats.bestCombo) G.stats.bestCombo = G.combo;
@@ -1323,7 +1382,11 @@ function update(G, dt) {
   });
   let globalBuff = 0; for (const s of sizzles) globalBuff = Math.max(globalBuff, s.buff);
   if (sizzles.length > 1) globalBuff += .04 * (sizzles.length - 1);
-  G.globalBuff = globalBuff;
+  const djs = [];
+  G.towers.forEach((t, i) => { if (t && t.type === 'dj' && t.hatless <= 0) { const tr = TOWERS.dj.tiers[t.tier], sm = G.skillMult.hyping; djs.push({ i, t, x: map.pads[i][0], y: map.pads[i][1], r: tr.aura, rng: tr.rng * sm, spd: tr.spd * sm, tier: t.tier, glob: tr.global || 0 }); } });
+  for (const d of djs) globalBuff += d.glob;
+  if (G.hypeT > 0) G.hypeT -= dt;
+  G.globalBuff = globalBuff; G.djs = djs;
   const burnDps = 7 * (1 + .15 * (G.wave - 1));
   G.lvlT -= dt;
   if (G.lvlT <= 0) {
@@ -1465,11 +1528,25 @@ function update(G, dt) {
     if (!t) return;
     const def = TOWERS[t.type], tr = def.tiers[t.tier];
     const px = map.pads[i][0], py = map.pads[i][1], ptype = map.pads[i][2];
-    const RM = ptype === 'high' ? 1.2 : 1, SM = ptype === 'shady' ? 1.15 : 1;
+    let RM = ptype === 'high' ? 1.2 : 1, SM = ptype === 'shady' ? 1.15 : 1;
+    if (t.type !== 'dj' && t.type !== 'sizzle') { let br = 0, bs = 0; for (const d of djs) if (d.i !== i && Math.hypot(d.x - px, d.y - py) <= d.r + 12) { br = Math.max(br, d.rng); bs = Math.max(bs, d.spd); if (d.t.dropT > 0) bs += .6; } RM *= 1 + br; SM *= 1 + bs; t.djBuff = br > 0; }
+    if (G.hypeT > 0) SM *= 1.5;
     if (t.acd > 0) t.acd -= dt;
     if (t.rage > 0) t.rage -= dt;
     if (t.credit > 0) t.credit -= dt;
     if (t.hatless > 0) { t.hatless -= dt; return; }
+    if (t.type === 'dj') {
+      if (t.dropT > 0) t.dropT -= dt;
+      if (tr.ult) {
+        t.ucd = (t.ucd == null ? 3 : t.ucd) - dt;
+        if (t.ucd <= 0 && G.waveActive && G.enemies.length) {
+          t.ucd = tr.dropEvery; t.dropT = 3;
+          fx(G, 'bassdrop', { pad: i, x: px, y: py, r: tr.aura }); fx(G, 'shake', { m: tr.elite ? 6 : 4 }); ev(G, 'ultFire', { tt: 'dj' });
+          for (const e of G.enemies) if (!e.boss && !e.flyer && Math.hypot(e.x - px, e.y - py) < tr.aura) e.d = Math.max(0, e.d - 15);
+        }
+      }
+      return;
+    }
     if (t.type === 'sizzle') {
       if (tr.queue) {
         t.qcd -= dt;
@@ -1483,7 +1560,7 @@ function update(G, dt) {
         t.ucd = (t.ucd == null ? 2 : t.ucd) - dt;
         if (t.ucd <= 0 && G.enemies.length) {
           t.ucd = tr.snagEvery;
-          const pool = G.enemies.slice().sort(() => G.rng() - .5).slice(0, 8);
+          const pool = G.enemies.slice().sort(() => G.rng() - .5).slice(0, tr.snagN || 8);
           for (const e of pool) G.projs.push({ kind: 'snag', x: e.x + (G.rng() - .5) * 20, y: e.y - 200, sx: e.x, sy: e.y - 200, dist0: 200, tid: e.id, tx: e.x, ty: e.y, spd: 520, dmg: 28 * G.skillMult.sizzling * (1 + .15 * (G.wave - 1)), src: 'sizzling', spin: rand(G, 0, 6) });
           fx(G, 'snagrain', { pad: i }); ev(G, 'ultFire', { tt: 'sizzle' });
         }
@@ -1498,7 +1575,7 @@ function update(G, dt) {
         if (t.ucd <= 0 && G.enemies.length) {
           t.ucd = tr.stormEvery;
           const mult3 = G.skillMult.flocking * G.mods.birdDmg;
-          for (let k = 0; k < 12; k++) { const e = G.enemies[Math.floor(G.rng() * G.enemies.length)]; const side = k % 2; G.birds.push({ id: ++G.bid, kind: 'pigeon', pad: i, x: side ? W + 10 : -10, y: 40 + G.rng() * (H - 120), tid: e.id, life: 4, dmg: 9 * mult3, hits: 2, storm: true }); }
+          for (let k = 0; k < (tr.stormN || 12); k++) { const e = G.enemies[Math.floor(G.rng() * G.enemies.length)]; const side = k % 2; G.birds.push({ id: ++G.bid, kind: 'pigeon', pad: i, x: side ? W + 10 : -10, y: 40 + G.rng() * (H - 120), tid: e.id, life: 4, dmg: 9 * mult3, hits: 2, storm: true }); }
           fx(G, 'storm', { pad: i }); ev(G, 'ultFire', { tt: 'bev' });
         }
       }
@@ -1510,7 +1587,7 @@ function update(G, dt) {
       t.cd = tr.every;
       const mult2 = G.skillMult.flocking * G.mods.birdDmg;
       ground.sort((a, b) => G.birds.filter(x => x.tid === a.id).length - G.birds.filter(x => x.tid === b.id).length || b.d - a.d);
-      G.birds.push({ id: ++G.bid, kind: 'ibis', pad: i, x: px + 8, y: py - 22, tid: ground[0].id, life: tr.life, pcd: .2, dmg: tr.dmg * mult2, bin: !!tr.binDay, ox: (G.rng() - .5) * 10, perched: false, hits: 0 });
+      G.birds.push({ id: ++G.bid, kind: 'ibis', pad: i, x: px + 8, y: py - 22, tid: ground[0].id, life: tr.life, pcd: .2, dmg: tr.dmg * mult2, bin: !!tr.binDay, ox: (G.rng() - .5) * 10, perched: false, hits: 0, gold: !!tr.elite });
       fx(G, 'summon', { pad: i, kind: 'ibis' });
       if (tr.pigeons) {
         const any = G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= tr.range * RM + 30);
@@ -1540,7 +1617,7 @@ function update(G, dt) {
           return;
         }
       }
-      for (let s = 0; s < G.mods.chuckMulti; s++) {
+      for (let s = 0; s < Math.max(G.mods.chuckMulti, tr.multi || 1); s++) {
         const tg = inRange[Math.min(s, inRange.length - 1)];
         let icon = pick(G, junk), dmg = rand(G, tr.dmg[0], tr.dmg[1]) * mult;
         if (icon === '🍉') dmg *= 1.2; if (icon === '📺') dmg *= 1.4;
@@ -1554,7 +1631,7 @@ function update(G, dt) {
         if (t.ucd <= 0) {
           t.ucd = tr.slamEvery;
           fx(G, 'slam', { pad: i, x: px, y: py }); fx(G, 'shake', { m: 7 }); ev(G, 'ultFire', { tt: 'bonk' });
-          for (const e of G.enemies.slice()) if (!e.flyer && Math.hypot(e.x - px, e.y - py) < 100) { e.d = Math.max(0, e.d - (e.boss ? 10 : 30)); damage(G, e, 60 * mult * (1 + .1 * (G.wave - 1)), { src: 'bonking', kind: 'slam', pad: i }); }
+          for (const e of G.enemies.slice()) if (!e.flyer && Math.hypot(e.x - px, e.y - py) < (tr.slamR || 100)) { e.d = Math.max(0, e.d - (e.boss ? 10 : 30)); damage(G, e, 60 * mult * (1 + .1 * (G.wave - 1)), { src: 'bonking', kind: 'slam', pad: i }); }
         }
       }
       inRange.sort((a, b) => b.d - a.d);
@@ -1708,6 +1785,14 @@ function update(G, dt) {
     let perfect = false;
     if (lostThis === 0) { perfect = true; const pb = 15 + 3 * G.wave; bonus += pb; G.stats.perfects++; if (G.stats.shards < 8) G.stats.shards++; addMeter(G, 20); ev(G, 'perfect', { bonus: pb }); }
     G.event = null; G.merchant = null;
+    G.towers.forEach((t, i) => {
+      if (!t || t.type !== 'dj') return;
+      const tr = TOWERS.dj.tiers[t.tier], px = map.pads[i][0], py = map.pads[i][1];
+      let tip = tr.tip * G.skillMult.hyping * G.mods.tipMult;
+      if (G.towers.some((o, j) => o && o.type === 'sizzle' && Math.hypot(map.pads[j][0] - px, map.pads[j][1] - py) <= tr.aura + 12)) { tip *= 1.5; synergy(G, 'backyard', px, py); }
+      tip = Math.round(tip); G.gold += tip; G.stats.tips = (G.stats.tips || 0) + tip; G.xp.hyping += Math.round(tip / 2);
+      fx(G, 'tips', { pad: i, x: px, y: py, n: tip });
+    });
     G.gold += bonus;
     for (const s of sizzles) G.xp.sizzling += 18 * (s.tier + 1);
     G.puddles.length = 0; G.birds.length = 0;
@@ -1823,7 +1908,7 @@ function finishRun(G) {
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { W, H, GARY, MAPS, posOn, SKILLS, SKILL_NAMES, SKILL_DESC, TOWERS, TIER_NOTES, ENEMIES, BOSS_ITEMS, RARITY, ITEMS, ALL_ITEMS, ITEM_DESC, STASH_TOTAL, CARDS,
-  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dailySetup, genWave, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
+  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dailySetup, genWave, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
 
 </script>
 <script>
@@ -1930,6 +2015,10 @@ const SFX = (function () {
     enrage: () => { tone({ type: 'sawtooth', f: 160, f2: 90, t: .6, g: .08, filter: 900 }); noise({ t: .4, g: .1, f: 400, type: 'lowpass' }); },
     event: () => notes([660, 880, 660, 1320], { type: 'triangle', t: .16, g: .06, step: .09 }),
     ready: () => notes([1047, 1568, 2093], { type: 'sine', t: .25, g: .06, step: .06 }),
+    elite: () => { tone({ f: 55, t: 1.6, a: .05, g: .3 }); [196, 247, 294, 392, 494].forEach((f, k) => { tone({ type: 'sawtooth', f, t: 1.8, a: .25, g: .025, filter: 1800 }); tone({ type: 'sawtooth', f: f * 1.006, t: 1.8, a: .25, g: .02, filter: 1800 }); }); notes([392, 494, 587, 784, 988, 1175, 1568, 1976], { type: 'triangle', t: .4, g: .07, step: .07, delay: .3 }); noise({ t: 1.6, g: .06, f: 6000, type: 'highpass', delay: .25 }); },
+    bassdrop: () => { tone({ f: 120, f2: 38, t: .7, g: .35 }); noise({ t: .4, g: .1, f: 400, f2: 3000, type: 'bandpass', q: .8 }); },
+    tips: () => [0, 1, 2, 3].forEach(k => tone({ type: 'square', f: 1319 + k * 110, t: .06, g: .03, delay: k * .05, filter: 3500 })),
+    hype: () => { tone({ type: 'sawtooth', f: 220, f2: 880, t: .5, g: .05, filter: 2500 }); notes([523, 659, 784, 1047], { type: 'square', t: .1, g: .04, step: .06, filter: 3000, delay: .3 }); },
     confetti: () => { notes([1047, 1319, 1568, 2093], { type: 'triangle', t: .3, g: .06, step: .05 }); noise({ t: .5, g: .05, f: 6000, type: 'highpass' }); },
   };
   function play(name, arg) {
@@ -2305,6 +2394,22 @@ const R = (function () {
         case 'freesnags': { snd('rain'); const pd = G.map.pads[f.pad]; pop(pd[0], pd[1] - 56, 'FREE SNAGS!', '#C2622E', true); burst(pd[0], pd[1] - 20, 14, { kind: 'chunk', col: ['#B5653A', '#D27A45'], sp: 120, up: 120, g: 260, life: 1, size: 3.5 }); break; }
         case 'shout': { snd('glug'); pop(f.x, f.y - 56, 'SHOUT A ROUND!', '#C8822A', true); for (let k = 0; k < 3; k++) P({ kind: 'ring', x: f.x, y: f.y, life: .6 + k * .1, size: f.r * .3 + k * 10, col: '#F2C27A' }); break; }
         case 'frenzy': { const pd = G.map.pads[f.pad]; pop(pd[0], pd[1] - 56, 'FEEDING FRENZY!', '#4E7DB8', true); snd('squawk'); snd('storm'); burst(pd[0], pd[1] - 24, 20, { kind: 'feather', col: ['#FFFFFF', '#F1EEE6'], sp: 90, up: 30, g: 30, life: 1.2, size: 3.5 }); break; }
+        case 'elite': {
+          snd('elite'); const pad = G.map.pads[f.pad];
+          towerAnim[f.pad] = { k: 'elite', t: 0 };
+          P({ kind: 'spot', x: pad[0], y: pad[1], life: 2.2 });
+          P({ kind: 'rays', x: pad[0], y: pad[1] - 20, life: 2.2, size: 90 });
+          P({ kind: 'pillar', x: pad[0], y: pad[1], life: 1.8, size: 40 });
+          for (let k = 0; k < 6; k++) P({ kind: 'rring', x: pad[0], y: pad[1] - 14, life: 1 + k * .15, size: 10 + k * 9, hue0: k });
+          burst(pad[0], pad[1] - 20, 60, { kind: 'star', col: ['#FFE07A', '#FFFFFF', '#FFC94A'].concat(RAINBOW), sp: 230, up: 60, life: 1.5, size: 4.2 });
+          celebrate();
+          for (let k = 0; k < 40; k++) P({ kind: 'confetti', x: Math.random() * W, y: -10 - Math.random() * 80, vx: (Math.random() - .5) * 30, vy: 70 + Math.random() * 70, g: 40, rot: Math.random() * 6, vr: (Math.random() - .5) * 10, life: 2.6, size: 3.4, col: ['#FFE07A', '#FFC94A', '#FFFFFF'][k % 3] });
+          pop(pad[0], pad[1] - 76, 'ELITE!', '#C98A1E', true); hitstop = Math.max(hitstop, .25); if (!reduced) flash = Math.max(flash, .45);
+          break;
+        }
+        case 'bassdrop': { snd('bassdrop'); for (let k = 0; k < 3; k++) P({ kind: 'ring', x: f.x, y: f.y, life: .5 + k * .12, size: 12 + k * 10, col: ['#FF4FD8', '#7CF2C8', '#FFE07A'][k] }); pop(f.x, f.y - 56, 'DROP THE BASS!', '#C93AAE', true); for (let k = 0; k < 8; k++) P({ kind: 'note', x: f.x + (Math.random() - .5) * 60, y: f.y - 20, vy: -50, vx: (Math.random() - .5) * 60, life: 1, size: 13, col: RAINBOW[k % RAINBOW.length] }); break; }
+        case 'tips': { snd('tips'); pop(f.x, f.y - 50, '+' + f.n + ' tips', '#E3A02C', true); for (let k = 0; k < Math.min(10, 3 + f.n / 15); k++) P({ kind: 'coin', x: f.x + (Math.random() - .5) * 20, y: f.y - 20, vx: (Math.random() - .5) * 60, vy: -120 - Math.random() * 60, g: 260, life: .9, size: 3 }); break; }
+        case 'hype': { snd('hype'); const pad = G.map.pads[f.pad]; pop(pad[0], pad[1] - 56, 'HYPE TRAIN!', '#FF4FD8', true); G.towers.forEach((t, j) => { if (t) { const p2 = G.map.pads[j]; P({ kind: 'ring', x: p2[0], y: p2[1] - 14, life: .6, size: 10, col: '#FF4FD8' }); for (let k = 0; k < 2; k++) P({ kind: 'note', x: p2[0], y: p2[1] - 30, vy: -30, vx: (Math.random() - .5) * 30, life: 1, size: 11, col: RAINBOW[(j + k) % RAINBOW.length] }); } }); break; }
         case 'ultimate': {
           snd('ultimate'); const pad = G.map.pads[f.pad];
           P({ kind: 'pillar', x: pad[0], y: pad[1], life: 1.4, size: 30 });
@@ -2406,6 +2511,9 @@ const R = (function () {
       case 'junk': ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = a; emoji(p.icon, 0, 0, p.size); ctx.restore(); ctx.globalAlpha = 1; break;
       case 'hat': ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = a; soft(ctx, 0, 0, 7, 3.5, '#D9534F'); ctx.restore(); ctx.globalAlpha = 1; break;
       case 'smoke': flat(ctx, p.x, p.y, p.size * (1 + p.t), p.size * (1 + p.t), p.col, a * .45); break;
+      case 'note': ctx.globalAlpha = Math.min(1, a * 2); text(Math.floor(p.ph || 0) % 2 ? '\u266b' : '\u266a', p.x + Math.sin(p.t * 6) * 3, p.y, p.size, p.col, { outline: 2.4 }); ctx.globalAlpha = 1; break;
+      case 'rays': { const k = p.t / p.life; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.t * 1.5); ctx.globalAlpha = Math.sin(k * Math.PI) * .7; for (let q = 0; q < 16; q++) { ctx.rotate(Math.PI / 8); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-9, -p.size); ctx.lineTo(9, -p.size); ctx.closePath(); ctx.fillStyle = q % 2 ? '#FFE07A' : RAINBOW[q % RAINBOW.length]; ctx.fill(); } ctx.restore(); ctx.globalAlpha = 1; break; }
+      case 'spot': { const k = p.t / p.life; ctx.globalAlpha = Math.sin(k * Math.PI) * .8; const g = ctx.createLinearGradient(p.x, 0, p.x, p.y); g.addColorStop(0, 'rgba(255,250,220,0)'); g.addColorStop(1, 'rgba(255,240,170,.85)'); ctx.beginPath(); ctx.moveTo(p.x - 10, 0); ctx.lineTo(p.x + 10, 0); ctx.lineTo(p.x + 46, p.y + 10); ctx.lineTo(p.x - 46, p.y + 10); ctx.closePath(); ctx.fillStyle = g; ctx.fill(); ctx.globalAlpha = 1; break; }
       case 'pz': ctx.globalAlpha = a; text('z', p.x, p.y, p.size, p.col, { display: true, weight: 700 }); ctx.globalAlpha = 1; break;
       case 'zwave': {
         const R0 = p.t / p.life * p.size; ctx.globalAlpha = a * .8;
@@ -2481,6 +2589,7 @@ const R = (function () {
     ctx.restore();
   }
 
+  const ELITE_COLS = { chuck: '#6C3FD1', bonk: '#1F2A44', nan: '#E9B93A', sizzle: '#FFFFFF', jezza: '#0E7C66', bev: '#E85D9A', dj: '#2EDBA8' };
   function padDecor(p) {
     if (p[2] === 'high') {
       flat(ctx, p[0] + 2, p[1] + 10, 30, 10, 'rgba(40,30,20,.18)');
@@ -2525,8 +2634,9 @@ const R = (function () {
 
   function towerDraw(G, t, i, x, y, time) {
     const an0 = towerAnim[i] || { k: '', t: 9 };
-    const rk = an0.t < .2 ? Math.sin(an0.t / .2 * Math.PI) : 0;
-    ctx.save(); ctx.translate(x, y + 8); ctx.scale(1 + .1 * rk, 1 - .1 * rk); ctx.translate(-x, -(y + 8));
+    const rk = an0.k !== 'elite' && an0.t < .2 ? Math.sin(an0.t / .2 * Math.PI) : 0;
+    const lift = an0.k === 'elite' && an0.t < 1.6 ? Math.sin(an0.t / 1.6 * Math.PI) : 0;
+    ctx.save(); ctx.translate(x, y + 8 - lift * 22); ctx.rotate(lift * Math.sin(an0.t * 18) * .05); ctx.scale(1 + .1 * rk + lift * .25, 1 - .1 * rk + lift * .25); ctx.translate(-x, -(y + 8));
     towerBody(G, t, i, x, y, time);
     ctx.restore();
   }
@@ -2535,7 +2645,22 @@ const R = (function () {
     const blink = ((time + i * 1.37) % 3.8) < .12;
     const breathe = Math.sin(time * 2 + i) * .6;
     const hatless = t.hatless > 0;
-    const ult = TOWERS[t.type].tiers[t.tier].ult;
+    const ult = TOWERS[t.type].tiers[t.tier].ult, EL = TOWERS[t.type].tiers[t.tier].elite;
+    const sc = c => EL ? (ELITE_COLS[t.type] || '#F2C14E') : c;
+    if (EL) {
+      // rotating sunburst rays
+      ctx.save(); ctx.translate(x, y - 16); ctx.rotate(time * .4);
+      for (let k = 0; k < 12; k++) { ctx.rotate(Math.PI / 6); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-5, -46); ctx.lineTo(5, -46); ctx.closePath(); ctx.fillStyle = k % 2 ? 'rgba(255,215,90,.16)' : 'rgba(255,255,255,.12)'; ctx.fill(); }
+      ctx.restore();
+      // golden flame ring
+      for (let k = 0; k < 10; k++) {
+        const an = k / 10 * Math.PI * 2 + time * 1.5, fx2 = x + Math.cos(an) * 26, fy = y + 4 + Math.sin(an) * 12, h = 9 + Math.sin(time * 9 + k) * 4;
+        ctx.beginPath(); ctx.moveTo(fx2 - 3.5, fy); ctx.quadraticCurveTo(fx2, fy - h * 1.6, fx2 + 3.5, fy); ctx.fillStyle = RAINBOW[(k + Math.floor(time * 6)) % RAINBOW.length]; ctx.globalAlpha = .75; ctx.fill(); ctx.globalAlpha = 1;
+      }
+      const gl2 = ctx.createRadialGradient(x, y - 20, 0, x, y - 20, 44); gl2.addColorStop(0, 'rgba(255,240,170,.6)'); gl2.addColorStop(1, 'rgba(255,240,170,0)'); ctx.fillStyle = gl2; ctx.fillRect(x - 44, y - 64, 88, 88);
+      if (Math.random() < .25) P({ kind: 'star', x: x + (Math.random() - .5) * 40, y: y - Math.random() * 40, vy: -35, life: 1, size: 2.6, col: ['#FFE07A', '#FFFFFF', '#FFC94A'][Math.floor(Math.random() * 3)] });
+      if (Math.random() < .02) P({ kind: 'ring', x, y: y - 14, life: .8, size: 14, col: '#FFE07A' });
+    }
     if (ult) {
       ctx.save(); ctx.translate(x, y + 3); ctx.rotate(time * 1.2);
       for (let k = 0; k < RAINBOW.length; k++) { ctx.beginPath(); ctx.ellipse(0, 0, 25 + k * 1.2, 14 + k * .7, 0, k * .9, k * .9 + 2.2); ctx.lineWidth = 2; ctx.strokeStyle = RAINBOW[k]; ctx.stroke(); }
@@ -2544,10 +2669,21 @@ const R = (function () {
       if (Math.random() < .12) P({ kind: 'star', x: x + (Math.random() - .5) * 30, y: y - Math.random() * 30, vy: -25, life: .8, size: 2.2, col: RAINBOW[Math.floor(Math.random() * RAINBOW.length)] });
     }
     padDecor(G.map.pads[i]);
-    // pallet base
     flat(ctx, x, y + 5, 21, 7, 'rgba(40,30,20,.18)');
-    rr(ctx, x - 17, y - 6, 34, 15, 4); const pg = ctx.createLinearGradient(0, y - 6, 0, y + 9); pg.addColorStop(0, '#D8B07A'); pg.addColorStop(1, '#B48A58'); ctx.fillStyle = pg; ctx.fill();
-    ctx.strokeStyle = 'rgba(90,60,35,.5)'; ctx.lineWidth = 1; ctx.beginPath(); for (const dx of [-8, 0, 8]) { ctx.moveTo(x + dx, y - 6); ctx.lineTo(x + dx, y + 9); } ctx.stroke();
+    if (EL) {
+      // golden stage
+      rr(ctx, x - 20, y - 8, 40, 18, 5); const pg = ctx.createLinearGradient(0, y - 8, 0, y + 10); pg.addColorStop(0, '#FFE9A0'); pg.addColorStop(.5, '#E8B23C'); pg.addColorStop(1, '#A8721E'); ctx.fillStyle = pg; ctx.fill(); ctx.strokeStyle = '#8A5A12'; ctx.lineWidth = 1.2; ctx.stroke();
+      for (let k = 0; k < 4; k++) flat(ctx, x - 13 + k * 8.7, y + 4, 2, 2, RAINBOW[(k * 2 + Math.floor(time * 3)) % RAINBOW.length]);
+      ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fillRect(x - 17, y - 6, 34, 2);
+      // cape behind crew
+      const capeCol = { chuck: '#E5533D', bonk: '#F2C14E', nan: '#8E5CE0', sizzle: '#E5533D', jezza: '#F2C14E', bev: '#2F86D8', dj: '#FF4FD8' }[t.type] || '#E5533D';
+      const cx2 = x + ({ chuck: -6, jezza: 4, bev: -4, sizzle: -2, dj: 0 }[t.type] || -1), sway = Math.sin(time * 3 + i) * 3;
+      ctx.beginPath(); ctx.moveTo(cx2 - 7, y - 30); ctx.quadraticCurveTo(cx2 - 15 + sway, y - 10, cx2 - 12 + sway, y + 2); ctx.lineTo(cx2 + 12 + sway, y + 2); ctx.quadraticCurveTo(cx2 + 15 + sway, y - 10, cx2 + 7, y - 30); ctx.closePath();
+      const cg2 = ctx.createLinearGradient(0, y - 30, 0, y + 2); cg2.addColorStop(0, capeCol); cg2.addColorStop(1, shade(capeCol, -.35)); ctx.fillStyle = cg2; ctx.fill();
+    } else {
+      rr(ctx, x - 17, y - 6, 34, 15, 4); const pg = ctx.createLinearGradient(0, y - 6, 0, y + 9); pg.addColorStop(0, '#D8B07A'); pg.addColorStop(1, '#B48A58'); ctx.fillStyle = pg; ctx.fill();
+      ctx.strokeStyle = 'rgba(90,60,35,.5)'; ctx.lineWidth = 1; ctx.beginPath(); for (const dx of [-8, 0, 8]) { ctx.moveTo(x + dx, y - 6); ctx.lineTo(x + dx, y + 9); } ctx.stroke();
+    }
     if (t.tier >= 1) { // bunting
       ctx.strokeStyle = '#8A6A48'; ctx.lineWidth = .8; ctx.beginPath(); ctx.moveTo(x - 16, y + 9); ctx.quadraticCurveTo(x, y + 13, x + 16, y + 9); ctx.stroke();
       ['#E0645A', '#F2C14E', '#5C9BE0', '#7CC27A', '#E0645A'].forEach((c, k) => { const bx = x - 13 + k * 6.5; ctx.beginPath(); ctx.moveTo(bx - 2.5, y + 10 + (k === 2 ? 1.5 : 1)); ctx.lineTo(bx + 2.5, y + 10 + (k === 2 ? 1.5 : 1)); ctx.lineTo(bx, y + 15); ctx.closePath(); ctx.fillStyle = c; ctx.fill(); });
@@ -2560,7 +2696,7 @@ const R = (function () {
       rr(ctx, x + 2, yb - 25, 14, 22, 3); const bg2 = ctx.createLinearGradient(x + 2, 0, x + 16, 0); bg2.addColorStop(0, '#5FA05A'); bg2.addColorStop(1, '#3E7A3E'); ctx.fillStyle = bg2; ctx.fill(); ctx.strokeStyle = '#2F5A2F'; ctx.lineWidth = 1; ctx.stroke();
       ctx.save(); ctx.translate(x + 1, yb - 26); ctx.rotate(a < .35 ? -Math.sin(a / .35 * Math.PI) * .9 : 0); rr(ctx, 0, -2.5, 17, 4.5, 2); ctx.fillStyle = '#356B35'; ctx.fill(); ctx.restore();
       flat(ctx, x + 6, yb - 2, 2, 2, '#333'); flat(ctx, x + 13, yb - 2, 2, 2, '#333');
-      person(x - 6, yb, { skin: '#F1C7A0', shirt: '#4A86C5', blink, scared: hatless, armA: arm, side: 1,
+      person(x - 6, yb, { skin: '#F1C7A0', shirt: sc('#4A86C5'), blink, scared: hatless, armA: arm, side: 1,
         hair: (hx, hy) => { flat(ctx, hx, hy - 4, 7.5, 4.5, '#7A4A2A'); flat(ctx, hx - 6, hy + 2, 3, 5, '#7A4A2A'); },
         hat: (hx, hy) => { ctx.beginPath(); ctx.ellipse(hx, hy - 5, 7.8, 5, 0, Math.PI, 0); ctx.fillStyle = '#D9534F'; ctx.fill(); rr(ctx, hx - 11, hy - 6, 6, 2.6, 1.3); ctx.fillStyle = '#B94440'; ctx.fill(); } });
     } else if (t.type === 'bonk') {
@@ -2569,7 +2705,7 @@ const R = (function () {
       // booth
       rr(ctx, x - 17, yb - 30, 34, 26, 4); ctx.fillStyle = '#F6EAD2'; ctx.fill(); ctx.strokeStyle = '#C9B48E'; ctx.lineWidth = 1; ctx.stroke();
       for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.moveTo(x - 19 + k * 7.6, yb - 37); ctx.lineTo(x - 11.4 + k * 7.6, yb - 37); ctx.lineTo(x - 11.4 + k * 7.6, yb - 30); ctx.arc(x - 15.2 + k * 7.6, yb - 30, 3.8, 0, Math.PI); ctx.closePath(); ctx.fillStyle = k % 2 ? '#FFF6E6' : '#E0705A'; ctx.fill(); }
-      person(x - 1, yb, { skin: '#E9B992', shirt: '#C9574A', apron: 'rgba(250,236,214,.9)', blink, scared: hatless, armA: arm, side: 1,
+      person(x - 1, yb, { skin: '#E9B992', shirt: sc('#C9574A'), apron: 'rgba(250,236,214,.9)', blink, scared: hatless, armA: arm, side: 1,
         hairBack: (hx, hy) => flat(ctx, hx, hy - 8, 4.5, 4, '#3D2A22'),
         hair: (hx, hy) => { ctx.beginPath(); ctx.ellipse(hx, hy - 3, 8, 5, 0, Math.PI, 0); ctx.fillStyle = '#3D2A22'; ctx.fill(); },
         hat: (hx, hy) => { ctx.beginPath(); ctx.ellipse(hx, hy - 4, 8.4, 4.6, 0, Math.PI, 0); ctx.fillStyle = '#F2C14E'; ctx.fill(); for (let k = -1; k <= 1; k++) flat(ctx, hx + k * 3.5, hy - 6, .9, .9, '#FFFFFF'); },
@@ -2581,7 +2717,7 @@ const R = (function () {
       ctx.beginPath(); ctx.arc(x, yb - 6, 14, .2 * Math.PI, .8 * Math.PI); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(x + 9, yb - 4); ctx.lineTo(x + 10, yb - 28); ctx.stroke();
       const castA = an.k === 'cast' ? an.t : 9;
-      person(x - 1, yb - 1, { skin: '#F3D0B5', shirt: '#8E6BB8', blink, scared: hatless, armA: castA < .15 ? -1.6 : .9 + Math.sin(time * 6) * .15, side: -1,
+      person(x - 1, yb - 1, { skin: '#F3D0B5', shirt: sc('#8E6BB8'), blink, scared: hatless, armA: castA < .15 ? -1.6 : .9 + Math.sin(time * 6) * .15, side: -1,
         hair: (hx, hy) => { for (const [dx, dy] of [[-5, -4], [0, -6], [5, -4], [-7, 0], [7, 0]]) flat(ctx, hx + dx, hy + dy, 3.6, 3.4, '#F4F2EE'); },
         face: (hx, hy) => { ctx.strokeStyle = '#6A5A50'; ctx.lineWidth = .8; ctx.beginPath(); ctx.arc(hx - 3, hy + .4, 2.3, 0, 7); ctx.arc(hx + 3, hy + .4, 2.3, 0, 7); ctx.stroke(); },
         hat: (hx, hy) => { flat(ctx, hx, hy - 6, 12, 3.4, '#E9C979'); ctx.beginPath(); ctx.ellipse(hx, hy - 7, 6.5, 4.5, 0, Math.PI, 0); ctx.fillStyle = '#E2BE6A'; ctx.fill(); flat(ctx, hx + 5, hy - 8, 2.2, 2.2, '#E8708A'); flat(ctx, hx + 5, hy - 8, .9, .9, '#FFE07A'); },
@@ -2595,7 +2731,7 @@ const R = (function () {
       ctx.beginPath(); ctx.moveTo(x - 22, yb - 31); ctx.quadraticCurveTo(x, yb - 50, x + 22, yb - 31); ctx.closePath(); ctx.fillStyle = '#F2C14E'; ctx.fill();
       for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.moveTo(x - 22 + k * 11, yb - 31); ctx.lineTo(x - 22 + k * 11 + 5.5, yb - 31); ctx.lineTo(x - 2 + k * 2, yb - 45); ctx.closePath(); ctx.fillStyle = '#FFF6E2'; ctx.fill(); }
       for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.arc(x - 16.5 + k * 11, yb - 31, 5.5, 0, Math.PI); ctx.fillStyle = k % 2 ? '#FFF6E2' : '#F2C14E'; ctx.fill(); }
-      person(x - 2, yb - 3, { skin: '#E7B48E', shirt: '#F4F1E8', apron: '#5C6B7A', blink, scared: hatless, armA: Math.sin(time * 3 + i) * .4 + .6, side: 1,
+      person(x - 2, yb - 3, { skin: '#E7B48E', shirt: sc('#F4F1E8'), apron: '#5C6B7A', blink, scared: hatless, armA: Math.sin(time * 3 + i) * .4 + .6, side: 1,
         face: (hx, hy) => { ctx.strokeStyle = '#5A3A28'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(hx - 3.5, hy + 2.6); ctx.quadraticCurveTo(hx, hy + 1.2, hx + 3.5, hy + 2.6); ctx.stroke(); },
         hat: (hx, hy) => { flat(ctx, hx, hy - 5, 10, 3, '#7FA35B'); ctx.beginPath(); ctx.ellipse(hx, hy - 6, 6.5, 5, 0, Math.PI, 0); ctx.fillStyle = '#6E9150'; ctx.fill(); } });
       rr(ctx, x - 13, yb - 9, 26, 7, 2); ctx.fillStyle = '#3F3F44'; ctx.fill();
@@ -2617,7 +2753,7 @@ const R = (function () {
       for (let k = 0; k < 3; k++) bottle(x - 16 + k * 4.2, yb - 19, 0, .48);
       for (let k = 0; k < 2; k++) bottle(x - 14.5 + k * 5, yb - 8, 0, .48);
       flat(ctx, x - 17, yb - 1, 1.8, 1.8, '#333'); flat(ctx, x - 7, yb - 1, 1.8, 1.8, '#333');
-      person(x + 4, yb, { skin: '#E8B48C', shirt: '#B83B32', check: true, blink, scared: hatless, armA: arm, side: 1,
+      person(x + 4, yb, { skin: '#E8B48C', shirt: sc('#B83B32'), check: true, blink, scared: hatless, armA: arm, side: 1,
         face: (hx, hy) => { for (const [dx, dy] of [[-4, 4], [-2, 5.5], [0, 6], [2, 5.5], [4, 4], [-5, 2.5], [5, 2.5]]) flat(ctx, hx + dx, hy + dy, .7, .7, 'rgba(90,60,40,.45)'); },
         hat: (hx, hy) => { flat(ctx, hx, hy - 5, 12.5, 3.2, '#8A5A34'); ctx.beginPath(); ctx.ellipse(hx, hy - 6.5, 7, 5.2, 0, Math.PI, 0); ctx.fillStyle = '#7A4E2C'; ctx.fill(); ctx.fillStyle = '#3B2A1E'; ctx.fillRect(hx - 7, hy - 7, 14, 1.6); rr(ctx, hx - 5.5, hy - 10, 4.5, 2.2, 1); ctx.fillStyle = '#222'; ctx.fill(); rr(ctx, hx + 1, hy - 10, 4.5, 2.2, 1); ctx.fill(); },
         prop: (hx, hy, ang) => { if (!(a > .26 && a < .5)) bottle(hx, hy - 3, -ang * .6, .55); } });
@@ -2630,7 +2766,7 @@ const R = (function () {
       rr(ctx, x - 19, yb - 9, 38, 5, 2); ctx.fillStyle = '#6DB078'; ctx.fill();
       ctx.strokeStyle = '#3F4A44'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - 15, yb - 4); ctx.lineTo(x - 15, yb + 2); ctx.moveTo(x + 15, yb - 4); ctx.lineTo(x + 15, yb + 2); ctx.stroke();
       const arm = a < .3 ? -2.2 + a / .3 * 3 : .5 + Math.sin(time * 2 + i) * .15;
-      person(x - 4, yb - 2, { skin: '#F2C6A4', shirt: '#3FA3A0', blink, scared: hatless, armA: arm, side: 1,
+      person(x - 4, yb - 2, { skin: '#F2C6A4', shirt: sc('#3FA3A0'), blink, scared: hatless, armA: arm, side: 1,
         hairBack: (hx, hy) => { for (const [dx, dy] of [[-7, 2], [7, 2], [-6, -3], [6, -3]]) flat(ctx, hx + dx, hy + dy, 3.2, 3.2, '#D9783A'); },
         hair: (hx, hy) => { for (const [dx, dy] of [[-4, -5], [0, -6], [4, -5]]) flat(ctx, hx + dx, hy + dy, 3, 2.6, '#E08848'); },
         hat: (hx, hy) => { ctx.beginPath(); ctx.ellipse(hx, hy - 5, 7.8, 5.6, 0, Math.PI, 0); ctx.fillStyle = '#E3B23C'; ctx.fill(); ctx.fillStyle = '#C9962A'; ctx.fillRect(hx - 7.8, hy - 6, 15.6, 2); flat(ctx, hx, hy - 11.5, 2.6, 2.6, '#F2D27A'); },
@@ -2639,15 +2775,50 @@ const R = (function () {
       const out = G.birds.filter(b => b.pad === i && b.kind === 'ibis').length;
       if (out < TOWERS.bev.tiers[t.tier].max) drawIbis(x + 13, yb - 24, 0, -1, true, ((time * 1.3 + i) % 3) < .15 ? .1 : 0, .8, time);
     }
+    if (t.type === 'dj') {
+      const beat = (time * 2.1) % 1, pump = Math.max(0, 1 - beat * 4);
+      // ute tray + speakers
+      rr(ctx, x - 20, yb - 12, 40, 12, 3); ctx.fillStyle = EL ? '#2A2A33' : '#3E6FB0'; ctx.fill();
+      for (const s2 of [-1, 1]) {
+        const sx2 = x + s2 * 14, sz = 1 + pump * .08;
+        rr(ctx, sx2 - 6, yb - 30, 12, 20, 2); ctx.fillStyle = '#26262C'; ctx.fill();
+        ctx.beginPath(); ctx.arc(sx2, yb - 16, 4 * sz, 0, 7); ctx.fillStyle = '#55555F'; ctx.fill(); ctx.beginPath(); ctx.arc(sx2, yb - 25, 2.4 * sz, 0, 7); ctx.fill();
+      }
+      // equaliser
+      for (let k = 0; k < 5; k++) { const hh = 3 + Math.abs(Math.sin(time * 9 + k * 1.3)) * 7; ctx.fillStyle = RAINBOW[k + 1]; ctx.fillRect(x - 9 + k * 4, yb - 12 - hh, 3, hh); }
+      const bob = pump * 2;
+      person(x, yb - 4 - bob, { skin: '#D9A07A', shirt: sc('#6C5CE0'), blink, scared: hatless, armA: -1.8 + Math.sin(time * 13.2) * .6, side: 1,
+        hairBack: (hx, hy) => { ctx.strokeStyle = '#22222A'; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(hx, hy - 1, 9.5, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke(); },
+        face: (hx, hy) => { rr(ctx, hx - 6.5, hy - 1.6, 13, 3.4, 1.5); ctx.fillStyle = '#111'; ctx.fill(); ctx.fillStyle = RAINBOW[Math.floor(time * 4) % RAINBOW.length]; ctx.fillRect(hx - 5, hy - .9, 3, 1); },
+        hat: (hx, hy) => { ctx.beginPath(); ctx.ellipse(hx, hy - 5, 7.6, 5, 0, Math.PI, 0); ctx.fillStyle = '#FF4FD8'; ctx.fill(); rr(ctx, hx + 4, hy - 6, 6, 2.4, 1.2); ctx.fillStyle = '#C93AAE'; ctx.fill(); flat(ctx, hx - 9, hy, 3, 3.6, '#22222A'); flat(ctx, hx + 9, hy, 3, 3.6, '#22222A'); },
+        prop: (hx, hy) => { ctx.strokeStyle = '#7CF2C8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx + 3, hy - 7); ctx.stroke(); } });
+      // light beams
+      for (let k = 0; k < (EL ? 4 : 2); k++) {
+        const an = -Math.PI / 2 + Math.sin(time * 1.6 + k * 2) * .9, len = 70 + (EL ? 30 : 0);
+        ctx.save(); ctx.translate(x + (k % 2 ? 12 : -12), yb - 30); ctx.rotate(an + Math.PI / 2);
+        const bg = ctx.createLinearGradient(0, 0, 0, -len); bg.addColorStop(0, rgba(RAINBOW[(k * 2 + 1) % RAINBOW.length], .45)); bg.addColorStop(1, rgba(RAINBOW[(k * 2 + 1) % RAINBOW.length], 0));
+        ctx.beginPath(); ctx.moveTo(-2, 0); ctx.lineTo(-12, -len); ctx.lineTo(12, -len); ctx.lineTo(2, 0); ctx.closePath(); ctx.fillStyle = bg; ctx.fill(); ctx.restore();
+      }
+      if (Math.random() < .06) P({ kind: 'note', x: x + (Math.random() - .5) * 30, y: yb - 34, vy: -24, vx: (Math.random() - .5) * 20, life: 1.2, size: 11, col: RAINBOW[Math.floor(Math.random() * RAINBOW.length)] });
+    }
     if (hatless) { text('!', x + 10, y - 44, 13, '#E0645A', { outline: 3 }); }
-    if (ult) {
+    if (EL) {
+      const cy = y - 50 + Math.sin(time * 3 + i) * 2.5, cx = x - 2;
+      const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, 16); halo.addColorStop(0, 'rgba(255,240,160,.8)'); halo.addColorStop(1, 'rgba(255,240,160,0)'); ctx.fillStyle = halo; ctx.fillRect(cx - 16, cy - 16, 32, 32);
+      ctx.beginPath(); ctx.moveTo(cx - 10, cy + 5); ctx.lineTo(cx - 11, cy - 5); ctx.lineTo(cx - 5.5, cy - 1); ctx.lineTo(cx, cy - 10); ctx.lineTo(cx + 5.5, cy - 1); ctx.lineTo(cx + 11, cy - 5); ctx.lineTo(cx + 10, cy + 5); ctx.closePath();
+      const cg = ctx.createLinearGradient(0, cy - 10, 0, cy + 5); cg.addColorStop(0, '#FFFBE0'); cg.addColorStop(.5, '#FFD24A'); cg.addColorStop(1, '#C98A1E'); ctx.fillStyle = cg; ctx.fill(); ctx.strokeStyle = '#8A5A12'; ctx.lineWidth = .9; ctx.stroke();
+      for (let k = 0; k < 3; k++) flat(ctx, cx - 6 + k * 6, cy + 1.5, 1.8, 1.8, RAINBOW[(k * 2 + Math.floor(time * 5)) % RAINBOW.length]);
+      for (let k = 0; k < 3; k++) { const an = time * 2.2 + k * 2.09, ox = x + Math.cos(an) * 24, oy = y - 18 + Math.sin(an) * 9; const og = ctx.createRadialGradient(ox, oy, 0, ox, oy, 6); og.addColorStop(0, '#FFFFFF'); og.addColorStop(.4, RAINBOW[(k * 2) % RAINBOW.length]); og.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = og; ctx.fillRect(ox - 6, oy - 6, 12, 12); }
+      text('ELITE', x, y + 24, 8.5, '#8A5A12', { outline: 2.6, oc: 'rgba(255,240,180,.95)' });
+    } else if (ult) {
       const cy = y - 46 + Math.sin(time * 3 + i) * 2, cx = x - 2;
       ctx.beginPath(); ctx.moveTo(cx - 7, cy + 4); ctx.lineTo(cx - 7, cy - 3); ctx.lineTo(cx - 3.5, cy); ctx.lineTo(cx, cy - 6); ctx.lineTo(cx + 3.5, cy); ctx.lineTo(cx + 7, cy - 3); ctx.lineTo(cx + 7, cy + 4); ctx.closePath();
       const cg = ctx.createLinearGradient(0, cy - 6, 0, cy + 4); cg.addColorStop(0, '#FFF1A8'); cg.addColorStop(1, '#E3A02C'); ctx.fillStyle = cg; ctx.fill(); ctx.strokeStyle = '#B5782A'; ctx.lineWidth = .8; ctx.stroke();
       flat(ctx, cx, cy + 1.5, 1.4, 1.4, RAINBOW[Math.floor(time * 4) % RAINBOW.length]);
     }
     if (t.tier === 2) { ctx.save(); ctx.translate(x + 14, y - 2); ctx.rotate(time * .8); ctx.fillStyle = '#F2C14E'; ctx.beginPath(); for (let k = 0; k < 10; k++) { const r2 = k % 2 ? 2 : 4.5, a2 = k * Math.PI / 5; ctx.lineTo(Math.cos(a2) * r2, Math.sin(a2) * r2); } ctx.closePath(); ctx.fill(); ctx.restore(); }
-    for (let k = 0; k <= t.tier; k++) flat(ctx, x - t.tier * 4 + k * 8, y + 18, 2.2, 2.2, ult ? RAINBOW[(k * 2) % RAINBOW.length] : '#FFF6D8');
+    if (!EL) for (let k = 0; k <= t.tier; k++) flat(ctx, x - t.tier * 4 + k * 8, y + 18, 2.2, 2.2, ult ? RAINBOW[(k * 2) % RAINBOW.length] : '#FFF6D8');
+    if (t.djBuff && t.type !== 'dj' && Math.random() < .02) P({ kind: 'note', x: x - 12, y: y - 34, vy: -18, vx: -6, life: 1.1, size: 10, col: RAINBOW[Math.floor(Math.random() * RAINBOW.length)] });
     if (G.globalBuff > 0 && t.type !== 'sizzle' && Math.random() < .015) P({ kind: 'snagicon', x: x + 12, y: y - 30, vy: -14, life: 1, size: 1 });
   }
 
@@ -3094,6 +3265,8 @@ const R = (function () {
     labelBoxes.length = 0;
     if (G.fxq.length) handleFx(G, G.fxq.splice(0));
     if (!opts.paused) { ambient(G, dt); stepParts(dt); }
+    // DJ auras pulse to the beat
+    G.towers.forEach((t, i) => { if (t && t.type === 'dj') { const tr = TOWERS.dj.tiers[t.tier], p = map.pads[i], beat = (time * 2.1) % 1; ctx.beginPath(); ctx.arc(p[0], p[1], tr.aura, 0, 7); ctx.fillStyle = 'rgba(255,79,216,' + (.06 + (t.dropT > 0 ? .08 : 0)) + ')'; ctx.fill(); ctx.beginPath(); ctx.arc(p[0], p[1], tr.aura * (.3 + beat * .7), 0, 7); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(124,242,200,' + (.45 * (1 - beat)) + ')'; ctx.stroke(); } });
     // sizzle auras
     G.towers.forEach((t, i) => { if (t && t.type === 'sizzle') { const r = TOWERS.sizzle.tiers[t.tier].aura * G.mods.sizzleRange, p = map.pads[i]; const g = ctx.createRadialGradient(p[0], p[1], r * .4, p[0], p[1], r); g.addColorStop(0, 'rgba(255,240,200,0)'); g.addColorStop(1, 'rgba(255,240,200,.16)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 7); ctx.fill(); } });
     if (opts.selPad >= 0) {
@@ -3199,7 +3372,7 @@ const R = (function () {
       const fade = Math.min(1, b.life / .6); ctx.globalAlpha = fade;
       if (!b.perched) flat(ctx, b.x + 6, b.y + 26, 6, 2, 'rgba(40,30,20,.15)');
       const flap = Math.sin(time * (b.kind === 'pigeon' ? 26 : 16) + b.id) * .6;
-      if (b.kind === 'ibis') drawIbis(b.x, b.y, b.perched ? 0 : flap, b.dx || 1, b.perched, b.peckT > 0, 1, time);
+      if (b.kind === 'ibis') { if (b.gold) { const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, 14); g.addColorStop(0, 'rgba(255,220,90,.55)'); g.addColorStop(1, 'rgba(255,220,90,0)'); ctx.fillStyle = g; ctx.fillRect(b.x - 14, b.y - 14, 28, 28); } drawIbis(b.x, b.y, b.perched ? 0 : flap, b.dx || 1, b.perched, b.peckT > 0, b.gold ? 1.15 : 1, time); }
       else drawPigeon(b.x, b.y, flap, b.dx || 1);
       ctx.globalAlpha = 1;
     }
@@ -3383,6 +3556,7 @@ const R = (function () {
       else if (e.type === 'treasure') SFX.play('rare');
       else if (e.type === 'hatsteal' && !toldHat) { toldHat = true; toast('Big Swoop nicked a hat. That crew is too scared to work for a bit.', 'bad'); }
       else if (e.type === 'chug') toast('Chrisso drank a whisky puddle. He feels great. Keep Jezza\u2019s puddles off his path.', 'bad');
+      else if (e.type === 'elite') { banner('ELITE', ELITE_TITLE[e.tt], 'elite'); setTimeout(() => toast(ELITE_DESC[e.tt], 'rare'), 2200); }
       else if (e.type === 'ultimate') toast('ULTIMATE unlocked: ' + TIER_NOTES[e.tt][3].replace('ULTIMATE: ', '') + '!', 'rare');
       else if (e.type === 'levelUp') toast('Level up! ' + SKILL_NAMES[e.s] + ' ' + e.L + '. Your crew just got better.', 'rare');
       else if (e.type === 'poke') toast(e.ok ? 'Gary swung his sword in his sleep.' : 'Gary rolled over and knocked his thong off the pile.', e.ok ? 'rare' : 'bad');
@@ -3418,14 +3592,16 @@ const R = (function () {
   // ---------- build sheet ----------
   let sellArmed = -1, sheetOpenedAt = 0;
   function padNote(i) { const t = G.map.pads[i][2]; return t === 'high' ? '<p class="padnote high">High ground: +20% range.</p>' : t === 'shady' ? '<p class="padnote shady">Shady spot: crew work 15% faster.</p>' : ''; }
-  function closeSheet() { selPad = -1; sheetMode = null; sellArmed = -1; $('sheet').hidden = true; }
+  function closeSheet() { selPad = -1; sheetMode = null; sellArmed = -1; lastSheetHTML = ''; $('sheet').hidden = true; }
+  let lastSheetHTML = '';
   function renderSheet() {
+    let sheetHTML = null;
     const s = $('sheet'); if (!G || !sheetMode || selPad < 0) { s.hidden = true; return; }
     s.hidden = false; s.classList.toggle('top', G.map.pads[selPad][1] > 300);
     if (sheetMode === 'build' && G.towers[selPad]) sheetMode = 'tower';
     if (sheetMode === 'tower' && !G.towers[selPad]) sheetMode = 'build';
     if (sheetMode === 'build') {
-      s.innerHTML = '<div class="sheet-head"><span>Build here</span><button class="x" data-act="close">Close</button></div>' + padNote(selPad) + '<div class="cards4">' +
+      sheetHTML = '<div class="sheet-head"><span>Build here</span><button class="x" data-act="close">Close</button></div>' + padNote(selPad) + '<div class="cards4">' +
         Object.keys(TOWERS).map(k => {
           const d = TOWERS[k], c = towerCost(G, k), ok = G.gold >= c;
           if (!towerUnlocked(meta, k)) return '<button class="tcard locked" disabled><b>' + d.name + '</b><small>' + d.crew + '</small><span class="blurb">Joins after ' + (d.unlockWins === 1 ? 'your first win' : 'you\u2019ve won ' + d.unlockWins + ' times') + '.</span></button>';
@@ -3433,20 +3609,22 @@ const R = (function () {
         }).join('') + '</div>';
     } else {
       const t = G.towers[selPad], d = TOWERS[t.type], uc = upgradeCost(G, selPad), nx = d.tiers[t.tier + 1];
-      const lvl = G.runL[d.skill] || 1, isUlt = nx && nx.ult, locked = ultLocked(G, selPad);
+      const lvl = G.runL[d.skill] || 1, isUlt = nx && nx.ult, isElite = nx && nx.elite, locked = ultLocked(G, selPad);
       let upBtn;
-      if (uc == null) upBtn = '<button class="btn ultdone" disabled>Ultimate reached</button>';
-      else if (locked) upBtn = '<button class="btn" disabled>Ultimate unlocks at ' + SKILL_NAMES[d.skill] + ' ' + ULT_LEVEL + ' (you\u2019re ' + lvl + ')</button>';
-      else upBtn = '<button class="btn ' + (isUlt ? 'ultbtn' : 'primary') + '" data-act="up"' + (G.gold >= uc ? '' : ' disabled') + '>' + (isUlt ? TIER_NOTES[t.type][t.tier + 1] : 'Upgrade: ' + TIER_NOTES[t.type][t.tier + 1]) + ' (' + uc + ')</button>';
+      if (uc == null) upBtn = '<button class="btn elitedone" disabled>ELITE. Maxed out.</button>';
+      else if (locked) upBtn = '<button class="btn" disabled>' + (isElite ? 'Elite' : 'Ultimate') + ' unlocks at ' + SKILL_NAMES[d.skill] + ' ' + (isElite ? ELITE_LEVEL : ULT_LEVEL) + ' (you\u2019re ' + lvl + ')</button>';
+      else upBtn = '<button class="btn ' + (isElite ? 'elitebtn' : isUlt ? 'ultbtn' : 'primary') + '" data-act="up"' + (G.gold >= uc ? '' : ' disabled') + '>' + (isUlt ? TIER_NOTES[t.type][t.tier + 1] : 'Upgrade: ' + TIER_NOTES[t.type][t.tier + 1]) + ' (' + uc + ')</button>';
       const A = ABIL[t.type], ar = abilityReady(G, selPad);
       const abil = t.tier < 1 ? '<p class="abil locked">Ability <b>' + A.name + '</b> unlocks at tier 2.</p>'
         : '<button class="btn abilbtn' + (ar && G.waveActive ? ' ready' : '') + '" data-act="abil"' + (ar && G.waveActive ? '' : ' disabled') + '><b>' + A.name + '</b><small>' + (ar ? (G.waveActive ? A.desc : 'Ready. Use it during a wave.') : 'Recharging: ' + Math.ceil(t.acd) + 's') + '</small></button>';
-      s.innerHTML = '<div class="sheet-head"><span>' + d.name + '</span><button class="x" data-act="close">Close</button></div>' +
+      sheetHTML = '<div class="sheet-head"><span>' + d.name + '</span><button class="x" data-act="close">Close</button></div>' +
         abil + padNote(selPad) +
-        '<p class="tinfo">' + d.crew + ', ' + SKILL_NAMES[d.skill] + ' level ' + lvl + '. Tier ' + (t.tier + 1) + ' of 4: ' + TIER_NOTES[t.type][t.tier] + '.' + (t.hatless > 0 ? (t.credit > 0 ? ' Steve took the credit. Sulking.' : ' Lost their hat. Too scared to work.') : '') + '</p>' +
-        (isUlt || d.tiers[t.tier].ult ? '<p class="ultdesc">' + ULT_DESC[t.type] + '</p>' : '') +
+        '<p class="tinfo">' + d.crew + ', ' + SKILL_NAMES[d.skill] + ' level ' + lvl + '. Tier ' + (t.tier + 1) + ' of 5: ' + TIER_NOTES[t.type][t.tier] + '.' + (t.hatless > 0 ? (t.credit > 0 ? ' Steve took the credit. Sulking.' : ' Lost their hat. Too scared to work.') : '') + '</p>' +
+        (isElite || d.tiers[t.tier].elite ? '<p class="ultdesc elite">' + ELITE_DESC[t.type] + '</p>' : (isUlt || d.tiers[t.tier].ult) ? '<p class="ultdesc">' + ULT_DESC[t.type] + '</p>' : '') +
         '<div class="row2">' + upBtn + '<button class="btn' + (sellArmed === selPad ? ' danger' : '') + '" data-act="sell">' + (sellArmed === selPad ? 'Tap again to sell' : 'Sell for ' + sellValue(G, selPad)) + '</button></div>';
     }
+    // only redraw when something changed, so a tap is never swallowed by a refresh
+    if (sheetHTML != null && sheetHTML !== lastSheetHTML) { s.innerHTML = sheetHTML; lastSheetHTML = sheetHTML; }
   }
   // Only accept a tap that started on the sheet after it opened (stops the opening tap from picking something).
   let sheetDownOk = false;
@@ -3457,6 +3635,7 @@ const R = (function () {
     if (!ok) return;
     if (b.dataset.act === 'sell' && sellArmed !== selPad) { sellArmed = selPad; renderSheet(); return; }
     if (b.dataset.build) { const k = b.dataset.build; if (build(G, selPad, k) && k === 'jezza' && !meta.jezzaQuip) { meta.jezzaQuip = 1; toast('Jezza: \u201cIt\u2019s a waste of good whisky. Luckily it\u2019s not good whisky.\u201d', 'big'); }
+      else if (G.towers[selPad] && k === 'dj' && !meta.djQuip) { meta.djQuip = 1; toast('DJ Brendo: \u201cThis next one goes out to the monsters. It\u2019s their last song.\u201d', 'big'); }
       else if (G.towers[selPad] && k === 'bev' && !meta.bevQuip) { meta.bevQuip = 1; toast('Bev: \u201cThey\u2019re not pests. They\u2019re colleagues.\u201d', 'big'); } closeSheet(); }
     else if (b.dataset.act === 'up') { sellArmed = -1; upgrade(G, selPad); renderSheet(); }
     else if (b.dataset.act === 'abil') { if (activate(G, selPad)) { SFX.play('ability'); closeSheet(); } else { toast('Nothing in range to hit.'); } }
@@ -3475,6 +3654,39 @@ const R = (function () {
   $('pauseBtn').addEventListener('click', () => { paused = !paused; lastHud = ''; });
   $('speedBtn').addEventListener('click', () => { speed = speed === 1 ? 2 : 1; lastHud = ''; });
   $('menuBtn').addEventListener('click', () => openMenu(G ? 'skills' : 'skills'));
+
+  // ---------- changelog ----------
+  const CHANGELOG = [
+    { build: 9, title: 'Elite crew and DJ Brendo', notes: ['New crew: DJ Brendo. Never attacks, earns gold every wave and pumps up nearby towers.', 'ELITE tier 5 for every crew member at skill level 8. New looks, capes, crowns and a huge transformation.', 'New synergy (Backyard Bash) and a new card (Headliner Booking).'] },
+    { build: 8, title: 'Always up to date', notes: ['The game now updates itself. No more incognito tricks.', 'This little What\u2019s new card, so you know what changed.'] },
+    { build: 7, title: 'The big one', notes: ['3 new levels: The Laneways, Fairy Ring Woods and Gary\u2019s Big Day.', 'Gary\u2019s Dreams: a meter-charged ultimate with 5 dreams and 5 levels each.', 'Tower abilities, 8 hidden synergies, trinkets, random events and level modifiers.', 'New monsters: mozzies, seagulls, first-aiders, Rat Mums, crabs in buckets. New bosses: Mortimer, Big Mum and Steve.'] },
+    { build: 6, title: 'Ultimates', notes: ['Tier 4 ULTIMATE upgrades for every crew member.', 'Uncle Tony now boosts every tower on the map.', 'No more accidental builds or sells.'] },
+    { build: 5, title: 'Bev and the bin chickens', notes: ['Bev summons ibises and pigeons.', 'Sound effects, rainbow crits, damage numbers and confetti.'] },
+    { build: 4, title: 'Chrisso', notes: ['Chrisso, who has never been tipsy, and the Beer Garden.', 'Card picks can\u2019t be mis-tapped any more.'] },
+  ];
+  function whatsNewCard() {
+    const seen = meta.seenBuild || 0, B = window.HML_BUILD || 0;
+    if (!meta.runs || seen >= B) return '';
+    const fresh = CHANGELOG.filter(c => c.build > seen && c.build <= B).slice(0, 2);
+    return '<div class="whatsnew"><div class="wn-head"><b>What\u2019s new' + (fresh.length === 1 ? ': ' + fresh[0].title : '') + '</b><button class="btn" id="wnOk">Got it</button></div><ul>' +
+      fresh.map(c => c.notes.map(n => '<li>' + n + '</li>').join('')).join('') + '</ul></div>';
+  }
+  function showChangelog(back) {
+    openModal('<div class="menu-head"><h2 class="title sm">What\u2019s new</h2><button class="btn" id="clBack">Back</button></div>' +
+      '<p class="small">You\u2019re on version ' + (window.HML_BUILD || '?') + '.</p>' +
+      CHANGELOG.map(c => '<div class="cl"><b>v' + c.build + ': ' + c.title + '</b><ul>' + c.notes.map(n => '<li>' + n + '</li>').join('') + '</ul></div>').join(''), 'menu');
+    $('clBack').onclick = back || showHome;
+  }
+  // re-check for updates when the tab comes back (phones keep tabs open for days)
+  let updateReady = 0;
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !window.__checkUpdate) return;
+    window.__checkUpdate().then(latest => {
+      if (!latest) return;
+      if (state === 'home' && !menuOpen) { saveMeta(); window.__applyUpdate(latest); }
+      else if (!updateReady) { updateReady = latest; toast('A new version is ready. It loads next time you\u2019re on the home screen.', 'big'); }
+    });
+  });
 
   // ---------- modal plumbing ----------
   let armTimer = 0;
@@ -3502,6 +3714,7 @@ const R = (function () {
     return '<div class="jobs">' + list.map(j => { const p = jobLive(j, G2); return '<div class="job"><div class="jt"><span>' + jobText(j) + '</span><b>+' + j.reward + '</b></div><div class="bar"><i style="width:' + Math.round(100 * p / j.n) + '%"></i></div><small>' + Math.floor(p) + ' / ' + j.n + '</small></div>'; }).join('') + '</div>';
   }
   function showHome() {
+    if (updateReady) { saveMeta(); window.__applyUpdate(updateReady); return; }
     SFX.music(''); bossOn = false; stage.classList.remove('bossfight');
     state = 'home'; G = null; menuOpen = false; closeSheet(); R.reset(); lastHud = '';
     ensureJobs(meta);
@@ -3524,13 +3737,16 @@ const R = (function () {
         '<ul class="how first"><li><b>Tap a wooden pad</b> to build a tower.</li><li><b>Tap Start wave</b> and watch your crew go.</li><li><b>Loot</b> drops on the road. Grab it before monsters wear it.</li><li><b>Gary\u2019s Dream</b> fills as you fight. Unleash it when things get hairy.</li></ul>' +
         '<button class="btn primary big" id="firstBtn" data-focus>Defend Gary</button>' +
         '<p class="clive">\u201cAny questions? Good, because I\u2019m not qualified to answer them.\u201d <span>Clive, Volunteer Coordinator</span></p>', 'home');
+      meta.seenBuild = window.HML_BUILD;
       $('firstBtn').onclick = () => startLevel(0);
       return;
     }
     const bevBanner = !jezzaBanner && towerUnlocked(meta, 'bev') && !meta.bevSeen ? '<div class="banner"><b>New crew: Bev</b><span>Bev summons bin chickens that peck and pester monsters. Pigeons join at tier 2. Find her in the build menu.</span></div>' : '';
     if (bevBanner) { meta.bevSeen = true; saveMeta(); }
+    const djBanner = !jezzaBanner && !bevBanner && towerUnlocked(meta, 'dj') && !meta.djSeen ? '<div class="banner"><b>New crew: DJ Brendo</b><span>He never attacks. He earns gold every wave and pumps up nearby towers with more range and speed. Economy is king.</span></div>' : '';
+    if (djBanner) { meta.djSeen = true; saveMeta(); }
     openModal(
-      '<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + jezzaBanner + bevBanner +
+      '<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + whatsNewCard() + jezzaBanner + bevBanner + djBanner +
       (runMap ? '<button class="btn primary big cont" id="contBtn" data-focus>Continue: ' + (run.mode === 'endless' ? 'Long Nap' : run.mode === 'daily' ? 'Daily Nap' : runMap.name) + ', wave ' + (run.wave + 1) + '</button>' : '') +
       garyCard() +
       '<div class="rockrow"><span class="rockic" aria-hidden="true"></span><span><b>' + (meta.rocks || 0) + '</b> Shiny Rocks</span><button class="btn" id="shedBtn">Clive\u2019s Shed</button></div>' +
@@ -3541,10 +3757,13 @@ const R = (function () {
       '<h2 class="h2">Levels</h2><div class="levels">' + levels + '</div>' +
       (run ? '<p class="small">Starting something new replaces your saved run.</p>' : '') +
       '<details class="how"' + (meta.runs ? '' : ' open') + '><summary>How to play</summary><ul>' +
-      '<li>Tap a wooden pad to build. Tap a tower to upgrade it.</li><li>Monsters drop loot. It collects itself, but tap or swipe it to grab it first. Monsters that reach it pick it up and get tougher.</li><li>Kill fast for combos. Call the next wave early for bonus gold.</li><li>Level a crew\u2019s skill to 5 to unlock their tier 4 ULTIMATE.</li><li>Gary\u2019s dream meter fills as you fight. Tap UNLEASH for a huge attack.</li><li>Towers at tier 2 get an ability. Tap the tower when you see the lightning badge.</li><li>Some crew combos trigger hidden synergies. Find them all.</li><li>Every run levels your crew, earns Shiny Rocks for Clive\u2019s Shed, and chips away at your odd jobs.</li></ul></details>' +
-      '<p class="clive">\u201cAny questions? Good, because I\u2019m not qualified to answer them.\u201d <span>Clive, Volunteer Coordinator</span></p>', 'home');
+      '<li>Tap a wooden pad to build. Tap a tower to upgrade it.</li><li>Monsters drop loot. It collects itself, but tap or swipe it to grab it first. Monsters that reach it pick it up and get tougher.</li><li>Kill fast for combos. Call the next wave early for bonus gold.</li><li>Level a crew\u2019s skill to 5 for their tier 4 ULTIMATE, and to 8 for tier 5 ELITE.</li><li>Gary\u2019s dream meter fills as you fight. Tap UNLEASH for a huge attack.</li><li>Towers at tier 2 get an ability. Tap the tower when you see the lightning badge.</li><li>Some crew combos trigger hidden synergies. Find them all.</li><li>Every run levels your crew, earns Shiny Rocks for Clive\u2019s Shed, and chips away at your odd jobs.</li></ul></details>' +
+      '<p class="clive">\u201cAny questions? Good, because I\u2019m not qualified to answer them.\u201d <span>Clive, Volunteer Coordinator</span></p>' +
+      '<p class="center"><button class="wnlink" id="wnLink">What\u2019s new in v' + (window.HML_BUILD || '') + '</button></p>', 'home');
     if ($('contBtn')) $('contBtn').onclick = () => continueRun(run);
     $('shedBtn').onclick = showShed;
+    if ($('wnOk')) $('wnOk').onclick = () => { meta.seenBuild = window.HML_BUILD; saveMeta(); showHome(); };
+    if ($('wnLink')) $('wnLink').onclick = () => showChangelog();
     $('gearBtn').onclick = () => showGear('dreams');
     if (won) { $('dailyBtn').onclick = () => startDaily(); $('longBtn').onclick = () => pickLong(); }
     $('modalCard').querySelectorAll('.level').forEach(b => {
@@ -3802,6 +4021,7 @@ const R = (function () {
       '<div class="row2b"><button class="btn" id="saveNow">Save now</button><button class="btn" id="copyCode">Copy save code</button></div>' +
       '<p class="small">A save code backs up your progress or moves it to another device.</p>' +
       '<textarea id="codeBox" rows="3" placeholder="Paste a save code here"></textarea><button class="btn" id="loadCode">Load save code</button><p class="small" id="codeMsg" aria-live="polite"></p>' +
+      '<h3>Version</h3><p class="small">Version ' + (window.HML_BUILD || '?') + '. The game updates itself when you open it.</p><button class="btn" id="clBtn">What\u2019s new</button>' +
       '<h3>Start over</h3><button class="btn danger" id="resetBtn">Reset all progress</button>';
   }
   function renderMenu() {
@@ -3823,6 +4043,7 @@ const R = (function () {
     if (menuTab === 'settings') {
       $('setInstant').onchange = e => { meta.settings.instantLoot = e.target.checked; if (G) G.instantLoot = e.target.checked; saveMeta(); };
       $('setShake').onchange = e => { meta.settings.shake = e.target.checked; saveMeta(); };
+      $('clBtn').onclick = () => showChangelog(() => renderMenu());
       $('setMusic').onchange = e => { meta.settings.music = e.target.checked; SFX.setMusic(e.target.checked); if (e.target.checked && G) SFX.music(bossOn ? 'boss' : 'calm'); saveMeta(); };
       $('setSound').onchange = e => { meta.settings.sound = e.target.checked; applySound(); saveMeta(); if (e.target.checked) SFX.play('pick'); };
       $('setVol').oninput = e => { meta.settings.volume = +e.target.value; applySound(); };
