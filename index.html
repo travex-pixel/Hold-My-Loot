@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hold My Loot</title>
-<meta name="hml-build" content="9">
+<meta name="hml-build" content="10">
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 9;
+window.HML_BUILD = 10;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -463,7 +463,7 @@ const MAPS = [
       [{ t: 'rat', n: 12, gap: .45, at: 0, p: 'alt' }, { t: 'bog', n: 1, gap: 0, at: 5, p: 1 }],
       [{ t: 'skel', n: 8, gap: .8, at: 0, p: 'alt' }, { t: 'crab', n: 3, gap: 2, at: 4, p: 1 }],
       [{ t: 'gob', n: 12, gap: .4, at: 0, p: 'alt' }, { t: 'bog', n: 3, gap: 2.2, at: 5, p: 0 }],
-      [{ t: 'pants', n: 4, gap: 1.2, at: 0, p: 'alt' }, { t: 'skel', n: 6, gap: .7, at: 3, p: 'alt' }, { t: 'crab', n: 4, gap: 1.4, at: 6, p: 'alt' }],
+      [{ t: 'pants', n: 4, gap: 1.2, at: 0, p: 'alt' }, { t: 'barry', n: 1, gap: 0, at: 2, p: 1, mini: true }, { t: 'crab', n: 4, gap: 1.4, at: 6, p: 'alt' }],
       [{ t: 'bog', n: 4, gap: 1.8, at: 0, p: 'alt' }, { t: 'gob', n: 10, gap: .35, at: 4, p: 'alt' }, { t: 'pants', n: 3, gap: 1.6, at: 8, p: 'alt' }],
       [{ t: 'skel', n: 10, gap: .6, at: 0, p: 'alt' }, { t: 'pantsalot', n: 1, gap: 0, at: 2, p: 0 }, { t: 'gob', n: 8, gap: .45, at: 10, p: 'alt' }],
     ] },
@@ -572,8 +572,8 @@ for (const m of MAPS) {
   if (m.F) m.FL.push(m.F);
 }
 
-const SKILLS = ['chucking', 'bonking', 'muttering', 'sizzling', 'pouring', 'flocking', 'hyping', 'scrounging'];
-const SKILL_NAMES = { chucking: 'Chucking', bonking: 'Bonking', muttering: 'Muttering', sizzling: 'Sizzling', pouring: 'Pouring', flocking: 'Flocking', hyping: 'Hyping', scrounging: 'Scrounging' };
+const SKILLS = ['chucking', 'bonking', 'muttering', 'sizzling', 'pouring', 'flocking', 'hyping', 'levitating', 'scrounging'];
+const SKILL_NAMES = { chucking: 'Chucking', bonking: 'Bonking', muttering: 'Muttering', sizzling: 'Sizzling', pouring: 'Pouring', flocking: 'Flocking', hyping: 'Hyping', levitating: 'Levitating', scrounging: 'Scrounging' };
 const SKILL_DESC = {
   chucking: 'Dazza\u2019s Chuckery. +3% damage per level.',
   bonking: 'Big Marg\u2019s Bonk Booth. +3% damage per level.',
@@ -582,6 +582,7 @@ const SKILL_DESC = {
   pouring: 'Jezza\u2019s Top Shelf. +3% splash and impact per level.',
   flocking: 'Bev\u2019s bin chickens and pigeons. +3% peck damage per level.',
   hyping: 'DJ Brendo\u2019s Doof Ute. +3% tips and buffs per level.',
+  levitating: 'Long Peter\u2019s mind powers. +3% slam damage per level.',
   scrounging: 'Loot. More drops and faster auto-collect per level.',
 };
 
@@ -601,6 +602,9 @@ TOWERS.bev = { name: "Bev's Bin Chickens", crew: 'Bev', skill: 'flocking', cost:
   tiers: [{ range: 115, every: 3.2, max: 2, dmg: 6.5, life: 6 }, { cost: 70, range: 120, every: 2.8, max: 3, dmg: 8.5, life: 6.5, pigeons: 2 }, { cost: 110, range: 125, every: 2.5, max: 3, dmg: 11, life: 7, pigeons: 3, binDay: true }, { cost: 220, range: 135, every: 2.1, max: 4, dmg: 14, life: 8, pigeons: 4, binDay: true, ult: true, stormEvery: 9 }, { cost: 420, range: 145, every: 1.8, max: 6, dmg: 18, life: 9, pigeons: 5, binDay: true, ult: true, elite: true, stormEvery: 6, stormN: 18 }] };
 TOWERS.dj = { name: "DJ Brendo's Doof Ute", crew: 'DJ Brendo', skill: 'hyping', cost: 90, unlockWins: 3, blurb: 'Never attacks. Earns gold every wave and pumps up nearby towers: more range, faster attacks.',
   tiers: [{ aura: 80, rng: .1, spd: .1, tip: 30 }, { cost: 80, aura: 88, rng: .15, spd: .15, tip: 50 }, { cost: 120, aura: 96, rng: .2, spd: .2, tip: 75 }, { cost: 230, aura: 105, rng: .25, spd: .25, tip: 100, ult: true, dropEvery: 8 }, { cost: 420, aura: 125, rng: .32, spd: .35, tip: 150, ult: true, elite: true, dropEvery: 5, global: .1 }] };
+TOWERS.pete = { name: 'Long Peter', crew: 'Long Peter', skill: 'levitating', cost: 85, unlockWins: 4, blurb: 'A very long sausage dog with mind powers. Lifts monsters into the air, then slams them down.',
+  tiers: [{ range: 100, every: 2.4, n: 1, hold: 1, dmg: 28, aoe: 22 }, { cost: 80, range: 105, every: 2.3, n: 1, hold: 1.1, dmg: 46, aoe: 28 }, { cost: 120, range: 110, every: 2.2, n: 2, hold: 1.1, dmg: 55, aoe: 30, yeet: true },
+    { cost: 240, range: 118, every: 2.1, n: 2, hold: 1.1, dmg: 70, aoe: 34, yeet: true, ult: true, massEvery: 8 }, { cost: 440, range: 130, every: 1.7, n: 3, hold: 1.1, dmg: 90, aoe: 42, yeet: true, ult: true, elite: true, massEvery: 5 }] };
 function towerUnlocked(meta, type) { const u = TOWERS[type].unlockWins; return !u || (meta.wins || 0) >= u; }
 const TIER_NOTES = {
   chuck: ['Random junk, random damage', 'Heavier junk', 'Junk splashes', 'ULTIMATE: Throw the Bathtub', 'ELITE: Lord of the Bins'],
@@ -609,6 +613,7 @@ const TIER_NOTES = {
   sizzle: ['+8% speed to every tower, slows monsters nearby', '+12% speed to every tower, bigger slow', 'Free snags: +17% everywhere, monsters queue', 'ULTIMATE: Snag Rain', 'ELITE: Grill Master'],
   jezza: ['Whisky puddle: monsters go tipsy', 'Bigger splash, longer hangover', 'Flaming Dram: the puddle catches fire', 'ULTIMATE: Rainbow Shots', 'ELITE: Top Shelf Legend'],
   bev: ['Summons 2 bin chickens to peck and pester', 'Up to 3 birds, plus pigeons that hit flyers', 'Bin Day: birds nick loot back and peck off armour', 'ULTIMATE: Pigeon Storm', 'ELITE: Queen of the Bin Chickens'],
+  pete: ['Lifts a monster, then slams it down', 'Bigger slam, wider splash', 'YEET: throws them back up the road into their mates', 'ULTIMATE: Mass Levitation', 'ELITE: The Floating Legend'],
   dj: ['+30 gold tips a wave, nearby towers +10% range and speed', '+50 tips, +15% range and speed', '+75 tips, +20% range and speed', 'ULTIMATE: Drop the Bass', 'ELITE: The Headliner'],
 };
 
@@ -633,6 +638,8 @@ const ENEMIES = {
     intro: 'SIR PANTSALOT. A king without pants. He will take yours.', tip: 'He grabs every bit of loot near him and wears it. Grab it first.' },
   chrisso: { name: 'Chrisso, Who Has Never Been Tipsy', hp: 2300, spd: 17, armor: 4, gold: 180, steal: 5, r: 21, boss: true, whiskyImmune: true,
     intro: "CHRISSO. Has never been tipsy in his life. Says it's genetic.", tip: 'Whisky does nothing to him. He drinks the puddles to heal and speed up. Keep them off his path.' },
+  barry: { name: 'Big Barry the Barramundi', hp: 2200, spd: 22, armor: 3, gold: 170, steal: 4, r: 21, boss: true, fish: true,
+    intro: 'BIG BARRY. A barramundi who escaped from an esky. He is furious about it.', tip: 'He splashes nearby crew. Soggy crew work slower. In water he swims twice as fast. Spread your crew out.' },
   mortimer: { name: 'Middle Manager Mortimer', hp: 2500, spd: 16, armor: 3, gold: 190, steal: 5, r: 18, boss: true, office: true,
     intro: 'MIDDLE MANAGER MORTIMER. Just circling back on your survival.', tip: 'Paperwork makes him immune. Three different crew hitting him quickly gets the form approved.' },
   bigmum: { name: 'Big Mum', hp: 3000, spd: 14, armor: 3, gold: 200, steal: 6, r: 24, boss: true, summons: 'baby', every: 3, kids: 3, enrage: true,
@@ -649,6 +656,7 @@ const BOSS_ITEMS = {
   swoop: { name: "Swooper's Feather", icon: '🪶', tier: 4 },
   chrisso: { name: "Chrisso's Stubby Holder", icon: '🥤', tier: 4 },
   mortimer: { name: 'Lanyard of Authority', icon: '📛', tier: 4 },
+  barry: { name: "Barry's Lucky Lure", icon: '🎣', tier: 4 },
   bigmum: { name: "Big Mum's Wooden Spoon", icon: '🥄', tier: 4 },
   steve: { name: "Steve's Participation Medal", icon: '🏅', tier: 4 },
 };
@@ -696,6 +704,7 @@ const ITEM_DESC = {
   "Swooper's Feather": 'Earned during swooping season. You have the scars.',
   "Chrisso's Stubby Holder": 'Keeps it cold. Has never once held a drink that affected him.',
   'Lanyard of Authority': 'Approved. Signed. Laminated.',
+  "Barry's Lucky Lure": 'It caught Barry once. Barry has not forgotten, and never will.',
   "Big Mum's Wooden Spoon": 'Has stirred a thousand casseroles and settled a thousand arguments.',
   "Steve's Participation Medal": 'Steve has nine of these. He tells people they are for winning.',
 };
@@ -718,6 +727,7 @@ const CARDS = [
   { id: 'smoko', name: 'Smoko Break', desc: 'All towers work 15% faster.', apply: G => { G.mods.fireRate *= 1.15; } },
   { id: 'topshelf', name: 'Top Shelf', desc: 'Jezza\u2019s whisky puddles are 35% bigger and last longer.', req: m => towerUnlocked(m, 'jezza'), apply: G => { G.mods.puddleMult *= 1.35; G.mods.puddleLife *= 1.3; } },
   { id: 'chips', name: 'Dropped Chips', desc: 'Bev\u2019s birds turn up 30% faster and peck 20% harder.', req: m => towerUnlocked(m, 'bev'), apply: G => { G.mods.birdRate *= 1.3; G.mods.birdDmg *= 1.2; } },
+  { id: 'treats', name: 'Good Boy Treats', desc: 'Long Peter lifts one extra monster at a time.', req: m => towerUnlocked(m, 'pete'), apply: G => { G.mods.peteExtra += 1; } },
   { id: 'headliner', name: 'Headliner Booking', desc: 'DJ Brendo\u2019s tips are 50% bigger for the rest of the run.', req: m => towerUnlocked(m, 'dj'), apply: G => { G.mods.tipMult *= 1.5; } },
   { id: 'shout', name: 'Shout a Round', desc: 'Every monster in the next wave starts tipsy.', req: m => towerUnlocked(m, 'jezza'), apply: G => { G.mods.shoutRound = 1; } },
 ];
@@ -754,6 +764,7 @@ const JOBS = [
   { id: 'pokes', t: n => 'Unleash Gary\u2019s dream ' + n + ' times', v: G => G.stats.dreams || 0, n: [2, 4, 7] },
   { id: 'perfect', t: n => 'Get ' + n + ' perfect waves', v: G => G.stats.perfects || 0, n: [4, 8, 14] },
   { id: 'synergy', t: n => 'Trigger ' + n + ' tower synergies', v: G => G.stats.syn || 0, n: [20, 60, 150] },
+  { id: 'lifts', t: n => 'Lift ' + n + ' monsters with Long Peter', v: G => G.stats.lifts || 0, n: [20, 60, 140], req: m => towerUnlocked(m, 'pete') },
   { id: 'tips', t: n => 'Earn ' + n + ' gold from DJ tips', v: G => G.stats.tips || 0, n: [150, 400, 900], req: m => towerUnlocked(m, 'dj') },
   { id: 'ability', t: n => 'Use tower abilities ' + n + ' times', v: G => G.stats.abilities || 0, n: [3, 6, 10] },
   { id: 'nobonk', t: () => 'Win a level without a Bonk Booth', v: G => G.won && G.mode !== 'endless' && !G.stats.builtTypes.bonk ? 1 : 0, n: [1, 1, 1], max: true },
@@ -798,7 +809,7 @@ function genWave(G, w) {
     out.push({ t, n, gap: t === 'gob' ? .4 : t === 'rat' ? .5 : t === 'bog' ? 1.8 : t === 'pants' ? 1.2 : .8, at, p });
     at += 2 + G.rng() * 3;
   }
-  if (w % 10 === 0) { const bosses = ['chrisso', 'kevin', 'stack', 'mortimer', 'pantsalot', 'bigmum', 'steve']; if (G.map.F) bosses.push('swoop'); out.push({ t: bosses[(w / 10 - 1) % bosses.length], n: 1, gap: 0, at: 2, p }); }
+  if (w % 10 === 0) { const bosses = ['chrisso', 'barry', 'kevin', 'stack', 'mortimer', 'pantsalot', 'bigmum', 'steve']; if (G.map.F) bosses.push('swoop'); out.push({ t: bosses[(w / 10 - 1) % bosses.length], n: 1, gap: 0, at: 2, p }); }
   return out;
 }
 
@@ -811,6 +822,7 @@ const ULT_DESC = {
   bev: 'Up to 4 bin chickens. Every 9 seconds, a storm of 12 pigeons sweeps the whole map.',
 };
 const ULT_LEVEL = 5, ELITE_LEVEL = 8;
+ULT_DESC.pete = 'Every 8 seconds Long Peter lifts EVERY monster in range, holds them, then drops them all at once.';
 ULT_DESC.dj = 'Every 8 seconds the bass drops: nearby towers attack 60% faster for 3 seconds and monsters get blown back.';
 const ELITE_DESC = {
   chuck: 'Dazza, Lord of the Bins. Three throws at once, and a bathtub every third shot.',
@@ -819,9 +831,10 @@ const ELITE_DESC = {
   sizzle: 'Uncle Tony, Grill Master. +35% speed everywhere and Snag Rain on 12 monsters every 4 seconds.',
   jezza: 'Jezza, Top Shelf Legend. Four rainbow shots. Tipsy monsters take 60% more damage.',
   bev: 'Bev, Queen of the Bin Chickens. Six golden ibises and an 18-pigeon storm every 6 seconds.',
+  pete: 'Long Peter, The Floating Legend. Lifts three at a time and mass-levitates every 5 seconds.',
   dj: 'DJ Brendo, The Headliner. +150 tips a wave, huge aura, the bass drops every 5 seconds, and every tower on the map gets +10% speed.',
 };
-const ELITE_TITLE = { chuck: 'Dazza, Lord of the Bins', bonk: 'Big Marg, Bouncer Supreme', nan: 'Nan Eternal', sizzle: 'Uncle Tony, Grill Master', jezza: 'Jezza, Top Shelf Legend', bev: 'Bev, Queen of the Bin Chickens', dj: 'DJ Brendo, The Headliner' };
+const ELITE_TITLE = { pete: 'Long Peter, The Floating Legend', chuck: 'Dazza, Lord of the Bins', bonk: 'Big Marg, Bouncer Supreme', nan: 'Nan Eternal', sizzle: 'Uncle Tony, Grill Master', jezza: 'Jezza, Top Shelf Legend', bev: 'Bev, Queen of the Bin Chickens', dj: 'DJ Brendo, The Headliner' };
 
 // ---------- Synergies ----------
 const SYNERGIES = [
@@ -832,6 +845,7 @@ const SYNERGIES = [
   { id: 'duck', name: 'Sitting Duck', desc: '+30% crit chance for Nan against stunned monsters.', hint: 'Nan prefers a target that sits still.' },
   { id: 'smoke', name: 'Smoke Signals', desc: 'Birds inside Uncle Tony\u2019s smoke peck 40% faster.', hint: 'Bin chickens can smell a sausage from anywhere.' },
   { id: 'bbq', name: 'Barbecue Whisky', desc: 'Whisky puddles near Uncle Tony\u2019s grill catch fire.', hint: 'What happens if whisky meets a hot plate?' },
+  { id: 'airstrike', name: 'Air Strike', desc: 'Dazza\u2019s junk hits levitating monsters 50% harder. They can\u2019t dodge mid-air.', hint: 'Something about throwing things at things that are floating.' },
   { id: 'backyard', name: 'Backyard Bash', desc: 'DJ Brendo earns 50% more tips when Uncle Tony\u2019s grill is in his crowd.', hint: 'Music and a barbecue. What could go right?' },
   { id: 'wet', name: 'Wet and Wild', desc: 'Wading monsters take 30% more from bonks and pecks.', hint: 'Slippery monsters are easier to knock about.' },
 ];
@@ -856,6 +870,7 @@ const ABIL = {
   sizzle: { name: 'Free Snags', desc: 'Every monster near the grill stops to queue for 3 seconds.', cd: 30 },
   jezza: { name: 'Shout a Round', desc: 'Every monster in range goes tipsy for 6 seconds.', cd: 28 },
   bev: { name: 'Feeding Frenzy', desc: 'Six bin chickens at once.', cd: 30 },
+  pete: { name: 'Mind Fetch', desc: 'Grabs the strongest monster on the map and yeets it back to the start. Bosses get dragged back a bit.', cd: 32 },
   dj: { name: 'Hype Train', desc: 'Every tower on the map attacks 50% faster for 6 seconds.', cd: 32 },
 };
 
@@ -881,7 +896,7 @@ const ITEM_FX = {
   'Boomerang Brick': ['dmg', .09], "Nan's Good Scissors": ['crit', .08], "Gary's Sword": ['dream', .15],
   "Nan's Spare Teeth": ['crit', .12], "Gary's Actual Crown": ['pile', 2],
   "Kevin's Tail": ['killGold', .1], 'Trenchcoat of Many Pockets': ['cost', .08], "The King's Missing Pants": ['bossDmg', .12], "Swooper's Feather": ['flyerDmg', .25],
-  "Chrisso's Stubby Holder": ['tipsy', .5], 'Lanyard of Authority': ['abil', .2], "Big Mum's Wooden Spoon": ['dreamDmg', .25], "Steve's Participation Medal": ['gold', 100],
+  "Chrisso's Stubby Holder": ['tipsy', .5], 'Lanyard of Authority': ['abil', .2], "Barry's Lucky Lure": ['dmg', .1], "Big Mum's Wooden Spoon": ['dreamDmg', .25], "Steve's Participation Medal": ['gold', 100],
 };
 const FX_TEXT = {
   gold: v => '+' + v + ' starting gold', dream: v => '+' + Math.round(v * 100) + '% dream charge', speed: v => '+' + Math.round(v * 100) + '% tower speed',
@@ -944,7 +959,7 @@ function levelInfo(xp) {
   return { L, into: rem, need, max: L >= MAX_LEVEL };
 }
 function defaultMeta() {
-  return { v: 3, xp: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, hyping: 0, scrounging: 0 }, runs: 0, wins: 0, stash: {}, bestKept: 0,
+  return { v: 3, xp: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, hyping: 0, levitating: 0, scrounging: 0 }, runs: 0, wins: 0, stash: {}, bestKept: 0,
     maps: {}, totals: { kills: 0, crits: 0, heists: 0, snatches: 0, banked: 0, pokes: 0, time: 0, bosses: {}, tipsy: 0, bestCombo: 0, rocksEarned: 0 },
     settings: { instantLoot: false, shake: true }, seenHow: false,
     rocks: 0, shed: {}, jobs: [], jobsDone: 0, daily: { done: {}, count: 0 }, endlessBest: {}, jezzaSeen: false,
@@ -971,10 +986,10 @@ function newRun(meta, seed, mapIdx, mode, daily, runMods) {
     gold: map.gold + 20 * sh('float') + (mode === 'endless' ? 120 : 0), pile: 10 + sh('undies'), pileMax: 10 + sh('undies'), pokes: 1 + sh('coffee'), cards: [],
     mods: { costMult: 1 - .04 * sh('mates'), dropBonus: .03 * sh('magnet'), chuckMulti: 1, nanCrit: 0, bonkStun: 0, bonkDmg: 1, sizzleRange: 1,
       enemySpeed: 1, enemyHp: 1, goldMult: 1, rarityRolls: 1, snore: 0, tapRadius: 38, snatchGold: 5, fireRate: 1, autoMult: 1 - .15 * sh('magnet'),
-      puddleMult: 1, puddleLife: 1, shoutRound: 0, birdRate: 1, birdDmg: 1, tipMult: 1 },
+      puddleMult: 1, puddleLife: 1, shoutRound: 0, birdRate: 1, birdDmg: 1, tipMult: 1, peteExtra: 0 },
     stats: { kills: 0, crits: 0, taps: 0, snatches: 0, itemsLost: 0, waveLost: [], banked: [], heists: 0, pokes: 0,
-      killsBy: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, hyping: 0 }, tips: 0, tipsy: 0, bestCombo: 0, builtTypes: {} },
-    xp: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, hyping: 0, scrounging: 0 },
+      killsBy: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, hyping: 0, levitating: 0 }, tips: 0, lifts: 0, tipsy: 0, bestCombo: 0, builtTypes: {} },
+    xp: { chucking: 0, bonking: 0, muttering: 0, sizzling: 0, pouring: 0, flocking: 0, hyping: 0, levitating: 0, scrounging: 0 },
     birds: [], bid: 0, hypeT: 0,
     over: false, won: false, eid: 0, lid: 0, kevinCd: 0, firstLoot: false, bossTold: {},
   };
@@ -1057,7 +1072,7 @@ function startWave(G) {
   const q = [];
   let def = G.mode === 'endless' ? genWave(G, G.wave) : G.runMods.chaos ? genChaos(G, G.wave) : G.map.waves[G.wave - 1];
   if (G.runMods.bossrush && (G.wave === 3 || G.wave === 6)) {
-    const pool = ['kevin', 'stack', 'pantsalot', 'chrisso', 'mortimer', 'bigmum'].filter(b => b !== G.map.boss);
+    const pool = ['kevin', 'barry', 'stack', 'pantsalot', 'chrisso', 'mortimer', 'bigmum'].filter(b => b !== G.map.boss);
     def = def.concat([{ t: pool[(G.wave === 3 ? 0 : 1) + (G.mapIdx % 3)], n: 1, gap: 0, at: 4, p: G.map.entr ? 'e0' : undefined, mini: true }]);
   }
   // random event
@@ -1272,6 +1287,12 @@ function activate(G, pad) {
     if (es.length) { const m2 = G.skillMult.flocking * G.mods.birdDmg * G.dmgAll; for (let k = 0; k < 6; k++) G.birds.push({ id: ++G.bid, kind: 'ibis', pad, x: px + (k - 3) * 6, y: py - 22, tid: es[k % es.length].id, life: 8, pcd: .2, dmg: tr.dmg * m2, bin: true, ox: (G.rng() - .5) * 12, extra: true }); fx(G, 'frenzy', { pad }); ok = true; }
   }
   if (t.type === 'dj') { G.hypeT = 6; fx(G, 'hype', { pad }); ok = true; }
+  if (t.type === 'pete' && G.enemies.length) {
+    const nb = G.enemies.filter(e => !e.boss), tg = (nb.length ? nb : G.enemies).slice().sort((a, b) => b.hp - a.hp)[0];
+    fx(G, 'fetch', { pad, x: tg.x, y: tg.y });
+    if (tg.boss) tg.d = Math.max(0, tg.d - 80); else { tg.d = 0; tg.lift = { t: 0, hold: .8, dmg: 40 * G.skillMult.levitating, aoe: 20, yeet: false }; }
+    ok = true;
+  }
   if (ok) { t.acd = ABIL[t.type].cd * G.abilMult; G.stats.abilities++; ev(G, 'ability', { tt: t.type }); }
   return ok;
 }
@@ -1283,6 +1304,7 @@ function damage(G, e, amt, o) {
   if (e.shocked > 0) amt *= 1.2;
   if (e.wading && (o.kind === 'bonk' || o.kind === 'peck')) { amt *= 1.3; synergy(G, 'wet', e.x, e.y); }
   if ((o.kind === 'chuck' || o.kind === 'tub') && e.pecked > 0) { amt *= 1.3; synergy(G, 'binnight', e.x, e.y); }
+  if ((o.kind === 'chuck' || o.kind === 'tub') && e.lift) { amt *= 1.5; synergy(G, 'airstrike', e.x, e.y); }
   // Mortimer's paperwork shield
   if (e.type === 'mortimer' && !(e.open > 0) && o.kind !== 'dream' && o.kind !== 'zap') {
     if (o.src) { e.stamps[o.src] = G.t; const n = Object.keys(e.stamps).filter(k => G.t - e.stamps[k] < 4).length; e.stampN = n;
@@ -1407,6 +1429,15 @@ function update(G, dt) {
     if (e.shocked > 0) e.shocked -= dt;
     if (e.frozen > 0) { e.frozen -= dt; if (e.frozen <= 0 && e.frozenL >= 4) { fx(G, 'shatter', { x: e.x, y: e.y }); damage(G, e, e.maxHp * (e.boss ? .05 : .15), { src: null, pierce: true, kind: 'dream' }); if (e.dead) continue; } }
     const edef = ENEMIES[e.type];
+    if (edef.fish) {
+      e.splashCd = (e.splashCd == null ? 4 : e.splashCd) - dt;
+      if (e.splashCd <= 0) {
+        e.splashCd = e.enraged ? 3.5 : 6;
+        let n = 0; G.towers.forEach((t, i) => { if (t && Math.hypot(map.pads[i][0] - e.x, map.pads[i][1] - e.y) < 95) { t.soggy = 4; n++; } });
+        fx(G, 'bigsplash', { x: e.x, y: e.y }); fx(G, 'shake', { m: 4 }); if (n) ev(G, 'soggy');
+      }
+      if (!e.enraged && e.hp < e.maxHp * .25) { e.enraged = true; fx(G, 'enrage', { x: e.x, y: e.y, type: e.type }); ev(G, 'enrage', { tt: e.type }); }
+    }
     if (edef.heals) { e.hcd -= dt; if (e.hcd <= 0) { e.hcd = 2; let any = false; for (const o of G.enemies) if (o !== e && Math.hypot(o.x - e.x, o.y - e.y) < 62 && o.hp < o.maxHp) { o.hp = Math.min(o.maxHp, o.hp + o.maxHp * (o.boss ? .015 : .08)); any = true; } if (any) fx(G, 'heal', { x: e.x, y: e.y }); } }
     if (edef.summons && !(e.frozen > 0)) {
       e.scd -= dt * (e.enraged ? 2 : 1);
@@ -1447,7 +1478,18 @@ function update(G, dt) {
     if (e.tipsy > 0) e.tipsy -= dt;
     if (e.burn > 0) { e.burn -= dt; damage(G, e, burnDps * dt, { src: null, pierce: true }); if (e.dead) continue; }
     let moving = false;
-    if (e.frozen > 0) { /* frozen solid */ }
+    if (e.lift) {
+      const L2 = e.lift; L2.t += dt;
+      if (L2.t >= L2.hold) {
+        e.lift = null;
+        if (L2.yeet) { e.d = Math.max(0, e.d - 25); const p2 = posOn(e.P, e.d); e.x = p2.x; e.y = p2.y; }
+        fx(G, 'psyslam', { x: e.x, y: e.y, yeet: !!L2.yeet, r: L2.aoe });
+        for (const o of G.enemies.slice()) if (o !== e && Math.hypot(o.x - e.x, o.y - e.y) < L2.aoe) damage(G, o, L2.dmg * .5, { src: 'levitating', kind: 'psy' });
+        damage(G, e, L2.dmg, { src: 'levitating', kind: 'psy' });
+        if (e.dead) continue;
+      }
+    }
+    else if (e.frozen > 0) { /* frozen solid */ }
     else if (e.stun > 0) e.stun -= dt;
     else if (e.queue > 0) e.queue -= dt;
     else if (e.grab) {
@@ -1477,7 +1519,7 @@ function update(G, dt) {
       let slow = 0;
       for (const s of sizzles) if (Math.hypot(s.x - e.x, s.y - e.y) <= s.r) slow = Math.max(slow, s.slow);
       if (G.mods.snore && Math.hypot(GARY.x - e.x, GARY.y - e.y) < 130) slow = Math.max(slow, G.mods.snore);
-      if (map.water && !e.flyer && e.y > map.water.y1 && e.y < map.water.y2) { slow = Math.max(slow, .3); e.wading = true; } else e.wading = false;
+      if (map.water && !e.flyer && e.y > map.water.y1 && e.y < map.water.y2) { if (ENEMIES[e.type].fish) { e.swim = true; } else { slow = Math.max(slow, .3); } e.wading = !ENEMIES[e.type].fish; } else { e.wading = false; e.swim = false; }
       if (e.pecked > 0) slow = Math.max(slow, .12);
       if (e.groggy > 0) slow = Math.max(slow, .4);
       e.sizzled = false; for (const s of sizzles) if (Math.hypot(s.x - e.x, s.y - e.y) <= s.r) e.sizzled = true;
@@ -1487,6 +1529,8 @@ function update(G, dt) {
       }
       let spd = e.spd;
       if (e.chug > 0) spd *= 1.3;
+      if (e.swim) spd *= 2;
+      if (ENEMIES[e.type].fish) { const ph = (G.t * (e.enraged ? 2.4 : 1.6) + e.wob) % 1; spd *= ph < .45 ? 2 : .25; }
       if (e.type === 'stack') spd *= 1 + (1 - e.hp / e.maxHp) * 1.3;
       e.d += spd * G.mods.enemySpeed * (G.map.spdMult || 1) * (1 - slow) * dt;
       if (!e.flyer) { const sg = segAt(e.P, e.d); if (sg && sg.tp) { fx(G, 'portal', { x: sg.x1, y: sg.y1 }); e.d = sg.start + sg.len + .5; fx(G, 'portal', { x: sg.x2, y: sg.y2, out: true }); } }
@@ -1534,7 +1578,31 @@ function update(G, dt) {
     if (t.acd > 0) t.acd -= dt;
     if (t.rage > 0) t.rage -= dt;
     if (t.credit > 0) t.credit -= dt;
+    if (t.soggy > 0) { t.soggy -= dt; SM *= .6; }
     if (t.hatless > 0) { t.hatless -= dt; return; }
+    if (t.type === 'pete') {
+      const mult = G.skillMult.levitating * G.dmgAll;
+      if (tr.ult) {
+        t.ucd = (t.ucd == null ? 3 : t.ucd) - dt;
+        if (t.ucd <= 0) {
+          const all = G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= tr.range * RM);
+          if (all.length >= 2) {
+            t.ucd = tr.massEvery;
+            for (const e of all) { if (e.boss) { e.stun = Math.max(e.stun, .5); continue; } if (!e.lift) { e.lift = { t: 0, hold: 1.5, dmg: tr.dmg * 1.1 * mult, aoe: tr.aoe, yeet: false }; G.stats.lifts++; } }
+            fx(G, 'masslift', { pad: i, x: px, y: py, r: tr.range * RM }); ev(G, 'ultFire', { tt: 'pete' });
+          } else t.ucd = .5;
+        }
+      }
+      t.cd -= dt * (1 + globalBuff) * G.mods.fireRate * SM * (t.rage > 0 ? 3 : 1);
+      if (t.cd > 0) return;
+      const cands = G.enemies.filter(e => !e.boss && !e.lift && Math.hypot(e.x - px, e.y - py) <= tr.range * RM).sort((a, b) => b.d - a.d);
+      if (!cands.length) { t.cd = 0; return; }
+      t.cd = tr.every;
+      const n = tr.n + G.mods.peteExtra;
+      for (const e of cands.slice(0, n)) { e.lift = { t: 0, hold: tr.hold, dmg: tr.dmg * mult, aoe: tr.aoe, yeet: !!tr.yeet }; G.stats.lifts++; G.xp.levitating += 1; }
+      fx(G, 'psy', { pad: i, targets: cands.slice(0, n).map(e => e.id) });
+      return;
+    }
     if (t.type === 'dj') {
       if (t.dropT > 0) t.dropT -= dt;
       if (tr.ult) {
@@ -2019,6 +2087,10 @@ const SFX = (function () {
     bassdrop: () => { tone({ f: 120, f2: 38, t: .7, g: .35 }); noise({ t: .4, g: .1, f: 400, f2: 3000, type: 'bandpass', q: .8 }); },
     tips: () => [0, 1, 2, 3].forEach(k => tone({ type: 'square', f: 1319 + k * 110, t: .06, g: .03, delay: k * .05, filter: 3500 })),
     hype: () => { tone({ type: 'sawtooth', f: 220, f2: 880, t: .5, g: .05, filter: 2500 }); notes([523, 659, 784, 1047], { type: 'square', t: .1, g: .04, step: .06, filter: 3000, delay: .3 }); },
+    psy: () => tone({ type: 'sine', f: 420, f2: 900, t: .3, g: .05, vib: 12, vibAmt: 40 }),
+    psyslam: () => { tone({ f: 160, f2: 60, t: .2, g: .22 }); tone({ type: 'triangle', f: 900, f2: 300, t: .2, g: .04 }); },
+    yeet: () => { tone({ type: 'sine', f: 300, f2: 1400, t: .25, g: .06 }); noise({ t: .2, g: .08, f: 800, f2: 3000, type: 'bandpass' }); },
+    masslift: () => { tone({ type: 'sawtooth', f: 110, f2: 440, t: .9, g: .05, filter: 1200, vib: 8, vibAmt: 20 }); notes([523, 622, 784, 932], { type: 'sine', t: .4, g: .05, step: .1 }); },
     confetti: () => { notes([1047, 1319, 1568, 2093], { type: 'triangle', t: .3, g: .06, step: .05 }); noise({ t: .5, g: .05, f: 6000, type: 'highpass' }); },
   };
   function play(name, arg) {
@@ -2407,6 +2479,11 @@ const R = (function () {
           pop(pad[0], pad[1] - 76, 'ELITE!', '#C98A1E', true); hitstop = Math.max(hitstop, .25); if (!reduced) flash = Math.max(flash, .45);
           break;
         }
+        case 'psy': { snd('psy'); towerAnim[f.pad] = { k: 'psy', t: 0 }; const pd = G.map.pads[f.pad]; P({ kind: 'ring', x: pd[0] + 18, y: pd[1] - 20, life: .4, size: 6, col: '#C9A8FF' }); break; }
+        case 'psyslam': { snd(f.yeet ? 'yeet' : 'psyslam'); P({ kind: 'ring', x: f.x, y: f.y, life: .4, size: f.r * .5, col: '#B59BFF' }); burst(f.x, f.y, 10, { kind: 'star', col: ['#C9A8FF', '#FFFFFF', '#7CF2C8'], sp: 80, life: .45, size: 2.6 }); burst(f.x, f.y, 6, { kind: 'dust', col: ['#E8D9B8'], sp: 50, life: .45, size: 4 }); if (f.yeet) pop(f.x, f.y - 26, 'YEET!', '#8E5CE0', true); break; }
+        case 'masslift': { snd('masslift'); pop(f.x, f.y - 56, 'MASS LEVITATION!', '#8E5CE0', true); for (let k = 0; k < 3; k++) P({ kind: 'ring', x: f.x, y: f.y, life: .6 + k * .12, size: f.r * .3 + k * 12, col: ['#B59BFF', '#7CF2C8', '#E2C6FF'][k] }); if (!reduced) flash = Math.max(flash, .12); break; }
+        case 'fetch': { snd('yeet'); const pd = G.map.pads[f.pad]; pop(pd[0], pd[1] - 56, 'MIND FETCH!', '#8E5CE0', true); P({ kind: 'bolt', x: 0, y: 0, life: .5, pts: [[pd[0] + 18, pd[1] - 10], [f.x, f.y]], seed: 3, big: true }); burst(f.x, f.y, 14, { kind: 'star', col: ['#C9A8FF', '#FFFFFF'], sp: 100, life: .5, size: 3 }); break; }
+        case 'bigsplash': { snd('splash'); for (let k = 0; k < 3; k++) P({ kind: 'ring', x: f.x, y: f.y, life: .5 + k * .15, size: 14 + k * 16, col: ['#BDE6FF', '#8FD3FF', '#FFFFFF'][k] }); for (let k = 0; k < 24; k++) { const an = -Math.PI * Math.random(), sp = 90 + Math.random() * 130; P({ kind: 'drop', x: f.x, y: f.y - 6, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp - 30, g: 330, life: .8, size: 2.4 + Math.random() * 2, col: k % 2 ? '#8FD3FF' : '#E6F7FF' }); } pop(f.x, f.y - 40, 'SPLASH!', '#2F86D8', true); break; }
         case 'bassdrop': { snd('bassdrop'); for (let k = 0; k < 3; k++) P({ kind: 'ring', x: f.x, y: f.y, life: .5 + k * .12, size: 12 + k * 10, col: ['#FF4FD8', '#7CF2C8', '#FFE07A'][k] }); pop(f.x, f.y - 56, 'DROP THE BASS!', '#C93AAE', true); for (let k = 0; k < 8; k++) P({ kind: 'note', x: f.x + (Math.random() - .5) * 60, y: f.y - 20, vy: -50, vx: (Math.random() - .5) * 60, life: 1, size: 13, col: RAINBOW[k % RAINBOW.length] }); break; }
         case 'tips': { snd('tips'); pop(f.x, f.y - 50, '+' + f.n + ' tips', '#E3A02C', true); for (let k = 0; k < Math.min(10, 3 + f.n / 15); k++) P({ kind: 'coin', x: f.x + (Math.random() - .5) * 20, y: f.y - 20, vx: (Math.random() - .5) * 60, vy: -120 - Math.random() * 60, g: 260, life: .9, size: 3 }); break; }
         case 'hype': { snd('hype'); const pad = G.map.pads[f.pad]; pop(pad[0], pad[1] - 56, 'HYPE TRAIN!', '#FF4FD8', true); G.towers.forEach((t, j) => { if (t) { const p2 = G.map.pads[j]; P({ kind: 'ring', x: p2[0], y: p2[1] - 14, life: .6, size: 10, col: '#FF4FD8' }); for (let k = 0; k < 2; k++) P({ kind: 'note', x: p2[0], y: p2[1] - 30, vy: -30, vx: (Math.random() - .5) * 30, life: 1, size: 11, col: RAINBOW[(j + k) % RAINBOW.length] }); } }); break; }
@@ -2589,6 +2666,30 @@ const R = (function () {
     ctx.restore();
   }
 
+  function drawSausage(x, y, time, i, glowing, EL) {
+    const body = EL ? '#7A4A2A' : '#8B5A2E', belly = '#C08A58', wag = Math.sin(time * 14 + i) * .5;
+    ctx.save(); ctx.translate(x, y);
+    // tail
+    ctx.save(); ctx.translate(-17, -2); ctx.rotate(-.6 + wag); ctx.strokeStyle = body; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-7, -4); ctx.stroke(); ctx.restore();
+    // legs (tucked, floating)
+    for (const lx of [-12, -7, 8, 13]) { rr(ctx, lx - 1.6, 3, 3.2, 4, 1.5); ctx.fillStyle = shade(body, -.15); ctx.fill(); }
+    // very long body
+    rr(ctx, -18, -6, 34, 11, 5.5); const bg = ctx.createLinearGradient(0, -6, 0, 5); bg.addColorStop(0, shade(body, .2)); bg.addColorStop(1, body); ctx.fillStyle = bg; ctx.fill(); ctx.strokeStyle = shade(body, -.4); ctx.lineWidth = 1; ctx.stroke();
+    flat(ctx, -1, 2.5, 13, 2.4, belly, .7);
+    // collar + tag
+    ctx.fillStyle = EL ? '#FFD24A' : '#D9534F'; ctx.fillRect(11, -6, 3.2, 10); flat(ctx, 13, 5, 2, 2, '#F2C14E');
+    // head + long snout
+    soft(ctx, 18, -5, 6.5, 5.8, body, { lw: .9 });
+    ctx.beginPath(); ctx.ellipse(25, -3, 6, 3.2, .1, 0, 7); ctx.fillStyle = shade(body, .1); ctx.fill(); ctx.strokeStyle = shade(body, -.4); ctx.lineWidth = .8; ctx.stroke();
+    flat(ctx, 30.5, -3.5, 1.8, 1.6, '#2A1E14');
+    // floppy ear
+    ctx.save(); ctx.translate(15.5, -7); ctx.rotate(.35 + Math.sin(time * 3 + i) * .12); ctx.beginPath(); ctx.ellipse(0, 4, 3, 6, 0, 0, 7); ctx.fillStyle = shade(body, -.3); ctx.fill(); ctx.restore();
+    // eye: glows purple when using powers
+    if (glowing) { const eg = ctx.createRadialGradient(20, -6.5, 0, 20, -6.5, 6); eg.addColorStop(0, 'rgba(230,200,255,1)'); eg.addColorStop(1, 'rgba(170,110,255,0)'); ctx.fillStyle = eg; ctx.fillRect(14, -12.5, 12, 12); flat(ctx, 20, -6.5, 1.8, 1.8, '#F4E6FF'); }
+    else { flat(ctx, 20, -6.5, 1.5, 1.7, '#2A1E14'); flat(ctx, 19.5, -7.1, .5, .5, '#FFFFFF'); }
+    if (EL) { ctx.beginPath(); ctx.ellipse(18, -13, 6, 2, 0, 0, 7); ctx.strokeStyle = '#FFE07A'; ctx.lineWidth = 1.6; ctx.stroke(); }
+    ctx.restore();
+  }
   const ELITE_COLS = { chuck: '#6C3FD1', bonk: '#1F2A44', nan: '#E9B93A', sizzle: '#FFFFFF', jezza: '#0E7C66', bev: '#E85D9A', dj: '#2EDBA8' };
   function padDecor(p) {
     if (p[2] === 'high') {
@@ -2775,6 +2876,17 @@ const R = (function () {
       const out = G.birds.filter(b => b.pad === i && b.kind === 'ibis').length;
       if (out < TOWERS.bev.tiers[t.tier].max) drawIbis(x + 13, yb - 24, 0, -1, true, ((time * 1.3 + i) % 3) < .15 ? .1 : 0, .8, time);
     }
+    if (t.type === 'pete') {
+      const psyA = an.k === 'psy' ? an.t : 9, glowing = psyA < .5 || t.dropT > 0;
+      const hov = Math.sin(time * 2.4 + i) * 2.2 + (EL ? -4 : 0);
+      // dog bed
+      ctx.beginPath(); ctx.ellipse(x, yb - 2, 19, 7, 0, 0, 7); ctx.fillStyle = EL ? '#8E5CE0' : '#C9574A'; ctx.fill(); ctx.beginPath(); ctx.ellipse(x, yb - 3, 14, 4.5, 0, 0, 7); ctx.fillStyle = EL ? '#B59BFF' : '#E8857A'; ctx.fill();
+      // psychic glow under him
+      const pg2 = ctx.createRadialGradient(x, yb - 10 + hov, 0, x, yb - 10 + hov, 26); pg2.addColorStop(0, 'rgba(170,110,255,' + (glowing ? .55 : .25) + ')'); pg2.addColorStop(1, 'rgba(170,110,255,0)'); ctx.fillStyle = pg2; ctx.fillRect(x - 26, yb - 36 + hov, 52, 52);
+      if (EL) for (let k = 1; k <= 2; k++) { ctx.globalAlpha = .18 / k; drawSausage(x - k * 7, yb - 12 + hov + k * 2, time, i, false, EL); ctx.globalAlpha = 1; }
+      drawSausage(x, yb - 12 + hov, time, i, glowing, EL);
+      if (Math.random() < (glowing ? .3 : .06)) P({ kind: 'spark', x: x + (Math.random() - .5) * 30, y: yb - 10 + hov + (Math.random() - .5) * 10, vy: -20, life: .6, size: 1.8, col: ['#B59BFF', '#E2C6FF', '#7CF2C8'][Math.floor(Math.random() * 3)] });
+    }
     if (t.type === 'dj') {
       const beat = (time * 2.1) % 1, pump = Math.max(0, 1 - beat * 4);
       // ute tray + speakers
@@ -2801,6 +2913,7 @@ const R = (function () {
       }
       if (Math.random() < .06) P({ kind: 'note', x: x + (Math.random() - .5) * 30, y: yb - 34, vy: -24, vx: (Math.random() - .5) * 20, life: 1.2, size: 11, col: RAINBOW[Math.floor(Math.random() * RAINBOW.length)] });
     }
+    if (t.soggy > 0) { ctx.globalAlpha = .28; flat(ctx, x, y - 16, 20, 22, '#6FB6E0'); ctx.globalAlpha = 1; if (Math.random() < .2) P({ kind: 'drop', x: x + (Math.random() - .5) * 24, y: y - 30, vy: 40, g: 200, life: .5, size: 1.6, col: '#8FD3FF' }); if (Math.random() < .01) pop(x, y - 46, 'soggy', '#2F86D8'); }
     if (hatless) { text('!', x + 10, y - 44, 13, '#E0645A', { outline: 3 }); }
     if (EL) {
       const cy = y - 50 + Math.sin(time * 3 + i) * 2.5, cx = x - 2;
@@ -2832,8 +2945,10 @@ const R = (function () {
     let sx = 1, sy = 1;
     if (moving && !e.flyer) { sy = 1 + Math.sin(ph * 2) * .05; sx = 1 / sy; }
     if (e.hit > 0 && e.hitKind === 'bonk') { sy = .72; sx = 1.25; }
-    const x = e.x, y = e.y - hop - 2;
-    if (!e.flyer) flat(ctx, e.x, e.y + r * .65, r * .95, r * .3, 'rgba(40,30,20,.2)');
+    const liftH = e.lift ? Math.min(1, e.lift.t / .25) * 26 * (e.lift.t > e.lift.hold - .12 ? Math.max(0, (e.lift.hold - e.lift.t) / .12) : 1) : 0;
+    const x = e.x, y = e.y - hop - 2 - liftH;
+    if (liftH > 0) { const ag = ctx.createRadialGradient(x, y - r * .3, 0, x, y - r * .3, r * 2); ag.addColorStop(0, 'rgba(180,120,255,.45)'); ag.addColorStop(1, 'rgba(180,120,255,0)'); ctx.fillStyle = ag; ctx.fillRect(x - r * 2, y - r * 2.3, r * 4, r * 4); if (Math.random() < .25) P({ kind: 'spark', x: x + (Math.random() - .5) * r * 2, y: y + r * .5, vy: -30, life: .5, size: 1.6, col: '#C9A8FF' }); }
+    if (!e.flyer) flat(ctx, e.x, e.e_y || e.y + r * .65, r * .95 * (e.lift ? .7 : 1), r * .3, 'rgba(40,30,20,.2)');
     ctx.save(); ctx.translate(x, y + r * .6); if (e.tipsy > 0 && !e.flyer) ctx.rotate(Math.sin(time * 6 + e.wob) * .2); ctx.scale(sx * (e.dx < 0 ? -1 : 1), sy); ctx.translate(0, -r * .6);
     const tp = e.type;
     if (tp === 'rat' || tp === 'kevin' || tp === 'ratmum' || tp === 'baby' || tp === 'bigmum') {
@@ -2977,6 +3092,27 @@ const R = (function () {
       eye(-r * .18, -r * 1.05, r * .09); eye(r * .22, -r * 1.05, r * .09);
       ctx.strokeStyle = '#7A3A30'; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.arc(r * .05, -r * .9, r * .22, .1, Math.PI - .1); ctx.stroke(); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-r * .12, -r * .9, r * .34, 1.6);
       ctx.save(); ctx.translate(r * .8, -r * .2); ctx.rotate(-.5 + (moving ? Math.sin(ph) * .2 : 0)); ctx.strokeStyle = '#DCE3E8'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -r * 1.3); ctx.stroke(); ctx.fillStyle = '#B8863B'; ctx.fillRect(-4, -1, 8, 2.5); ctx.restore();
+    } else if (tp === 'barry') {
+      const flop = Math.sin(time * (e.enraged ? 14 : 9) + e.wob) * .18;
+      ctx.rotate(flop);
+      if (e.swim) { flat(ctx, 0, r * .45, r * 1.3, r * .3, 'rgba(160,220,240,.6)'); }
+      // tail fin
+      ctx.beginPath(); ctx.moveTo(-r * .9, 0); ctx.lineTo(-r * 1.6, -r * .7 + flop * 10); ctx.lineTo(-r * 1.45, 0); ctx.lineTo(-r * 1.6, r * .7 - flop * 10); ctx.closePath(); ctx.fillStyle = '#6E7F52'; ctx.fill(); ctx.strokeStyle = '#4A5634'; ctx.lineWidth = 1; ctx.stroke();
+      // spiky dorsal fin
+      ctx.beginPath(); ctx.moveTo(-r * .6, -r * .55); for (let k = 0; k < 6; k++) { ctx.lineTo(-r * .5 + k * r * .2, -r * (.95 + (k % 2) * .25)); } ctx.lineTo(r * .6, -r * .5); ctx.closePath(); ctx.fillStyle = '#7C8C5A'; ctx.fill();
+      // body: silver belly, olive-bronze back
+      const bg3 = ctx.createLinearGradient(0, -r * .7, 0, r * .7); bg3.addColorStop(0, '#7C8C5A'); bg3.addColorStop(.45, '#C9C6B0'); bg3.addColorStop(1, '#F2F1EA');
+      ctx.beginPath(); ctx.ellipse(0, 0, r * 1.05, r * .68, 0, 0, 7); ctx.fillStyle = bg3; ctx.fill(); ctx.strokeStyle = '#5E6A44'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.strokeStyle = 'rgba(90,100,70,.35)'; ctx.lineWidth = .8; for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.arc(-r * .5 + k * r * .25, 0, r * .18, -1.2, 1.2); ctx.stroke(); }
+      // gill + pectoral fin
+      ctx.strokeStyle = '#5E6A44'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(r * .45, 0, r * .4, -1.1, 1.1); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(r * .2, r * .3, r * .3, r * .14, .5, 0, 7); ctx.fillStyle = '#9AA678'; ctx.fill();
+      // big angry eye
+      flat(ctx, r * .7, -r * .18, r * .2, r * .2, '#FFFFFF'); flat(ctx, r * .72, -r * .18, r * .12, r * .12, e.enraged ? '#E0453A' : '#C2622E'); flat(ctx, r * .74, -r * .18, r * .06, r * .06, '#1A1A1A');
+      ctx.strokeStyle = '#3B3A2A'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(r * .52, -r * .45); ctx.lineTo(r * .88, -r * .3); ctx.stroke();
+      // grumpy jaw
+      ctx.strokeStyle = '#3B3A2A'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(r * .82, r * .12); ctx.quadraticCurveTo(r * .95, r * .3, r * 1.05, r * .12); ctx.stroke();
+      if (Math.random() < .2) P({ kind: 'drop', x: e.x + (Math.random() - .5) * r * 2, y: e.y - r * .5, vx: (Math.random() - .5) * 40, vy: -60, g: 260, life: .5, size: 1.8, col: '#BDE6FF' });
     } else if (tp === 'swoop' || tp === 'seagull') {
       // drawn separately (flying)
     }
@@ -3368,6 +3504,16 @@ const R = (function () {
       }
     }
     for (const e of G.enemies) if (e.flyer) drawEnemy(G, e, time);
+    // Long Peter's telekinetic tethers
+    G.towers.forEach((t, i) => {
+      if (!t || t.type !== 'pete') return;
+      const p = map.pads[i], tr = TOWERS.pete.tiers[t.tier];
+      for (const e of G.enemies) if (e.lift && Math.hypot(e.x - p[0], e.y - p[1]) <= tr.range * 1.35) {
+        ctx.strokeStyle = 'rgba(190,140,255,.75)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(p[0] + 18, p[1] - 22);
+        for (let k = 1; k <= 8; k++) { const tt = k / 8; ctx.lineTo(p[0] + 18 + (e.x - p[0] - 18) * tt + Math.sin(time * 20 + k * 1.7) * 3, p[1] - 22 + (e.y - 30 - p[1] + 22) * tt + Math.cos(time * 17 + k) * 3); }
+        ctx.stroke();
+      }
+    });
     for (const b of G.birds) {
       const fade = Math.min(1, b.life / .6); ctx.globalAlpha = fade;
       if (!b.perched) flat(ctx, b.x + 6, b.y + 26, 6, 2, 'rgba(40,30,20,.15)');
@@ -3550,6 +3696,7 @@ const R = (function () {
       else if (e.type === 'synergy' && e.first) toast('New synergy: ' + SYNERGIES.find(s => s.id === e.id).name + '. ' + SYNERGIES.find(s => s.id === e.id).desc, 'rare');
       else if (e.type === 'dreamReady') { SFX.play('ready'); if (!toldDream) { toldDream = true; toast('Gary\u2019s dream is ready. Tap UNLEASH when it counts.', 'big'); } }
       else if (e.type === 'event') { SFX.play('event'); const E = EVENTS.find(x => x.id === e.id); banner(E.name, E.desc, 'event'); }
+      else if (e.type === 'soggy' && !toldSoggy) { toldSoggy = true; toast('Barry splashed your crew. Soggy crew work slower for a few seconds.', 'bad'); }
       else if (e.type === 'approved') toast('Mortimer\u2019s form is approved. Hit him now!', 'rare');
       else if (e.type === 'credit' && !toldCredit) { toldCredit = true; toast('Steve took credit for a tower\u2019s work. It\u2019s sulking for 3 seconds.', 'bad'); }
       else if (e.type === 'enrage') toast(ENEMIES[e.tt].name.split(',')[0] + ' is ENRAGED!', 'bad');
@@ -3635,6 +3782,7 @@ const R = (function () {
     if (!ok) return;
     if (b.dataset.act === 'sell' && sellArmed !== selPad) { sellArmed = selPad; renderSheet(); return; }
     if (b.dataset.build) { const k = b.dataset.build; if (build(G, selPad, k) && k === 'jezza' && !meta.jezzaQuip) { meta.jezzaQuip = 1; toast('Jezza: \u201cIt\u2019s a waste of good whisky. Luckily it\u2019s not good whisky.\u201d', 'big'); }
+      else if (G.towers[selPad] && k === 'pete' && !meta.peteQuip) { meta.peteQuip = 1; toast('Long Peter is a very good boy. With very bad intentions.', 'big'); }
       else if (G.towers[selPad] && k === 'dj' && !meta.djQuip) { meta.djQuip = 1; toast('DJ Brendo: \u201cThis next one goes out to the monsters. It\u2019s their last song.\u201d', 'big'); }
       else if (G.towers[selPad] && k === 'bev' && !meta.bevQuip) { meta.bevQuip = 1; toast('Bev: \u201cThey\u2019re not pests. They\u2019re colleagues.\u201d', 'big'); } closeSheet(); }
     else if (b.dataset.act === 'up') { sellArmed = -1; upgrade(G, selPad); renderSheet(); }
@@ -3657,6 +3805,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 10, title: 'Long Peter and Big Barry', notes: ['New crew: Long Peter, a very long sausage dog with mind powers. He lifts monsters, then slams or YEETS them.', 'New boss: Big Barry the Barramundi. He splashes your crew soggy, and swims fast in the creek. Find him on Puddle Crossing.', 'New synergy (Air Strike), card (Good Boy Treats) and odd job.'] },
     { build: 9, title: 'Elite crew and DJ Brendo', notes: ['New crew: DJ Brendo. Never attacks, earns gold every wave and pumps up nearby towers.', 'ELITE tier 5 for every crew member at skill level 8. New looks, capes, crowns and a huge transformation.', 'New synergy (Backyard Bash) and a new card (Headliner Booking).'] },
     { build: 8, title: 'Always up to date', notes: ['The game now updates itself. No more incognito tricks.', 'This little What\u2019s new card, so you know what changed.'] },
     { build: 7, title: 'The big one', notes: ['3 new levels: The Laneways, Fairy Ring Woods and Gary\u2019s Big Day.', 'Gary\u2019s Dreams: a meter-charged ultimate with 5 dreams and 5 levels each.', 'Tower abilities, 8 hidden synergies, trinkets, random events and level modifiers.', 'New monsters: mozzies, seagulls, first-aiders, Rat Mums, crabs in buckets. New bosses: Mortimer, Big Mum and Steve.'] },
@@ -3745,8 +3894,10 @@ const R = (function () {
     if (bevBanner) { meta.bevSeen = true; saveMeta(); }
     const djBanner = !jezzaBanner && !bevBanner && towerUnlocked(meta, 'dj') && !meta.djSeen ? '<div class="banner"><b>New crew: DJ Brendo</b><span>He never attacks. He earns gold every wave and pumps up nearby towers with more range and speed. Economy is king.</span></div>' : '';
     if (djBanner) { meta.djSeen = true; saveMeta(); }
+    const peteBanner = !jezzaBanner && !bevBanner && !djBanner && towerUnlocked(meta, 'pete') && !meta.peteSeen ? '<div class="banner"><b>New crew: Long Peter</b><span>A very long sausage dog with mind powers. He lifts monsters into the air, then slams them down. Find him in the build menu.</span></div>' : '';
+    if (peteBanner) { meta.peteSeen = true; saveMeta(); }
     openModal(
-      '<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + whatsNewCard() + jezzaBanner + bevBanner + djBanner +
+      '<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + whatsNewCard() + jezzaBanner + bevBanner + djBanner + peteBanner +
       (runMap ? '<button class="btn primary big cont" id="contBtn" data-focus>Continue: ' + (run.mode === 'endless' ? 'Long Nap' : run.mode === 'daily' ? 'Daily Nap' : runMap.name) + ', wave ' + (run.wave + 1) + '</button>' : '') +
       garyCard() +
       '<div class="rockrow"><span class="rockic" aria-hidden="true"></span><span><b>' + (meta.rocks || 0) + '</b> Shiny Rocks</span><button class="btn" id="shedBtn">Clive\u2019s Shed</button></div>' +
@@ -3882,7 +4033,7 @@ const R = (function () {
     homeMap = G.mapIdx; begin();
     toast('Back on ' + G.map.name + '. Tap Start wave when ready.', 'big');
   }
-  let toldDream = false, toldCredit = false, lastSheetR = 0, toldAbility = false;
+  let toldSoggy = false, toldDream = false, toldCredit = false, lastSheetR = 0, toldAbility = false;
   function begin() { if (meta.settings.music !== false) SFX.music('calm'); toldDream = false; toldCredit = false; state = 'play'; paused = false; toldGrab = false; toldHat = false; jobToasted = {}; jobTick = 60; lastHud = ''; closeSheet(); R.reset(); $('toasts').innerHTML = ''; }
 
   function showMerchant() {
