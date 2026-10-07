@@ -4,16 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hold My Loot</title>
-<meta name="hml-build" content="15">
+<meta name="hml-build" content="17">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
    Leave it empty and analytics stay completely off. EU projects: host 'https://eu.i.posthog.com'. */
 window.HML_ANALYTICS = { key: '', host: 'https://us.i.posthog.com' };
+/* ===== SUPPORT THE GAME (optional) =====
+   url:  a Ko-fi / Buy Me a Coffee / PayPal link. Leave empty and the Support section stays hidden.
+   code: the word you send supporters in your thank-you message; it unlocks Gary's Supporter Scarlet pyjamas. */
+window.HML_SUPPORT = { url: '', code: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 15;
+window.HML_BUILD = 17;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -407,7 +411,7 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 /* ===== level screen crew strip ===== */
 .crewstrip { display: flex; align-items: center; gap: 8px; background: var(--paper2); border-radius: 14px; padding: 6px 8px; margin: 10px 0 0; }
 .crewstrip > span { font-weight: 900; font-size: 13px; white-space: nowrap; } .crewstrip em { display: block; font-style: normal; font-size: 10.5px; color: #C98A1E; }
-.crewstrip > div { flex: 1; display: flex; gap: 2px; overflow: hidden; } .crewstrip canvas.pt.mini { width: 34px; height: 34px; flex: 0 0 34px; }
+.crewstrip > div { flex: 1; display: flex; gap: 2px; overflow: hidden; } .crewstrip canvas.pt.mini { width: 30px; height: 30px; flex: 0 0 30px; }
 .crewstrip .btn { min-height: 36px; padding: 6px 10px; font-size: 13.5px; }
 /* ===== welcome ===== */
 .welcome { text-align: center; }
@@ -460,6 +464,54 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 .playnext { width: 100%; display: flex; flex-direction: column; gap: 0; margin: 12px 0 0; min-height: 62px; font-size: 20px; letter-spacing: .5px; }
 .playnext small { font-size: 12.5px; font-weight: 800; color: #5A4632; letter-spacing: 0; }
 .rtease { font-size: 13px; font-weight: 800; color: var(--muted); margin: 8px 0 0; } .rtease b { color: var(--ink); }
+
+/* ===== goals / up next ===== */
+.goals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.goal { background: var(--paper2); border-radius: 14px; padding: 7px 6px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 3px; min-height: 92px; }
+.goal canvas.pt, .goal .gico { width: 44px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.goal .gico.rockic { width: 22px; height: 26px; margin: 7px 0; }
+.goal b { font-size: 12.5px; line-height: 1.1; display: block; } .goal span { font-size: 11px; font-weight: 800; color: var(--muted); line-height: 1.15; display: block; }
+.goal.ready { background: #FFF1C8; border: 1.5px solid #E3A02C; }
+canvas.pt.sil { filter: brightness(0) opacity(.3); }
+/* ===== daily ===== */
+.mode.daily { background: linear-gradient(135deg, #E2F1FF, #EEE8FF); border-color: #CFC6F2; }
+.mode.daily .dmap { font-size: 14.5px; font-weight: 900; color: var(--ink); }
+.dchips { display: flex; gap: 4px; flex-wrap: wrap; margin: 3px 0; } .dchips i { font-style: normal; font-size: 11px; font-weight: 900; padding: 2px 7px; border-radius: 9px; background: #E2EFD6; color: #3E5E3A; } .dchips i.bad { background: #FBE1DA; color: #B5403A; }
+/* ===== synergy hints ===== */
+.synrow { display: flex; gap: 5px; flex-wrap: wrap; margin: -4px 0 8px; min-height: 22px; }
+.synchip { font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 10px; background: var(--paper2); color: var(--muted); } .synchip.known { background: #E2F7EF; color: #1E9E7A; }
+.syn-none { font-size: 11px; font-weight: 800; color: var(--muted); padding: 3px 2px; }
+/* ===== reveal ===== */
+.reveal { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; }
+.rtag { background: linear-gradient(90deg, #FF8A8A, #FFC46B, #FFE97A, #8EE08A, #7CC8FF, #B59BFF); color: #3B2F2A; font-weight: 900; font-size: 12.5px; letter-spacing: 2px; padding: 4px 14px; border-radius: 12px; }
+.reveal canvas.pt.huge { width: 240px; height: 210px; animation: cpop .6s cubic-bezier(.2,1.8,.4,1); }
+.reveal .title { margin: 0; } .crole.big { font-size: 14px; }
+.rq { font-size: 17px; font-weight: 800; font-style: italic; margin: 6px 0 10px; }
+.reveal .btn.big { width: 100%; font-size: 20px; min-height: 58px; }
+/* ===== level teases / mastery ===== */
+.level { position: relative; }
+.level em.tease, .level em.mods { position: absolute; top: -7px; right: 10px; font-style: normal; font-size: 10px; font-weight: 900; letter-spacing: .3px; padding: 2px 8px; border-radius: 9px; background: #FFE07A; color: #5A4632; box-shadow: 0 1px 0 #C98A1E; }
+.level em.mods { background: #E2F1FF; color: #2F5E8A; box-shadow: none; }
+.level.next { border-color: #E3A02C; box-shadow: 0 3px 0 #C98A1E; }
+.lvnew { font-weight: 900; color: #5A4632; background: #FFF1C8; border-radius: 12px; padding: 6px 10px; margin: 6px 0; font-size: 14px; }
+.ucard.tease { background: var(--paper2); border-style: dashed; border-color: #D9C9A6; animation: none; margin-top: 8px; }
+.ucard.tease canvas.pt { filter: brightness(0) opacity(.3); }
+.mastery { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; } .mastery span { font-size: 13px; font-weight: 800; color: var(--muted); background: var(--paper2); border-radius: 10px; padding: 6px 9px; } .mastery span.done { color: #3E5E3A; background: #E2EFD6; }
+/* ===== pyjamas ===== */
+.tabs.three { grid-template-columns: 1fr 1fr 1fr; }
+.pjgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pj { background: var(--paper2); border: 2.5px solid transparent; border-radius: 16px; padding: 10px; font-family: inherit; color: var(--ink); display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+.pj.on { border-color: #6FA05A; background: #EEF7E6; } .pj.locked { opacity: .55; }
+.pj .sw { position: relative; width: 86px; height: 34px; border-radius: 17px; border: 2px solid; overflow: hidden; } .pj .sw .st { position: absolute; inset: 0; } .pj .sw .belt { position: absolute; left: 30px; top: 0; width: 6px; height: 100%; } .pj .sw .stars { position: absolute; right: 8px; top: 7px; color: rgba(255,255,255,.8); font-style: normal; font-size: 12px; }
+.pj b { font-size: 14px; } .pj small { font-size: 11.5px; font-weight: 800; color: var(--muted); }
+.supbadge { color: #D9484F; font-size: 26px; vertical-align: 6px; }
+.codein { flex: 1; border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; font: 700 15px Nunito, sans-serif; background: #fff; }
+a.btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.h2.tight { margin-top: 10px; }
+.btn.glow { box-shadow: 0 3px 0 #C98A1E, 0 0 14px rgba(255,200,80,.7); border-color: #E3A02C; }
+.btn .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #E0453A; margin-left: 4px; vertical-align: 2px; }
+.supcard { background: linear-gradient(135deg, #FFF1F0, #FFF6E2); border: 1.5px solid #F2B8B5; border-radius: 16px; padding: 10px 12px; margin: 10px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.supcard b { font-size: 15px; display: block; } .supcard span { font-size: 13px; font-weight: 700; color: var(--muted); line-height: 1.35; }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
@@ -601,7 +653,7 @@ const MAPS = [
       [{ t: 'skel', n: 14, gap: .5, at: 0 }, { t: 'bog', n: 5, gap: 1.5, at: 3 }, { t: 'pants', n: 5, gap: 1.2, at: 7 }],
       [{ t: 'gob', n: 12, gap: .4, at: 0 }, { t: 'swoop', n: 1, gap: 0, at: 3 }, { t: 'skel', n: 10, gap: .6, at: 6 }, { t: 'pants', n: 3, gap: 2, at: 10 }],
     ] },
-  { id: 'garden', name: 'The Beer Garden', theme: 'garden', gold: 230, hpMult: 2.15, sticky: true,
+  { id: 'garden', name: 'The Beer Garden', theme: 'garden', gold: 260, hpMult: 1.9, sticky: true,
     blurb: 'Sticky floor: whisky puddles last twice as long. Someone here is very pleased about that.',
     paths: [[[40, -24], [40, 470], [110, 470], [110, 110], [320, 110], [320, 400], [230, 400], [230, 500], [180, 500], [180, 532]]],
     pads: [[75, 160], [75, 270], [75, 380], [160, 170], [270, 170], [160, 290, 'high'], [270, 290], [160, 400], [270, 350], [290, 460, 'shady'], [100, 530], [262, 538]],
@@ -944,11 +996,11 @@ const SKILL_DESC = {
 
 const TOWERS = {
   chuck: { name: 'The Chuckery', crew: 'Dazza', skill: 'chucking', cost: 50, blurb: 'Throws whatever is in the bin.',
-    tiers: [{ dmg: [7, 14], rate: 1.0, range: 90 }, { cost: 60, dmg: [11, 19], rate: 1.1, range: 94 }, { cost: 95, dmg: [15, 27], rate: 1.2, range: 98, splash: 34 }, { cost: 220, dmg: [20, 34], rate: 1.35, range: 106, splash: 40, ult: true, tubEvery: 4 }, { cost: 420, dmg: [26, 44], rate: 1.5, range: 114, splash: 48, ult: true, elite: true, tubEvery: 3, multi: 3 }] },
+    tiers: [{ dmg: [8, 16], rate: 1.1, range: 90 }, { cost: 60, dmg: [12, 22], rate: 1.15, range: 94 }, { cost: 95, dmg: [17, 30], rate: 1.25, range: 98, splash: 34 }, { cost: 220, dmg: [20, 34], rate: 1.35, range: 106, splash: 40, ult: true, tubEvery: 4 }, { cost: 420, dmg: [26, 44], rate: 1.5, range: 114, splash: 48, ult: true, elite: true, tubEvery: 3, multi: 3 }] },
   bonk: { name: 'Bonk Booth', crew: 'Big Marg', skill: 'bonking', cost: 60, blurb: 'Frying pan. Short range. Stuns. Can\u2019t reach flyers.',
     tiers: [{ dmg: 15, rate: .9, range: 60, stun: .5 }, { cost: 60, dmg: 21, rate: 1.0, range: 62, stun: .7 }, { cost: 100, dmg: 27, rate: 1.05, range: 66, stun: .8, multi: true }, { cost: 210, dmg: 34, rate: 1.15, range: 72, stun: .9, multi: true, ult: true, slamEvery: 5 }, { cost: 400, dmg: 46, rate: 1.25, range: 80, stun: 1, multi: true, ult: true, elite: true, slamEvery: 3, slamR: 125 }] },
   nan: { name: "Nan's Porch", crew: 'Nan Beryl', skill: 'muttering', cost: 85, blurb: 'Knitting needles. Huge crits. Long range.',
-    tiers: [{ dmg: 30, rate: .5, range: 125, crit: .4 }, { cost: 80, dmg: 44, rate: .55, range: 130, crit: .45 }, { cost: 125, dmg: 60, rate: .6, range: 135, crit: .5, pierce: true }, { cost: 240, dmg: 78, rate: .66, range: 142, crit: .55, pierce: true, ult: true, chain: 3 }, { cost: 450, dmg: 100, rate: .75, range: 152, crit: .7, pierce: true, ult: true, elite: true, chain: 5 }] },
+    tiers: [{ dmg: 24, rate: .5, range: 122, crit: .4 }, { cost: 80, dmg: 36, rate: .55, range: 128, crit: .45 }, { cost: 125, dmg: 50, rate: .6, range: 134, crit: .5, pierce: true }, { cost: 240, dmg: 66, rate: .66, range: 142, crit: .55, pierce: true, ult: true, chain: 3 }, { cost: 450, dmg: 86, rate: .75, range: 152, crit: .7, pierce: true, ult: true, elite: true, chain: 5 }] },
   sizzle: { name: 'Sausage Sizzle', crew: 'Uncle Tony', skill: 'sizzling', cost: 70, blurb: 'No damage. Speeds up every tower on the map, and slows monsters nearby.',
     tiers: [{ aura: 75, buff: .08, slow: .25 }, { cost: 70, aura: 82, buff: .12, slow: .3 }, { cost: 110, aura: 90, buff: .17, slow: .35, queue: true }, { cost: 200, aura: 100, buff: .26, slow: .4, queue: true, ult: true, snagEvery: 6 }, { cost: 380, aura: 115, buff: .35, slow: .45, queue: true, ult: true, elite: true, snagEvery: 4, snagN: 12 }] },
   jezza: { name: "Jezza's Top Shelf", crew: 'Jezza', skill: 'pouring', cost: 80, unlockWins: 1, blurb: 'Throws whisky. Tipsy monsters stumble, slow down and take 25% more damage.',
@@ -1202,6 +1254,7 @@ function jobLive(j, G) { const J = JOBS.find(J => J.id === j.id); const v = G ? 
 
 // ---------- Daily Nap ----------
 function dailyKey(d) { d = d || new Date(); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); }
+function dayKeyOffset(key, days) { const y = Math.floor(key / 10000), mo = Math.floor(key / 100) % 100, d = key % 100; const dt = new Date(y, mo - 1, d + days); return dailyKey(dt); }
 function dailySetup(meta, key) {
   const r = mulberry32((key * 2654435761) >>> 0);
   const unlocked = MAPS.map((m, i) => i).filter(i => mapUnlocked(meta, i));
@@ -1253,6 +1306,7 @@ const ELITE_DESC = {
 const ELITE_TITLE = { banjo: 'Banjo, Top Banana', pete: 'Long Peter, The Floating Legend', chuck: 'Dazza, Lord of the Bins', bonk: 'Big Marg, Bouncer Supreme', nan: 'Nan Eternal', sizzle: 'Uncle Tony, Grill Master', jezza: 'Jezza, Top Shelf Legend', bev: 'Bev, Queen of the Bin Chickens', dj: 'DJ Brendo, The Headliner' };
 
 // ---------- Synergies ----------
+const SYN_PAIRS = { pubbrawl: ['jezza', 'bonk'], queue: ['sizzle', 'chuck'], bad: ['jezza', 'nan'], binnight: ['bev', 'chuck'], duck: ['bonk', 'nan'], smoke: ['sizzle', 'bev'], bbq: ['jezza', 'sizzle'], backyard: ['dj', 'sizzle'], airstrike: ['pete', 'chuck'], tagteam: ['banjo', 'bonk'] };
 const SYNERGIES = [
   { id: 'pubbrawl', name: 'Pub Brawl', desc: 'Big Marg\u2019s stuns last twice as long on tipsy monsters.', hint: 'Something about whisky and frying pans.' },
   { id: 'queue', name: 'Queue Jumpers', desc: 'Splash damage hits 50% harder on monsters slowed or queuing at Uncle Tony\u2019s.', hint: 'A queue is just a crowd waiting to be hit.' },
@@ -1564,7 +1618,8 @@ function spawn(G, type, d, pi) {
     nextShed: hp * .9, swoopCd: 3, tipsy: G.shouting && !def.boss ? 6 : 0,
     shield: def.shield ? Math.round(def.shield * scale * G.mods.enemyHp) : 0, scd: def.every || 0, crateT: 0, hatchT: 0, mcd: 4, splitN: 0, mbcd: 12, zcd: 2, air: 0, trampCd: 0, hcd: 2, stamps: {}, open: 0, closedT: 0, creditCd: 7, dmgBy: {}, frozen: 0, groggy: 0, shocked: 0 };
   if (G.event === 'bloodmoon') e.spd *= 1.2;
-  if (G.grace && G.wave <= 3 && !def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * .7); }
+  if (G.grace && !def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * (G.wave <= 3 ? .7 : .82)); }
+  if (G.grace && def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * .85); }
   if (e.tipsy) G.stats.tipsy++;
   const p = posOn(P, e.d); e.x = p.x; e.y = p.y;
   G.enemies.push(e);
@@ -1827,7 +1882,8 @@ function kill(G, e, src) {
   } else {
     let chance = .2 + G.mods.dropBonus + G.scroungeBonus + (G.event === 'bloodmoon' ? .25 : 0);
     if (G.enemies.some(b => b.type === 'pantsalot')) chance += .15;
-    if (G.rng() < chance) dropLoot(G, e, rollItem(G));
+    if (G.grace && G.wave === 1 && !G.graceDrop && G.stats.kills >= 2) { G.graceDrop = true; const it = rollItem(G); const pool = ALL_ITEMS.filter(i2 => i2.tier === 2 && !i2.boss); dropLoot(G, e, pool.length ? pool[Math.floor(G.rng() * pool.length)] : it); }
+    else if (G.rng() < chance) dropLoot(G, e, rollItem(G));
   }
 }
 
@@ -2349,7 +2405,7 @@ function update(G, dt) {
 
   for (const l of G.loot.slice()) {
     l.age += dt;
-    if (!l.claimed && l.age >= G.autoT * G.mods.autoMult && !nearPantsalot(G, l)) {
+    if (!l.claimed && l.age >= G.autoT * G.mods.autoMult * (G.grace && G.wave <= 2 ? 2.2 : 1) && !nearPantsalot(G, l)) {
       G.loot.splice(G.loot.indexOf(l), 1);
       bank(G, l.item, 'auto', l.x, l.y);
     }
@@ -2378,7 +2434,7 @@ function update(G, dt) {
     for (const s of sizzles) G.xp.sizzling += 18 * (s.tier + 1);
     G.puddles.length = 0; G.birds.length = 0;
     if (G.wave >= G.waveCount) { G.over = true; G.won = true; ev(G, 'over', { won: true }); }
-    else ev(G, 'waveEnd', { wave: G.wave, bonus, perfect });
+    else { ev(G, 'waveEnd', { wave: G.wave, bonus, perfect }); fx(G, 'pop', { x: GARY.x, y: GARY.y - 44, text: (perfect ? 'PERFECT  ' : 'Wave ' + G.wave + ' clear  ') + '+' + bonus + ' gold', col: perfect ? '#3E9E5A' : '#D9822B', big: true }); }
   }
 }
 
@@ -2436,7 +2492,13 @@ function finishRun(G) {
   for (const it of G.stats.banked) rk.salvage += SALVAGE[it.tier] || 1;
   if (G.mode === 'endless') rk.salvage = Math.round(rk.salvage * .5);
   rk.boss = 15 * (G.bossKills || 0);
-  if (dailyFirst) { rk.daily = 20; meta.daily.count++; }
+  let streak = meta.daily.streak || 0;
+  if (dailyFirst) {
+    streak = (meta.daily.lastKey && meta.daily.lastKey === dayKeyOffset(G.daily.key, -1)) ? streak + 1 : 1;
+    meta.daily.streak = streak; meta.daily.lastKey = G.daily.key; meta.daily.best = Math.max(meta.daily.best || 0, streak);
+    rk.daily = 20 + Math.min(25, (streak - 1) * 5); meta.daily.count++;
+  }
+  if (G.mode === 'daily' && G.won && G.daily) { meta.daily.scores = meta.daily.scores || {}; meta.daily.scores[G.daily.key] = Math.max(meta.daily.scores[G.daily.key] || 0, G.pile); }
   if (G.mode === 'daily' && G.daily && G.won) meta.daily.done[G.daily.key] = Math.max(meta.daily.done[G.daily.key] || 0, G.pile);
   // odd jobs
   ensureJobs(meta);
@@ -2488,11 +2550,11 @@ function finishRun(G) {
   }
   const banked = G.stats.banked.slice().sort((a, b) => b.tier - a.tier);
   return { before, after, gains, newFinds, kept, stars, firstWin, grid: grid.join(''), best: banked[0] || null, banked, stashFound: Object.keys(meta.stash).length,
-    rocks, rk, jobsDone, dailyFirst, endlessBest, endlessNew, jezzaNew, garyGain, gBefore, gAfter, garyUnlocks, shards, perfects: G.stats.perfects };
+    rocks, rk, jobsDone, dailyFirst, streak, endlessBest, endlessNew, jezzaNew, garyGain, gBefore, gAfter, garyUnlocks, shards, perfects: G.stats.perfects };
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { W, H, GARY, MAPS, posOn, SKILLS, SKILL_NAMES, SKILL_DESC, TOWERS, TIER_NOTES, ENEMIES, BOSS_ITEMS, RARITY, ITEMS, ALL_ITEMS, ITEM_DESC, STASH_TOTAL, CARDS,
-  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dailySetup, genWave, cardTower, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
+  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
 
 </script>
 <script>
@@ -4121,8 +4183,11 @@ const R = (function () {
     // legs / boots
     soft(ctx, -38, 3, 7, 5, '#6B5038', { lw: 1 });
     // body
-    rr(ctx, -34, -7, 50, 16, 8); const bg3 = ctx.createLinearGradient(0, -7, 0, 9); bg3.addColorStop(0, '#6E9AD6'); bg3.addColorStop(1, '#3F6CA8'); ctx.fillStyle = bg3; ctx.fill(); ctx.strokeStyle = '#2F5487'; ctx.lineWidth = 1; ctx.stroke();
-    ctx.fillStyle = '#E9C46A'; ctx.fillRect(-20, -7, 3, 16);
+    const PJ = window.GARY_LOOK || { a: '#6E9AD6', b: '#3F6CA8', e: '#2F5487', belt: '#E9C46A' };
+    rr(ctx, -34, -7, 50, 16, 8); const bg3 = ctx.createLinearGradient(0, -7, 0, 9); bg3.addColorStop(0, PJ.a); bg3.addColorStop(1, PJ.b); ctx.fillStyle = bg3; ctx.fill(); ctx.strokeStyle = PJ.e; ctx.lineWidth = 1; ctx.stroke();
+    if (PJ.stripes) { ctx.save(); rr(ctx, -34, -7, 50, 16, 8); ctx.clip(); ctx.fillStyle = PJ.stripes; for (let k = -34; k < 16; k += 10) ctx.fillRect(k, -7, 4, 16); ctx.restore(); }
+    if (PJ.stars) { ctx.fillStyle = PJ.stars; for (const [sx, sy] of [[-26, -3], [-12, 5], [2, -4], [10, 4]]) { ctx.beginPath(); for (let q = 0; q < 10; q++) { const rr2 = q % 2 ? 1 : 2.2, an = q * Math.PI / 5 - Math.PI / 2; ctx.lineTo(sx + Math.cos(an) * rr2, sy + Math.sin(an) * rr2); } ctx.closePath(); ctx.fill(); } }
+    ctx.fillStyle = PJ.belt; ctx.fillRect(-20, -7, 3, 16);
     const br = Math.sin(time * 1.8) * 1.2; flat(ctx, -6, -3 + br * .3, 10, 4 + br * .4, 'rgba(255,255,255,.15)');
     // head
     ctx.save(); ctx.translate(26, -6 - sit * 10); ctx.rotate(-sit * .6);
@@ -4636,7 +4701,7 @@ const R = (function () {
           '<b>' + C.n + '</b><span class="crole">' + C.icon + ' ' + C.role + '</span><span class="ckeys">' + (un ? C.keys.slice(0, 2).join(' \u2022 ') : '\ud83d\udd12 ' + lockText(k)) + '</span>' + (sel ? '<i class="ctick">\u2713</i>' : '') + '</div>';
       }).join('');
       openModal('<div class="crewhead"><h2 class="title sm">' + (opts.first ? 'Meet your crew' : 'Your crew') + '</h2><span class="cnt">' + crew.length + '/' + Math.min(CREW_SIZE, CREW_ORDER.filter(k => towerUnlocked(meta, k)).length) + '</span></div>' +
-        '<div class="cslots">' + slots.join('') + '</div><div class="cgrid">' + cards + '</div>' +
+        '<div class="cslots">' + slots.join('') + '</div>' + synChips(crew) + '<div class="cgrid">' + cards + '</div>' +
         '<div class="crewbtns">' + (opts.first ? '' : '<button class="btn' + (auto ? ' on' : '') + '" id="crewRec">\u2b50 Recommended</button>') + '<button class="btn primary big" id="crewGo">' + (opts.first ? 'LET\u2019S GO \u2192' : 'PLAY \u2192') + '</button></div>', 'menu crew');
       drawPortraits($('modalCard')); startPortraitLoop();
       $('modalCard').querySelectorAll('.ccard').forEach(el => el.onclick = ev => { if (ev.target.closest('.cinfo')) return; tapCard(el.dataset.k, el); });
@@ -4666,6 +4731,29 @@ const R = (function () {
     };
     render();
   }
+  function synChips(crew) {
+    const act = Object.keys(SYN_PAIRS).filter(id => SYN_PAIRS[id].every(k => crew.includes(k)));
+    if (!act.length) return '<div class="synrow"><span class="syn-none">Mix crew to find synergies</span></div>';
+    return '<div class="synrow">' + act.slice(0, 3).map(id => { const S2 = SYNERGIES.find(s2 => s2.id === id), known = meta.synergies[id]; return '<span class="synchip' + (known ? ' known' : '') + '" title="' + (known ? S2.desc : S2.hint) + '">' + (known ? '\u26a1 ' + S2.name : '\u2754 ' + CREW[SYN_PAIRS[id][0]].n + ' + ' + CREW[SYN_PAIRS[id][1]].n) + '</span>'; }).join('') + (act.length > 3 ? '<span class="synchip">+' + (act.length - 3) + '</span>' : '') + '</div>';
+  }
+  // ---- a compact, good-looking share card (PNG) built from the game's own art ----
+  async function shareCardBlob(c) {
+    try {
+      const Wc = 720, Hc = 400, cv = document.createElement('canvas'); cv.width = Wc; cv.height = Hc; const x = cv.getContext('2d');
+      const g = x.createLinearGradient(0, 0, Wc, Hc); g.addColorStop(0, '#FFF9EC'); g.addColorStop(1, '#F1E4C6'); x.fillStyle = g; x.fillRect(0, 0, Wc, Hc);
+      x.fillStyle = c.won ? '#D8EAC8' : '#F3D7D2'; x.beginPath(); x.ellipse(Wc * .78, Hc * .2, 300, 140, -.3, 0, 7); x.fill();
+      x.fillStyle = '#3E5E3A'; x.font = '700 44px Fraunces, Georgia, serif'; x.textBaseline = 'top'; x.fillText('Hold My Loot', 32, 26);
+      x.fillStyle = '#3B2F2A'; x.font = '900 30px Nunito, Arial, sans-serif'; x.fillText(c.endless ? 'The Long Nap: wave ' + (c.wave - 1) : c.won ? 'Gary kept ' + c.pile + '/' + c.pileMax + ' on ' + c.levelName : 'Cleaned out on wave ' + c.wave + ' of ' + c.levelName, 32, 86);
+      if (c.won && !c.endless) for (let i = 0; i < 3; i++) { x.fillStyle = i < c.stars ? '#FFC94A' : '#E8DCC2'; x.beginPath(); for (let q = 0; q < 10; q++) { const rr2 = q % 2 ? 9 : 21, an = q * Math.PI / 5 - Math.PI / 2; x.lineTo(60 + i * 52 + Math.cos(an) * rr2, 155 + Math.sin(an) * rr2); } x.closePath(); x.fill(); }
+      x.fillStyle = '#7A6A5C'; x.font = '800 20px Nunito, Arial, sans-serif'; x.fillText('\u201c' + c.quip + '\u201d', 32, c.won && !c.endless ? 190 : 140);
+      // crew portraits
+      const tmp = document.createElement('canvas'); tmp.width = 200; tmp.height = 180;
+      c.crew.forEach((k, i) => { R.portrait(tmp, k, 0); x.drawImage(tmp, 28 + i * 105, 228, 100, 90); x.fillStyle = '#3B2F2A'; x.font = '900 15px Nunito, Arial, sans-serif'; x.textAlign = 'center'; x.fillText(CREW[k] ? CREW[k].n : k, 78 + i * 105, 322); x.textAlign = 'left'; });
+      if (c.best) { x.fillStyle = '#FFFDF6'; x.beginPath(); x.roundRect(Wc - 230, 150, 198, 56, 14); x.fill(); x.strokeStyle = RARITY[c.best.tier].c; x.lineWidth = 3; x.stroke(); x.font = '30px serif'; x.fillStyle = '#000'; x.fillText(c.best.icon, Wc - 218, 162); x.fillStyle = RARITY[c.best.tier].c; x.font = '900 13px Nunito, Arial, sans-serif'; x.fillText(RARITY[c.best.tier].k.toUpperCase() + ' DROP', Wc - 176, 160); x.fillStyle = '#3B2F2A'; x.font = '800 16px Nunito, Arial, sans-serif'; x.fillText(c.best.name.slice(0, 20), Wc - 176, 180); }
+      x.fillStyle = '#8A7A66'; x.font = '800 15px Nunito, Arial, sans-serif'; x.fillText('Boss: ' + c.boss + '   \u00b7   ' + (location.protocol.startsWith('http') ? location.host + location.pathname.replace(/index\.html$/, '') : 'Hold My Loot'), 32, 362);
+      return await new Promise(res => cv.toBlob(res, 'image/png'));
+    } catch (e) { return null; }
+  }
   function bubbleOn(el, txt) {
     const b = document.createElement('div'); b.className = 'cbubble'; b.textContent = txt; el.appendChild(b);
     setTimeout(() => b.remove(), 1700);
@@ -4680,6 +4768,18 @@ const R = (function () {
     $('ciBack').onclick = back;
     $('ciSel').onclick = () => { onSel(k); SFX.play(crewSfx[k] || 'pick'); back(); };
   }
+  const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: a gate you can tap' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
+  // Gary's pyjamas: cosmetics only. Earned by playing; one reserved for supporters.
+  const PJS = {
+    blue: { name: 'Standard Issue', a: '#6E9AD6', b: '#3F6CA8', e: '#2F5487', belt: '#E9C46A', req: () => true, how: 'Gary\u2019s own' },
+    green: { name: 'Backyard Greens', a: '#8CC878', b: '#4E8C47', e: '#3A6B36', belt: '#F2C14E', req: m => (m.wins || 0) >= 5, how: 'Win 5 levels' },
+    stripes: { name: 'Classic Stripes', a: '#F6F3EA', b: '#D9CFC0', e: '#8A7A66', belt: '#C0303C', stripes: '#C0303C', req: m => (m.wins || 0) >= 12, how: 'Win 12 levels' },
+    night: { name: 'Night Sky', a: '#3A3F6E', b: '#1E2140', e: '#141530', belt: '#F2C14E', stars: '#FFE58A', req: m => !!((m.maps.finalnap || {}).wins), how: 'Finish Chapter 2' },
+    gold: { name: 'Golden Pyjamas', a: '#FFE9A0', b: '#E3A02C', e: '#A8721E', belt: '#8E5CE0', stars: '#FFF6D0', req: m => garyInfo(m.garyXp).L >= 10, how: 'Gary level 10' },
+    scarlet: { name: 'Supporter Scarlet', a: '#D9484F', b: '#7A1E26', e: '#4A1016', belt: '#FFD24A', stars: '#FFD24A', req: m => !!m.supporter, how: 'Supporters only' },
+  };
+  function applyLook() { const k = meta.pj && PJS[meta.pj] && PJS[meta.pj].req(meta) ? meta.pj : 'blue'; window.GARY_LOOK = PJS[k]; }
+  const SUP = window.HML_SUPPORT || {};
   let meta = loadMeta(), G = null, state = 'home', paused = false, speed = 1, selPad = -1, sheetMode = null, menuOpen = false, menuTab = 'skills';
   let toldEarly = false, jobToasted = {}, jobTick = 0, bossOn = false, bannerTimer = 0;
   function banner(title, sub, kind) {
@@ -4812,10 +4912,11 @@ const R = (function () {
       else if (e.type === 'stolen') toast(e.carry ? 'Gone, with ' + e.carry.name + '. -' + e.n + ' from the pile.' : e.n + (e.n > 1 ? ' items' : ' item') + ' nicked from the pile.', 'bad');
       else if (e.type === 'waveStart') SFX.play('wave');
       else if (e.type === 'rareDrop') { SFX.play('rare'); toast(RARITY[e.item.tier].k + ' drop: ' + e.item.name, 'rare'); }
-      else if (e.type === 'boss') { R.say(GARY.x, GARY.y - 34, 'zzz... five more minutes...', 2.4); trackEvent('boss_spawn', { boss: e.bt, level_id: G.map.id, wave: G.wave }); trackFirst('bossSeen', 'first_boss_encounter', { boss: e.bt, level_id: G.map.id }); SFX.play('boss'); const d = ENEMIES[e.bt]; const parts = d.intro.split('. '); banner(parts[0], parts.slice(1).join('. '), 'boss'); setTimeout(() => toast(d.tip, 'big'), 2900); }
-      else if (e.type === 'bossDead') { const tw = G.towers.map((t, i) => t ? i : -1).filter(i => i >= 0); if (tw.length) { const p = G.map.pads[tw[Math.floor(Math.random() * tw.length)]]; R.say(p[0], p[1] - 52, ['Get wrecked.', 'Bye!', 'Easy.', 'Too easy.', 'And stay down.'][Math.floor(Math.random() * 5)], 1.8); }
+      else if (e.type === 'boss') { R.say(GARY.x, GARY.y - 34, 'zzz... five more minutes...', 2.4); trackEvent('boss_spawn', { boss: e.bt, level_id: G.map.id, wave: G.wave }); trackFirst('bossSeen', 'first_boss_encounter', { boss: e.bt, level_id: G.map.id }); SFX.play('boss'); const d = ENEMIES[e.bt]; const parts = d.intro.split('. '); banner(parts[0], parts.slice(1).join('. '), 'boss'); const drop = BOSS_ITEMS[e.bt]; setTimeout(() => toast(d.tip + (drop && !meta.stash[drop.name] ? ' Drops: ' + drop.icon + ' ' + drop.name + '.' : ''), 'big'), 2900); }
+      else if (e.type === 'bossDead') { slowMo = .9; const tw = G.towers.map((t, i) => t ? i : -1).filter(i => i >= 0); if (tw.length) { const p = G.map.pads[tw[Math.floor(Math.random() * tw.length)]]; R.say(p[0], p[1] - 52, ['Get wrecked.', 'Bye!', 'Easy.', 'Too easy.', 'And stay down.'][Math.floor(Math.random() * 5)], 1.8); }
+        setTimeout(() => { if (G && !G.over) R.say(GARY.x, GARY.y - 34, ['zzz... good job, team...', '*rolls over*', 'mmm... loot...', 'zzz... was that thunder?'][Math.floor(Math.random() * 4)], 2); }, 1400);
         trackEvent('boss_defeat', { boss: e.bt, level_id: G.map.id, wave: G.wave }); trackFirst('bossDown', 'first_boss_defeated', { boss: e.bt, level_id: G.map.id }); if (!G.over) SFX.sting('bossdown'); banner(ENEMIES[e.bt].name.split(',')[0] + ' is down!', 'Loot everywhere.', 'win'); }
-      else if (e.type === 'perfect') { SFX.play('perfect'); banner('PERFECT DEFENCE', '+' + e.bonus + ' gold, a Dream Shard and dream charge', 'perfect'); }
+      else if (e.type === 'perfect') { if (Math.random() < .35) { const tw = G.towers.map((t, i) => t ? i : -1).filter(i => i >= 0); if (tw.length) { const p = G.map.pads[tw[Math.floor(Math.random() * tw.length)]]; R.say(p[0], p[1] - 52, ['Didn\u2019t even break a sweat.', 'Too easy.', 'Is that all?', 'Smoko?'][Math.floor(Math.random() * 4)], 1.8); } } SFX.play('perfect'); banner('PERFECT DEFENCE', '+' + e.bonus + ' gold, a Dream Shard and dream charge', 'perfect'); }
       else if (e.type === 'synergy' && e.first) toast('New synergy: ' + SYNERGIES.find(s => s.id === e.id).name + '. ' + SYNERGIES.find(s => s.id === e.id).desc, 'rare');
       else if (e.type === 'dreamReady') { SFX.play('ready'); if (!toldDream && !tutOn()) { toldDream = true; toast('Gary\u2019s dream is ready. Tap UNLEASH when it counts.', 'big'); } }
       else if (e.type === 'event') { SFX.play('event'); const E = EVENTS.find(x => x.id === e.id); banner(E.name, E.desc, 'event'); }
@@ -4947,11 +5048,13 @@ const R = (function () {
   });
   $('pokeBtn').addEventListener('click', () => { if (G && state === 'play' && !paused) { unleash(G); lastHud = ''; } });
   $('pauseBtn').addEventListener('click', () => { paused = !paused; SFX.duck(paused); lastHud = ''; });
-  $('speedBtn').addEventListener('click', () => { speed = speed === 1 ? 2 : 1; lastHud = ''; });
+  $('speedBtn').addEventListener('click', () => { speed = speed === 1 ? 2 : 1; lastHud = ''; if (tut) tut.speedDone = true; });
   $('menuBtn').addEventListener('click', () => openMenu(G ? 'skills' : 'skills'));
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 17, title: 'Balance and polish', notes: ['Nan was carrying everyone. Her needles hit a little softer; Dazza\u2019s junk hits a little harder. Different levels now reward different crews.', 'Your first level is kinder all the way through, and The Beer Garden is no longer a wall.', 'Losses now tell you why, and what to try next. Wave clears show their gold. Gary mutters in his sleep.'] },
+    { build: 16, title: 'A bigger world', notes: ['Up next: your next crew member, Gary unlock and Shed upgrade, always on the home screen.', 'Today\u2019s Nap shows its rules and rewards, and daily streaks pay more rocks.', 'New crew get a proper reveal. Crew synergies show up while you build your crew.', 'Share cards: a picture of your run with your crew on it. Gary\u2019s pyjamas are now a cosmetic you can earn.'] },
     { build: 15, title: 'Meet the crew', notes: ['A new crew screen: tap characters to meet them, pick up to 6, or let the game recommend a crew for each level.', 'The build menu shows faces, not paragraphs.', 'A cleaner results screen, a kinder defeat screen with one useful tip, and a few words from your crew mid-fight.'] },
     { build: 14, title: 'Safer saves', notes: ['Progress now keeps two automatic backups and recovers itself if a save gets damaged.', 'The game warns you if your browser isn\u2019t saving (chat-app browsers and private tabs often don\u2019t).'] },
     { build: 13, title: 'Music!', notes: ['An original medieval soundtrack: a tavern jig on the menu, an adventure tune in levels and a battle theme for bosses.', 'Victory fanfares, a very sorry defeat tune, and Banjo has his own (ridiculous) theme.', 'Separate Music and SFX volume in Settings. Music pauses when you switch away from the game.'] },
@@ -5028,7 +5131,8 @@ const R = (function () {
       const unlocked = mapUnlocked(meta, i), ms = meta.maps[m.id];
       const bossName = (m.finals ? [...new Set(m.finals)] : [m.boss]).map(b => ENEMIES[b].name.split(',')[0]).join(' + ');
       const head = i === 0 ? '<h3 class="chap">Chapter 1: Gary\u2019s Backyard</h3>' : (m.chapter === 2 && MAPS[i - 1].chapter !== 2) ? '<h3 class="chap c2">Chapter 2: The Road Trip</h3>' : (m.chapter === 3 && MAPS[i - 1].chapter !== 3) ? '<h3 class="chap c3">Chapter 3: Out of Bounds</h3>' : '';
-      return head + '<button class="level' + (m.chapter === 2 ? ' c2' : m.chapter === 3 ? ' c3' : '') + '" data-map="' + i + '"' + (unlocked ? '' : ' disabled') + '><span class="lnum">' + (i + 1) + '</span><span class="ltext"><b>' + m.name + '</b><span>' +
+      const won2 = ms && ms.wins, badge = unlocked && !won2 ? '<em class="tease">' + tease(m) + '</em>' : (won2 && ms.mods && Object.keys(ms.mods).length ? '<em class="mods">' + Object.keys(ms.mods).length + '/5 mods</em>' : '');
+      return head + '<button class="level' + (m.chapter === 2 ? ' c2' : m.chapter === 3 ? ' c3' : '') + (unlocked && !won2 ? ' next' : '') + '" data-map="' + i + '"' + (unlocked ? '' : ' disabled') + '>' + badge + '<span class="lnum">' + (i + 1) + '</span><span class="ltext"><b>' + m.name + '</b><span>' +
         (unlocked ? m.blurb : 'Win ' + MAPS[i - 1].name + ' to unlock.') + '</span><small>Boss: ' + bossName + '</small></span>' + (unlocked ? starsHTML(ms ? ms.stars : 0) : '<span class="lock">Locked</span>') + '</button>';
     }).join('');
     const bestEndless = Math.max(0, ...Object.values(meta.endlessBest || {}));
@@ -5053,13 +5157,14 @@ const R = (function () {
     const banjoBanner = !jezzaBanner && !bevBanner && !djBanner && !peteBanner && towerUnlocked(meta, 'banjo') && !meta.banjoSeen ? '<div class="banner"><b>New crew: Banjo the Banana</b><span>A mascot in a banana suit. Seven hand gestures, from a double-spin slap to jazz hands, then a Banana Split finisher.</span></div>' : '';
     if (banjoBanner) { meta.banjoSeen = true; saveMeta(); }
     openModal(
-      '<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + saveBanner() + whatsNewCard() + jezzaBanner + bevBanner + djBanner + peteBanner + banjoBanner + playNextHTML(run) +
+      '<h1 class="title">Hold My Loot' + (meta.supporter ? ' <span class="supbadge" title="Supporter">\u2665</span>' : '') + '</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + saveBanner() + whatsNewCard() + jezzaBanner + bevBanner + djBanner + peteBanner + banjoBanner + playNextHTML(run) +
       (runMap ? '<button class="btn primary big cont" id="contBtn" data-focus>Continue: ' + (run.mode === 'endless' ? 'Long Nap' : run.mode === 'daily' ? 'Daily Nap' : runMap.name) + ', wave ' + (run.wave + 1) + '</button>' : '') +
+      '<h2 class="h2 tight">Up next</h2>' + goalsHTML() + supporterCard() +
       garyCard() +
-      '<div class="rockrow"><span class="rockic" aria-hidden="true"></span><span><b>' + (meta.rocks || 0) + '</b> Shiny Rocks</span><button class="btn" id="shedBtn">Clive\u2019s Shed</button></div>' +
+      '<div class="rockrow"><span class="rockic" aria-hidden="true"></span><span><b>' + (meta.rocks || 0) + '</b> Shiny Rocks</span><button class="btn' + (shedAffordable() ? ' glow' : '') + '" id="shedBtn">Clive\u2019s Shed' + (shedAffordable() ? ' <i class="dot"></i>' : '') + '</button></div>' +
       '<h2 class="h2">Odd jobs</h2>' + jobsHTML(meta.jobs, null) +
       '<h2 class="h2">Play</h2>' +
-      '<div class="modes"><button class="mode" id="dailyBtn"' + (won ? '' : ' disabled') + '><b>Daily Nap</b><span>' + (won ? MAPS[dsu.mapIdx].name + ' with ' + rules + '.' : 'Win a level to unlock.') + '</span><small>' + (dDone ? 'Won today, kept ' + dDone + '. Play again for fun.' : 'First win today: double XP and +20 rocks.') + '</small></button>' +
+      '<div class="modes">' + dailyHTML(won, dsu, dDone) +
       '<button class="mode" id="longBtn"' + (won ? '' : ' disabled') + '><b>The Long Nap</b><span>' + (won ? 'Endless waves. A boss every 10.' : 'Win a level to unlock.') + '</span><small>' + (bestEndless ? 'Best: wave ' + bestEndless : 'How long can Gary sleep?') + '</small></button></div>' +
       '<h2 class="h2">Levels</h2><div class="levels">' + levels + '</div>' +
       (run ? '<p class="small">Starting something new replaces your saved run.</p>' : '') +
@@ -5070,6 +5175,9 @@ const R = (function () {
     if ($('contBtn')) $('contBtn').onclick = () => continueRun(run);
     $('shedBtn').onclick = showShed;
     if ($('playNext')) $('playNext').onclick = () => { SFX.play('pick'); showLevel(nextLevelIdx()); };
+    if ($('supLater')) $('supLater').onclick = () => { meta.supSeen = true; saveMeta(); trackEvent('support_card_dismissed', {}); showHome(); };
+    if ($('supHome')) $('supHome').onclick = () => { meta.supSeen = true; saveMeta(); trackEvent('support_link_clicked', { from: 'home' }); };
+    drawPortraits($('modalCard'));
     if ($('wnOk')) $('wnOk').onclick = () => { meta.seenBuild = window.HML_BUILD; saveMeta(); showHome(); };
     if ($('wnLink')) $('wnLink').onclick = () => showChangelog();
     $('gearBtn').onclick = () => showGear('dreams');
@@ -5095,6 +5203,32 @@ const R = (function () {
     const i = nextLevelIdx(), m = MAPS[i], ms = meta.maps[m.id] || {};
     return '<button class="btn primary big playnext" id="playNext"><span>' + (ms.wins ? 'PLAY \u25b6' : 'NEXT LEVEL \u25b6') + '</span><small>' + (i + 1) + '. ' + m.name + (ms.wins ? '' : ' \u00b7 ' + (ms.plays ? 'try ' + (ms.plays + 1) : 'new')) + '</small></button>';
   }
+  function nextCrewKey() { return CREW_ORDER.find(k => !towerUnlocked(meta, k)); }
+  function goalsHTML() {
+    const items = [];
+    const nk = nextCrewKey();
+    if (nk) { const need = TOWERS[nk].unlockWins - (meta.wins || 0); items.push('<div class="goal"><canvas class="pt sil" data-type="' + nk + '"></canvas><div><b>' + CREW[nk].n + '</b><span>joins in ' + need + ' win' + (need === 1 ? '' : 's') + '</span></div></div>'); }
+    const gi = garyInfo(meta.garyXp), nu = GARY_UNLOCKS.find(x => x.L > gi.L);
+    if (nu) items.push('<div class="goal"><span class="gico">\u2b50</span><div><b>Gary Lv ' + nu.L + '</b><span>' + (nu.L === gi.L + 1 ? (gi.need - gi.into) + ' XP to go' : nu.text) + '</span></div></div>');
+    const cheapest = SHED.map(s => ({ s, L: shedLevel(meta, s.id) })).filter(o => o.L < o.s.costs.length).sort((a, b) => a.s.costs[a.L] - b.s.costs[b.L])[0];
+    if (cheapest) items.push('<div class="goal' + (meta.rocks >= cheapest.s.costs[cheapest.L] ? ' ready' : '') + '"><span class="gico rockic"></span><div><b>' + cheapest.s.name + '</b><span>' + (meta.rocks >= cheapest.s.costs[cheapest.L] ? 'You can afford it!' : (cheapest.s.costs[cheapest.L] - meta.rocks) + ' rocks to go') + '</span></div></div>');
+    const undisc = SYNERGIES.filter(s2 => !meta.synergies[s2.id]).length;
+    if (items.length < 3 && undisc) items.push('<div class="goal"><span class="gico">\u26a1</span><div><b>' + undisc + ' hidden synerg' + (undisc === 1 ? 'y' : 'ies') + '</b><span>mix your crew to find them</span></div></div>');
+    return items.length ? '<div class="goals">' + items.slice(0, 3).join('') + '</div>' : '';
+  }
+  function shedAffordable() { return SHED.some(s => shedLevel(meta, s.id) < s.costs.length && (meta.rocks || 0) >= s.costs[shedLevel(meta, s.id)]); }
+  // the supporter card appears only after someone has clearly had fun: 5 wins, 3 sessions, never on a loss screen, dismissible
+  function supporterCard() {
+    if (!SUP.url || meta.supporter || meta.supSeen || (meta.wins || 0) < 5 || (meta.sessions || 0) < 3) return '';
+    return '<div class="supcard"><div><b>\u2764\ufe0f Like Hold My Loot?</b><span>Made by one person. No ads, no pay-to-win. You can shout the dev a snag, and Gary gets red pyjamas out of it.</span></div><div class="row2b"><a class="btn primary" href="' + SUP.url + '" target="_blank" rel="noopener" id="supHome">\ud83c\udf2d Shout a snag</a><button class="btn" id="supLater">Not now</button></div></div>';
+  }
+  function dailyHTML(won, dsu, dDone) {
+    if (!won) return '<button class="mode daily" id="dailyBtn" disabled><b>Today\u2019s Nap</b><span>Win a level to unlock.</span></button>';
+    const d = meta.daily || {}, today = dailyKey(), live = d.lastKey === today || d.lastKey === dayKeyOffset(today, -1), streak = live ? (d.streak || 0) : 0;
+    const bonus = 20 + Math.min(25, Math.max(0, (d.lastKey === today ? streak - 1 : streak)) * 5);
+    return '<button class="mode daily" id="dailyBtn"><b>\ud83c\udf19 Today\u2019s Nap</b><span class="dmap">' + MAPS[dsu.mapIdx].name + '</span><span class="dchips">' + dsu.rules.map(id => { const c = CARDS.find(x => x.id === id); return '<i class="' + (c.cursed ? 'bad' : 'good') + '">' + c.name + '</i>'; }).join('') + '</span>' +
+      '<small>' + (dDone ? 'Beaten today: Gary kept ' + dDone + '. Beat it for fun.' : 'First win: 2\u00d7 XP \u00b7 +' + bonus + ' rocks \u00b7 +3 shards') + (streak ? ' \u00b7 \ud83d\udd25 ' + streak + '-day streak' : '') + '</small></button>';
+  }
   function garyCard() {
     const gi = garyInfo(meta.garyXp), nextU = GARY_UNLOCKS.find(x => x.L > gi.L);
     const D = DREAMS[meta.dreamEquip] || DREAMS.swing, dl = meta.dreams[meta.dreamEquip] || 1;
@@ -5109,7 +5243,10 @@ const R = (function () {
       const n = Object.keys(pick).filter(k => pick[k]).length;
       openModal('<div class="menu-head"><h2 class="title sm">' + (i + 1) + '. ' + m.name + '</h2><button class="btn" id="lvBack">Back</button></div>' +
         '<p class="lede sm">' + m.blurb + '</p>' + starsHTML(ms.stars || 0) +
-        '<p class="small">Boss: ' + (m.finals ? [...new Set(m.finals)] : [m.boss]).map(x => ENEMIES[x].name.split(',')[0]).join(' + ') + (ms.bestKept ? '. Best: Gary kept ' + ms.bestKept + '.' : '.') + '</p>' +
+        (won || tease(m).startsWith('Boss') ? '' : '<p class="lvnew">' + tease(m) + '</p>') +
+        '<p class="small">Boss: ' + (m.finals ? [...new Set(m.finals)] : [m.boss]).map(x => ENEMIES[x].name.split(',')[0]).join(' + ') + (BOSS_ITEMS[m.boss] && !meta.stash[BOSS_ITEMS[m.boss].name] ? ' \u00b7 drops <b>' + BOSS_ITEMS[m.boss].icon + ' ' + BOSS_ITEMS[m.boss].name + '</b>' : '') + '</p>' +
+        (!won && nextCrewKey() && TOWERS[nextCrewKey()].unlockWins === (meta.wins || 0) + 1 ? '<div class="ucard tease"><canvas class="pt sil" data-type="' + nextCrewKey() + '"></canvas><div><b>Win this and ' + CREW[nextCrewKey()].n.toUpperCase() + ' joins the crew</b><span>' + CREW[nextCrewKey()].icon + ' ' + CREW[nextCrewKey()].role + ' \u00b7 who the hell is this?</span></div></div>' : '') +
+        (won ? '<div class="mastery"><span class="' + ((ms.stars || 0) >= 3 ? 'done' : '') + '">\u2b50 3 stars: keep 80%+ of the loot' + ((ms.stars || 0) >= 3 ? ' \u2713' : '') + '</span><span class="' + (ms.bestKept >= m.pileMax || ms.bestKept >= 10 ? 'done' : '') + '">\ud83d\udc8e Keep everything (best ' + (ms.bestKept || 0) + ')</span><span class="' + (ms.mods && Object.keys(ms.mods).length >= 5 ? 'done' : '') + '">\ud83d\udd25 Beat all 5 modifiers (' + (ms.mods ? Object.keys(ms.mods).length : 0) + '/5)</span></div>' : '') +
         '<h3>Modifiers</h3>' + (won ? '<div class="mods">' + MODS.map(md => {
           const lock = md.gary && gl < md.gary, done = ms.mods && ms.mods[md.id];
           return '<button class="modchip' + (pick[md.id] ? ' on' : '') + (lock ? ' locked' : '') + '" data-mod="' + md.id + '"' + (lock ? ' disabled' : '') + '><b>' + md.name + (done ? ' \u2713' : '') + '</b><small>' + (lock ? 'Gary level ' + md.gary : md.desc) + '</small></button>';
@@ -5136,6 +5273,11 @@ const R = (function () {
           (eq ? '<button class="btn" disabled>Equipped</button>' : '<button class="btn" data-eq="' + id + '">Equip</button>') +
           (L < 5 ? '<button class="btn' + ((meta.shards || 0) >= cost ? ' ultbtn' : '') + '" data-up="' + id + '"' + ((meta.shards || 0) >= cost ? '' : ' disabled') + '>Level up (' + cost + ' shards)</button>' : '<button class="btn ultdone" disabled>Maxed. Oh yes.</button>') + '</div>' : '') + '</div>';
       }).join('');
+    } else if (tab === 'pj') {
+      body = '<p class="small">Gary sleeps through everything. He may as well look good doing it. Cosmetic only.</p><div class="pjgrid">' + Object.keys(PJS).map(k => {
+        const P2 = PJS[k], ok = P2.req(meta), on = (meta.pj || 'blue') === k;
+        return '<button class="pj' + (on ? ' on' : '') + (ok ? '' : ' locked') + '" data-pj="' + k + '"' + (ok ? '' : ' disabled') + '><span class="sw" style="background:linear-gradient(180deg,' + P2.a + ',' + P2.b + ');border-color:' + P2.e + '">' + (P2.stripes ? '<i class="st" style="background:repeating-linear-gradient(90deg,' + P2.stripes + ' 0 6px,transparent 6px 16px)"></i>' : '') + (P2.stars ? '<i class="stars">\u2726 \u2726</i>' : '') + '<i class="belt" style="background:' + P2.belt + '"></i></span><b>' + P2.name + '</b><small>' + (ok ? (on ? 'Wearing' : 'Tap to wear') : '\ud83d\udd12 ' + P2.how) + '</small></button>';
+      }).join('') + '</div>' + (SUP.url && !meta.supporter ? '<p class="small">Supporter Scarlet is a thank-you for anyone who shouts the dev a snag. See Menu \u2192 Settings.</p>' : '');
     } else {
       const found = ALL_ITEMS.filter(it => meta.stash[it.name]);
       body = '<p class="small">Equip loot as trinkets for small bonuses. Slots: ' + slots + ' of 3 (more at Gary levels 3 and 7).</p><div class="slots">' +
@@ -5148,7 +5290,8 @@ const R = (function () {
     const inMenu = menuOpen;
     openModal('<div class="menu-head"><h2 class="title sm">Gary\u2019s Gear</h2><button class="btn" id="gBack">' + (inMenu ? 'Back to game' : 'Back') + '</button></div>' +
       '<p class="lede sm"><i class="shardic"></i> ' + (meta.shards || 0) + ' Dream Shards</p>' +
-      '<div class="tabs two"><button class="tab' + (tab === 'dreams' ? ' on' : '') + '" data-gt="dreams">Dreams</button><button class="tab' + (tab === 'trinkets' ? ' on' : '') + '" data-gt="trinkets">Trinkets</button></div>' + body, 'menu');
+      '<div class="tabs three"><button class="tab' + (tab === 'dreams' ? ' on' : '') + '" data-gt="dreams">Dreams</button><button class="tab' + (tab === 'trinkets' ? ' on' : '') + '" data-gt="trinkets">Trinkets</button><button class="tab' + (tab === 'pj' ? ' on' : '') + '" data-gt="pj">Pyjamas</button></div>' + body, 'menu');
+    $('modalCard').querySelectorAll('[data-pj]').forEach(b => b.onclick = () => { meta.pj = b.dataset.pj; applyLook(); saveMeta(); SFX.play('pick'); trackEvent('cosmetic_equipped', { item: meta.pj }); showGear('pj'); });
     $('gBack').onclick = () => { if (inMenu) closeMenu(); else showHome(); };
     $('modalCard').querySelectorAll('[data-gt]').forEach(b => b.onclick = () => showGear(b.dataset.gt));
     $('modalCard').querySelectorAll('[data-eq]').forEach(b => b.onclick = () => { meta.dreamEquip = b.dataset.eq; saveMeta(); if (G && G.wave === 0) { G.dream = meta.dreamEquip; G.dreamLv = meta.dreams[G.dream]; } showGear('dreams'); });
@@ -5279,7 +5422,11 @@ const R = (function () {
     }
     if (step === 'upgrade') {
       if (towers.some(t => t.tier > 0)) return tutDone('upgrade');
-      if (G.waveActive) return hideCoach();
+      if (G.waveActive) {
+        // side hint while a wave runs: you can speed things up
+        if (G.wave >= 2 && speed === 1 && !sheetMode && !tut.speedDone) { if (!tut.speedT) tut.speedT = performance.now(); if (performance.now() - tut.speedT < 6000) return showCoach(elPt($('speedBtn')), 'Speed up?', false); tut.speedDone = true; trackEvent('tutorial_step_completed', { step: 'speed_hint' }); }
+        return hideCoach();
+      }
       if (sheetMode === 'tower') { const ub = $('sheet').querySelector('[data-act="up"]'); if (ub && !ub.disabled) return showCoach(elPt(ub), 'UPGRADE!', false); return hideCoach(); }
       if (sheetMode) return hideCoach();
       const ti = G.towers.findIndex((t, i) => t && upgradeCost(G, i) != null && G.gold >= upgradeCost(G, i));
@@ -5323,6 +5470,15 @@ const R = (function () {
 
   // ---------- results ----------
   const UNLOCK_NOTES = { chucking: { 3: 'Dazza found a watermelon in the bin.', 5: 'Dazza found a whole telly in the bin.' } };
+  let revealDone = false;
+  function showReveal(k, then) {
+    const C = CREW[k];
+    openModal('<div class="reveal"><span class="rtag">NEW CREW MEMBER</span>' + ptHTML(k, 'huge') + '<h2 class="title">' + C.n + '</h2><span class="crole big">' + C.icon + ' ' + C.role + ' \u00b7 ' + C.keys.slice(0, 2).join(' \u2022 ') + '</span><p class="rq">\u201c' + C.hi.replace(/\*/g, '') + '\u201d</p><button class="btn primary big" id="revOk">G\u2019DAY \u2192</button></div>', 'menu crew', 900);
+    drawPortraits($('modalCard')); startPortraitLoop();
+    SFX.play('ultimate'); setTimeout(() => { R.poke(k); SFX.play(crewSfx[k] || 'pick'); if (k === 'banjo') SFX.sting('banjo'); }, 700); R.celebrate();
+    trackEvent('crew_unlocked', { character: k, wins: meta.wins });
+    $('revOk').onclick = ev => { if (deliberate(ev, $('revOk'))) then(); };
+  }
   function showResults() {
     if (state === 'results' || !G) return;
     hideCoach();
@@ -5363,18 +5519,24 @@ const R = (function () {
     const nextOk = G.won && nextMap && G.mode === 'campaign';
     const firstEver = G.won && meta.wins === 1 && G.mode === 'campaign';
     const newCrew = G.won ? CREW_ORDER.filter(k => TOWERS[k].unlockWins === meta.wins) : [];
+    if (newCrew.length && !revealDone) { revealDone = true; return showReveal(newCrew[0], () => { state = 'play'; showResults(); }); }
+    revealDone = false;
     newCrew.forEach(k => { if (k === 'jezza') meta.jezzaSeen = true; else meta[k + 'Seen'] = true; });
     const lootChips = groups.slice(0, 4).map(g => '<span class="lchip" style="--rc:' + RARITY[g.it.tier].c + '" title="' + g.it.name + '">' + g.it.icon + (g.n > 1 ? '<i>' + g.n + '</i>' : '') + '</span>').join('') + (groups.length > 4 ? '<span class="lchip more">+' + (groups.length - 4) + '</span>' : '');
     const levelUp = r.gAfter.L > r.gBefore.L;
     const rewardRow = '<div class="rrow">' + (lootChips ? '<div class="rloot">' + lootChips + '</div>' : '') +
       '<div class="rchips"><span class="rchip rock"><i class="rockic"></i>+' + r.rocks + '</span><span class="rchip xp">' + (levelUp ? '\u2b06 Gary Lv ' + r.gAfter.L : '+' + r.garyGain + ' XP') + '</span>' + (r.shards ? '<span class="rchip shard"><i class="shardic"></i>+' + r.shards + '</span>' : '') + '</div></div>';
-    const unlockCards = newCrew.map(k => '<div class="ucard">' + ptHTML(k) + '<div><b>' + CREW[k].n.toUpperCase() + ' JOINED THE CREW!</b><span>' + CREW[k].icon + ' ' + CREW[k].role + ' \u2022 ' + CREW[k].keys.slice(0, 2).join(' \u2022 ') + '</span></div></div>').join('') +
+    const unlockCards = newCrew.map(k => '<div class="ucard">' + ptHTML(k) + '<div><b>' + CREW[k].n.toUpperCase() + ' JOINED THE CREW!</b><span>' + (nextMap && recommendCrew(G.mapIdx + 1).includes(k) ? 'In your crew for the next level. Give ' + (k === 'nan' || k === 'bev' ? 'her' : 'him') + ' a go.' : CREW[k].icon + ' ' + CREW[k].role + ' \u2022 ' + CREW[k].keys.slice(0, 2).join(' \u2022 ')) + '</span></div></div>').join('') +
       (r.firstWin && nextMap && G.mode === 'campaign' ? '<div class="ucard lvl"><span class="unum">' + (G.mapIdx + 2) + '</span><div><b>NEW LEVEL UNLOCKED</b><span>' + nextMap.name + '</span></div></div>' : '') +
       r.garyUnlocks.map(u2 => '<div class="ucard gary"><span class="unum">\u2b50</span><div><b>GARY LEVEL ' + u2.L + '</b><span>' + u2.text + '</span></div></div>').join('');
     // one useful line when you lose
     const fb = (() => {
       const sb = G.stats.stolenBy || {}, top = Object.keys(sb).sort((a, b) => sb[b] - sb[a])[0], E = top && ENEMIES[top];
-      if (G.enemies.some(e => e.boss && !e.mini) || (E && E.boss)) return ['That boss absolutely cooked you.', 'Save Gary\u2019s Dream for the boss wave.'];
+      if (G.enemies.some(e => e.boss && !e.mini) || (E && E.boss)) return ['That boss absolutely cooked you.', 'Save Gary\u2019s Dream for the boss wave, and upgrade before it arrives.'];
+      const lostLate = G.stats.waveLost.slice(Math.max(0, G.waveCount - 3)).reduce((a, b2) => a + (b2 || 0), 0), lostAll = G.stats.waveLost.reduce((a, b2) => a + (b2 || 0), 0);
+      if (lostAll && lostLate / lostAll > .75 && G.wave >= G.waveCount - 2) return ['You ran out of damage late.', 'Upgrade your best-placed tower instead of building another.'];
+      const tw = G.towers.map((t, i) => t ? G.map.pads[i] : null).filter(Boolean);
+      if (tw.length >= 4) { const cx = tw.reduce((a, p) => a + p[0], 0) / tw.length, cy = tw.reduce((a, p) => a + p[1], 0) / tw.length; if (tw.every(p => Math.hypot(p[0] - cx, p[1] - cy) < 90)) return ['Everything was in one corner.', 'Spread your crew along the road so monsters get hit the whole way.']; }
       if (E && E.flyer) return ['The flyers had a field day.', 'Nan, Dazza and Bev can all hit flyers.'];
       if (['gob', 'mozzie', 'chick', 'bowl', 'goat'].includes(top)) return ['Too fast, too furious.', 'Uncle Tony and Jezza slow them down.'];
       if (['pants', 'crab', 'scrapbot'].includes(top)) return ['Too much armour.', 'Nan ignores armour at tier 3. Big Marg knocks buckets off.'];
@@ -5386,8 +5548,11 @@ const R = (function () {
     else if (G.won) {
       let st = ''; for (let i = 0; i < 3; i++) st += '<i class="rstar' + (i < r.stars ? ' on' : '') + '" style="animation-delay:' + (.25 + i * .28) + 's"></i>';
       hero = '<div class="rhero win">' + (firstEver ? '<span class="ribbon">FIRST WIN!</span>' : '') + '<h2>LEVEL COMPLETE</h2><div class="rstars" aria-label="' + r.stars + ' of 3 stars">' + st + '</div><p class="rsub">Gary kept ' + G.pile + '/' + G.pileMax + ' \u2022 <q>Did I miss anything?</q></p></div>';
-    } else hero = '<div class="rhero lose"><h2>SO CLOSE</h2><p class="rbig">Wave ' + G.wave + ' / ' + G.waveCount + '</p><p class="rquip">' + fb[0] + '</p><p class="rhint">\ud83d\udca1 ' + fb[1] + '</p></div>';
-    const tease = m => m.gate ? 'NEW: a gate you can tap' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
+    } else {
+      const nk = nextCrewKey(), asp = nk && TOWERS[nk].unlockWins === (meta.wins || 0) + 1 && G.mode === 'campaign' ? '<div class="ucard tease"><canvas class="pt sil" data-type="' + nk + '"></canvas><div><b>Win this and ' + CREW[nk].n.toUpperCase() + ' joins</b><span>' + CREW[nk].icon + ' ' + CREW[nk].role + '</span></div></div>' : '';
+      hero = '<div class="rhero lose"><h2>SO CLOSE</h2><p class="rbig">Wave ' + G.wave + ' / ' + G.waveCount + '</p><p class="rquip">' + fb[0] + '</p><p class="rhint">\ud83d\udca1 ' + fb[1] + '</p>' + asp + '</div>';
+    }
+    const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: a gate you can tap' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
     const primary = nextOk ? '<button class="btn primary big rgo" id="nextBtn">NEXT LEVEL \u2192</button><p class="rtease">Up next: <b>' + nextMap.name + '</b> \u00b7 ' + tease(nextMap) + (nextMap.chapter > MAPS[G.mapIdx].chapter ? ' \u00b7 CHAPTER ' + nextMap.chapter : '') + '</p>' : '<button class="btn primary big rgo" id="againBtn">' + (G.won || endless ? 'PLAY AGAIN' : 'TRY AGAIN') + '</button>';
     const secondary = '<div class="rsec">' + (nextOk ? '<button class="btn" id="againBtn">Play again</button>' : (!G.won && !endless && G.mode === 'campaign' ? '<button class="btn" id="crewBtn">Change crew</button>' : '')) + '<button class="btn" id="levelsBtn">Home</button><button class="btn" id="shareBtn">Share</button></div><p class="small" id="shareMsg" aria-live="polite"></p>';
     const details = '<details class="rdetails"><summary>Run details</summary>' + (G.won ? '' : rocksLine) + shedHint +
@@ -5396,8 +5561,10 @@ const R = (function () {
       '<h3>The haul</h3>' + (haul ? '<ul class="haul">' + haul + '</ul>' + (restN ? '<p class="small">Plus ' + restN + ' lesser bits and bobs.</p>' : '') : '<p class="small">Nothing banked this time.</p>') +
       '<p class="small">Gary\u2019s Stash: ' + r.stashFound + ' of ' + STASH_TOTAL + ' found.</p>' + (G.won ? rocksLine : '') +
       '<h3>Skills</h3>' + skills + (nextLine ? '<p class="next">' + nextLine + '</p>' : '') + jobsLine + '</details>';
-    const jobFlash = r.jobsDone.length ? '<p class="rjob">\u2705 Job done: ' + r.jobsDone[0].text + ' <b>+' + r.jobsDone[0].reward + '</b></p>' : '';
+    const dailyLine = G.mode === 'daily' && r.dailyFirst ? '<p class="rjob">\ud83c\udf19 Daily won! 2\u00d7 XP, +' + r.rk.daily + ' rocks' + (r.streak > 1 ? ' \u00b7 \ud83d\udd25 ' + r.streak + '-day streak' : '') + '</p>' : '';
+    const jobFlash = dailyLine + (r.jobsDone.length ? '<p class="rjob">\u2705 Job done: ' + r.jobsDone[0].text + ' <b>+' + r.jobsDone[0].reward + '</b></p>' : '');
     openModal(hero + (G.won || endless ? rewardRow + unlockCards : '') + jobFlash + primary + secondary + details, 'results' + (G.won ? ' won' : ' lost'), 1000);
+    const shareCtx = { won: G.won, endless, levelName: G.mode === 'daily' ? 'Daily Nap' : G.mode === 'endless' ? 'The Long Nap' : G.map.name, pile: G.pile, pileMax: G.pileMax, wave: G.wave, waveCount: G.waveCount, stars: r.stars || 0, crew: (G.crew || []).slice(0, 6), best: r.best, boss: ENEMIES[G.map.boss].name.split(',')[0], quip: G.won ? ['Gary slept through the whole thing.', 'Not a single snag was wasted.', 'The monsters have filed a complaint.'][Math.floor(Math.random() * 3)] : fb[0] };
     drawPortraits($('modalCard')); startPortraitLoop();
     if (G.won) [0, 1, 2].forEach(i => { if (i < r.stars) setTimeout(() => SFX.play(i === 2 ? 'levelup' : 'coin'), 250 + i * 280); });
     if (newCrew.length) setTimeout(() => { R.poke(newCrew[0]); SFX.play(crewSfx[newCrew[0]] || 'pick'); }, 1100);
@@ -5412,6 +5579,12 @@ const R = (function () {
     $('shareBtn').onclick = async ev => {
       if (!deliberate(ev, $('shareBtn'))) return;
       const msg = $('shareMsg');
+      trackEvent('share_clicked', { won: G.won, level_id: G.map.id });
+      try {
+        const blob = await shareCardBlob(shareCtx);
+        if (blob && navigator.share && navigator.canShare) { const file = new File([blob], 'hold-my-loot.png', { type: 'image/png' }); if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: shareText }); msg.textContent = 'Shared.'; return; } }
+        if (blob && !navigator.share) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'hold-my-loot.png'; a.click(); msg.textContent = 'Saved a share card. Post it anywhere.'; return; }
+      } catch (e) { if (e && e.name === 'AbortError') return; }
       try { if (navigator.share) { await navigator.share({ text: shareText }); msg.textContent = 'Shared.'; return; } } catch (e) { if (e && e.name === 'AbortError') return; }
       try { await navigator.clipboard.writeText(shareText); msg.textContent = 'Copied. Paste it in the group chat.'; }
       catch (e) { msg.innerHTML = 'Copy this:<br><textarea readonly rows="4"></textarea>'; const ta = msg.querySelector('textarea'); ta.value = shareText; ta.focus(); ta.select(); }
@@ -5471,6 +5644,8 @@ const R = (function () {
       '<div class="row2b"><button class="btn" id="saveNow">Save now</button><button class="btn" id="copyCode">Copy save code</button></div>' +
       '<p class="small">A save code backs up your progress or moves it to another device.</p>' +
       '<textarea id="codeBox" rows="3" placeholder="Paste a save code here"></textarea><button class="btn" id="loadCode">Load save code</button><p class="small" id="codeMsg" aria-live="polite"></p>' +
+      (SUP.url ? '<h3>Support the game</h3><p class="small">' + (meta.supporter ? 'You\u2019re a supporter. Gary\u2019s Supporter Scarlet pyjamas are yours. Legend.' : 'Made by one person, no ads, no pay-to-win. If it\u2019s made you laugh, you can shout the dev a snag. Supporters get a code for Gary\u2019s Supporter Scarlet pyjamas.') + '</p>' +
+        (meta.supporter ? '' : '<a class="btn primary" id="supLink" href="' + SUP.url + '" target="_blank" rel="noopener">\ud83c\udf2d Shout the dev a snag</a><div class="row2b" style="margin-top:8px"><input id="supCode" class="codein" placeholder="Supporter code" autocomplete="off"><button class="btn" id="supBtn">Unlock</button></div><p class="small" id="supMsg" aria-live="polite"></p>') : '') +
       '<h3>Version</h3><p class="small">Version ' + (window.HML_BUILD || '?') + '. The game updates itself when you open it.</p><button class="btn" id="clBtn">What\u2019s new</button>' +
       '<h3>Start over</h3><button class="btn danger" id="resetBtn">Reset all progress</button>';
   }
@@ -5492,6 +5667,8 @@ const R = (function () {
     }
     if (menuTab === 'settings') {
       $('setInstant').onchange = e => { meta.settings.instantLoot = e.target.checked; if (G) G.instantLoot = e.target.checked; saveMeta(); };
+      if ($('supLink')) $('supLink').onclick = () => trackEvent('support_link_clicked', {});
+      if ($('supBtn')) $('supBtn').onclick = () => { const v = ($('supCode').value || '').trim().toLowerCase(); if (SUP.code && v === String(SUP.code).toLowerCase()) { meta.supporter = true; meta.pj = 'scarlet'; applyLook(); saveMeta(); SFX.play('ultimate'); trackEvent('supporter_unlocked', {}); $('supMsg').textContent = 'You absolute legend. Scarlet pyjamas unlocked.'; setTimeout(() => renderMenu(), 1200); } else { $('supMsg').textContent = 'That code didn\u2019t work. Check your receipt.'; } };
       $('setAnalytics').onchange = e => { meta.settings.analytics = e.target.checked; saveMeta(); };
       $('setShake').onchange = e => { meta.settings.shake = e.target.checked; saveMeta(); };
       $('clBtn').onclick = () => showChangelog(() => renderMenu());
@@ -5529,13 +5706,14 @@ const R = (function () {
   }
 
   // ---------- loop ----------
-  let last = performance.now();
+  let last = performance.now(), slowMo = 0;
   function frame(now) {
     const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (slowMo > 0) slowMo -= dt;
     const running = G && state === 'play' && !paused && !menuOpen;
     if (running && now < stopUntil) { R.frame(ctx, G, { W, H, scale, dpr, paused: true, speed, selPad, settings: meta.settings, mapIdx: homeMap }); hud(); requestAnimationFrame(frame); return; }
     if (running) {
-      let rem = dt * speed;
+      let rem = dt * speed * (slowMo > 0 ? .3 : 1);
       while (rem > 0) { const s = Math.min(1 / 60, rem); update(G, s); rem -= s; }
       handleEvents();
     }
@@ -5551,7 +5729,11 @@ const R = (function () {
   document.addEventListener('keydown', unlockAudio, true);
   document.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('button'); if (b && !b.disabled && !b.classList.contains('dcard')) SFX.play('click'); }, true);
   window.__hml = () => G;
-  trackEvent('session_start', { returning: !firstVisit, runs: meta.runs || 0 }); if (firstVisit) trackEvent('first_visit', {});
+  applyLook();
+  if (!meta.firstSeen) meta.firstSeen = Date.now(); meta.sessions = (meta.sessions || 0) + 1;
+  const dayN = Math.floor((Date.now() - meta.firstSeen) / 86400000) + 1;
+  trackEvent('session_start', { returning: !firstVisit, runs: meta.runs || 0, day_number: dayN, session_number: meta.sessions, streak: (meta.daily && meta.daily.streak) || 0 }); if (firstVisit) trackEvent('first_visit', {});
+  if (dayN > 1) trackEvent('return_session', { day_number: dayN, session_number: meta.sessions });
   resize();
   if (document.fonts) document.fonts.ready.then(() => R.invalidate());
   showHome();
