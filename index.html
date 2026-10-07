@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hold My Loot</title>
-<meta name="hml-build" content="12">
+<meta name="hml-build" content="14">
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 12;
+window.HML_BUILD = 14;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -350,6 +350,10 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 .chap.c3 { color: #2F5E8A; margin-top: 16px; }
 .level.c3 .lnum { background: #E2F1FF; color: #2F5E8A; }
 .level.c2 .lnum { background: #FFF1C8; color: #8A5A12; }
+.savewarn, .saveok { border-radius: 16px; padding: 10px 12px; margin: 0 0 12px; display: flex; flex-direction: column; gap: 3px; }
+.savewarn { background: #FBE1DA; border: 1.5px solid #E5533D; } .savewarn.soft { background: #FFF1C8; border-color: #E3A02C; }
+.saveok { background: #E2EFD6; border: 1.5px solid #6FA05A; }
+.savewarn b, .saveok b { font-size: 15px; } .savewarn span, .saveok span { font-size: 13.5px; font-weight: 700; line-height: 1.35; }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
@@ -2530,52 +2534,220 @@ const SFX = (function () {
     last[name] = now;
     try { S[name] && S[name](arg); } catch (e) {}
   }
-  // ---------- procedural music ----------
-  let mGain = null, mTimer = 0, mMode = '', mStep = 0, mNext = 0, musicOn = true, musicVol = .35;
-  const CALM = { bpm: 96, chords: [[60, 64, 67], [55, 59, 62], [57, 60, 64], [53, 57, 60]], bass: [48, 43, 45, 41] };
-  const BOSS = { bpm: 132, chords: [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 56, 59]], bass: [45, 41, 43, 40] };
+  // =====================================================================
+  // MEDIEVAL MUSIC ENGINE (v13) - all music is original and synthesised
+  // in code. No audio files, no external assets, no licences to track.
+  // Shares the single AudioContext above, but has its OWN bus so music and
+  // SFX have independent volume/mute. To revert: restore the previous
+  // "procedural music" section and the matching UI hooks (see changelog).
+  // =====================================================================
   const mf = n => 440 * Math.pow(2, (n - 69) / 12);
-  function mtone(f, t0, dur, type, g, filt) {
-    const o = ac.createOscillator(), gg = ac.createGain(); o.type = type; o.frequency.value = f;
-    gg.gain.setValueAtTime(0, t0); gg.gain.linearRampToValueAtTime(g, t0 + .01); gg.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
-    let n = o; if (filt) { const fl = ac.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = filt; o.connect(fl); n = fl; }
-    n.connect(gg); gg.connect(mGain); o.start(t0); o.stop(t0 + dur + .02);
-  }
-  function mnoise(t0, dur, g, f, type) {
-    const s = ac.createBufferSource(); s.buffer = noiseBuf; const fl = ac.createBiquadFilter(); fl.type = type || 'highpass'; fl.frequency.value = f;
-    const gg = ac.createGain(); gg.gain.setValueAtTime(g, t0); gg.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
-    s.connect(fl); fl.connect(gg); gg.connect(mGain); s.start(t0, Math.random() * .5); s.stop(t0 + dur + .02);
-  }
-  function schedule() {
-    if (!ac || !mMode) return;
-    const S2 = mMode === 'boss' ? BOSS : CALM, spb = 60 / S2.bpm / 2;
-    while (mNext < ac.currentTime + .25) {
-      const bar = Math.floor(mStep / 8) % 4, st = mStep % 8, ch = S2.chords[bar];
-      if (mMode === 'boss') {
-        mtone(mf(S2.bass[bar] - 12), mNext, spb * .9, 'sawtooth', .07, 500);
-        if (st % 4 === 0) { mtone(90, mNext, .18, 'sine', .25); }
-        if (st % 4 === 2) mnoise(mNext, .12, .09, 1800);
-        if (st % 2 === 1) mnoise(mNext, .04, .04, 7000);
-        if (st === 0 || st === 3 || st === 6) ch.forEach(n => mtone(mf(n), mNext, spb * 1.6, 'square', .018, 1600));
-      } else {
-        if (st === 0) { mtone(mf(S2.bass[bar] - 12), mNext, spb * 7, 'triangle', .07); ch.forEach(n => mtone(mf(n), mNext, spb * 7.5, 'sine', .022)); }
-        const arp = [0, 1, 2, 1, 2, 0, 1, 2][st]; mtone(mf(ch[arp] + 12), mNext, spb * 1.5, 'triangle', .028, 3000);
-        if (st % 2 === 1) mnoise(mNext, .03, .015, 8000);
-      }
-      mNext += spb; mStep++;
+  let meter = null, mBus = null, mOn = true, mVol = .5, unlockedM = false, wantTrack = 'menu', cur = null, schedTimer = 0, duckG = null, duckLevel = 1, pausedDuck = false;
+  const live = new Set();            // currently scheduled music voices (for cleanup)
+  function busReady() {
+    if (!init()) return false;
+    if (!mBus) {
+      mBus = ac.createGain(); mBus.gain.value = mOn ? mVol : 0;
+      duckG = ac.createGain(); duckG.gain.value = 1;
+      const comp = ac.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3; comp.attack.value = .01; comp.release.value = .2;
+      duckG.connect(mBus); mBus.connect(comp); comp.connect(ac.destination);   // separate from SFX master
+      try { meter = ac.createAnalyser(); meter.fftSize = 512; mBus.connect(meter); } catch (e) { meter = null; }
     }
+    return true;
   }
-  function music(mode) {
-    if (!init()) return;
-    if (!mGain) { mGain = ac.createGain(); mGain.gain.value = musicOn && !muted ? musicVol : 0; mGain.connect(master); }
-    if (mode === mMode) return;
-    mMode = mode; mStep = 0; mNext = ac.currentTime + .05;
-    clearInterval(mTimer); if (mode) mTimer = setInterval(schedule, 90);
+  // ---------- instruments ----------
+  function voice(nodes, stopAt) { const v = { nodes }; live.add(v); const src = nodes[0]; src.onended = () => { for (const n of nodes) { try { n.disconnect(); } catch (e) {} } live.delete(v); }; try { src.stop(stopAt); } catch (e) {} }
+  function env(g, t, a, peak, dur, rel) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.setTargetAtTime(0, t + Math.max(a, dur - rel), rel / 3 + .001); }
+  function lute(out, t, n, dur, v) {
+    const o = ac.createOscillator(), o2 = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain();
+    o.type = 'sawtooth'; o2.type = 'triangle'; o.frequency.value = mf(n); o2.frequency.value = mf(n) * 1.004;
+    f.type = 'lowpass'; f.Q.value = 2; f.frequency.setValueAtTime(3200, t); f.frequency.exponentialRampToValueAtTime(500, t + .3);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .004); g.gain.exponentialRampToValueAtTime(.0001, t + Math.min(1.4, dur + .5));
+    o.connect(f); o2.connect(f); f.connect(g); g.connect(out); o.start(t); o2.start(t); o2.stop(t + Math.min(1.5, dur + .6)); voice([o, o2, f, g], t + Math.min(1.5, dur + .6));
   }
-  function setMusic(on) { musicOn = on; if (mGain) mGain.gain.value = on && !muted ? musicVol : 0; }
-  const _setMuted = setMuted;
-  setMuted = m => { _setMuted(m); if (mGain) mGain.gain.value = musicOn && !m ? musicVol : 0; };
-  return { play, unlock, setVolume, setMuted: m => setMuted(m), music, setMusic, _names: Object.keys(S), _raw: (n, a) => S[n](a), _state: () => ac ? ac.state : 'none' };
+  function fiddle(out, t, n, dur, v) {
+    const o = ac.createOscillator(), lfo = ac.createOscillator(), lg = ac.createGain(), f = ac.createBiquadFilter(), f2 = ac.createBiquadFilter(), g = ac.createGain();
+    o.type = 'sawtooth'; o.frequency.value = mf(n); lfo.frequency.value = 5.6; lg.gain.value = mf(n) * .006; lfo.connect(lg); lg.connect(o.frequency);
+    f.type = 'lowpass'; f.frequency.value = 2600; f2.type = 'peaking'; f2.frequency.value = 1100; f2.gain.value = 6; f2.Q.value = 1.2;
+    env(g, t, .05, v, dur, .09); o.connect(f); f.connect(f2); f2.connect(g); g.connect(out);
+    o.start(t); lfo.start(t); lfo.stop(t + dur + .25); voice([o, lfo, lg, f, f2, g], t + dur + .25);
+  }
+  function recorder(out, t, n, dur, v) {
+    const o = ac.createOscillator(), o2 = ac.createOscillator(), g2 = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain(), g = ac.createGain();
+    o.type = 'triangle'; o.frequency.value = mf(n); o2.type = 'sine'; o2.frequency.value = mf(n) * 2; g2.gain.value = .18;
+    lfo.frequency.value = 5; lg.gain.value = mf(n) * .004; lfo.connect(lg); lg.connect(o.frequency);
+    env(g, t, .03, v, dur, .07); o.connect(g); o2.connect(g2); g2.connect(g); g.connect(out);
+    o.start(t); o2.start(t); lfo.start(t); o2.stop(t + dur + .2); lfo.stop(t + dur + .2); voice([o, o2, g2, lfo, lg, g], t + dur + .2);
+  }
+  function crumhorn(out, t, n, dur, v, slide) {
+    const o = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain();
+    o.type = 'square'; o.frequency.setValueAtTime(mf(n), t); if (slide) o.frequency.exponentialRampToValueAtTime(mf(n + slide), t + dur);
+    f.type = 'bandpass'; f.frequency.value = 1150; f.Q.value = 2.2;
+    env(g, t, .02, v, dur, .06); o.connect(f); f.connect(g); g.connect(out); o.start(t); voice([o, f, g], t + dur + .2);
+  }
+  function kazoo(out, t, n, dur, v) {
+    const o = ac.createOscillator(), buzz = ac.createOscillator(), bg = ac.createGain(), f = ac.createBiquadFilter(), g = ac.createGain();
+    o.type = 'sawtooth'; o.frequency.value = mf(n); buzz.type = 'square'; buzz.frequency.value = 38; bg.gain.value = v * .45;
+    f.type = 'bandpass'; f.frequency.value = 1500; f.Q.value = 3;
+    env(g, t, .02, v * .6, dur, .05); buzz.connect(bg); bg.connect(g.gain); o.connect(f); f.connect(g); g.connect(out);
+    o.start(t); buzz.start(t); buzz.stop(t + dur + .15); voice([o, buzz, bg, f, g], t + dur + .15);
+  }
+  function brass(out, t, n, dur, v) {
+    const o = ac.createOscillator(), o2 = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain();
+    o.type = 'sawtooth'; o2.type = 'sawtooth'; o.frequency.value = mf(n); o2.frequency.value = mf(n) * .997;
+    f.type = 'lowpass'; f.frequency.setValueAtTime(500, t); f.frequency.linearRampToValueAtTime(2200, t + .06); f.frequency.setTargetAtTime(1300, t + .08, .2);
+    env(g, t, .03, v, dur, .12); o.connect(f); o2.connect(f); f.connect(g); g.connect(out); o.start(t); o2.start(t); o2.stop(t + dur + .3); voice([o, o2, f, g], t + dur + .3);
+  }
+  function drone(out, t, n, dur, v) {
+    const o = ac.createOscillator(), o2 = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain();
+    o.type = 'sawtooth'; o2.type = 'sawtooth'; o.frequency.value = mf(n); o2.frequency.value = mf(n + 7);
+    f.type = 'lowpass'; f.frequency.value = 420; env(g, t, .25, v, dur, .3);
+    o.connect(f); o2.connect(f); f.connect(g); g.connect(out); o.start(t); o2.start(t); o2.stop(t + dur + .4); voice([o, o2, f, g], t + dur + .4);
+  }
+  function bell(out, t, n, v) {
+    [[1, 1], [2.76, .4], [5.4, .18]].forEach(([r, a2]) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = mf(n) * r; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v * a2, t + .003); g.gain.exponentialRampToValueAtTime(.0001, t + 1.4 / r + .3); o.connect(g); g.connect(out); o.start(t); voice([o, g], t + 1.8); });
+  }
+  function frameDrum(out, t, v, deep) {
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(deep ? 120 : 190, t); o.frequency.exponentialRampToValueAtTime(deep ? 50 : 90, t + .18);
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + (deep ? .45 : .22)); o.connect(g); g.connect(out); o.start(t); voice([o, g], t + .5);
+    const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g2 = ac.createGain(); s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = deep ? 300 : 900; f.Q.value = .8;
+    g2.gain.setValueAtTime(v * .5, t); g2.gain.exponentialRampToValueAtTime(.0001, t + .08); s.connect(f); f.connect(g2); g2.connect(out); s.start(t, Math.random() * .5); voice([s, f, g2], t + .12);
+  }
+  function jingle(out, t, v) {
+    const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = noiseBuf; f.type = 'highpass'; f.frequency.value = 6500;
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + .09); s.connect(f); f.connect(g); g.connect(out); s.start(t, Math.random() * .5); voice([s, f, g], t + .12);
+  }
+  function snare(out, t, v) {
+    const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = 1800; f.Q.value = .7;
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + .14); s.connect(f); f.connect(g); g.connect(out); s.start(t, Math.random() * .5); voice([s, f, g], t + .18);
+  }
+  // ---------- compositions (original) ----------
+  const H = -1, R = 0;   // H = hold previous note, R = rest
+  const CH = { Dm: [50, 53, 57], C: [48, 52, 55], Am: [45, 48, 52], F: [53, 57, 60], G: [55, 59, 62], D: [50, 54, 57], A: [45, 49, 52], Bb: [46, 50, 53], E: [40, 44, 47] };
+  // Menu: "The Snoring Knight" - a cheeky 6/8 tavern jig in D mixolydian
+  const MENU = { bpm8: 216, per: 6, bars: ['D', 'D', 'C', 'D', 'G', 'D', 'A', 'D'],
+    mel: [[74, H, 78, 81, H, 78], [79, 78, 76, 74, H, H], [72, H, 76, 79, H, 76], [74, 76, 78, 74, H, 69], [71, H, 74, 79, H, 74], [78, 76, 74, 78, H, 81], [76, H, 73, 69, H, 73], [74, H, H, 74, R, R]],
+    horn: [4, 5] };
+  // Gameplay: "Defend the Pile" - upbeat 4/4 adventure in D dorian, A + B sections
+  const GAME = { bpm8: 228, per: 8, bars: ['Dm', 'C', 'Dm', 'Am', 'Dm', 'C', 'F', 'Am', 'F', 'C', 'G', 'Dm', 'F', 'C', 'Am', 'Dm'],
+    mel: [[74, H, 72, 74, 77, H, 76, 74], [72, H, 71, 69, 67, H, 69, 72], [74, H, 76, 77, 79, 77, 76, 74], [76, H, H, 74, 72, H, 69, H],
+      [74, H, 72, 74, 77, H, 79, 81], [79, H, 77, 76, 72, H, 74, 76], [77, H, 76, 74, 72, 74, 76, 77], [76, H, 74, H, 74, H, R, R],
+      [81, 79, 77, 79, 81, H, 84, H], [79, 77, 76, 77, 79, H, 76, H], [79, H, 81, 79, 77, 76, 74, H], [77, 76, 74, 72, 74, H, H, R],
+      [81, 79, 77, 79, 81, H, 84, 86], [84, H, 81, 79, 76, H, 79, H], [76, 77, 79, 77, 76, 74, 72, 71], [74, H, H, H, 74, R, R, R]] };
+  // Boss: "Trouble at the Gate" - driving battle loop in A phrygian, still a bit silly
+  const BOSSM = { bpm16: 528, per: 16, bars: ['Am', 'Bb', 'Am', 'G', 'Am', 'Bb', 'C', 'E'],
+    ost: [69, 69, 76, 69, 77, 69, 76, 69, 69, 69, 76, 69, 74, 72, 71, 72],
+    horn: [[69, 16], [70, 16], [72, 8, 71, 8], [67, 16], [69, 16], [70, 8, 72, 8], [72, 8, 74, 8], [76, 16]] };
+  function playMenuStep(tr, t, step) {
+    const D = MENU, bar = Math.floor(step / D.per) % D.bars.length, s = step % D.per, ch = CH[D.bars[bar]], dt = 60 / D.bpm8, out = tr.g, pass = Math.floor(step / (D.per * D.bars.length));
+    const note = D.mel[bar][s];
+    if (note > 0) { let len = 1; while (s + len < D.per && D.mel[bar][s + len] === H) len++; (D.horn.includes(bar) && pass % 2 ? crumhorn : recorder)(out, t, note, dt * len * .95, .07); }
+    lute(out, t, ch[[0, 2, 1, 0, 2, 1][s]] + 12, dt * 1.5, s === 0 ? .06 : .04);
+    if (s === 0) { frameDrum(out, t, .2, true); lute(out, t, ch[0], dt * 3, .05); }
+    if (s === 3) frameDrum(out, t, .12, false);
+    if (s === 2 || s === 5) jingle(out, t, .035);
+    if (step % (D.per * D.bars.length) === 0) bell(out, t, 86, .05);
+  }
+  function playGameStep(tr, t, step) {
+    const D = GAME, bar = Math.floor(step / D.per) % D.bars.length, s = step % D.per, ch = CH[D.bars[bar]], dt = 60 / D.bpm8, out = tr.g, pass = Math.floor(step / (D.per * D.bars.length));
+    const note = D.mel[bar][s];
+    if (note > 0) { let len = 1; while (s + len < D.per && D.mel[bar][s + len] === H) len++; (bar >= 8 ? recorder : fiddle)(out, t, note + (pass % 2 && bar >= 8 ? -12 : 0), dt * len * .92, bar >= 8 ? .07 : .055); }
+    lute(out, t, ch[[0, 1, 2, 1, 0, 1, 2, 1][s]] + 12, dt * 1.3, s % 2 ? .035 : .05);
+    if (s === 0 && bar % 2 === 0) drone(out, t, 38, dt * 16, .03);
+    if (s === 0 || s === 4) frameDrum(out, t, .18, s === 0);
+    if (s === 6 && bar % 4 === 3) { frameDrum(out, t, .1, false); frameDrum(out, t + dt / 2, .1, false); }
+    if (s % 2 === 1) jingle(out, t, .03);
+    if (bar === 8 && s === 0) bell(out, t, 81, .04);
+  }
+  function playBossStep(tr, t, step) {
+    const D = BOSSM, bar = Math.floor(step / D.per) % D.bars.length, s = step % D.per, ch = CH[D.bars[bar]], dt = 60 / D.bpm16, out = tr.g;
+    const root = ch[0] - 12 + (D.bars[bar] === 'E' ? 12 : 0);
+    if (s % 2 === 0) fiddle(out, t, D.ost[s] + (ch[0] - 45 > 6 ? ch[0] - 57 : ch[0] - 45), dt * 1.8, .04);
+    if (s % 4 === 0) frameDrum(out, t, .26, true);
+    if (s === 4 || s === 12) snare(out, t, .12);
+    if (s === 14 || s === 15) frameDrum(out, t, .1, false);
+    if ((bar === 3 || bar === 7) && s >= 8) snare(out, t, .05 + (s - 8) * .01);
+    if (s % 4 === 2) lute(out, t, root + 12, dt * 2, .04);
+    const h = D.horn[bar];
+    if (s === 0) brass(out, t, h[0], dt * h[1] * .95, .045);
+    if (h.length > 2 && s === h[1]) brass(out, t, h[2], dt * h[3] * .95, .045);
+    if ((bar === 3 || bar === 7) && s === 12) { crumhorn(out, t, 81, dt * 1.5, .05); crumhorn(out, t + dt * 2, 81, dt * 1.5, .05); }
+  }
+  const TRACKS = { menu: { fn: playMenuStep, dt: () => 60 / MENU.bpm8, vol: .85 }, game: { fn: playGameStep, dt: () => 60 / GAME.bpm8, vol: .8 }, boss: { fn: playBossStep, dt: () => 60 / BOSSM.bpm16, vol: .9 } };
+  // ---------- one-shot stings ----------
+  const STINGS = {
+    victory: (o, t) => { for (let k = 0; k < 8; k++) snare(o, t + k * .06, .05 + k * .01); const n = [74, 74, 74, 78, 81]; [0, .5, .62, .74, .9].forEach((d, k) => brass(o, t + d, n[k], k === 4 ? 1.2 : .1, .07)); [62, 66, 69].forEach(x => brass(o, t + 1.5, x + 12, 1.1, .045)); bell(o, t + 1.5, 86, .07); bell(o, t + 1.75, 90, .05); frameDrum(o, t + 1.5, .3, true); return 2.8; },
+    bossdown: (o, t) => { fiddle(o, t, 76, .12, .07); fiddle(o, t + .15, 76, .12, .07); fiddle(o, t + .3, 81, .55, .08); bell(o, t + .3, 88, .06); frameDrum(o, t + .3, .25, true); return 1.1; },
+    defeat: (o, t) => { [69, 68, 67].forEach((n, k) => crumhorn(o, t + k * .38, n, .32, .07)); crumhorn(o, t + 1.14, 66, .9, .07, -7); frameDrum(o, t + 2.1, .22, true); bell(o, t + 2.35, 74, .04); return 2.8; },
+    banjo: (o, t) => { [67, 72, 76, 79].forEach((n, k) => kazoo(o, t + k * .13, n, k === 3 ? .45 : .11, .09)); const w = ac.createOscillator(), g = ac.createGain(); w.type = 'sine'; w.frequency.setValueAtTime(700, t + .7); w.frequency.exponentialRampToValueAtTime(1700, t + 1.05); g.gain.setValueAtTime(0, t + .7); g.gain.linearRampToValueAtTime(.05, t + .74); g.gain.exponentialRampToValueAtTime(.0001, t + 1.1); w.connect(g); g.connect(o); w.start(t + .7); voice([w, g], t + 1.15); frameDrum(o, t + 1.1, .15, false); return 1.4; },
+    start: (o, t) => { brass(o, t, 69, .12, .05); brass(o, t + .14, 74, .45, .06); frameDrum(o, t + .14, .2, true); return .7; },
+  };
+  let stingUntil = 0, lastBanjo = -99, musicReq = 0;
+  function sting(name, then) {
+    if (!busReady() || !unlockedM || ac.state !== 'running' || !STINGS[name]) { if (then !== undefined) wantTrack = then; return; }
+    if (name === 'banjo') { if (ac.currentTime - lastBanjo < 20 || ac.currentTime < stingUntil) return; lastBanjo = ac.currentTime; }
+    const t = ac.currentTime + .03, g = ac.createGain(); g.gain.value = 1; g.connect(mBus);
+    const len = STINGS[name](g, t); stingUntil = t + len; const req = musicReq;
+    setTimeout(() => { try { g.disconnect(); } catch (e) {} }, (len + 2) * 1000);
+    // duck the loop under the sting, then restore or switch
+    duckG.gain.cancelScheduledValues(ac.currentTime); duckG.gain.setTargetAtTime(name === 'banjo' ? .35 : .12, ac.currentTime, .05);
+    setTimeout(() => { if (then !== undefined && req === musicReq) music(then); if (duckG) duckG.gain.setTargetAtTime(pausedDuck ? .35 : 1, ac.currentTime, .4); }, len * 1000);
+  }
+  // ---------- track scheduling with crossfades ----------
+  const FADE = 1.2;
+  let fading = [];
+  function startTrack(name) {
+    const def = TRACKS[name]; if (!def) return null;
+    const g = ac.createGain(); g.gain.setValueAtTime(0, ac.currentTime); g.gain.linearRampToValueAtTime(def.vol, ac.currentTime + FADE); g.connect(duckG);
+    return { name, g, step: 0, next: ac.currentTime + .08, def };
+  }
+  function stopTrack(tr, fast) {
+    if (!tr) return; const now = ac.currentTime;
+    tr.g.gain.cancelScheduledValues(now); tr.g.gain.setValueAtTime(tr.g.gain.value, now); tr.g.gain.linearRampToValueAtTime(0, now + (fast ? .25 : FADE));
+    tr.dead = now + (fast ? .25 : FADE); fading.push(tr);
+  }
+  function tick() {
+    if (!ac || ac.state !== 'running' || !mOn) return;      // muted music costs no CPU
+    const now = ac.currentTime, ahead = now + .3;
+    for (const tr of [cur].concat(fading)) {
+      if (!tr) continue;
+      if (tr.next < now - .4) tr.next = now + .05;          // resync after a stall (no catch-up burst)
+      while (tr.next < ahead && !(tr.dead && tr.next > tr.dead)) { tr.def.fn(tr, tr.next, tr.step); tr.step++; tr.next += tr.def.dt(); }
+    }
+    fading = fading.filter(tr => { if (now > tr.dead + .1) { try { tr.g.disconnect(); } catch (e) {} return false; } return true; });
+  }
+  function ensureTimer() { if (!schedTimer) schedTimer = setInterval(tick, 70); }
+  function music(name) {
+    if (name === 'calm') name = 'game';                      // backwards compatible with older hooks
+    if ((name || '') !== wantTrack) musicReq++;
+    wantTrack = name || '';
+    if (!busReady() || !unlockedM || ac.state !== 'running') return;
+    if (cur && cur.name === wantTrack) return;               // never restart the same track
+    while (fading.length > 1) { const old = fading.shift(); try { old.g.disconnect(); } catch (e) {} }   // never stack fades
+    if (cur) stopTrack(cur, false);
+    cur = wantTrack ? startTrack(wantTrack) : null;
+    ensureTimer();
+  }
+  function setMusicVolume(v) { mVol = v; if (mBus) mBus.gain.setTargetAtTime(mOn ? v : 0, ac.currentTime, .05); }
+  function setMusic(on) { mOn = on; if (mBus) mBus.gain.setTargetAtTime(on ? mVol : 0, ac.currentTime, .05); }
+  function duck(on) { pausedDuck = on; if (duckG && ac.currentTime > stingUntil) duckG.gain.setTargetAtTime(on ? .35 : 1, ac.currentTime, .15); }
+  // ---------- lifecycle: unlock, background, resume ----------
+  function unlockMusic() {
+    if (!busReady()) return;
+    if (unlockedM && ac.state === 'running') return;          // already unlocked: nothing to do on later taps
+    try { const b = ac.createBuffer(1, 1, 22050), s = ac.createBufferSource(); s.buffer = b; s.connect(ac.destination); s.start(0); } catch (e) {}   // iOS unlock
+    const go = () => { unlockedM = true; music(wantTrack); };
+    if (ac.state !== 'running') ac.resume().then(go).catch(() => {}); else go();
+  }
+  let hiddenSuspended = false;
+  document.addEventListener('visibilitychange', () => {
+    if (!ac) return;
+    if (document.hidden) { if (ac.state === 'running') { ac.suspend().catch(() => {}); hiddenSuspended = true; } }
+    else if (hiddenSuspended && unlockedM) { hiddenSuspended = false; ac.resume().then(() => { if (cur) cur.next = ac.currentTime + .05; }).catch(() => {}); }
+  });
+  const _unlock = unlock;
+  unlock = () => { _unlock(); unlockMusic(); };
+  return { play, unlock: () => unlock(), setVolume, setMuted: m => setMuted(m), music, setMusic, setMusicVolume, sting, duck, _names: Object.keys(S), _raw: (n, a) => S[n](a), _state: () => ac ? ac.state : 'none', _music: () => { let rms = 0; if (meter) { const d = new Float32Array(meter.fftSize); meter.getFloatTimeDomainData(d); for (const v of d) rms += v * v; rms = Math.sqrt(rms / d.length); } return { cur: cur && cur.name, fading: fading.length, voices: live.size, want: wantTrack, unlocked: unlockedM, state: ac ? ac.state : 'none', rms: +rms.toFixed(4) }; } };
 })();
 
 </script>
@@ -4228,6 +4400,14 @@ const R = (function () {
   const stage = $('stage'), C = $('cv'), ctx = C.getContext('2d');
   const KEY = 'hml.meta.v3', RUNKEY = 'hml.run.v4';
   let scale = 1, dpr = 1;
+  // ---- bulletproof saving: main save + last-good backup + best-ever backup ----
+  const BAK = 'hml.meta.bak', BEST = 'hml.meta.best';
+  let storageBlocked = false, recoveredFrom = '', blockSaveOver = false, freshStart = false;
+  const sget = k => { try { return localStorage.getItem(k); } catch (e) { storageBlocked = true; return null; } };
+  const sset = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+  const score = m => (m && ((m.runs || 0) * 100000 + Math.min(99999, m.garyXp || 0) + (m.wins || 0))) || 0;
+  function tryParse(raw) { if (!raw) return null; try { const o = JSON.parse(raw); return o && typeof o === 'object' ? o : null; } catch (e) { return null; } }
+  function freshMeta() { const d = defaultMeta(); d.settings.sound = true; d.settings.volume = .6; d.settings.music = true; ensureJobs(d); return d; }
   let meta = loadMeta(), G = null, state = 'home', paused = false, speed = 1, selPad = -1, sheetMode = null, menuOpen = false, menuTab = 'skills';
   let toldEarly = false, jobToasted = {}, jobTick = 0, bossOn = false, bannerTimer = 0;
   function banner(title, sub, kind) {
@@ -4245,22 +4425,47 @@ const R = (function () {
       daily: Object.assign({ done: {}, count: 0 }, m.daily || {}), endlessBest: m.endlessBest || {},
       dreams: Object.assign({ swing: 1 }, m.dreams || {}), equip: (m.equip || [null, null, null]).concat([null, null, null]).slice(0, 3), synergies: m.synergies || {}, shards: m.shards || 0 });
     if (m.garyXp == null) out.garyXp = Math.min(4500, ((out.totals && out.totals.kills) || 0) + (out.wins || 0) * 100);
-    const gl = garyInfo(out.garyXp).L; for (const id of DREAM_ORDER) if (DREAM_UNLOCK[id] <= gl && !out.dreams[id]) out.dreams[id] = 1;
+    try { const gl = garyInfo(out.garyXp).L; for (const id of DREAM_ORDER) if (DREAM_UNLOCK[id] <= gl && !out.dreams[id]) out.dreams[id] = 1; } catch (e) {}
     if (!out.dreams[out.dreamEquip]) out.dreamEquip = 'swing';
-    ensureJobs(out); return out;
+    try { ensureJobs(out); } catch (e) { out.jobs = []; try { ensureJobs(out); } catch (e2) { out.jobs = []; } }
+    return out;
   }
   function loadMeta() {
-    try {
-      const raw = localStorage.getItem(KEY) || localStorage.getItem('hml.meta.v2'); if (raw) return mergeMeta(JSON.parse(raw));
-      const old = localStorage.getItem('hml.meta.v1');
-      if (old) { const o = JSON.parse(old); const m = mergeMeta(o); if (o.wins) m.maps.nap = { plays: o.runs || 0, wins: o.wins, stars: 1, bestKept: o.bestKept || 0 }; return m; }
-    } catch (e) {}
-    const d = defaultMeta(); d.settings.sound = true; d.settings.volume = .6; d.settings.music = true; ensureJobs(d); return d;
+    const rawMain = sget(KEY) || sget('hml.meta.v2'), rawBak = sget(BAK), rawBest = sget(BEST);
+    const cands = [['main', tryParse(rawMain)], ['backup', tryParse(rawBak)], ['best', tryParse(rawBest)]].filter(c => c[1]);
+    const old = tryParse(sget('hml.meta.v1'));
+    if (!cands.length && old) { try { const m = mergeMeta(old); if (old.wins) m.maps.nap = { plays: old.runs || 0, wins: old.wins, stars: 1, bestKept: old.bestKept || 0 }; return m; } catch (e) {} }
+    cands.sort((a, b) => score(b[1]) - score(a[1]));
+    for (const [src, o] of cands) {
+      try {
+        const m = mergeMeta(o);
+        if (src !== 'main' && score(o) > score(tryParse(rawMain))) recoveredFrom = src;
+        return m;
+      } catch (e) { /* try the next copy */ }
+    }
+    // Something was stored but none of it could be read: set it aside, never overwrite it.
+    if (rawMain || rawBak || rawBest) { sset('hml.meta.unreadable.' + Date.now(), rawMain || rawBak || rawBest); recoveredFrom = 'failed'; }
+    if (storageBlocked) blockSaveOver = true;
+    return freshMeta();
   }
   function saveMeta() {
-    try { localStorage.setItem(KEY, JSON.stringify(meta)); lastSaved = new Date(); storageOk = true; flashSaved(); return true; }
-    catch (e) { storageOk = false; return false; }
+    if (blockSaveOver) return false;
+    const json = JSON.stringify(meta);
+    const prev = sget(KEY), prevO = tryParse(prev);
+    if (freshStart) { freshStart = false; sset(BAK, json); sset(BEST, json); }    // deliberate reset / save code: old progress is NOT a backup
+    else {
+      if (prevO && score(prevO) > 0 && prev !== json) sset(BAK, prev);             // last good copy
+      const bestO = tryParse(sget(BEST));
+      if (!bestO || score(meta) >= score(bestO)) sset(BEST, json);                 // best-ever copy
+    }
+    if (sset(KEY, json)) { lastSaved = new Date(); storageOk = true; flashSaved(); return true; }
+    storageOk = false; return false;
   }
+  function wipeBackups() { for (const k of [BAK, BEST]) { try { localStorage.removeItem(k); } catch (e) {} } freshStart = true; }
+  // Can this browser actually keep data? (in-app browsers and private mode often can't)
+  function storageWorks() { try { const k = 'hml.selftest', v = String(Math.random()); localStorage.setItem(k, v); const ok = localStorage.getItem(k) === v; localStorage.removeItem(k); return ok; } catch (e) { return false; } }
+  const inAppBrowser = /FBAN|FBAV|FB_IAB|Instagram|Snapchat|Line\/|MicroMessenger|musical_ly|TikTok|Discord|Twitter|GSA\//i.test(navigator.userAgent || '');
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p => { if (!p) navigator.storage.persist().catch(() => {}); }).catch(() => {}); } catch (e) {}
   function saveRun() {
     if (!G || G.over || G.waveActive) return;
     try { localStorage.setItem(RUNKEY, JSON.stringify(snapshot(G))); lastSaved = new Date(); flashSaved(); } catch (e) { storageOk = false; }
@@ -4310,7 +4515,7 @@ const R = (function () {
     if (sheetMode === 'tower' && G && performance.now() - lastSheetR > 500) { lastSheetR = performance.now(); renderSheet(); }
     const boss = G && G.enemies.find(e => e.boss && !e.mini);
     const bb = $('bossbar');
-    if (!!boss !== bossOn) { bossOn = !!boss; stage.classList.toggle('bossfight', bossOn); if (meta.settings.music !== false) SFX.music(bossOn ? 'boss' : (G && state === 'play' ? 'calm' : '')); }
+    if (!!boss !== bossOn) { bossOn = !!boss; stage.classList.toggle('bossfight', bossOn); if (G && state === 'play') SFX.music(bossOn ? 'boss' : 'game'); }
     stage.classList.toggle('boss', !!boss);
     if (boss) { bb.hidden = false; $('bossfill').style.width = Math.max(0, 100 * boss.hp / boss.maxHp) + '%'; $('bossname').textContent = boss.name; }
     else bb.hidden = true;
@@ -4335,7 +4540,7 @@ const R = (function () {
       else if (e.type === 'waveStart') SFX.play('wave');
       else if (e.type === 'rareDrop') { SFX.play('rare'); toast(RARITY[e.item.tier].k + ' drop: ' + e.item.name, 'rare'); }
       else if (e.type === 'boss') { SFX.play('boss'); const d = ENEMIES[e.bt]; const parts = d.intro.split('. '); banner(parts[0], parts.slice(1).join('. '), 'boss'); setTimeout(() => toast(d.tip, 'big'), 2900); }
-      else if (e.type === 'bossDead') { banner(ENEMIES[e.bt].name.split(',')[0] + ' is down!', 'Loot everywhere.', 'win'); }
+      else if (e.type === 'bossDead') { if (!G.over) SFX.sting('bossdown'); banner(ENEMIES[e.bt].name.split(',')[0] + ' is down!', 'Loot everywhere.', 'win'); }
       else if (e.type === 'perfect') { SFX.play('perfect'); banner('PERFECT DEFENCE', '+' + e.bonus + ' gold, a Dream Shard and dream charge', 'perfect'); }
       else if (e.type === 'synergy' && e.first) toast('New synergy: ' + SYNERGIES.find(s => s.id === e.id).name + '. ' + SYNERGIES.find(s => s.id === e.id).desc, 'rare');
       else if (e.type === 'dreamReady') { SFX.play('ready'); if (!toldDream) { toldDream = true; toast('Gary\u2019s dream is ready. Tap UNLEASH when it counts.', 'big'); } }
@@ -4350,13 +4555,18 @@ const R = (function () {
       else if (e.type === 'treasure') SFX.play('rare');
       else if (e.type === 'hatsteal' && !toldHat) { toldHat = true; toast('Big Swoop nicked a hat. That crew is too scared to work for a bit.', 'bad'); }
       else if (e.type === 'chug') toast('Chrisso drank a whisky puddle. He feels great. Keep Jezza\u2019s puddles off his path.', 'bad');
-      else if (e.type === 'elite') { banner('ELITE', ELITE_TITLE[e.tt], 'elite'); setTimeout(() => toast(ELITE_DESC[e.tt], 'rare'), 2200); }
+      else if (e.type === 'elite') { if (e.tt === 'banjo') setTimeout(() => SFX.sting('banjo'), 1800); banner('ELITE', ELITE_TITLE[e.tt], 'elite'); setTimeout(() => toast(ELITE_DESC[e.tt], 'rare'), 2200); }
       else if (e.type === 'ultimate') toast('ULTIMATE unlocked: ' + TIER_NOTES[e.tt][3].replace('ULTIMATE: ', '') + '!', 'rare');
       else if (e.type === 'levelUp') toast('Level up! ' + SKILL_NAMES[e.s] + ' ' + e.L + '. Your crew just got better.', 'rare');
       else if (e.type === 'poke') toast(e.ok ? 'Gary swung his sword in his sleep.' : 'Gary rolled over and knocked his thong off the pile.', e.ok ? 'rare' : 'bad');
       else if (e.type === 'waveEnd') { saveRun(); setTimeout(() => showDraft(e.wave, e.bonus), 550); }
       else if (e.type === 'dream') { /* visuals in renderer */ }
-      else if (e.type === 'over') { if (G.won) { R.celebrate(); SFX.play('win'); } else SFX.play('lose'); setTimeout(showResults, G.won ? 1400 : 1500); }
+      else if (e.type === 'over') {
+        const mus = meta.settings.music !== false;
+        if (G.won) { R.celebrate(); if (mus) SFX.sting('victory', 'menu'); else SFX.play('win'); }
+        else { if (mus) SFX.sting('defeat', 'menu'); else SFX.play('lose'); }
+        setTimeout(showResults, G.won ? 1400 : 1500);
+      }
     }
     jobTick -= 1;
     if (jobTick <= 0) {
@@ -4432,12 +4642,13 @@ const R = (function () {
     if (!ok) return;
     if (b.dataset.act === 'sell' && sellArmed !== selPad) { sellArmed = selPad; renderSheet(); return; }
     if (b.dataset.build) { const k = b.dataset.build; if (build(G, selPad, k) && k === 'jezza' && !meta.jezzaQuip) { meta.jezzaQuip = 1; toast('Jezza: \u201cIt\u2019s a waste of good whisky. Luckily it\u2019s not good whisky.\u201d', 'big'); }
-      else if (G.towers[selPad] && k === 'banjo' && !meta.banjoQuip) { meta.banjoQuip = 1; toast('Banjo: \u201cI\u2019m not a banana. I\u2019m a professional in a banana.\u201d', 'big'); }
+      if (G.towers[selPad] && k === 'banjo') SFX.sting('banjo');
+      if (G.towers[selPad] && k === 'banjo' && !meta.banjoQuip) { meta.banjoQuip = 1; toast('Banjo: \u201cI\u2019m not a banana. I\u2019m a professional in a banana.\u201d', 'big'); }
       else if (G.towers[selPad] && k === 'pete' && !meta.peteQuip) { meta.peteQuip = 1; toast('Long Peter is a very good boy. With very bad intentions.', 'big'); }
       else if (G.towers[selPad] && k === 'dj' && !meta.djQuip) { meta.djQuip = 1; toast('DJ Brendo: \u201cThis next one goes out to the monsters. It\u2019s their last song.\u201d', 'big'); }
       else if (G.towers[selPad] && k === 'bev' && !meta.bevQuip) { meta.bevQuip = 1; toast('Bev: \u201cThey\u2019re not pests. They\u2019re colleagues.\u201d', 'big'); } closeSheet(); }
     else if (b.dataset.act === 'up') { sellArmed = -1; upgrade(G, selPad); renderSheet(); }
-    else if (b.dataset.act === 'abil') { if (activate(G, selPad)) { SFX.play('ability'); closeSheet(); } else { toast('Nothing in range to hit.'); } }
+    else if (b.dataset.act === 'abil') { const at = G.towers[selPad] && G.towers[selPad].type; if (activate(G, selPad)) { SFX.play('ability'); if (at === 'banjo') SFX.sting('banjo'); closeSheet(); } else { toast('Nothing in range to hit.'); } }
     else if (b.dataset.act === 'sell') { sell(G, selPad); closeSheet(); }
     else if (b.dataset.act === 'close') closeSheet();
     lastHud = ''; saveRun();
@@ -4450,12 +4661,14 @@ const R = (function () {
     else if (canCallEarly(G)) { startWave(G); lastHud = ''; if (!toldEarly) { toldEarly = true; toast('Called early: bonus gold, but no card for that wave.'); } }
   });
   $('pokeBtn').addEventListener('click', () => { if (G && state === 'play' && !paused) { unleash(G); lastHud = ''; } });
-  $('pauseBtn').addEventListener('click', () => { paused = !paused; lastHud = ''; });
+  $('pauseBtn').addEventListener('click', () => { paused = !paused; SFX.duck(paused); lastHud = ''; });
   $('speedBtn').addEventListener('click', () => { speed = speed === 1 ? 2 : 1; lastHud = ''; });
   $('menuBtn').addEventListener('click', () => openMenu(G ? 'skills' : 'skills'));
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 14, title: 'Safer saves', notes: ['Progress now keeps two automatic backups and recovers itself if a save gets damaged.', 'The game warns you if your browser isn\u2019t saving (chat-app browsers and private tabs often don\u2019t).'] },
+    { build: 13, title: 'Music!', notes: ['An original medieval soundtrack: a tavern jig on the menu, an adventure tune in levels and a battle theme for bosses.', 'Victory fanfares, a very sorry defeat tune, and Banjo has his own (ridiculous) theme.', 'Separate Music and SFX volume in Settings. Music pauses when you switch away from the game.'] },
     { build: 12, title: 'Chapter 3: Out of Bounds', notes: ['10 new levels with magnets, blackouts, conveyor belts, ice, gusts, sinkholes, trampolines, sprinklers and a swinging bridge.', 'Ten new summoner bosses, each with its own minions: Scrapbots, storm clouds, surprise crates, penguin eggs, moles, bouncy castles, lawn bowls, goats and the Night Shift.', 'New crew: Banjo the Banana, seven hand gestures and a Banana Split finisher.', 'More build spots on every level, plus Extra Pallets in Clive\u2019s Shed.'] },
     { build: 11, title: 'Chapter 2: The Road Trip', notes: ['10 new levels, from Servo Stop to The Final Nap. Win The Big Day to start.', 'Triple forks, two creeks, two campfires, office lifts, four-burrow rat plazas, and double and triple boss finales.', 'The Final Nap has ten waves and every boss with a grudge.'] },
     { build: 10, title: 'Long Peter and Big Barry', notes: ['New crew: Long Peter, a very long sausage dog with mind powers. He lifts monsters, then slams or YEETS them.', 'New boss: Big Barry the Barramundi. He splashes your crew soggy, and swims fast in the creek. Find him on Puddle Crossing.', 'New synergy (Air Strike), card (Good Boy Treats) and odd job.'] },
@@ -4517,7 +4730,7 @@ const R = (function () {
   }
   function showHome() {
     if (updateReady) { saveMeta(); window.__applyUpdate(updateReady); return; }
-    SFX.music(''); bossOn = false; stage.classList.remove('bossfight');
+    SFX.music('menu'); SFX.duck(false); bossOn = false; stage.classList.remove('bossfight');
     state = 'home'; G = null; menuOpen = false; closeSheet(); R.reset(); lastHud = '';
     ensureJobs(meta);
     const run = loadRun();
@@ -4536,7 +4749,7 @@ const R = (function () {
     const jezzaBanner = towerUnlocked(meta, 'jezza') && !meta.jezzaSeen ? '<div class="banner"><b>New crew: Jezza</b><span>He throws whisky. Tipsy monsters stumble, slow down and take 25% more damage. Find him in the build menu.</span></div>' : '';
     if (jezzaBanner) { meta.jezzaSeen = true; saveMeta(); }
     if (!meta.runs && !run) {
-      openModal('<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff. Stop them.</p>' +
+      openModal('<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff. Stop them.</p>' + saveBanner() +
         '<ul class="how first"><li><b>Tap a wooden pad</b> to build a tower.</li><li><b>Tap Start wave</b> and watch your crew go.</li><li><b>Loot</b> drops on the road. Grab it before monsters wear it.</li><li><b>Gary\u2019s Dream</b> fills as you fight. Unleash it when things get hairy.</li></ul>' +
         '<button class="btn primary big" id="firstBtn" data-focus>Defend Gary</button>' +
         '<p class="clive">\u201cAny questions? Good, because I\u2019m not qualified to answer them.\u201d <span>Clive, Volunteer Coordinator</span></p>', 'home');
@@ -4553,7 +4766,7 @@ const R = (function () {
     const banjoBanner = !jezzaBanner && !bevBanner && !djBanner && !peteBanner && towerUnlocked(meta, 'banjo') && !meta.banjoSeen ? '<div class="banner"><b>New crew: Banjo the Banana</b><span>A mascot in a banana suit. Seven hand gestures, from a double-spin slap to jazz hands, then a Banana Split finisher.</span></div>' : '';
     if (banjoBanner) { meta.banjoSeen = true; saveMeta(); }
     openModal(
-      '<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + whatsNewCard() + jezzaBanner + bevBanner + djBanner + peteBanner + banjoBanner +
+      '<h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + saveBanner() + whatsNewCard() + jezzaBanner + bevBanner + djBanner + peteBanner + banjoBanner +
       (runMap ? '<button class="btn primary big cont" id="contBtn" data-focus>Continue: ' + (run.mode === 'endless' ? 'Long Nap' : run.mode === 'daily' ? 'Daily Nap' : runMap.name) + ', wave ' + (run.wave + 1) + '</button>' : '') +
       garyCard() +
       '<div class="rockrow"><span class="rockic" aria-hidden="true"></span><span><b>' + (meta.rocks || 0) + '</b> Shiny Rocks</span><button class="btn" id="shedBtn">Clive\u2019s Shed</button></div>' +
@@ -4577,6 +4790,16 @@ const R = (function () {
       b.onclick = () => showLevel(+b.dataset.map);
       b.onfocus = b.onmouseenter = () => { homeMap = +b.dataset.map; };
     });
+  }
+  let storageChecked = null;
+  function saveBanner() {
+    if (storageChecked === null) storageChecked = storageWorks();
+    let h = '';
+    if (!storageChecked || blockSaveOver) h += '<div class="savewarn"><b>This browser isn\u2019t saving your progress</b><span>A refresh will start you from scratch. Open the game in Chrome or Safari (not inside a chat app or private tab), or back up with a save code in Menu \u2192 Settings.</span></div>';
+    else if (inAppBrowser) h += '<div class="savewarn soft"><b>You\u2019re in a chat app\u2019s browser</b><span>These sometimes throw away saved games. For safe saves, tap \u22ef and choose Open in Safari or Open in Chrome.</span></div>';
+    if (recoveredFrom === 'backup' || recoveredFrom === 'best') { h += '<div class="saveok"><b>Progress recovered</b><span>Your main save was damaged, so Gary loaded your backup. Phew.</span></div>'; recoveredFrom = ''; saveMeta(); }
+    else if (recoveredFrom === 'failed') h += '<div class="savewarn"><b>Your save couldn\u2019t be read</b><span>It\u2019s been kept safe, not deleted. If you have a save code, load it in Menu \u2192 Settings.</span></div>';
+    return h;
   }
   function garyCard() {
     const gi = garyInfo(meta.garyXp), nextU = GARY_UNLOCKS.find(x => x.L > gi.L);
@@ -4698,7 +4921,7 @@ const R = (function () {
     if (m.tramps) setTimeout(() => toast('Trampolines bounce monsters back into the air. Bonk, Jezza and the bin chickens can\u2019t reach them up there.', 'big'), 2600);
     if (m.sinks) setTimeout(() => toast('Watch for cracks. Sinkholes open on waves 4 and 7.', 'big'), 2600);
   }
-  function begin() { if (meta.settings.music !== false) SFX.music('calm'); toldDream = false; toldCredit = false; state = 'play'; paused = false; toldGrab = false; toldHat = false; jobToasted = {}; jobTick = 60; lastHud = ''; closeSheet(); R.reset(); $('toasts').innerHTML = ''; }
+  function begin() { SFX.music('game'); SFX.duck(false); toldDream = false; toldCredit = false; state = 'play'; paused = false; toldGrab = false; toldHat = false; jobToasted = {}; jobTick = 60; lastHud = ''; closeSheet(); R.reset(); $('toasts').innerHTML = ''; }
 
   function showMerchant() {
     if (!G || !G.merchant) return;
@@ -4788,8 +5011,9 @@ const R = (function () {
 
   // ---------- menu ----------
   const TABS = [['skills', 'Skills'], ['gary', 'Gary'], ['synergy', 'Synergies'], ['stats', 'Stats'], ['settings', 'Settings']];
-  function openMenu(tab) { menuOpen = true; menuTab = tab || menuTab; closeSheet(); if (menuTab === 'gary') { menuTab = 'skills'; } renderMenu(); }
+  function openMenu(tab) { if (G) SFX.duck(true); menuOpen = true; menuTab = tab || menuTab; closeSheet(); if (menuTab === 'gary') { menuTab = 'skills'; } renderMenu(); }
   function closeMenu() {
+    if (!paused) SFX.duck(false);
     menuOpen = false;
     if (state === 'home') showHome();
     else closeModal();
@@ -4829,8 +5053,9 @@ const R = (function () {
     const ls = lastSaved ? lastSaved.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : 'not yet this session';
     return '<label class="tog"><input type="checkbox" id="setInstant"' + (meta.settings.instantLoot ? ' checked' : '') + '><span><b>Instant loot</b><small>Loot goes straight to Gary. Monsters can\u2019t steal it. Less chaos, fewer laughs.</small></span></label>' +
       '<label class="tog"><input type="checkbox" id="setSound"' + (meta.settings.sound !== false ? ' checked' : '') + '><span><b>Sound effects</b><small>Bonks, smashes, squawks and a little fanfare when you level up.</small></span></label>' +
-      '<label class="tog"><input type="checkbox" id="setMusic"' + (meta.settings.music !== false ? ' checked' : '') + '><span><b>Music</b><small>A chilled tune, and something tense when a boss turns up.</small></span></label>' +
-      '<label class="slider"><span>Volume</span><input type="range" id="setVol" min="0" max="1" step="0.05" value="' + (meta.settings.volume == null ? .6 : meta.settings.volume) + '"></label>' +
+      '<label class="tog"><input type="checkbox" id="setMusic"' + (meta.settings.music !== false ? ' checked' : '') + '><span><b>Music</b><small>Tavern tunes, a battle theme when a boss turns up, and a fanfare when you win.</small></span></label>' +
+      '<label class="slider"><span>\ud83d\udd0a Music</span><input type="range" id="setMVol" min="0" max="1" step="0.05" value="' + (meta.settings.musicVolume == null ? .5 : meta.settings.musicVolume) + '"></label>' +
+      '<label class="slider"><span>\ud83d\udd0a SFX</span><input type="range" id="setVol" min="0" max="1" step="0.05" value="' + (meta.settings.volume == null ? .6 : meta.settings.volume) + '"></label>' +
       '<label class="tog"><input type="checkbox" id="setShake"' + (meta.settings.shake ? ' checked' : '') + '><span><b>Screen shake</b><small>On crits, Gary\u2019s sword and stolen loot.</small></span></label>' +
       '<h3>Saving</h3><p class="small">' + (storageOk ? 'Progress saves on this device after every build, every wave and every run. Last saved: ' + ls + '.' : 'This browser is blocking storage, so progress won\u2019t survive a reload here. Use a save code to keep it.') + '</p>' +
       '<div class="row2b"><button class="btn" id="saveNow">Save now</button><button class="btn" id="copyCode">Copy save code</button></div>' +
@@ -4859,7 +5084,9 @@ const R = (function () {
       $('setInstant').onchange = e => { meta.settings.instantLoot = e.target.checked; if (G) G.instantLoot = e.target.checked; saveMeta(); };
       $('setShake').onchange = e => { meta.settings.shake = e.target.checked; saveMeta(); };
       $('clBtn').onclick = () => showChangelog(() => renderMenu());
-      $('setMusic').onchange = e => { meta.settings.music = e.target.checked; SFX.setMusic(e.target.checked); if (e.target.checked && G) SFX.music(bossOn ? 'boss' : 'calm'); saveMeta(); };
+      $('setMusic').onchange = e => { meta.settings.music = e.target.checked; SFX.setMusic(e.target.checked); saveMeta(); };
+      $('setMVol').oninput = e => { meta.settings.musicVolume = +e.target.value; SFX.setMusicVolume(+e.target.value); };
+      $('setMVol').onchange = () => saveMeta();
       $('setSound').onchange = e => { meta.settings.sound = e.target.checked; applySound(); saveMeta(); if (e.target.checked) SFX.play('pick'); };
       $('setVol').oninput = e => { meta.settings.volume = +e.target.value; applySound(); };
       $('setVol').onchange = () => { saveMeta(); SFX.play('coin'); };
@@ -4875,13 +5102,16 @@ const R = (function () {
           if (!/^HML[23]:/.test(v)) throw 0;
           const m = JSON.parse(decodeURIComponent(escape(atob(v.slice(5)))));
           if (!m || !m.xp) throw 0;
-          meta = mergeMeta(m); saveMeta(); $('codeMsg').textContent = 'Save code loaded.';
+          try { const cur = localStorage.getItem(KEY); if (cur) localStorage.setItem('hml.meta.before-load', cur); } catch (e2) {}
+          wipeBackups(); meta = mergeMeta(m); saveMeta(); $('codeMsg').textContent = 'Save code loaded.';
           if (G) G.meta = meta;
         } catch (e) { $('codeMsg').textContent = 'That doesn\u2019t look like a Hold My Loot save code.'; }
       };
       let armed = false;
       $('resetBtn').onclick = () => {
         if (!armed) { armed = true; $('resetBtn').textContent = 'Tap again to erase everything'; return; }
+        try { const cur = localStorage.getItem(KEY); if (cur) localStorage.setItem('hml.meta.before-reset', cur); } catch (e) {}
+        wipeBackups();
         meta = defaultMeta(); ensureJobs(meta); saveMeta(); clearRun(); menuOpen = false; showHome();
       };
     }
@@ -4904,7 +5134,7 @@ const R = (function () {
     requestAnimationFrame(frame);
   }
   let stopUntil = 0;
-  function applySound() { SFX.setMuted(meta.settings.sound === false); SFX.setVolume(meta.settings.volume == null ? .6 : meta.settings.volume); SFX.setMusic(meta.settings.music !== false); }
+  function applySound() { SFX.setMuted(meta.settings.sound === false); SFX.setVolume(meta.settings.volume == null ? .6 : meta.settings.volume); SFX.setMusic(meta.settings.music !== false); SFX.setMusicVolume(meta.settings.musicVolume == null ? .5 : meta.settings.musicVolume); }
   const unlockAudio = () => { SFX.unlock(); applySound(); };
   document.addEventListener('pointerdown', unlockAudio, true);
   document.addEventListener('keydown', unlockAudio, true);
