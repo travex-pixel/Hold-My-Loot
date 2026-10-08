@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hold My Loot</title>
-<meta name="hml-build" content="17">
+<meta name="hml-build" content="20">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
    Leave it empty and analytics stay completely off. EU projects: host 'https://eu.i.posthog.com'. */
-window.HML_ANALYTICS = { key: '', host: 'https://us.i.posthog.com' };
+window.HML_ANALYTICS = { key: 'phc_nPSyxaXiPXx3RRGzXBQiups3gtxQFR6TmuAkpxY3XmhS', host: 'https://us.i.posthog.com' };
 /* ===== SUPPORT THE GAME (optional) =====
    url:  a Ko-fi / Buy Me a Coffee / PayPal link. Leave empty and the Support section stays hidden.
    code: the word you send supporters in your thank-you message; it unlocks Gary's Supporter Scarlet pyjamas. */
@@ -17,7 +17,7 @@ window.HML_SUPPORT = { url: '', code: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 17;
+window.HML_BUILD = 20;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -512,6 +512,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; text
 .btn .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #E0453A; margin-left: 4px; vertical-align: 2px; }
 .supcard { background: linear-gradient(135deg, #FFF1F0, #FFF6E2); border: 1.5px solid #F2B8B5; border-radius: 16px; padding: 10px 12px; margin: 10px 0 0; display: flex; flex-direction: column; gap: 8px; }
 .supcard b { font-size: 15px; display: block; } .supcard span { font-size: 13px; font-weight: 700; color: var(--muted); line-height: 1.35; }
+.bcard.far { opacity: .5; } .bcard.far .ckeys { color: #B5403A; }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
@@ -565,6 +566,7 @@ function mkPath(pts) {
   }
   return { pts, segs, len };
 }
+function padRoadDist(m, p) { let md = 1e9; for (const P of m.P) for (const s2 of P.segs) { if (s2.tp) continue; const vx = s2.x2 - s2.x1, vy = s2.y2 - s2.y1, L2 = vx * vx + vy * vy || 1; let t = ((p[0] - s2.x1) * vx + (p[1] - s2.y1) * vy) / L2; t = Math.max(0, Math.min(1, t)); md = Math.min(md, Math.hypot(p[0] - (s2.x1 + vx * t), p[1] - (s2.y1 + vy * t))); } return md; }
 function segAt(P, d) { for (const s of P.segs) if (d < s.start + s.len) return s; return null; }
 function posOn(P, d) {
   const s0 = P.segs[0];
@@ -653,7 +655,7 @@ const MAPS = [
       [{ t: 'skel', n: 14, gap: .5, at: 0 }, { t: 'bog', n: 5, gap: 1.5, at: 3 }, { t: 'pants', n: 5, gap: 1.2, at: 7 }],
       [{ t: 'gob', n: 12, gap: .4, at: 0 }, { t: 'swoop', n: 1, gap: 0, at: 3 }, { t: 'skel', n: 10, gap: .6, at: 6 }, { t: 'pants', n: 3, gap: 2, at: 10 }],
     ] },
-  { id: 'garden', name: 'The Beer Garden', theme: 'garden', gold: 260, hpMult: 1.9, sticky: true,
+  { id: 'garden', name: 'The Beer Garden', theme: 'garden', gold: 260, hpMult: 2.05, sticky: true,
     blurb: 'Sticky floor: whisky puddles last twice as long. Someone here is very pleased about that.',
     paths: [[[40, -24], [40, 470], [110, 470], [110, 110], [320, 110], [320, 400], [230, 400], [230, 500], [180, 500], [180, 532]]],
     pads: [[75, 160], [75, 270], [75, 380], [160, 170], [270, 170], [160, 290, 'high'], [270, 290], [160, 400], [270, 350], [290, 460, 'shady'], [100, 530], [262, 538]],
@@ -754,7 +756,7 @@ const C2 = [
     fires: [{ x: 130, y: 270, r: 24 }, { x: 220, y: 270, r: 24 }],
     flight: [[345, -30], [180, 540]],
     paths: [[[-24, 500], [50, 500], [50, 80], [130, 80], [130, 460], [220, 460], [220, 80], [310, 80], [310, 532], [180, 532]]],
-    swapLate: { rat: 'seagull', gob: 'seagull' }, finals: ['swoop'] },
+    swapLate: { gob: 'seagull' }, finals: ['swoop'] },
   { id: 'longpad', name: 'The Long Paddock', theme: 'paddock', gold: 310, hpMult: 1.8, size: 1, spdMult: .85,
     blurb: 'The gate again. One road is long, the other has a fairy ring that skips half of it.',
     gate: { x: 180, y: 60 },
@@ -771,7 +773,7 @@ const C2 = [
     finals: ['pantsalot'], mids: [{ w: 5, t: 'bigmum', mini: true }] },
   { id: 'pubcrawl', name: 'Pub Crawl', theme: 'garden', gold: 320, hpMult: 1.9, size: 1.05, sticky: true,
     blurb: 'Three entrances, one sticky floor. Chrisso turns up early, and then again.',
-    entr: [[0], [1], [2]],
+    entr: [[0], [1], [2]], flankFrom: 3,
     paths: [
       [[40, -24], [40, 120], [180, 120], [180, 250], [80, 250], [80, 420], [280, 420], [280, 500], [180, 500], [180, 532]],
       [[320, -24], [320, 120], [180, 120], [180, 250], [80, 250], [80, 420], [280, 420], [280, 500], [180, 500], [180, 532]],
@@ -807,21 +809,21 @@ const C2 = [
     finals: ['steve', 'mortimer'], mids: [{ w: 5, t: 'swoop', mini: true }] },
   { id: 'finalnap', name: 'The Final Nap', theme: 'dusk', gold: 360, hpMult: 2.1, size: 1.15, n: 10,
     blurb: 'Fire, water, two entrances and every boss with a grudge. Ten waves. Good luck, Gary.',
-    entr: [[0], [1]],
+    entr: [[0], [1]], flankFrom: 3,
     fires: [{ x: 185, y: 330, r: 24 }], waters: [{ y1: 262, y2: 296 }],
     paths: [
       [[40, -24], [40, 130], [320, 130], [320, 230], [50, 230], [50, 330], [320, 330], [320, 430], [50, 430], [50, 510], [180, 510], [180, 532]],
       [[384, 380], [320, 380], [320, 430], [50, 430], [50, 510], [180, 510], [180, 532]]],
     finals: ['steve', 'bigmum', 'stack'], mids: [{ w: 5, t: 'barry', mini: true }, { w: 8, t: 'chrisso' }, { w: 8, t: 'mortimer', mini: true }] },
 ];
-const C2_TUNE = { servo: .88, tide: .88, smoko: 1.3, longpad: .82, maze: 1.45, pubcrawl: .72, office: 1, ratking: .88, revenge: .6, finalnap: .8 };
+const C2_TUNE = { servo: .88, tide: .88, smoko: .8, longpad: .82, maze: .9, pubcrawl: .62, office: .75, ratking: .88, revenge: .5, finalnap: .8 };
 const C2_TEMPLATE = [
   [['rat', 10, .6], ['gob', 8, .45]],
   [['skel', 8, .85], ['mozzie', 16, .12]],
   [['crab', 5, 1.2], ['seagull', 5, .9], ['ratmum', 2, 2.8]],
   [['bog', 5, 1.7], ['medic', 3, 2.6], ['gob', 14, .32]],
   [['pants', 7, 1], ['mozzie', 24, .1], ['seagull', 7, .6]],
-  [['crab', 8, .9], ['ratmum', 3, 2.2], ['medic', 3, 2.6], ['skel', 8, .6]],
+  [['crab', 6, .9], ['ratmum', 2, 2.4], ['medic', 2, 2.8], ['skel', 8, .6]],
   [['bog', 7, 1.3], ['pants', 7, .9], ['seagull', 10, .5], ['gob', 18, .25]],
   [['pants', 10, .8], ['bog', 8, 1.1], ['mozzie', 36, .07], ['ratmum', 4, 2]],
   [['skel', 16, .45], ['crab', 10, .8], ['medic', 4, 2.5], ['seagull', 12, .45]],
@@ -834,7 +836,7 @@ function c2Waves(m) {
       let t = g[0];
       if (m.swap && m.swap[t]) t = m.swap[t];
       if (m.swapLate && w >= 3 && m.swapLate[t]) t = m.swapLate[t];
-      const p = (t === 'seagull' || t === 'swoop') ? undefined : E ? (gi === 0 ? 'alt' : gi === 1 ? 'any' : 'e' + ((w + gi) % E)) : (multi && !m.gate ? 'alt' : undefined);
+      const p = (t === 'seagull' || t === 'swoop') ? undefined : E ? (w < (m.flankFrom || 1) ? 'e0' : gi === 0 ? 'alt' : gi === 1 ? 'any' : 'e' + ((w + gi) % E)) : (multi && !m.gate ? 'alt' : undefined);
       wave.push({ t, n: Math.max(1, Math.round(g[1] * (m.size || 1) * (.75 + (w - 1) * .07))), gap: g[2], at: gi * 3.2, p });
     });
     for (const md of (m.mids || [])) if (md.w === w) wave.push({ t: md.t, n: 1, gap: 0, at: 3, p: E ? 'e0' : undefined, mini: md.mini });
@@ -843,7 +845,7 @@ function c2Waves(m) {
   }
   return out;
 }
-for (const m of C2) { m.chapter = 2; m.boss = m.finals[0]; m.auto = true; m.gold = m.gold + 240; m.hpMult *= 1.55 * (C2_TUNE[m.id] || 1); m.waves = c2Waves(m); MAPS.push(m); }
+for (const m of C2) { m.chapter = 2; m.boss = m.finals[0]; m.auto = true; m.gold = m.gold + 240; m.hpMult *= (typeof process !== 'undefined' && process.env.C2HP ? +process.env.C2HP : 1.1) * (C2_TUNE[m.id] || 1); m.waves = c2Waves(m); MAPS.push(m); }
 // ---------- Chapter 3: Out of Bounds ----------
 const C3 = [
   { id: 'scrap', name: 'Scrapyard Magnet', theme: 'scrap', gold: 560, hpMult: 3.0, size: 1.1,
@@ -905,8 +907,8 @@ const C3 = [
       [[384, 220], [320, 220], [320, 290], [60, 290], [60, 420], [320, 420], [320, 500], [180, 500], [180, 532]]],
     finals: ['nightman'], mids: [{ w: 5, t: 'scrapking', mini: true }, { w: 8, t: 'frank', mini: true }, { w: 8, t: 'doris', mini: true }] },
 ];
-const C3_TUNE = { scrap: 1.05, storm: 1.05, factory: 1.25, rink: .9, cliff: 1, sink: 1.25, tramp: 1.25, lawn: 1.3, bridge: .88, eclipse: 1.35 };
-for (const m of C3) { m.chapter = 3; m.boss = m.finals[0]; m.auto = true; m.hpMult *= C3_TUNE[m.id] || 1; m.waves = c2Waves(m); MAPS.push(m); }
+const C3_TUNE = { scrap: .95, storm: .85, factory: .95, rink: .9, cliff: .8, sink: .9, tramp: 1.0, lawn: .9, bridge: .7, eclipse: 1.2 };
+for (const m of C3) { m.chapter = 3; m.boss = m.finals[0]; m.auto = true; m.hpMult *= (typeof process !== 'undefined' && process.env.C3HP ? +process.env.C3HP : .62) * (C3_TUNE[m.id] || 1); m.waves = c2Waves(m); MAPS.push(m); }
 function autoLayout(m) {
   const pts = [], seen = new Set();
   for (const P of m.P) for (let d = 0; d < P.len; d += 6) {
@@ -998,9 +1000,9 @@ const TOWERS = {
   chuck: { name: 'The Chuckery', crew: 'Dazza', skill: 'chucking', cost: 50, blurb: 'Throws whatever is in the bin.',
     tiers: [{ dmg: [8, 16], rate: 1.1, range: 90 }, { cost: 60, dmg: [12, 22], rate: 1.15, range: 94 }, { cost: 95, dmg: [17, 30], rate: 1.25, range: 98, splash: 34 }, { cost: 220, dmg: [20, 34], rate: 1.35, range: 106, splash: 40, ult: true, tubEvery: 4 }, { cost: 420, dmg: [26, 44], rate: 1.5, range: 114, splash: 48, ult: true, elite: true, tubEvery: 3, multi: 3 }] },
   bonk: { name: 'Bonk Booth', crew: 'Big Marg', skill: 'bonking', cost: 60, blurb: 'Frying pan. Short range. Stuns. Can\u2019t reach flyers.',
-    tiers: [{ dmg: 15, rate: .9, range: 60, stun: .5 }, { cost: 60, dmg: 21, rate: 1.0, range: 62, stun: .7 }, { cost: 100, dmg: 27, rate: 1.05, range: 66, stun: .8, multi: true }, { cost: 210, dmg: 34, rate: 1.15, range: 72, stun: .9, multi: true, ult: true, slamEvery: 5 }, { cost: 400, dmg: 46, rate: 1.25, range: 80, stun: 1, multi: true, ult: true, elite: true, slamEvery: 3, slamR: 125 }] },
+    tiers: [{ dmg: 15, rate: .9, range: 72, stun: .5 }, { cost: 60, dmg: 21, rate: 1.0, range: 75, stun: .7 }, { cost: 100, dmg: 27, rate: 1.05, range: 78, stun: .8, multi: true }, { cost: 210, dmg: 34, rate: 1.15, range: 84, stun: .9, multi: true, ult: true, slamEvery: 5 }, { cost: 400, dmg: 46, rate: 1.25, range: 90, stun: 1, multi: true, ult: true, elite: true, slamEvery: 3, slamR: 125 }] },
   nan: { name: "Nan's Porch", crew: 'Nan Beryl', skill: 'muttering', cost: 85, blurb: 'Knitting needles. Huge crits. Long range.',
-    tiers: [{ dmg: 24, rate: .5, range: 122, crit: .4 }, { cost: 80, dmg: 36, rate: .55, range: 128, crit: .45 }, { cost: 125, dmg: 50, rate: .6, range: 134, crit: .5, pierce: true }, { cost: 240, dmg: 66, rate: .66, range: 142, crit: .55, pierce: true, ult: true, chain: 3 }, { cost: 450, dmg: 86, rate: .75, range: 152, crit: .7, pierce: true, ult: true, elite: true, chain: 5 }] },
+    tiers: [{ dmg: 30, rate: .5, range: 125, crit: .4 }, { cost: 80, dmg: 44, rate: .55, range: 130, crit: .45 }, { cost: 125, dmg: 60, rate: .6, range: 135, crit: .5, pierce: true }, { cost: 240, dmg: 78, rate: .66, range: 142, crit: .55, pierce: true, ult: true, chain: 3 }, { cost: 450, dmg: 100, rate: .75, range: 152, crit: .7, pierce: true, ult: true, elite: true, chain: 5 }] },
   sizzle: { name: 'Sausage Sizzle', crew: 'Uncle Tony', skill: 'sizzling', cost: 70, blurb: 'No damage. Speeds up every tower on the map, and slows monsters nearby.',
     tiers: [{ aura: 75, buff: .08, slow: .25 }, { cost: 70, aura: 82, buff: .12, slow: .3 }, { cost: 110, aura: 90, buff: .17, slow: .35, queue: true }, { cost: 200, aura: 100, buff: .26, slow: .4, queue: true, ult: true, snagEvery: 6 }, { cost: 380, aura: 115, buff: .35, slow: .45, queue: true, ult: true, elite: true, snagEvery: 4, snagN: 12 }] },
   jezza: { name: "Jezza's Top Shelf", crew: 'Jezza', skill: 'pouring', cost: 80, unlockWins: 1, blurb: 'Throws whisky. Tipsy monsters stumble, slow down and take 25% more damage.',
@@ -2554,7 +2556,7 @@ function finishRun(G) {
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { W, H, GARY, MAPS, posOn, SKILLS, SKILL_NAMES, SKILL_DESC, TOWERS, TIER_NOTES, ENEMIES, BOSS_ITEMS, RARITY, ITEMS, ALL_ITEMS, ITEM_DESC, STASH_TOTAL, CARDS,
-  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
+  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, padRoadDist, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
 
 </script>
 <script>
@@ -3153,6 +3155,7 @@ const R = (function () {
           towerAnim[f.pad] = { k: 'summon', t: 0 };
           burst(pad[0] + 8, pad[1] - 24, 5, { kind: 'feather', col: f.kind === 'pigeon' ? ['#A9B1BC', '#DDE2E8'] : ['#FFFFFF', '#F1EEE6'], sp: 35, up: 20, g: 30, life: 1.1, size: 3.5 });
           if (f.kind === 'pigeon') { snd('coo'); snd('flutter'); } else snd('squawk');
+          if (f.kind === 'ibis' && Math.random() < .07) say(pad[0], pad[1] - 54, ['No fish sauce. I mean it.', 'Go on. Get him.', 'They\u2019ve had enough chips.', 'That one\u2019s Kevin. Different Kevin.', 'Colleagues, not pests.', 'Bin night, boys.'][Math.floor(Math.random() * 6)], 2);
           break;
         }
         case 'hit': {
@@ -4651,6 +4654,7 @@ const R = (function () {
   };
   const CREW_SIZE = 6, CREW_ORDER = Object.keys(CREW);
   const BUILD_QUIP = { chuck: 'Righto.', bonk: 'Bring it.', nan: 'Hmph. Fine.', sizzle: 'Snags on!', jezza: 'Cheers.', bev: 'Here, birdy.', dj: 'Drop it!', pete: '*floats ominously*', banjo: 'Banana time.' };
+  const BUILD_QUIP_ALT = { jezza: ['VB longneck. 8am. Breakfast.', 'It\u2019s 5 o\u2019clock somewhere. Here, mostly.'], sizzle: ['Onions go on top. Fight me.', 'Democracy sausage, coming up.'], bonk: ['You can\u2019t park there, mate.'], chuck: ['Bin night. Everything goes.'], nan: ['I\u2019ve seen worse. Not often.'], dj: ['Doof doof doof.'], banjo: ['Peel yourself together.'], bev: ['Fish sauce is not for birds.'], pete: ['Long boy reporting.'] };
   function recommendCrew(mapIdx) {
     const m = MAPS[mapIdx] || MAPS[0], all = [].concat(...m.waves).map(g => g.t), has = t => all.includes(t);
     const flyers = all.filter(t => ENEMIES[t] && ENEMIES[t].flyer).length, armour = all.filter(t => ['pants', 'crab', 'scrapbot', 'pantsalot', 'steve'].includes(t)).length, swarm = all.filter(t => ['mozzie', 'rat', 'gob', 'chick', 'baby'].includes(t)).length;
@@ -4908,15 +4912,15 @@ const R = (function () {
     for (const e of evs) {
       if (e.type === 'firstLoot' && meta.runs < 3 && !G.instantLoot && !tutOn()) toast('Loot collects itself. Tap or swipe it to grab it faster.', 'big');
       else if (e.type === 'grabbing' && !toldGrab && !G.instantLoot && !tutOn()) { toldGrab = true; toast("One's spotted it. Tap the loot to snatch it back."); }
-      else if (e.type === 'heist' && e.item.tier >= 2) toast(e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad');
+      else if (e.type === 'heist' && e.item.tier >= 2) toast((Math.random() < .3 ? 'Nek minnit. ' : '') + e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad');
       else if (e.type === 'stolen') toast(e.carry ? 'Gone, with ' + e.carry.name + '. -' + e.n + ' from the pile.' : e.n + (e.n > 1 ? ' items' : ' item') + ' nicked from the pile.', 'bad');
       else if (e.type === 'waveStart') SFX.play('wave');
       else if (e.type === 'rareDrop') { SFX.play('rare'); toast(RARITY[e.item.tier].k + ' drop: ' + e.item.name, 'rare'); }
       else if (e.type === 'boss') { R.say(GARY.x, GARY.y - 34, 'zzz... five more minutes...', 2.4); trackEvent('boss_spawn', { boss: e.bt, level_id: G.map.id, wave: G.wave }); trackFirst('bossSeen', 'first_boss_encounter', { boss: e.bt, level_id: G.map.id }); SFX.play('boss'); const d = ENEMIES[e.bt]; const parts = d.intro.split('. '); banner(parts[0], parts.slice(1).join('. '), 'boss'); const drop = BOSS_ITEMS[e.bt]; setTimeout(() => toast(d.tip + (drop && !meta.stash[drop.name] ? ' Drops: ' + drop.icon + ' ' + drop.name + '.' : ''), 'big'), 2900); }
       else if (e.type === 'bossDead') { slowMo = .9; const tw = G.towers.map((t, i) => t ? i : -1).filter(i => i >= 0); if (tw.length) { const p = G.map.pads[tw[Math.floor(Math.random() * tw.length)]]; R.say(p[0], p[1] - 52, ['Get wrecked.', 'Bye!', 'Easy.', 'Too easy.', 'And stay down.'][Math.floor(Math.random() * 5)], 1.8); }
-        setTimeout(() => { if (G && !G.over) R.say(GARY.x, GARY.y - 34, ['zzz... good job, team...', '*rolls over*', 'mmm... loot...', 'zzz... was that thunder?'][Math.floor(Math.random() * 4)], 2); }, 1400);
+        setTimeout(() => { if (G && !G.over) R.say(GARY.x, GARY.y - 34, ['zzz... good job, team...', '*rolls over*', 'mmm... loot...', 'zzz... was that thunder?', 'zzz... no officer, I live here...', 'zzz... tell \u2019em they\u2019re dreamin\u2019...'][Math.floor(Math.random() * 6)], 2); }, 1400);
         trackEvent('boss_defeat', { boss: e.bt, level_id: G.map.id, wave: G.wave }); trackFirst('bossDown', 'first_boss_defeated', { boss: e.bt, level_id: G.map.id }); if (!G.over) SFX.sting('bossdown'); banner(ENEMIES[e.bt].name.split(',')[0] + ' is down!', 'Loot everywhere.', 'win'); }
-      else if (e.type === 'perfect') { if (Math.random() < .35) { const tw = G.towers.map((t, i) => t ? i : -1).filter(i => i >= 0); if (tw.length) { const p = G.map.pads[tw[Math.floor(Math.random() * tw.length)]]; R.say(p[0], p[1] - 52, ['Didn\u2019t even break a sweat.', 'Too easy.', 'Is that all?', 'Smoko?'][Math.floor(Math.random() * 4)], 1.8); } } SFX.play('perfect'); banner('PERFECT DEFENCE', '+' + e.bonus + ' gold, a Dream Shard and dream charge', 'perfect'); }
+      else if (e.type === 'perfect') { if (Math.random() < .35) { const tw = G.towers.map((t, i) => t ? i : -1).filter(i => i >= 0); if (tw.length) { const p = G.map.pads[tw[Math.floor(Math.random() * tw.length)]]; R.say(p[0], p[1] - 52, ['Didn\u2019t even break a sweat.', 'Too easy.', 'Is that all?', 'Smoko?', 'How good is that.', 'Yeah the boys.'][Math.floor(Math.random() * 6)], 1.8); } } SFX.play('perfect'); banner('PERFECT DEFENCE', '+' + e.bonus + ' gold, a Dream Shard and dream charge', 'perfect'); }
       else if (e.type === 'synergy' && e.first) toast('New synergy: ' + SYNERGIES.find(s => s.id === e.id).name + '. ' + SYNERGIES.find(s => s.id === e.id).desc, 'rare');
       else if (e.type === 'dreamReady') { SFX.play('ready'); if (!toldDream && !tutOn()) { toldDream = true; toast('Gary\u2019s dream is ready. Tap UNLEASH when it counts.', 'big'); } }
       else if (e.type === 'event') { SFX.play('event'); const E = EVENTS.find(x => x.id === e.id); banner(E.name, E.desc, 'event'); }
@@ -4988,7 +4992,8 @@ const R = (function () {
       sheetHTML = '<div class="sheet-head"><span>Who goes here?</span><button class="x" data-act="close">Close</button></div>' + padNote(selPad) + '<div class="bgrid">' +
         crewList.map(k => {
           const C = CREW[k] || { n: TOWERS[k].crew, keys: [] }, c = towerCost(G, k), ok = G.gold >= c;
-          return '<button class="bcard' + (ok ? '' : ' poor') + '" data-build="' + k + '"' + (ok ? '' : ' disabled') + '>' + ptHTML(k) + '<b>' + C.n + '</b><span class="ckeys">' + C.keys.slice(0, 2).join(' \u2022 ') + '</span><span class="cost">' + c + '</span></button>';
+          const t0 = TOWERS[k].tiers[0], reach = (t0.range || t0.aura || 999) * (G.map.pads[selPad][2] === 'high' ? 1.2 : 1), far = padRoadDist(G.map, G.map.pads[selPad]) > reach - 6;
+          return '<button class="bcard' + (ok ? '' : ' poor') + (far ? ' far' : '') + '" data-build="' + k + '"' + (ok && !far ? '' : ' disabled') + '>' + ptHTML(k) + '<b>' + C.n + '</b><span class="ckeys">' + (far ? 'TOO FAR FROM THE ROAD' : C.keys.slice(0, 2).join(' \u2022 ')) + '</span><span class="cost">' + c + '</span></button>';
         }).join('') + '</div>';
     } else {
       const t = G.towers[selPad], d = TOWERS[t.type], uc = upgradeCost(G, selPad), nx = d.tiers[t.tier + 1];
@@ -5021,7 +5026,7 @@ const R = (function () {
       const k = b.dataset.build, pad = selPad;
       if (build(G, pad, k)) {
         const p = G.map.pads[pad], first = !G.saidHi; G.saidHi = G.saidHi || {};
-        if (!G.saidHi[k]) { G.saidHi[k] = 1; R.say(p[0], p[1] - 52, BUILD_QUIP[k] || 'Righto.', 1.8); }
+        if (!G.saidHi[k]) { G.saidHi[k] = 1; const alt = BUILD_QUIP_ALT[k]; R.say(p[0], p[1] - 52, alt && Math.random() < .35 ? alt[Math.floor(Math.random() * alt.length)] : (BUILD_QUIP[k] || 'Righto.'), 2); }
         SFX.play(crewSfx[k] || 'build'); if (k === 'banjo') SFX.sting('banjo');
         trackEvent('tower_placed', { tower: k, level_id: G.map.id, wave: G.wave }); trackFirst('tower', 'first_tower_placed', { tower: k, level_id: G.map.id });
       }
@@ -5053,6 +5058,9 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 20, title: 'Helping us fix the hard bits', notes: ['The game now sends anonymous play stats (which levels people get stuck on, never names or locations) so the tricky bits can be fixed. You can switch it off in Settings.'] },
+    { build: 19, title: 'Marg can reach now', notes: ['Big Marg\u2019s pan reaches a bit further, and the build menu now greys out anyone who\u2019s too far from the road to hit anything. No more silent Margs.', 'More Australia in the quips. Jezza has opinions about breakfast.'] },
+    { build: 18, title: 'Chapters 2 and 3, humanised', notes: ['Chapters 2 and 3 were tuned for perfect robots. They\u2019re now tuned for people: flank entrances open from wave 3, the mid-level spike is softer, and you lose late for readable reasons.', 'Nan is back to full, ridiculous power. Hold My Loot is her game and we all just live in it.', 'Bev has opinions about fish sauce. Lose the same way three times and the game gets blunt about the fix.'] },
     { build: 17, title: 'Balance and polish', notes: ['Nan was carrying everyone. Her needles hit a little softer; Dazza\u2019s junk hits a little harder. Different levels now reward different crews.', 'Your first level is kinder all the way through, and The Beer Garden is no longer a wall.', 'Losses now tell you why, and what to try next. Wave clears show their gold. Gary mutters in his sleep.'] },
     { build: 16, title: 'A bigger world', notes: ['Up next: your next crew member, Gary unlock and Shed upgrade, always on the home screen.', 'Today\u2019s Nap shows its rules and rewards, and daily streaks pay more rocks.', 'New crew get a proper reveal. Crew synergies show up while you build your crew.', 'Share cards: a picture of your run with your crew on it. Gary\u2019s pyjamas are now a cosmetic you can earn.'] },
     { build: 15, title: 'Meet the crew', notes: ['A new crew screen: tap characters to meet them, pick up to 6, or let the game recommend a crew for each level.', 'The build menu shows faces, not paragraphs.', 'A cleaner results screen, a kinder defeat screen with one useful tip, and a few words from your crew mid-fight.'] },
@@ -5338,7 +5346,7 @@ const R = (function () {
     if (!meta.runs && mapIdx === 0 && mode === 'campaign') G.grace = true;
     G.showLocks = (meta.runs || 0) >= 3 || shedLevel(meta, 'pallets') > 0;
     attempts[mapIdx] = (attempts[mapIdx] || 0) + 1;
-    const lp = { level_id: G.map.id, level_name: G.map.name, mode, crew: G.crew.join(','), retries: attempts[mapIdx] - 1 };
+    const lp = { level_id: G.map.id, level_name: G.map.name, chapter: G.map.chapter || 1, mode, crew: G.crew.join(','), nan_in_crew: G.crew.includes('nan'), retries: attempts[mapIdx] - 1 };
     if (!meta.runs) trackFirst('game', 'first_game_start', lp);
     if (mode === 'daily') trackEvent('daily_mode_start', lp);
     trackEvent('level_start', lp);
@@ -5543,6 +5551,9 @@ const R = (function () {
       if (['ratmum', 'baby', 'egg', 'mole', 'minicastle'].includes(top)) return ['They just kept multiplying.', 'Dazza\u2019s splash clears the little ones fast.'];
       return ['They found the gaps.', 'Spread your crew along the road and upgrade your best spots.'];
     })();
+    let repeatN = 0;
+    if (!G.won && !endless && G.mode === 'campaign') { meta.lossReasons = meta.lossReasons || {}; const key = G.map.id + '|' + fb[0]; meta.lossReasons[key] = (meta.lossReasons[key] || 0) + 1; repeatN = meta.lossReasons[key]; }
+    if (repeatN >= 3) fb[1] = 'Same thing ' + repeatN + ' times now. ' + fb[1] + (G.crew && G.crew.includes('nan') ? '' : ' Or bring Nan. Nan fixes most things.');
     let hero;
     if (endless) hero = '<div class="rhero"><h2>LONG NAP OVER</h2><p class="rbig">Wave ' + (G.wave - 1) + '</p><p class="rsub">' + (r.endlessNew ? 'New best!' : 'Best: wave ' + r.endlessBest) + '</p></div>';
     else if (G.won) {
@@ -5550,11 +5561,11 @@ const R = (function () {
       hero = '<div class="rhero win">' + (firstEver ? '<span class="ribbon">FIRST WIN!</span>' : '') + '<h2>LEVEL COMPLETE</h2><div class="rstars" aria-label="' + r.stars + ' of 3 stars">' + st + '</div><p class="rsub">Gary kept ' + G.pile + '/' + G.pileMax + ' \u2022 <q>Did I miss anything?</q></p></div>';
     } else {
       const nk = nextCrewKey(), asp = nk && TOWERS[nk].unlockWins === (meta.wins || 0) + 1 && G.mode === 'campaign' ? '<div class="ucard tease"><canvas class="pt sil" data-type="' + nk + '"></canvas><div><b>Win this and ' + CREW[nk].n.toUpperCase() + ' joins</b><span>' + CREW[nk].icon + ' ' + CREW[nk].role + '</span></div></div>' : '';
-      hero = '<div class="rhero lose"><h2>SO CLOSE</h2><p class="rbig">Wave ' + G.wave + ' / ' + G.waveCount + '</p><p class="rquip">' + fb[0] + '</p><p class="rhint">\ud83d\udca1 ' + fb[1] + '</p>' + asp + '</div>';
+      hero = '<div class="rhero lose"><h2>' + (Math.random() < .25 ? 'NOT HAPPY, JAN' : Math.random() < .3 ? 'YEAH, NAH' : 'SO CLOSE') + '</h2><p class="rbig">Wave ' + G.wave + ' / ' + G.waveCount + '</p><p class="rquip">' + fb[0] + '</p><p class="rhint">\ud83d\udca1 ' + fb[1] + '</p>' + asp + '</div>';
     }
     const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: a gate you can tap' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
     const primary = nextOk ? '<button class="btn primary big rgo" id="nextBtn">NEXT LEVEL \u2192</button><p class="rtease">Up next: <b>' + nextMap.name + '</b> \u00b7 ' + tease(nextMap) + (nextMap.chapter > MAPS[G.mapIdx].chapter ? ' \u00b7 CHAPTER ' + nextMap.chapter : '') + '</p>' : '<button class="btn primary big rgo" id="againBtn">' + (G.won || endless ? 'PLAY AGAIN' : 'TRY AGAIN') + '</button>';
-    const secondary = '<div class="rsec">' + (nextOk ? '<button class="btn" id="againBtn">Play again</button>' : (!G.won && !endless && G.mode === 'campaign' ? '<button class="btn" id="crewBtn">Change crew</button>' : '')) + '<button class="btn" id="levelsBtn">Home</button><button class="btn" id="shareBtn">Share</button></div><p class="small" id="shareMsg" aria-live="polite"></p>';
+    const secondary = '<div class="rsec">' + (nextOk ? '<button class="btn" id="againBtn">Play again</button>' : (!G.won && !endless && G.mode === 'campaign' ? '<button class="btn' + (repeatN >= 3 ? ' primary' : '') + '" id="crewBtn">Change crew</button>' : '')) + '<button class="btn" id="levelsBtn">Home</button><button class="btn" id="shareBtn">Share</button></div><p class="small" id="shareMsg" aria-live="polite"></p>';
     const details = '<details class="rdetails"><summary>Run details</summary>' + (G.won ? '' : rocksLine) + shedHint +
       '<p class="afk">Gary was AFK for ' + afk + '. ' + G.stats.kills + ' monsters died. Nan crit ' + G.stats.crits + ' times. ' + G.stats.heists + (G.stats.heists === 1 ? ' monster wore' : ' monsters wore') + ' his stuff.</p>' +
       '<div class="grid" aria-label="Items lost per wave">' + r.grid + '</div>' +
@@ -5568,7 +5579,7 @@ const R = (function () {
     drawPortraits($('modalCard')); startPortraitLoop();
     if (G.won) [0, 1, 2].forEach(i => { if (i < r.stars) setTimeout(() => SFX.play(i === 2 ? 'levelup' : 'coin'), 250 + i * 280); });
     if (newCrew.length) setTimeout(() => { R.poke(newCrew[0]); SFX.play(crewSfx[newCrew[0]] || 'pick'); }, 1100);
-    const lpr = { level_id: G.map.id, level_name: G.map.name, mode: G.mode, duration: Math.round(G.t), wave: G.wave, waves: G.waveCount, stars: r.stars || 0, kept: G.pile, retries: (attempts[G.mapIdx] || 1) - 1, crew: (G.crew || []).join(',') };
+    const lpr = { level_id: G.map.id, level_name: G.map.name, chapter: G.map.chapter || 1, mode: G.mode, duration: Math.round(G.t), wave: G.wave, waves: G.waveCount, stars: r.stars || 0, kept: G.pile, retries: (attempts[G.mapIdx] || 1) - 1, crew: (G.crew || []).join(','), nan_in_crew: (G.crew || []).includes('nan'), reason: G.won ? '' : fb[0] };
     trackEvent(G.won ? 'level_complete' : 'level_fail', lpr); trackEvent('results_view', { won: G.won, level_id: G.map.id });
     if (r.rocks || r.banked.length) trackEvent('reward_claimed', { rocks: r.rocks, items: r.banked.length, gary_xp: r.garyGain, new_crew: newCrew.join(',') });
     const mi = G.mapIdx, mode = G.mode;
