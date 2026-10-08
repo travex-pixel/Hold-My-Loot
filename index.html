@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hold My Loot</title>
-<meta name="hml-build" content="20">
+<meta name="hml-build" content="21">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -17,7 +17,7 @@ window.HML_SUPPORT = { url: '', code: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 20;
+window.HML_BUILD = 21;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -4366,7 +4366,17 @@ const R = (function () {
   }
 
   // ---------- frame ----------
+  // Self-healing: if any draw call ever throws, reset the canvas state so one bad frame can't
+  // leave transforms/clips stacked up and corrupt every frame after it.
+  let renderErrs = 0;
   function frame(c, G, opts) {
+    try { frameInner(c, G, opts); }
+    catch (e) {
+      try { c.canvas.width = c.canvas.width; bgKey = ''; } catch (e2) {}
+      renderErrs++; if (renderErrs <= 3 && window.__hmlReport) window.__hmlReport('render', e);
+    }
+  }
+  function frameInner(c, G, opts) {
     ctx = c; W = opts.W; H = opts.H; scale = opts.scale; dpr = opts.dpr; settings = opts.settings || settings;
     const now = performance.now() / 1000, dt = Math.min(.05, now - (lastT || now)) * (opts.paused ? 0 : opts.speed || 1); lastT = now;
     const time = now;
@@ -4639,6 +4649,11 @@ const R = (function () {
       fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true, mode: 'cors' }).catch(() => {});
     } catch (e) { /* analytics must never affect the game */ }
   }
+  let errN = 0; const errSeen = {};
+  const uaFam = () => { const u2 = navigator.userAgent || ''; return { browser: /CriOS|Chrome/.test(u2) ? 'chrome' : /FxiOS|Firefox/.test(u2) ? 'firefox' : /Safari/.test(u2) ? 'safari' : 'other', os: /iPhone|iPad|iPod/.test(u2) ? 'ios' : /Android/.test(u2) ? 'android' : /Mac/.test(u2) ? 'mac' : /Win/.test(u2) ? 'windows' : 'other' }; };
+  window.__hmlReport = (where, e) => { try { const msg = String((e && (e.message || e)) || '').slice(0, 140); if (errSeen[where + msg] || errN >= 3) return; errSeen[where + msg] = 1; errN++; console.error('[Hold My Loot]', where, e); trackEvent('client_error', Object.assign({ where, msg, level_id: G ? G.map.id : '', wave: G ? G.wave : 0 }, uaFam())); } catch (e2) {} };
+  window.addEventListener('error', ev => window.__hmlReport('window', ev.error || ev.message));
+  window.addEventListener('unhandledrejection', ev => { const m = String((ev.reason && ev.reason.message) || ev.reason || ''); if (/fetch|network|load/i.test(m)) return; window.__hmlReport('promise', ev.reason); });
   function trackFirst(flag, name, props) { try { meta.firsts = meta.firsts || {}; if (meta.firsts[flag]) return; meta.firsts[flag] = 1; trackEvent(name, props); } catch (e) {} }
   // ===== Crew: who they are, at a glance =====
   const CREW = {
@@ -4670,6 +4685,7 @@ const R = (function () {
   }
   // live portrait canvases (animated only while visible)
   let portraitLoop = 0;
+  function freeCanvases(root) { try { (root || document).querySelectorAll('canvas.pt').forEach(cv => { cv.width = 0; cv.height = 0; }); } catch (e) {} }
   function drawPortraits(root) {
     (root || document).querySelectorAll('canvas.pt').forEach(cv => {
       const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
@@ -4753,6 +4769,7 @@ const R = (function () {
       // crew portraits
       const tmp = document.createElement('canvas'); tmp.width = 200; tmp.height = 180;
       c.crew.forEach((k, i) => { R.portrait(tmp, k, 0); x.drawImage(tmp, 28 + i * 105, 228, 100, 90); x.fillStyle = '#3B2F2A'; x.font = '900 15px Nunito, Arial, sans-serif'; x.textAlign = 'center'; x.fillText(CREW[k] ? CREW[k].n : k, 78 + i * 105, 322); x.textAlign = 'left'; });
+      if (!x.roundRect) x.roundRect = function (a, b2, w2, h2, r2) { this.moveTo(a + r2, b2); this.arcTo(a + w2, b2, a + w2, b2 + h2, r2); this.arcTo(a + w2, b2 + h2, a, b2 + h2, r2); this.arcTo(a, b2 + h2, a, b2, r2); this.arcTo(a, b2, a + w2, b2, r2); this.closePath(); };
       if (c.best) { x.fillStyle = '#FFFDF6'; x.beginPath(); x.roundRect(Wc - 230, 150, 198, 56, 14); x.fill(); x.strokeStyle = RARITY[c.best.tier].c; x.lineWidth = 3; x.stroke(); x.font = '30px serif'; x.fillStyle = '#000'; x.fillText(c.best.icon, Wc - 218, 162); x.fillStyle = RARITY[c.best.tier].c; x.font = '900 13px Nunito, Arial, sans-serif'; x.fillText(RARITY[c.best.tier].k.toUpperCase() + ' DROP', Wc - 176, 160); x.fillStyle = '#3B2F2A'; x.font = '800 16px Nunito, Arial, sans-serif'; x.fillText(c.best.name.slice(0, 20), Wc - 176, 180); }
       x.fillStyle = '#8A7A66'; x.font = '800 15px Nunito, Arial, sans-serif'; x.fillText('Boss: ' + c.boss + '   \u00b7   ' + (location.protocol.startsWith('http') ? location.host + location.pathname.replace(/index\.html$/, '') : 'Hold My Loot'), 32, 362);
       return await new Promise(res => cv.toBlob(res, 'image/png'));
@@ -5012,7 +5029,7 @@ const R = (function () {
         '<div class="row2">' + upBtn + '<button class="btn' + (sellArmed === selPad ? ' danger' : '') + '" data-act="sell">' + (sellArmed === selPad ? 'Tap again to sell' : 'Sell for ' + sellValue(G, selPad)) + '</button></div>';
     }
     // only redraw when something changed, so a tap is never swallowed by a refresh
-    if (sheetHTML != null && sheetHTML !== lastSheetHTML) { s.innerHTML = sheetHTML; lastSheetHTML = sheetHTML; drawPortraits(s); }
+    if (sheetHTML != null && sheetHTML !== lastSheetHTML) { freeCanvases(s); s.innerHTML = sheetHTML; lastSheetHTML = sheetHTML; drawPortraits(s); }
   }
   // Only accept a tap that started on the sheet after it opened (stops the opening tap from picking something).
   let sheetDownOk = false;
@@ -5058,6 +5075,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 21, title: 'Sturdier graphics', notes: ['If anything ever goes wrong while drawing a frame, the game now recovers by itself on the next frame instead of the screen breaking.', 'Lighter on iPhone memory when opening menus.'] },
     { build: 20, title: 'Helping us fix the hard bits', notes: ['The game now sends anonymous play stats (which levels people get stuck on, never names or locations) so the tricky bits can be fixed. You can switch it off in Settings.'] },
     { build: 19, title: 'Marg can reach now', notes: ['Big Marg\u2019s pan reaches a bit further, and the build menu now greys out anyone who\u2019s too far from the road to hit anything. No more silent Margs.', 'More Australia in the quips. Jezza has opinions about breakfast.'] },
     { build: 18, title: 'Chapters 2 and 3, humanised', notes: ['Chapters 2 and 3 were tuned for perfect robots. They\u2019re now tuned for people: flank entrances open from wave 3, the mid-level spike is softer, and you lose late for readable reasons.', 'Nan is back to full, ridiculous power. Hold My Loot is her game and we all just live in it.', 'Bev has opinions about fish sauce. Lose the same way three times and the game gets blunt about the fix.'] },
@@ -5105,7 +5123,7 @@ const R = (function () {
   function openModal(html, cls, arm) {
     const m = $('modal'), card = $('modalCard');
     clearTimeout(armTimer);
-    card.className = (cls || '') + (arm ? ' arming' : ''); card.innerHTML = html; m.hidden = false; card.scrollTop = 0;
+    card.className = (cls || '') + (arm ? ' arming' : ''); freeCanvases(card); card.innerHTML = html; m.hidden = false; card.scrollTop = 0;
     if (arm) {
       // Ignore taps that were already happening when this popped up.
       const btns = [...card.querySelectorAll('button')].filter(b => !b.disabled);
@@ -5719,10 +5737,14 @@ const R = (function () {
   // ---------- loop ----------
   let last = performance.now(), slowMo = 0;
   function frame(now) {
+    try { frameBody(now); } catch (e) { window.__hmlReport('loop', e); }
+    requestAnimationFrame(frame);
+  }
+  function frameBody(now) {
     const dt = Math.min(.05, (now - last) / 1000); last = now;
     if (slowMo > 0) slowMo -= dt;
     const running = G && state === 'play' && !paused && !menuOpen;
-    if (running && now < stopUntil) { R.frame(ctx, G, { W, H, scale, dpr, paused: true, speed, selPad, settings: meta.settings, mapIdx: homeMap }); hud(); requestAnimationFrame(frame); return; }
+    if (running && now < stopUntil) { R.frame(ctx, G, { W, H, scale, dpr, paused: true, speed, selPad, settings: meta.settings, mapIdx: homeMap }); hud(); return; }
     if (running) {
       let rem = dt * speed * (slowMo > 0 ? .3 : 1);
       while (rem > 0) { const s = Math.min(1 / 60, rem); update(G, s); rem -= s; }
@@ -5731,7 +5753,6 @@ const R = (function () {
     R.frame(ctx, G, { W, H, scale, dpr, paused: !running, speed, selPad, settings: meta.settings, mapIdx: homeMap });
     const hs = R.takeHitstop(); if (hs > 0 && running) stopUntil = now + hs * 1000;
     hud();
-    requestAnimationFrame(frame);
   }
   let stopUntil = 0;
   function applySound() { SFX.setMuted(meta.settings.sound === false); SFX.setVolume(meta.settings.volume == null ? .6 : meta.settings.volume); SFX.setMusic(meta.settings.music !== false); SFX.setMusicVolume(meta.settings.musicVolume == null ? .5 : meta.settings.musicVolume); }
