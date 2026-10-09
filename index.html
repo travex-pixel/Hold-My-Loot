@@ -4,7 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hold My Loot</title>
-<meta name="hml-build" content="21">
+<meta name="description" content="Gary's asleep. Monsters want his loot. A weird, funny Australian tower defence game. Free, plays in your browser.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Hold My Loot">
+<meta property="og:title" content="Hold My Loot">
+<meta property="og:description" content="Gary's asleep. Monsters want his loot. Build a crew of idiots (Nan fixes most things) and keep the pile. Free, in your browser.">
+<meta property="og:url" content="https://holdmyloot.com/">
+<link rel="canonical" href="https://holdmyloot.com/">
+<meta property="og:image" content="https://holdmyloot.com/preview.jpg">
+<meta property="og:image:secure_url" content="https://holdmyloot.com/preview.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hold My Loot: a cartoon crew of Australian misfits defending a sleeping hero's loot pile">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Hold My Loot">
+<meta name="twitter:description" content="Gary's asleep. Monsters want his loot. Free, in your browser.">
+<meta name="twitter:image" content="https://holdmyloot.com/preview.jpg">
+<meta name="theme-color" content="#3E5E3A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A4%3C/text%3E%3C/svg%3E">
+<meta name="hml-build" content="22">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -17,7 +36,7 @@ window.HML_SUPPORT = { url: '', code: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 21;
+window.HML_BUILD = 22;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -513,6 +532,43 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; text
 .supcard { background: linear-gradient(135deg, #FFF1F0, #FFF6E2); border: 1.5px solid #F2B8B5; border-radius: 16px; padding: 10px 12px; margin: 10px 0 0; display: flex; flex-direction: column; gap: 8px; }
 .supcard b { font-size: 15px; display: block; } .supcard span { font-size: 13px; font-weight: 700; color: var(--muted); line-height: 1.35; }
 .bcard.far { opacity: .5; } .bcard.far .ckeys { color: #B5403A; }
+
+/* ===== picture-first crew cards (v22) ===== */
+.ccard { background: linear-gradient(170deg, var(--c1, #FBF4E4) 0%, var(--c2, #F1E4C6) 100%); border: 2.5px solid rgba(255,255,255,.7); box-shadow: 0 3px 0 var(--c3, #C9B48E), inset 0 0 0 1px rgba(0,0,0,.04); padding: 0 0 6px; overflow: hidden; gap: 2px; }
+.cstage { position: relative; width: 100%; height: 86px; display: flex; align-items: flex-end; justify-content: center; background: radial-gradient(ellipse 60% 55% at 50% 58%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.55) 45%, rgba(255,255,255,0) 72%), repeating-linear-gradient(135deg, rgba(255,255,255,.12) 0 8px, rgba(255,255,255,0) 8px 16px); }
+.cstage::after { content: ''; position: absolute; left: 22%; right: 22%; bottom: 6px; height: 8px; border-radius: 50%; background: rgba(40,30,20,.12); }
+.ccard .cstage canvas.pt { width: 100%; height: 86px; position: relative; z-index: 1; }
+.ccard .cname { display: inline-block; margin-top: -9px; position: relative; z-index: 2; background: #3B2F2A; color: #FFF6E2; font-size: 12px; font-weight: 900; padding: 2px 7px; border-radius: 10px; box-shadow: 0 2px 0 rgba(0,0,0,.18); max-width: 94%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ccard .crole { color: var(--c3, #6C5CE0); font-size: 11.5px; }
+.kchips { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; padding: 0 3px; }
+.kchip { font-style: normal; font-size: 9.5px; font-weight: 900; letter-spacing: .2px; background: rgba(255,255,255,.75); color: #3B2F2A; border-radius: 8px; padding: 2px 5px 2px 3px; white-space: nowrap; display: inline-flex; align-items: center; gap: 2px; }
+.kchip s { text-decoration: none; font-size: 11px; }
+.kchip.sm { font-size: 8.5px; padding: 1px 4px 1px 2px; } .kchip.sm s { font-size: 10px; }
+.ccard.sel { border-color: #5FA05A; box-shadow: 0 3px 0 #4E8C47, 0 0 0 3px rgba(111,160,90,.35); background: linear-gradient(170deg, var(--c1, #FBF4E4) 0%, var(--c2, #F1E4C6) 100%); }
+.ccard.locked { background: linear-gradient(170deg, #4A4458, #2E2A38); box-shadow: 0 3px 0 #1E1B26; border-color: rgba(255,255,255,.12); }
+.ccard.locked .cstage { background: radial-gradient(ellipse 55% 50% at 50% 58%, rgba(255,255,255,.18), rgba(255,255,255,0) 70%); }
+.ccard.locked .cname { background: rgba(255,255,255,.12); color: #CFC6F2; }
+.ccard.locked .crole { color: #CFC6F2; }
+.ccard.locked canvas.pt { filter: brightness(0) invert(.25); }
+.cinfo { z-index: 3; }
+.ctick { z-index: 3; }
+.cinfo-wrap .cstage.big { height: 170px; border-radius: 20px; background-color: var(--c2); } .cinfo-wrap .cstage.big canvas.pt { height: 160px; width: 190px; }
+.cinfo-wrap .kchips { margin: 4px 0; } .cinfo-wrap .kchip { font-size: 12px; padding: 3px 8px 3px 5px; } .cinfo-wrap .kchip s { font-size: 14px; }
+.reveal .kchips { margin: 2px 0 4px; } .reveal .kchip { font-size: 12.5px; padding: 3px 9px 3px 6px; background: var(--paper2); } .reveal .kchip s { font-size: 15px; }
+/* build menu */
+.bcard { background: linear-gradient(170deg, var(--c1, #FBF4E4), var(--c2, #F1E4C6)); border: 2px solid rgba(255,255,255,.7); box-shadow: 0 3px 0 var(--c3, #C9B48E); padding: 0 0 5px; overflow: hidden; gap: 2px; }
+.bcard .cstage { height: 64px; } .bcard .cstage canvas.pt { width: 100%; height: 64px; position: relative; z-index: 1; }
+.bcard .cname { display: inline-block; margin-top: -8px; position: relative; z-index: 2; background: #3B2F2A; color: #FFF6E2; font-size: 12px; font-weight: 900; padding: 1px 8px; border-radius: 9px; }
+.bcard .cost { z-index: 3; }
+/* draft cards */
+.dcard { display: grid !important; grid-template-columns: 54px 1fr; gap: 10px; align-items: center; text-align: left; }
+.dcard .dicon { width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(170deg, var(--c1, #FFF1C8), var(--c2, #F2D98A)); display: flex; align-items: center; justify-content: center; font-size: 28px; overflow: hidden; box-shadow: inset 0 -3px 0 rgba(0,0,0,.08); }
+.dcard .dicon canvas.pt { width: 64px; height: 58px; }
+.dcard.cursed .dicon { background: linear-gradient(170deg, #4A4458, #2E2A38); }
+.dcard .dtext { display: flex; flex-direction: column; gap: 2px; }
+.drafts.first .dcard { animation: bpulse 1.6s ease-in-out infinite; } .drafts.first .dcard:nth-child(2) { animation-delay: .2s; } .drafts.first .dcard:nth-child(3) { animation-delay: .4s; }
+.dcard.queued, .btn.queued { outline: 3px solid #5FA05A; outline-offset: 2px; }
+@media (max-height: 700px) { .cstage, .ccard .cstage canvas.pt { height: 70px; } }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
@@ -4636,6 +4692,8 @@ const R = (function () {
   function freshMeta() { const d = defaultMeta(); d.settings.sound = true; d.settings.volume = .6; d.settings.music = true; ensureJobs(d); return d; }
   // ===== Analytics: one fail-silent function. Anonymous, no PII. Off unless HML_ANALYTICS.key is set. =====
   const AN = window.HML_ANALYTICS || {}, anonKey = 'hml.anon';
+  const urlQ = (() => { try { return new URLSearchParams(location.search); } catch (e) { return null; } })();
+  const sessionSrc = urlQ ? (urlQ.get('ref') || urlQ.get('utm_source') || '').slice(0, 40).replace(/[^a-z0-9_.-]/gi, '') : '';
   let anonId = null, firstVisit = false; const sessionStart = Date.now(), sessionId = Math.random().toString(36).slice(2, 10);
   try { anonId = localStorage.getItem(anonKey); if (!anonId) { anonId = 'a_' + (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)); localStorage.setItem(anonKey, anonId); firstVisit = true; } } catch (e) { anonId = 'a_nostore_' + sessionId; }
   const deviceCat = () => { const w = Math.min(screen.width || innerWidth, screen.height || innerHeight); return ('ontouchstart' in window || navigator.maxTouchPoints > 0) ? (w >= 600 ? 'tablet' : 'mobile') : 'desktop'; };
@@ -4643,7 +4701,7 @@ const R = (function () {
     try {
       if (!AN.key || (meta && meta.settings && meta.settings.analytics === false)) return;
       const body = JSON.stringify({ api_key: AN.key, event: name, distinct_id: anonId, timestamp: new Date().toISOString(),
-        properties: Object.assign({ $session_id: sessionId, build: window.HML_BUILD, device_category: deviceCat(), screen_w: innerWidth, screen_h: innerHeight, $process_person_profile: false }, props || {}) });
+        properties: Object.assign({ $session_id: sessionId, src: sessionSrc || 'direct', first_src: (meta && meta.firstSrc) || sessionSrc || 'direct', build: window.HML_BUILD, device_category: deviceCat(), screen_w: innerWidth, screen_h: innerHeight, $process_person_profile: false }, props || {}) });
       const url = (AN.host || 'https://us.i.posthog.com').replace(/\/$/, '') + '/i/v0/e/';
       if (beacon && navigator.sendBeacon) { navigator.sendBeacon(url, new Blob([body], { type: 'application/json' })); return; }
       fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true, mode: 'cors' }).catch(() => {});
@@ -4668,6 +4726,11 @@ const R = (function () {
     banjo: { n: 'Banjo', role: 'Chaos', icon: '🍌', keys: ['SLAP', 'STUN', 'BANANA'], st: [3, 1, 4, 2], hi: 'Excellent choice. \ud83c\udf4c', ab: 'Seven hand gestures in a row, then a Banana Split.', vs: 'anything that gets close' },
   };
   const CREW_SIZE = 6, CREW_ORDER = Object.keys(CREW);
+  const KEYICON = { 'CHUCK': '\ud83d\uddd1\ufe0f', 'SPLASH': '\ud83d\udca5', 'HITS FLYERS': '\ud83e\udebd', 'BONK': '\ud83c\udf73', 'STUN': '\u26a1', 'SHORT RANGE': '\ud83d\udc4a', 'CRITS': '\ud83c\udfaf', 'LONG RANGE': '\ud83d\udd2d', 'ANTI-ARMOUR': '\ud83d\udee1\ufe0f', 'SPEED BOOST': '\u23e9', 'SLOW': '\ud83d\udc0c', 'SNAGS': '\ud83c\udf2d', 'TIPSY': '\ud83e\udd74', '+DAMAGE TAKEN': '\ud83d\udca2', 'BIRDS': '\ud83d\udc26', 'PECK': '\u26cf\ufe0f', 'ANTI-AIR': '\ud83e\udebd', 'GOLD': '\ud83d\udcb0', '+RANGE': '\ud83d\udce1', '+SPEED': '\u23e9', 'LIFT': '\ud83c\udf00', 'SLAM': '\ud83d\udca2', 'YEET': '\ud83d\ude80', 'SLAP': '\ud83d\udc4b', 'BANANA': '\ud83c\udf4c' };
+  const CREWCOL = { chuck: '#F09A2E', bonk: '#E5533D', nan: '#8E5CE0', sizzle: '#E3A02C', jezza: '#B8742A', bev: '#2F9E9A', dj: '#E85D9A', pete: '#6C5CE0', banjo: '#E8C21E' };
+  function mixHex(a, b2, t) { const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)); const A = p(a), B = p(b2); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join(''); }
+  function crewStyle(k) { const c = CREWCOL[k] || '#C9A46A'; return '--cc:' + c + ';--c1:' + mixHex(c, '#FFF6E2', .72) + ';--c2:' + mixHex(c, '#FFF6E2', .42) + ';--c3:' + mixHex(c, '#3B2F2A', .25); }
+  function keyChips(k, n, cls) { return (CREW[k] ? CREW[k].keys : []).slice(0, n || 2).map(w => '<i class="kchip ' + (cls || '') + '">' + (KEYICON[w] ? '<s>' + KEYICON[w] + '</s>' : '') + w + '</i>').join(''); }
   const BUILD_QUIP = { chuck: 'Righto.', bonk: 'Bring it.', nan: 'Hmph. Fine.', sizzle: 'Snags on!', jezza: 'Cheers.', bev: 'Here, birdy.', dj: 'Drop it!', pete: '*floats ominously*', banjo: 'Banana time.' };
   const BUILD_QUIP_ALT = { jezza: ['VB longneck. 8am. Breakfast.', 'It\u2019s 5 o\u2019clock somewhere. Here, mostly.'], sizzle: ['Onions go on top. Fight me.', 'Democracy sausage, coming up.'], bonk: ['You can\u2019t park there, mate.'], chuck: ['Bin night. Everything goes.'], nan: ['I\u2019ve seen worse. Not often.'], dj: ['Doof doof doof.'], banjo: ['Peel yourself together.'], bev: ['Fish sauce is not for birds.'], pete: ['Long boy reporting.'] };
   function recommendCrew(mapIdx) {
@@ -4716,9 +4779,9 @@ const R = (function () {
       const slots = []; for (let s = 0; s < CREW_SIZE; s++) slots.push(crew[s] ? '<button class="cslot on" data-slot="' + crew[s] + '" aria-label="Remove ' + CREW[crew[s]].n + '">' + ptHTML(crew[s]) + '</button>' : '<span class="cslot"></span>');
       const cards = CREW_ORDER.map(k => {
         const C = CREW[k], un = towerUnlocked(meta, k), sel = crew.includes(k);
-        return '<div class="ccard' + (sel ? ' sel' : '') + (un ? '' : ' locked') + '" data-k="' + k + '" role="button" tabindex="0" aria-pressed="' + sel + '" aria-label="' + C.n + ', ' + C.role + '">' +
-          (un ? '<button class="cinfo" data-info="' + k + '" aria-label="About ' + C.n + '">i</button>' : '') + ptHTML(k) +
-          '<b>' + C.n + '</b><span class="crole">' + C.icon + ' ' + C.role + '</span><span class="ckeys">' + (un ? C.keys.slice(0, 2).join(' \u2022 ') : '\ud83d\udd12 ' + lockText(k)) + '</span>' + (sel ? '<i class="ctick">\u2713</i>' : '') + '</div>';
+        return '<div class="ccard' + (sel ? ' sel' : '') + (un ? '' : ' locked') + '" style="' + crewStyle(k) + '" data-k="' + k + '" role="button" tabindex="0" aria-pressed="' + sel + '" aria-label="' + C.n + ', ' + C.role + '">' +
+          (un ? '<button class="cinfo" data-info="' + k + '" aria-label="About ' + C.n + '">i</button>' : '') + '<div class="cstage">' + ptHTML(k) + '</div>' +
+          '<b class="cname">' + (un ? C.n : '???') + '</b><span class="crole">' + (un ? C.icon + ' ' + C.role : '\ud83d\udd12 ' + lockText(k)) + '</span>' + (un ? '<span class="kchips">' + keyChips(k, 2) + '</span>' : '') + (sel ? '<i class="ctick">\u2713</i>' : '') + '</div>';
       }).join('');
       openModal('<div class="crewhead"><h2 class="title sm">' + (opts.first ? 'Meet your crew' : 'Your crew') + '</h2><span class="cnt">' + crew.length + '/' + Math.min(CREW_SIZE, CREW_ORDER.filter(k => towerUnlocked(meta, k)).length) + '</span></div>' +
         '<div class="cslots">' + slots.join('') + '</div>' + synChips(crew) + '<div class="cgrid">' + cards + '</div>' +
@@ -4781,7 +4844,7 @@ const R = (function () {
   }
   function showCrewInfo(k, crew, back, onSel) {
     const C = CREW[k], sel = crew.includes(k), bars = ['DMG', 'RANGE', 'SPEED', 'SUPPORT'];
-    openModal('<div class="cinfo-wrap">' + ptHTML(k, 'big') + '<h2 class="title sm">' + C.n + '</h2><span class="crole">' + C.icon + ' ' + C.role + '</span>' +
+    openModal('<div class="cinfo-wrap" style="' + crewStyle(k) + '"><div class="cstage big">' + ptHTML(k, 'big') + '</div><h2 class="title sm">' + C.n + '</h2><span class="crole">' + C.icon + ' ' + C.role + '</span><span class="kchips">' + keyChips(k, 3) + '</span>' +
       '<div class="cstats">' + bars.map((b, i) => '<div class="cstat"><span>' + b + '</span><i>' + '<em class="f"></em>'.repeat(C.st[i]) + '<em></em>'.repeat(5 - C.st[i]) + '</i></div>').join('') + '</div>' +
       '<p class="cab">' + C.ab + '</p><p class="cvs">Great against <b>' + C.vs + '</b>.</p>' +
       '<div class="crewbtns"><button class="btn" id="ciBack">Back</button><button class="btn primary big" id="ciSel">' + (sel ? 'Remove' : 'Select') + '</button></div></div>', 'menu crew');
@@ -4955,7 +5018,7 @@ const R = (function () {
       else if (e.type === 'ultimate') toast('ULTIMATE unlocked: ' + TIER_NOTES[e.tt][3].replace('ULTIMATE: ', '') + '!', 'rare');
       else if (e.type === 'levelUp') toast('Level up! ' + SKILL_NAMES[e.s] + ' ' + e.L + '. Your crew just got better.', 'rare');
       else if (e.type === 'poke') toast(e.ok ? 'Gary swung his sword in his sleep.' : 'Gary rolled over and knocked his thong off the pile.', e.ok ? 'rare' : 'bad');
-      else if (e.type === 'waveEnd') { saveRun(); setTimeout(() => showDraft(e.wave, e.bonus), 550); }
+      else if (e.type === 'waveEnd') { saveRun(); if (G.grace && e.wave <= 2) { lastHud = ''; } else setTimeout(() => showDraft(e.wave, e.bonus), 550); }
       else if (e.type === 'dream') { /* visuals in renderer */ }
       else if (e.type === 'over') {
         const mus = meta.settings.music !== false;
@@ -5010,7 +5073,7 @@ const R = (function () {
         crewList.map(k => {
           const C = CREW[k] || { n: TOWERS[k].crew, keys: [] }, c = towerCost(G, k), ok = G.gold >= c;
           const t0 = TOWERS[k].tiers[0], reach = (t0.range || t0.aura || 999) * (G.map.pads[selPad][2] === 'high' ? 1.2 : 1), far = padRoadDist(G.map, G.map.pads[selPad]) > reach - 6;
-          return '<button class="bcard' + (ok ? '' : ' poor') + (far ? ' far' : '') + '" data-build="' + k + '"' + (ok && !far ? '' : ' disabled') + '>' + ptHTML(k) + '<b>' + C.n + '</b><span class="ckeys">' + (far ? 'TOO FAR FROM THE ROAD' : C.keys.slice(0, 2).join(' \u2022 ')) + '</span><span class="cost">' + c + '</span></button>';
+          return '<button class="bcard' + (ok ? '' : ' poor') + (far ? ' far' : '') + '" style="' + crewStyle(k) + '" data-build="' + k + '"' + (ok && !far ? '' : ' disabled') + '><div class="cstage">' + ptHTML(k) + '</div><b class="cname">' + C.n + '</b>' + (far ? '<span class="ckeys">TOO FAR FROM THE ROAD</span>' : '<span class="kchips">' + keyChips(k, 2, 'sm') + '</span>') + '<span class="cost">' + c + '</span></button>';
         }).join('') + '</div>';
     } else {
       const t = G.towers[selPad], d = TOWERS[t.type], uc = upgradeCost(G, selPad), nx = d.tiers[t.tier + 1];
@@ -5075,6 +5138,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 22, title: 'Crew cards with a bit of colour', notes: ['Crew cards are now bigger and more colourful, with icons for what everyone does: \u26a1 STUN, \ud83d\udca5 SPLASH, \ud83c\udfaf CRITS and friends.', 'Bonus cards show who they help, and you can tap them straight away.', 'Brand-new players get two waves to settle in before the first bonus card.'] },
     { build: 21, title: 'Sturdier graphics', notes: ['If anything ever goes wrong while drawing a frame, the game now recovers by itself on the next frame instead of the screen breaking.', 'Lighter on iPhone memory when opening menus.'] },
     { build: 20, title: 'Helping us fix the hard bits', notes: ['The game now sends anonymous play stats (which levels people get stuck on, never names or locations) so the tricky bits can be fixed. You can switch it off in Settings.'] },
     { build: 19, title: 'Marg can reach now', notes: ['Big Marg\u2019s pan reaches a bit further, and the build menu now greys out anyone who\u2019s too far from the road to hit anything. No more silent Margs.', 'More Australia in the quips. Jezza has opinions about breakfast.'] },
@@ -5125,11 +5189,16 @@ const R = (function () {
     clearTimeout(armTimer);
     card.className = (cls || '') + (arm ? ' arming' : ''); freeCanvases(card); card.innerHTML = html; m.hidden = false; card.scrollTop = 0;
     if (arm) {
-      // Ignore taps that were already happening when this popped up.
+      // Ignore taps that were already happening when this popped up (they never pressed down on a button).
+      // A fresh tap during the short arming window is remembered and applied when it ends.
       const btns = [...card.querySelectorAll('button')].filter(b => !b.disabled);
-      btns.forEach(b => { b.disabled = true; b.addEventListener('pointerdown', () => { b.dataset.down = '1'; }); });
+      let queued = null;
+      btns.forEach(b => {
+        b.addEventListener('pointerdown', () => { b.dataset.down = '1'; });
+        b.addEventListener('click', ev => { if (!card.classList.contains('arming')) return; ev.stopImmediatePropagation(); ev.preventDefault(); if (b.dataset.down === '1' && !queued) { queued = b; b.classList.add('queued'); SFX.play('click'); } }, true);
+      });
       card.style.setProperty('--arm', arm + 'ms');
-      armTimer = setTimeout(() => { btns.forEach(b => { b.disabled = false; }); card.classList.remove('arming'); }, arm);
+      armTimer = setTimeout(() => { card.classList.remove('arming'); if (queued && document.body.contains(queued)) queued.click(); }, arm);
       return;
     }
     const f = card.querySelector('[data-focus]') || (cls === 'home' ? null : card.querySelector('button:not([disabled])')); if (f) f.focus({ preventScroll: true });
@@ -5417,7 +5486,7 @@ const R = (function () {
     if (step === 'pad') {
       if (towers.length) return tutDone('pad');
       if (sheetMode === 'build') return tutDone('pad');
-      const p = G.map.pads[1]; return showCoach(cvPt(p[0], p[1] - 6), 'TAP HERE', true);
+      const p = G.map.pads[1]; return showCoach(cvPt(p[0], p[1] - 6), age > 7000 ? 'TAP THE WOODEN PALLET' : 'TAP HERE', true);
     }
     if (step === 'pick') {
       if (towers.length) return tutDone('pick');
@@ -5484,8 +5553,10 @@ const R = (function () {
     state = 'draft';
     const cards = rollCards(G);
     SFX.play('card');
-    openModal('<h2 class="title sm">Wave ' + wave + ' done</h2><p class="lede">+' + bonus + ' gold. Pick one card.</p><div class="armbar" aria-hidden="true"><i></i></div><div class="drafts">' +
-      cards.map((c, i) => '<button class="dcard' + (c.cursed ? ' cursed' : '') + '" data-i="' + i + '">' + (c.cursed ? '<em>Cursed deal</em>' : '') + '<b>' + c.name + '</b><span>' + c.desc + '</span></button>').join('') + '</div>', '', 850);
+    const firstDraft = !meta.toldDraft; meta.toldDraft = 1;
+    openModal('<h2 class="title sm">Wave ' + wave + ' done!</h2><p class="lede">+' + bonus + ' gold. ' + (firstDraft ? 'Pick a bonus. It lasts the whole level. \ud83d\udc47' : 'Pick a bonus.') + '</p><div class="armbar" aria-hidden="true"><i></i></div><div class="drafts' + (firstDraft ? ' first' : '') + '">' +
+      cards.map((c, i) => { const tw = CARD_TOWER[c.id] || cardTower(c); return '<button class="dcard' + (c.cursed ? ' cursed' : '') + '" data-i="' + i + '"' + (tw ? ' style="' + crewStyle(tw) + '"' : '') + '><span class="dicon">' + (tw ? '<canvas class="pt" data-type="' + tw + '"></canvas>' : (c.cursed ? '\ud83d\udc80' : CARD_ICON[c.id] || '\u2728')) + '</span><span class="dtext">' + (c.cursed ? '<em>Cursed deal</em>' : '') + '<b>' + c.name + '</b><span>' + c.desc + '</span></span></button>'; }).join('') + '</div>', '', 420);
+    drawPortraits($('modalCard'));
     $('modalCard').querySelectorAll('.dcard').forEach(b => b.onclick = ev => {
       if (!deliberate(ev, b)) return;
       SFX.play('pick');
@@ -5494,12 +5565,14 @@ const R = (function () {
     });
   }
 
+  const CARD_TOWER = { twobin: 'chuck', tea: 'nan', pan: 'bonk', onions: 'sizzle', topshelf: 'jezza', shout: 'jezza', chips: 'bev', potassium: 'banjo', treats: 'pete', headliner: 'dj' };
+  const CARD_ICON = { fund: '\ud83d\udcb0', grant: '\ud83c\udfdb\ufe0f', shiny: '\u2728', rush: '\u23e9', steve: '\ud83d\ude24', snore: '\ud83d\ude34', poke: '\ud83d\udca4', magnet: '\ud83e\uddf2', undies: '\ud83e\ude72', smoko: '\u2615' };
   // ---------- results ----------
   const UNLOCK_NOTES = { chucking: { 3: 'Dazza found a watermelon in the bin.', 5: 'Dazza found a whole telly in the bin.' } };
   let revealDone = false;
   function showReveal(k, then) {
     const C = CREW[k];
-    openModal('<div class="reveal"><span class="rtag">NEW CREW MEMBER</span>' + ptHTML(k, 'huge') + '<h2 class="title">' + C.n + '</h2><span class="crole big">' + C.icon + ' ' + C.role + ' \u00b7 ' + C.keys.slice(0, 2).join(' \u2022 ') + '</span><p class="rq">\u201c' + C.hi.replace(/\*/g, '') + '\u201d</p><button class="btn primary big" id="revOk">G\u2019DAY \u2192</button></div>', 'menu crew', 900);
+    openModal('<div class="reveal"><span class="rtag">NEW CREW MEMBER</span>' + ptHTML(k, 'huge') + '<h2 class="title">' + C.n + '</h2><span class="crole big">' + C.icon + ' ' + C.role + '</span><span class="kchips">' + keyChips(k, 3) + '</span><p class="rq">\u201c' + C.hi.replace(/\*/g, '') + '\u201d</p><button class="btn primary big" id="revOk">G\u2019DAY \u2192</button></div>', 'menu crew', 900);
     drawPortraits($('modalCard')); startPortraitLoop();
     SFX.play('ultimate'); setTimeout(() => { R.poke(k); SFX.play(crewSfx[k] || 'pick'); if (k === 'banjo') SFX.sting('banjo'); }, 700); R.celebrate();
     trackEvent('crew_unlocked', { character: k, wins: meta.wins });
@@ -5592,7 +5665,7 @@ const R = (function () {
       '<h3>Skills</h3>' + skills + (nextLine ? '<p class="next">' + nextLine + '</p>' : '') + jobsLine + '</details>';
     const dailyLine = G.mode === 'daily' && r.dailyFirst ? '<p class="rjob">\ud83c\udf19 Daily won! 2\u00d7 XP, +' + r.rk.daily + ' rocks' + (r.streak > 1 ? ' \u00b7 \ud83d\udd25 ' + r.streak + '-day streak' : '') + '</p>' : '';
     const jobFlash = dailyLine + (r.jobsDone.length ? '<p class="rjob">\u2705 Job done: ' + r.jobsDone[0].text + ' <b>+' + r.jobsDone[0].reward + '</b></p>' : '');
-    openModal(hero + (G.won || endless ? rewardRow + unlockCards : '') + jobFlash + primary + secondary + details, 'results' + (G.won ? ' won' : ' lost'), 1000);
+    openModal(hero + (G.won || endless ? rewardRow + unlockCards : '') + jobFlash + primary + secondary + details, 'results' + (G.won ? ' won' : ' lost'), 700);
     const shareCtx = { won: G.won, endless, levelName: G.mode === 'daily' ? 'Daily Nap' : G.mode === 'endless' ? 'The Long Nap' : G.map.name, pile: G.pile, pileMax: G.pileMax, wave: G.wave, waveCount: G.waveCount, stars: r.stars || 0, crew: (G.crew || []).slice(0, 6), best: r.best, boss: ENEMIES[G.map.boss].name.split(',')[0], quip: G.won ? ['Gary slept through the whole thing.', 'Not a single snag was wasted.', 'The monsters have filed a complaint.'][Math.floor(Math.random() * 3)] : fb[0] };
     drawPortraits($('modalCard')); startPortraitLoop();
     if (G.won) [0, 1, 2].forEach(i => { if (i < r.stars) setTimeout(() => SFX.play(i === 2 ? 'levelup' : 'coin'), 250 + i * 280); });
@@ -5762,7 +5835,7 @@ const R = (function () {
   document.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('button'); if (b && !b.disabled && !b.classList.contains('dcard')) SFX.play('click'); }, true);
   window.__hml = () => G;
   applyLook();
-  if (!meta.firstSeen) meta.firstSeen = Date.now(); meta.sessions = (meta.sessions || 0) + 1;
+  if (!meta.firstSeen) meta.firstSeen = Date.now(); if (!meta.firstSrc) meta.firstSrc = sessionSrc || 'direct'; meta.sessions = (meta.sessions || 0) + 1;
   const dayN = Math.floor((Date.now() - meta.firstSeen) / 86400000) + 1;
   trackEvent('session_start', { returning: !firstVisit, runs: meta.runs || 0, day_number: dayN, session_number: meta.sessions, streak: (meta.daily && meta.daily.streak) || 0 }); if (firstVisit) trackEvent('first_visit', {});
   if (dayN > 1) trackEvent('return_session', { day_number: dayN, session_number: meta.sessions });
