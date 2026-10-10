@@ -29,7 +29,7 @@
 <meta name="apple-mobile-web-app-title" content="Hold My Loot">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A4%3C/text%3E%3C/svg%3E">
-<meta name="hml-build" content="24">
+<meta name="hml-build" content="25">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -39,10 +39,13 @@ window.HML_ANALYTICS = { key: 'phc_nPSyxaXiPXx3RRGzXBQiups3gtxQFR6TmuAkpxY3XmhS'
    url:  a Ko-fi / Buy Me a Coffee / PayPal link. Leave empty and the Support section stays hidden.
    code: the word you send supporters in your thank-you message; it unlocks Gary's Supporter Scarlet pyjamas. */
 window.HML_SUPPORT = { url: '', code: '' };
+/* ===== LEADERBOARD (optional) =====
+   Supabase project URL and its public "anon" key. Leave empty and only personal bests are shown. */
+window.HML_BOARD = { url: '', key: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 24;
+window.HML_BUILD = 25;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -588,6 +591,19 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; text
 .fbwrap { display: flex; gap: 6px; } .fbwrap textarea { flex: 1; border: 2px solid var(--line); border-radius: 12px; padding: 8px; font: 700 14px Nunito, sans-serif; resize: none; } .fbwrap .btn { min-height: 44px; }
 .moodrow small { font-size: 11px; color: var(--muted); font-weight: 700; }
 .brag { display: block; width: 100%; margin: 8px 0 0; background: none; border: 0; font: 900 15px Nunito, sans-serif; color: #2F86D8; padding: 8px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ===== v25: gift, tomorrow, leaderboard ===== */
+.gift { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; background: linear-gradient(135deg, #FFF1C8, #FDE3EC); border: 2px solid #EAC66A; border-radius: 16px; padding: 10px 12px; margin: 10px 0 0; font-family: inherit; color: var(--ink); cursor: pointer; box-shadow: 0 3px 0 #D9B04A; animation: bpulse 1.8s ease-in-out infinite; }
+.gift .gbox { font-size: 34px; animation: wiggle 1.2s ease-in-out infinite; } .gift b { display: block; font-size: 15.5px; } .gift small { font-size: 12.5px; font-weight: 800; color: var(--muted); }
+@keyframes wiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
+.giftopen { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; } .giftopen .gbig { font-size: 64px; animation: cpop .6s cubic-bezier(.2,1.8,.4,1); } .giftopen .btn.big { width: 100%; }
+.tomorrow { background: linear-gradient(135deg, #E2F1FF, #EEE8FF); border-radius: 14px; padding: 8px 11px; margin: 12px 0 0; font-size: 13px; font-weight: 700; } .tomorrow b:first-child { display: block; font-size: 14px; }
+.mybest { background: var(--paper2); border-radius: 12px; padding: 8px 11px; font-weight: 800; margin: 6px 0; }
+.board { list-style: none; padding: 0; margin: 6px 0; } .board li { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 12px; background: var(--paper2); margin-bottom: 4px; font-size: 14.5px; }
+.board li.me { background: #E2EFD6; border: 1.5px solid #6FA05A; } .board .bpos { font-weight: 900; text-align: center; } .board .bw { font-weight: 900; color: var(--muted); font-size: 13px; }
+.nickrow { background: #FFF1C8; border-radius: 14px; padding: 9px 10px; margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; } .nickrow > span { font-weight: 900; font-size: 13.5px; } .nickrow > div { display: flex; gap: 6px; } .nickrow .btn { min-height: 42px; }
+#coach.ring::before { content: '\1F446'; position: absolute; left: 50%; bottom: -62px; font-size: 34px; transform: translateX(-30%); animation: handtap 1s ease-in-out infinite; filter: drop-shadow(0 3px 2px rgba(0,0,0,.25)); }
+@keyframes handtap { 0%,100% { transform: translate(-30%, 0) scale(1); } 45% { transform: translate(-30%, -8px) scale(1.05); } 60% { transform: translate(-30%, 2px) scale(.92); } }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
@@ -1342,16 +1358,19 @@ function dailySetup(meta, key) {
 }
 
 // ---------- Long Nap (endless) ----------
+function weekKey(d) { d = d || new Date(); const t = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const day = (t.getDay() + 6) % 7; t.setDate(t.getDate() - day); return dailyKey(t); }
+function shortFirstLevel(G) { const w = G.map.waves; G.waveList = [w[0], w[1], w[3], w[5], w[w.length - 1]]; G.waveCount = G.waveList.length; }
 function genWave(G, w) {
+  const rng = G.wrng || G.rng;
   const pool = ['rat', 'gob']; if (w >= 2) pool.push('skel', 'mozzie'); if (w >= 4) pool.push('bog', 'crab', 'seagull'); if (w >= 6) pool.push('pants', 'medic', 'ratmum');
   const total = Math.round(8 + w * 1.7), ng = Math.min(3, 1 + Math.floor(w / 3));
   const p = G.map.entr ? 'any' : G.map.gate ? undefined : (G.map.P.length > 1 ? 'alt' : undefined);
   const out = []; let at = 0;
   for (let g = 0; g < ng; g++) {
-    const t = pool[Math.floor(G.rng() * pool.length)];
+    const t = pool[Math.floor(rng() * pool.length)];
     const n = Math.max(1, Math.round(total / ng * ({ bog: .35, pants: .5, mozzie: 1.8, medic: .2, ratmum: .25, crab: .45, seagull: .5 }[t] || 1)));
     out.push({ t, n, gap: t === 'gob' ? .4 : t === 'rat' ? .5 : t === 'bog' ? 1.8 : t === 'pants' ? 1.2 : .8, at, p });
-    at += 2 + G.rng() * 3;
+    at += 2 + rng() * 3;
   }
   if (w % 10 === 0) { const bosses = ['chrisso', 'barry', 'frank', 'kevin', 'ken', 'stack', 'mortimer', 'doris', 'pantsalot', 'trevor', 'bigmum', 'castle', 'steve', 'scrapking']; if (G.map.F) bosses.push('swoop'); out.push({ t: bosses[(w / 10 - 1) % bosses.length], n: 1, gap: 0, at: 2, p }); }
   return out;
@@ -1639,7 +1658,7 @@ function startWave(G) {
   if (G.map.bridge) { const nb = Math.floor((G.wave - 1) / 2) % 2; if (nb !== G.bridgeIdx) { G.bridgeIdx = nb; fx(G, 'bridgeswing', {}); ev(G, 'bridgeswing'); } }
   G.shouting = G.mods.shoutRound; G.mods.shoutRound = 0;
   const q = [];
-  let def = G.mode === 'endless' ? genWave(G, G.wave) : G.runMods.chaos ? genChaos(G, G.wave) : G.map.waves[G.wave - 1];
+  let def = G.mode === 'endless' ? genWave(G, G.wave) : G.runMods.chaos ? genChaos(G, G.wave) : (G.waveList || G.map.waves)[G.wave - 1];
   if (G.runMods.bossrush && (G.wave === 3 || G.wave === 6)) {
     const pool = ['kevin', 'barry', 'stack', 'pantsalot', 'chrisso', 'mortimer', 'bigmum'].filter(b => b !== G.map.boss);
     def = def.concat([{ t: pool[(G.wave === 3 ? 0 : 1) + (G.mapIdx % 3)], n: 1, gap: 0, at: 4, p: G.map.entr ? 'e0' : undefined, mini: true }]);
@@ -1686,7 +1705,7 @@ function choosePath(G, p, type) {
 }
 function spawn(G, type, d, pi) {
   const def = ENEMIES[type];
-  const scale = (def.boss ? (G.mode === 'endless' ? 1 + Math.max(0, G.wave - 10) / 8 : 1) : (1 + .23 * (G.wave - 1)) * (G.mode === 'endless' ? 1 + .005 * (G.wave - 1) * (G.wave - 1) : 1)) * G.map.hpMult;
+  const scale = (def.boss ? (G.mode === 'endless' ? Math.pow(1.075, Math.max(0, G.wave - 10)) * (1 + Math.max(0, G.wave - 10) / 10) : 1) : (1 + .23 * (G.wave - 1)) * (G.mode === 'endless' ? Math.pow(1.075, Math.max(0, G.wave - 8)) : 1)) * G.map.hpMult;
   const hp = Math.round(def.hp * scale * G.mods.enemyHp);
   const P = def.flyer ? (type === 'swoop' && G.map.F ? G.map.F : G.map.FL[Math.floor(G.rng() * G.map.FL.length)]) : G.map.P[pi || 0];
   const e = { id: ++G.eid, type, name: def.name, hp, maxHp: hp, spd: def.spd * (.95 + G.rng() * .1) * (G.mode === 'endless' ? Math.min(1.4, 1 + .012 * (G.wave - 1)) : 1), armor: def.armor,
@@ -1695,6 +1714,7 @@ function spawn(G, type, d, pi) {
     nextShed: hp * .9, swoopCd: 3, tipsy: G.shouting && !def.boss ? 6 : 0,
     shield: def.shield ? Math.round(def.shield * scale * G.mods.enemyHp) : 0, scd: def.every || 0, crateT: 0, hatchT: 0, mcd: 4, splitN: 0, mbcd: 12, zcd: 2, air: 0, trampCd: 0, hcd: 2, stamps: {}, open: 0, closedT: 0, creditCd: 7, dmgBy: {}, frozen: 0, groggy: 0, shocked: 0 };
   if (G.event === 'bloodmoon') e.spd *= 1.2;
+  if (G.mode === 'endless' && G.wave > 25) e.spd *= Math.min(1.5, 1 + (G.wave - 25) * .012);
   if (G.grace && !def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * (G.wave <= 3 ? .7 : .82)); }
   if (G.grace && def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * .85); }
   if (e.tipsy) G.stats.tipsy++;
@@ -2645,7 +2665,7 @@ function finishRun(G) {
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { W, H, GARY, MAPS, posOn, SKILLS, SKILL_NAMES, SKILL_DESC, TOWERS, TIER_NOTES, ENEMIES, BOSS_ITEMS, RARITY, ITEMS, ALL_ITEMS, ITEM_DESC, STASH_TOTAL, CARDS,
-  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, padRoadDist, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
+  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, weekKey, shortFirstLevel, padRoadDist, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
 
 </script>
 <script>
@@ -4896,6 +4916,7 @@ const R = (function () {
       x.fillStyle = '#3B2F2A'; x.font = '900 30px Nunito, Arial, sans-serif'; x.fillText(c.endless ? 'The Long Nap: wave ' + (c.wave - 1) : c.won ? 'Gary kept ' + c.pile + '/' + c.pileMax + ' on ' + c.levelName : 'Cleaned out on wave ' + c.wave + ' of ' + c.levelName, 32, 86);
       if (c.won && !c.endless) for (let i = 0; i < 3; i++) { x.fillStyle = i < c.stars ? '#FFC94A' : '#E8DCC2'; x.beginPath(); for (let q = 0; q < 10; q++) { const rr2 = q % 2 ? 9 : 21, an = q * Math.PI / 5 - Math.PI / 2; x.lineTo(60 + i * 52 + Math.cos(an) * rr2, 155 + Math.sin(an) * rr2); } x.closePath(); x.fill(); }
       x.fillStyle = '#7A6A5C'; x.font = '800 20px Nunito, Arial, sans-serif'; x.fillText('\u201c' + c.quip + '\u201d', 32, c.won && !c.endless ? 190 : 140);
+      if (c.moment) { x.save(); x.translate(Wc - 250, 40); x.rotate(.05); x.fillStyle = '#FFE07A'; x.beginPath(); x.moveTo(0, 0); x.lineTo(230, 0); x.lineTo(230, 78); x.lineTo(0, 78); x.closePath(); x.fill(); x.fillStyle = '#3B2F2A'; x.font = '900 14px Nunito, Arial, sans-serif'; x.fillText('ACTUAL THING THAT HAPPENED:', 12, 10); x.font = '900 17px Nunito, Arial, sans-serif'; const words = c.moment.split(' '); let line = '', yy = 32; for (const w2 of words) { if (x.measureText(line + w2).width > 206) { x.fillText(line.trim(), 12, yy); line = ''; yy += 20; } line += w2 + ' '; } x.fillText(line.trim(), 12, yy); x.restore(); }
       // crew portraits
       const tmp = document.createElement('canvas'); tmp.width = 200; tmp.height = 180;
       c.crew.forEach((k, i) => { R.portrait(tmp, k, 0); x.drawImage(tmp, 28 + i * 105, 228, 100, 90); x.fillStyle = '#3B2F2A'; x.font = '900 15px Nunito, Arial, sans-serif'; x.textAlign = 'center'; x.fillText(CREW[k] ? CREW[k].n : k, 78 + i * 105, 322); x.textAlign = 'left'; });
@@ -5059,7 +5080,8 @@ const R = (function () {
     for (const e of evs) {
       if (e.type === 'firstLoot' && meta.runs < 3 && !G.instantLoot && !tutOn()) toast('Loot collects itself. Tap or swipe it to grab it faster.', 'big');
       else if (e.type === 'grabbing' && !toldGrab && !G.instantLoot && !tutOn()) { toldGrab = true; toast("One's spotted it. Tap the loot to snatch it back."); }
-      else if (e.type === 'heist' && e.item.tier >= 2) { const nowT = performance.now(); if (!(heistToastAt[e.item.name] > nowT - 8000)) { heistToastAt[e.item.name] = nowT; toast((Math.random() < .3 ? 'Nek minnit. ' : '') + e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad'); } }
+      else if (e.type === 'heist' && e.item.tier >= 2 && !G.moment) { G.moment = { k: 'heist', txt: 'A ' + e.base.split(' (')[0].split(',')[0] + ' stole ' + e.item.name + ' and wore it', pri: 1 }; }
+      if (e.type === 'heist' && e.item.tier >= 2) { const nowT = performance.now(); if (!(heistToastAt[e.item.name] > nowT - 8000)) { heistToastAt[e.item.name] = nowT; toast((Math.random() < .3 ? 'Nek minnit. ' : '') + e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad'); } }
       else if (e.type === 'stolen') toast(e.carry ? 'Gone, with ' + e.carry.name + '. -' + e.n + ' from the pile.' : e.n + (e.n > 1 ? ' items' : ' item') + ' nicked from the pile.', 'bad');
       else if (e.type === 'waveStart') SFX.play('wave');
       else if (e.type === 'rareDrop') { SFX.play('rare'); toast(RARITY[e.item.tier].k + ' drop: ' + e.item.name, 'rare'); }
@@ -5071,7 +5093,9 @@ const R = (function () {
       else if (e.type === 'synergy' && e.first) toast('New synergy: ' + SYNERGIES.find(s => s.id === e.id).name + '. ' + SYNERGIES.find(s => s.id === e.id).desc, 'rare');
       else if (e.type === 'dreamReady') { SFX.play('ready'); if (!toldDream && !tutOn()) { toldDream = true; toast('Gary\u2019s dream is ready. Tap UNLEASH when it counts.', 'big'); } }
       else if (e.type === 'event') { SFX.play('event'); const E = EVENTS.find(x => x.id === e.id); banner(E.name, E.desc, 'event'); }
-      else if (e.type === 'depants' && !G.toldPants) { G.toldPants = true; setTimeout(() => toast('Sir Pantsalot stole ' + (CREW[e.tt] ? CREW[e.tt].n : 'someone') + '\u2019s pants. Embarrassed crew stop working for a moment.', 'bad'), 1200); }
+      if (e.type === 'depants' && (!G.moment || G.moment.pri < 2)) G.moment = { k: 'pants', txt: 'Sir Pantsalot stole ' + (CREW[e.tt] ? CREW[e.tt].n : 'someone') + '\u2019s pants', pri: 2 };
+      if (e.type === 'garypants') G.moment = { k: 'garypants', txt: 'Sir Pantsalot stole Gary\u2019s pants', pri: 3 };
+      if (e.type === 'depants' && !G.toldPants) { G.toldPants = true; setTimeout(() => toast('Sir Pantsalot stole ' + (CREW[e.tt] ? CREW[e.tt].n : 'someone') + '\u2019s pants. Embarrassed crew stop working for a moment.', 'bad'), 1200); }
       else if (e.type === 'garypants') { setTimeout(() => toast('Sir Pantsalot took Gary\u2019s pants. Gary is now asleep in his boxers.', 'bad'), 1400); }
       else if (e.type === 'sinkhole') toast('A sinkhole swallowed the road. The monsters are taking another way.', 'bad');
       else if (e.type === 'bridgeswing') toast('The bridge swung to the other crossing.', 'big');
@@ -5119,6 +5143,7 @@ const R = (function () {
     if (!paused && tapAt(G, p.x, p.y)) { pointerDown = true; return; }
     let hit = -1;
     G.map.pads.forEach((pd, i) => { if (Math.abs(p.x - pd[0]) < 22 && p.y > pd[1] - 46 && p.y < pd[1] + 16) hit = i; });
+    if (hit < 0 && coachPad >= 0 && !$('coach').hidden) { const cp = G.map.pads[coachPad]; if (Math.hypot(p.x - cp[0], p.y - cp[1]) < 60) hit = coachPad; }
     if (hit >= 0 && G.padLock && G.padLock[hit] && !G.showLocks) return;
     if (hit >= 0 && G.padLock && G.padLock[hit]) { toast('Bonus pallet. Unlock it with Extra Pallets in Clive\u2019s Shed.'); return; }
     if (hit >= 0 && !G.over) { selPad = hit; sellArmed = -1; sheetMode = G.towers[hit] ? 'tower' : 'build'; sheetOpenedAt = performance.now(); renderSheet(); return; }
@@ -5209,6 +5234,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 25, title: 'The weekly Long Nap', notes: ['The Long Nap now has the same waves for everyone each week, and it gets harder and harder until nobody survives. How far can you get?', 'New players get a shorter first level, and Dazza turns up for work straight away.', 'Gary leaves you a little gift every day. Share the funny moments too: everyone needs to know about the pants.'] },
     { build: 24, title: 'Sir Pantsalot delivers', notes: ['Sir Pantsalot now actually takes pants. Your crew\u2019s, and if he gets close enough, Gary\u2019s.', 'Fixed: winning a level that unlocked new crew was paying out twice.'] },
     { build: 23, title: 'Straight into the action', notes: ['New players now land right in the game, and the monsters turn up as soon as your first crew member does.', 'Put Gary on your home screen after your first win, and he\u2019ll open like an app.', 'Tell the dev what you think, right from the menu. Brag to a mate after your big wins.'] },
     { build: 22, title: 'Crew cards with a bit of colour', notes: ['Crew cards are now bigger and more colourful, with icons for what everyone does: \u26a1 STUN, \ud83d\udca5 SPLASH, \ud83c\udfaf CRITS and friends.', 'Bonus cards show who they help, and you can tap them straight away.', 'Brand-new players get two waves to settle in before the first bonus card.'] },
@@ -5323,23 +5349,24 @@ const R = (function () {
     openModal(
       '<h1 class="title">Hold My Loot' + (meta.supporter ? ' <span class="supbadge" title="Supporter">\u2665</span>' : '') + '</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + saveBanner() + whatsNewCard() + jezzaBanner + bevBanner + djBanner + peteBanner + banjoBanner + playNextHTML(run) +
       (runMap ? '<button class="btn primary big cont" id="contBtn" data-focus>Continue: ' + (run.mode === 'endless' ? 'Long Nap' : run.mode === 'daily' ? 'Daily Nap' : runMap.name) + ', wave ' + (run.wave + 1) + '</button>' : '') +
-      '<h2 class="h2 tight">Up next</h2>' + goalsHTML() + a2hsCard('home') + supporterCard() +
+      giftHTML() + '<h2 class="h2 tight">Up next</h2>' + goalsHTML() + a2hsCard('home') + supporterCard() +
       garyCard() +
       '<div class="rockrow"><span class="rockic" aria-hidden="true"></span><span><b>' + (meta.rocks || 0) + '</b> Shiny Rocks</span><button class="btn' + (shedAffordable() ? ' glow' : '') + '" id="shedBtn">Clive\u2019s Shed' + (shedAffordable() ? ' <i class="dot"></i>' : '') + '</button></div>' +
       '<h2 class="h2">Odd jobs</h2>' + jobsHTML(meta.jobs, null) +
       '<h2 class="h2">Play</h2>' +
       '<div class="modes">' + dailyHTML(won, dsu, dDone) +
-      '<button class="mode" id="longBtn"' + (won ? '' : ' disabled') + '><b>The Long Nap</b><span>' + (won ? 'Endless waves. A boss every 10.' : 'Win a level to unlock.') + '</span><small>' + (bestEndless ? 'Best: wave ' + bestEndless : 'How long can Gary sleep?') + '</small></button></div>' +
+      '<button class="mode" id="longBtn"' + (won ? '' : ' disabled') + '><b>\ud83c\udfc6 The Long Nap</b><span>' + (won ? 'Endless, and harder every wave. Same waves for everyone this week.' : 'Win a level to unlock.') + '</span><small>' + (bestEndless ? 'Best: wave ' + bestEndless : 'How long can Gary sleep?') + '</small></button></div>' +
       '<h2 class="h2">Levels</h2><div class="levels">' + levels + '</div>' +
       (run ? '<p class="small">Starting something new replaces your saved run.</p>' : '') +
       '<details class="how"' + (meta.runs ? '' : ' open') + '><summary>How to play</summary><ul>' +
       '<li>Tap a wooden pad to build. Tap a tower to upgrade it.</li><li>Monsters drop loot. It collects itself, but tap or swipe it to grab it first. Monsters that reach it pick it up and get tougher.</li><li>Kill fast for combos. Call the next wave early for bonus gold.</li><li>Level a crew\u2019s skill to 5 for their tier 4 ULTIMATE, and to 8 for tier 5 ELITE.</li><li>Gary\u2019s dream meter fills as you fight. Tap UNLEASH for a huge attack.</li><li>Towers at tier 2 get an ability. Tap the tower when you see the lightning badge.</li><li>Some crew combos trigger hidden synergies. Find them all.</li><li>Every run levels your crew, earns Shiny Rocks for Clive\u2019s Shed, and chips away at your odd jobs.</li></ul></details>' +
       '<p class="clive">\u201cAny questions? Good, because I\u2019m not qualified to answer them.\u201d <span>Clive, Volunteer Coordinator</span></p>' +
-      '<p class="center"><button class="wnlink" id="fbLink">\ud83d\udcac Tell the dev</button> \u00b7 <button class="wnlink" id="wnLink">What\u2019s new in v' + (window.HML_BUILD || '') + '</button></p>', 'home');
+      tomorrowHTML() + '<p class="center"><button class="wnlink" id="fbLink">\ud83d\udcac Tell the dev</button> \u00b7 <button class="wnlink" id="wnLink">What\u2019s new in v' + (window.HML_BUILD || '') + '</button></p>', 'home');
     if ($('contBtn')) $('contBtn').onclick = () => continueRun(run);
     $('shedBtn').onclick = showShed;
     if ($('playNext')) $('playNext').onclick = () => { SFX.play('pick'); showLevel(nextLevelIdx()); };
     wireA2hs();
+    if ($('giftBtn')) $('giftBtn').onclick = () => openGift();
     if ($('supLater')) $('supLater').onclick = () => { meta.supSeen = true; saveMeta(); trackEvent('support_card_dismissed', {}); showHome(); };
     if ($('supHome')) $('supHome').onclick = () => { meta.supSeen = true; saveMeta(); trackEvent('support_link_clicked', { from: 'home' }); };
     drawPortraits($('modalCard'));
@@ -5431,6 +5458,20 @@ const R = (function () {
   function supporterCard() {
     if (!SUP.url || meta.supporter || meta.supSeen || (meta.wins || 0) < 5 || (meta.sessions || 0) < 3) return '';
     return '<div class="supcard"><div><b>\u2764\ufe0f Like Hold My Loot?</b><span>Made by one person. No ads, no pay-to-win. You can shout the dev a snag, and Gary gets red pyjamas out of it.</span></div><div class="row2b"><a class="btn primary" href="' + SUP.url + '" target="_blank" rel="noopener" id="supHome">\ud83c\udf2d Shout a snag</a><button class="btn" id="supLater">Not now</button></div></div>';
+  }
+  function giftReady() { return (meta.runs || 0) >= 1 && meta.giftKey !== dailyKey(); }
+  function giftHTML() { return giftReady() ? '<button class="gift" id="giftBtn"><span class="gbox">\ud83c\udf81</span><span><b>Gary left you something</b><small>Tap to open. A new one tomorrow.</small></span></button>' : ''; }
+  function openGift() {
+    const r0 = mulberry32(dailyKey() * 7 + 3), rocks = 15 + Math.floor(r0() * 16), shard = r0() < .5 ? 1 : 0;
+    meta.giftKey = dailyKey(); meta.rocks = (meta.rocks || 0) + rocks; meta.shards = (meta.shards || 0) + shard; meta.giftStreak = (meta.giftStreak || 0) + 1; saveMeta();
+    SFX.play('rare'); R.celebrate(); trackEvent('daily_gift_opened', { rocks, shard, day_number: Math.floor((Date.now() - meta.firstSeen) / 86400000) + 1 });
+    const lines = ['Found it under the couch.', 'Don\u2019t ask where it\u2019s been.', 'He was saving it for a special occasion.', 'It was in his other pants.', 'Freshly dug up from the backyard.'];
+    openModal('<div class="giftopen"><span class="gbig">\ud83c\udf81</span><h2 class="title sm">Gary\u2019s gift</h2><div class="rchips"><span class="rchip rock"><i class="rockic"></i>+' + rocks + '</span>' + (shard ? '<span class="rchip shard"><i class="shardic"></i>+1</span>' : '') + '</div><p class="rq">\u201c' + lines[Math.floor(r0() * lines.length)] + '\u201d</p><button class="btn primary big" id="giftOk">Cheers, Gary</button></div>', 'menu', 600);
+    $('giftOk').onclick = ev => { if (deliberate(ev, $('giftOk'))) showHome(); };
+  }
+  function tomorrowHTML() {
+    if ((meta.runs || 0) < 1) return '';
+    try { const tk = dayKeyOffset(dailyKey(), 1), ts = dailySetup(meta, tk); return '<div class="tomorrow"><b>\ud83c\udf19 Tomorrow</b><span>A new Nap on <b>' + MAPS[ts.mapIdx].name + '</b> and another gift from Gary.</span></div>'; } catch (e) { return ''; }
   }
   function dailyHTML(won, dsu, dDone) {
     if (!won) return '<button class="mode daily" id="dailyBtn" disabled><b>Today\u2019s Nap</b><span>Win a level to unlock.</span></button>';
@@ -5535,17 +5576,17 @@ const R = (function () {
   function pickLong() {
     const maps = MAPS.map((m, i) => i).filter(i => meta.maps[MAPS[i].id] && meta.maps[MAPS[i].id].wins > 0);
     if (!maps.length) maps.push(0);
-    if (maps.length === 1) return startLong(maps[0]);
+    if (maps.length === 1) return showBoard(maps[0], showHome);
     openModal('<div class="menu-head"><h2 class="title sm">The Long Nap</h2><button class="btn" id="lnBack">Back</button></div><p class="small">Endless waves on any level you\u2019ve won. A boss every 10 waves.</p><div class="levels">' +
-      maps.map(i => '<button class="level" data-l="' + i + '"><span class="lnum">' + (i + 1) + '</span><span class="ltext"><b>' + MAPS[i].name + '</b><small>Best: ' + (meta.endlessBest[MAPS[i].id] ? 'wave ' + meta.endlessBest[MAPS[i].id] : 'not played') + '</small></span></button>').join('') + '</div>');
+      maps.map(i => '<button class="level" data-l="' + i + '"><span class="lnum">' + (i + 1) + '</span><span class="ltext"><b>' + MAPS[i].name + '</b><small>This week: ' + (weekBest(MAPS[i].id) ? 'wave ' + weekBest(MAPS[i].id) : 'not played') + (meta.endlessBest[MAPS[i].id] ? ' \u00b7 all-time: wave ' + meta.endlessBest[MAPS[i].id] : '') + '</small></span><span class="lstars">\ud83c\udfc6</span></button>').join('') + '</div>');
     $('lnBack').onclick = showHome;
-    $('modalCard').querySelectorAll('[data-l]').forEach(b => b.onclick = () => startLong(+b.dataset.l));
+    $('modalCard').querySelectorAll('[data-l]').forEach(b => b.onclick = () => showBoard(+b.dataset.l, pickLong));
   }
   function newGame(mapIdx, mode, daily, mods) {
     clearRun(); closeModal();
     G = newRun(meta, (daily ? daily.key : (Date.now() ^ (Math.random() * 1e9))) >>> 0, mapIdx, mode, daily, mods);
     G.crew = mode === 'campaign' ? crewFor(mapIdx) : recommendCrew(mapIdx);
-    if (!meta.runs && mapIdx === 0 && mode === 'campaign') G.grace = true;
+    if (!meta.runs && mapIdx === 0 && mode === 'campaign') { G.grace = true; shortFirstLevel(G); }
     G.showLocks = (meta.runs || 0) >= 3 || shedLevel(meta, 'pallets') > 0;
     attempts[mapIdx] = (attempts[mapIdx] || 0) + 1;
     const lp = { level_id: G.map.id, level_name: G.map.name, chapter: G.map.chapter || 1, mode, crew: G.crew.join(','), nan_in_crew: G.crew.includes('nan'), retries: attempts[mapIdx] - 1 };
@@ -5564,14 +5605,52 @@ const R = (function () {
     const d = dailySetup(meta, dailyKey()); newGame(d.mapIdx, 'daily', d);
     toast('Daily Nap: ' + d.rules.map(id => CARDS.find(c => c.id === id).name).join(' + ') + '.', 'big');
   }
-  function startLong(i) { newGame(i, 'endless'); toast('The Long Nap. How long can Gary sleep?', 'big'); }
+  // ---- Weekly Long Nap: same waves for everyone this week, on each map ----
+  const BOARD = window.HML_BOARD || {};
+  const boardOn = () => !!(BOARD.url && BOARD.key);
+  function startLong(i) {
+    newGame(i, 'endless'); G.week = weekKey(); G.wrng = mulberry32((G.week * 31 + i * 977) >>> 0);
+    toast('This week\u2019s Long Nap. Same waves for everyone until Monday. How long can Gary sleep?', 'big');
+  }
+  function weekBest(mapId) { return ((meta.weekBest || {})[weekKey() + '|' + mapId]) || 0; }
+  async function boardFetch(mapId) {
+    if (!boardOn()) return null;
+    try {
+      const url = BOARD.url.replace(/\/$/, '') + '/rest/v1/scores?select=name,wave,crew&week=eq.' + weekKey() + '&map=eq.' + encodeURIComponent(mapId) + '&order=wave.desc,created_at.asc&limit=20';
+      const r2 = await fetch(url, { headers: { apikey: BOARD.key, Authorization: 'Bearer ' + BOARD.key } });
+      if (!r2.ok) return null; return await r2.json();
+    } catch (e) { return null; }
+  }
+  async function boardSubmit(mapId, wave, crew) {
+    if (!boardOn() || !meta.nick || wave < 1) return false;
+    try {
+      const r2 = await fetch(BOARD.url.replace(/\/$/, '') + '/rest/v1/scores', { method: 'POST', headers: { apikey: BOARD.key, Authorization: 'Bearer ' + BOARD.key, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ week: weekKey(), map: mapId, wave: Math.min(999, wave | 0), name: meta.nick, crew: (crew || []).join(','), build: window.HML_BUILD, player: anonId }) });
+      return r2.ok;
+    } catch (e) { return false; }
+  }
+  const cleanNick = s2 => String(s2 || '').replace(/[^A-Za-z0-9 _\-]/g, '').trim().slice(0, 14);
+  function boardRowsHTML(rows, mine) {
+    if (!rows) return '<p class="small">Couldn\u2019t reach the leaderboard. Your best still counts here.</p>';
+    if (!rows.length) return '<p class="small">Nobody on the board yet this week. Be first.</p>';
+    return '<ol class="board">' + rows.map((r2, k) => '<li class="' + (mine && r2.name === meta.nick ? 'me' : '') + '"><span class="bpos">' + (k === 0 ? '\ud83e\udd47' : k === 1 ? '\ud83e\udd48' : k === 2 ? '\ud83e\udd49' : (k + 1)) + '</span><b>' + String(r2.name).replace(/</g, '') + '</b><span class="bw">wave ' + r2.wave + '</span></li>').join('') + '</ol>';
+  }
+  async function showBoard(i, after) {
+    const m = MAPS[i];
+    openModal('<div class="menu-head"><h2 class="title sm">\ud83c\udfc6 Long Nap: ' + m.name + '</h2><button class="btn" id="bdBack">Back</button></div><p class="small">This week\u2019s waves are the same for everyone. Resets Monday. The waves get harder and harder: nobody survives forever.</p>' +
+      '<div class="mybest">Your best this week: <b>' + (weekBest(m.id) ? 'wave ' + weekBest(m.id) : 'not yet') + '</b></div>' + (boardOn() ? '<div id="bdRows"><p class="small">Loading\u2026</p></div>' : '') +
+      '<div class="row3"><button class="btn primary big" id="bdPlay">Play the Long Nap \u2192</button></div>', 'menu');
+    $('bdBack').onclick = after || showHome; $('bdPlay').onclick = () => startLong(i);
+    trackEvent('leaderboard_view', { level_id: m.id, global: boardOn() });
+    if (boardOn()) { const rows = await boardFetch(m.id); if ($('bdRows')) $('bdRows').innerHTML = boardRowsHTML(rows, true); }
+  }
   function continueRun(run) {
     closeModal();
     try { G = restoreRun(meta, run); G.crew = (run.crew && run.crew.length) ? run.crew : crewFor(G.mapIdx); } catch (e) { clearRun(); showHome(); return; }
     homeMap = G.mapIdx; begin();
     toast('Back on ' + G.map.name + '. Tap Start wave when ready.', 'big');
   }
-  const heistToastAt = {};
+  const heistToastAt = {}; let sessionWins = 0, toldTomorrow = false;
   let toldStorage = false, toldSoggy = false, toldDream = false, toldCredit = false, lastSheetR = 0, toldAbility = false;
   function mapHint() {
     const m = G.map;
@@ -5589,7 +5668,9 @@ const R = (function () {
     tut = { i: 0, since: performance.now() }; trackEvent('tutorial_start', { first_touch: firstTouch });
     if (firstTouch) {
       firstTouch = false;
-      setTimeout(() => { if (G && G.mapIdx === 0 && G.wave === 0) { banner('Gary\u2019s asleep', 'Monsters want his loot. Stop them.', 'event'); R.say(GARY.x, GARY.y - 34, 'zzz... guard me loot...', 3); } }, 250);
+      // The screen is alive before the player decides anything: Dazza is already on duty.
+      if (G && G.mapIdx === 0 && G.wave === 0 && !G.towers[1]) { G.gold += towerCost(G, 'chuck'); build(G, 1, 'chuck'); G.freeDazza = true; const p = G.map.pads[1]; setTimeout(() => R.say(p[0], p[1] - 52, 'Righto. I\u2019ve got this.', 2.2), 700); }
+      setTimeout(() => { if (G && G.mapIdx === 0 && G.wave <= 1) { banner('Gary\u2019s asleep', 'Monsters want his loot. Stop them.', 'event'); R.say(GARY.x, GARY.y - 34, 'zzz... guard me loot...', 3); } }, 250);
     }
   }
   function tutDone(step) { trackEvent('tutorial_step_completed', { step, index: tut.i }); tut.i++; tut.since = performance.now(); if (tut.i >= TUT_STEPS.length) { tut = null; meta.tutDone = 1; saveMeta(); hideCoach(); } }
@@ -5600,7 +5681,8 @@ const R = (function () {
     c.style.left = Math.round(pt.x) + 'px'; c.style.top = Math.round(pt.y) + 'px';
     c.querySelector('b').textContent = label; c.classList.toggle('ring', !!ring);
   }
-  function hideCoach() { const c = $('coach'); if (c) c.hidden = true; }
+  function hideCoach() { const c = $('coach'); if (c) c.hidden = true; coachPad = -1; }
+  let coachPad = -1;
   function tutTick() {
     if (!tutOn()) { hideCoach(); return; }
     if (!$('modal').hidden) { hideCoach(); return; }
@@ -5608,7 +5690,7 @@ const R = (function () {
     if (step === 'pad') {
       if (towers.length) return tutDone('pad');
       if (sheetMode === 'build') return tutDone('pad');
-      const p = G.map.pads[1]; return showCoach(cvPt(p[0], p[1] - 6), age > 7000 ? 'TAP THE WOODEN PALLET' : 'TAP HERE', true);
+      const p = G.map.pads[1]; coachPad = 1; return showCoach(cvPt(p[0], p[1] - 6), age > 7000 ? 'TAP THE WOODEN PALLET' : 'TAP HERE', true);
     }
     if (step === 'pick') {
       if (towers.length) { if (G.grace && G.wave === 0 && !G.waveActive) setTimeout(() => { if (G && G.wave === 0 && !G.waveActive && state === 'play') { startWave(G); SFX.play('wave'); lastHud = ''; } }, 1400); return tutDone('pick'); }
@@ -5635,7 +5717,7 @@ const R = (function () {
       if (G.waveActive && age < 2500) return hideCoach();
       const order = [3, 4, 0, 2, 5, 6]; const pi = order.find(i => G.map.pads[i] && !G.towers[i] && !(G.padLock && G.padLock[i]));
       if (pi == null) return tutDone('build2');
-      const p = G.map.pads[pi]; return showCoach(cvPt(p[0], p[1] - 6), 'Hire more crew', true);
+      const p = G.map.pads[pi]; coachPad = pi; return showCoach(cvPt(p[0], p[1] - 6), G.freeDazza && towers.length === 1 ? (age > 9000 ? 'TAP THE WOODEN PALLET' : 'TAP HERE') : 'Hire more crew', true);
     }
     if (step === 'upgrade') {
       if (towers.some(t => t.tier > 0)) return tutDone('upgrade');
@@ -5737,7 +5819,7 @@ const R = (function () {
     const shedHint = cheapest ? (meta.rocks >= cheapest.s.costs[cheapest.L] ? '<p class="next">You can afford ' + cheapest.s.name + ' in Clive\u2019s Shed.</p>' : '<p class="small">' + (cheapest.s.costs[cheapest.L] - meta.rocks) + ' more rocks for ' + cheapest.s.name + '.</p>') : '';
     const jobsLine = (r.jobsDone.length ? r.jobsDone.map(j => '<p class="jobdone">Job done: ' + j.text + ' <b>+' + j.reward + '</b></p>').join('') : '') + '<h3>Odd jobs</h3>' + jobsHTML(meta.jobs, null);
     const shareLink = (location.protocol.startsWith('http') ? location.origin + location.pathname.replace(/index\.html$/, '') : 'https://holdmyloot.com/') + '?ref=share';
-    const shareText = 'Hold My Loot, ' + (G.mode === 'daily' ? 'Daily Nap ' + G.daily.key : G.mode === 'endless' ? 'The Long Nap' : G.map.name) + ': ' + (G.mode === 'endless' ? 'survived ' + (G.wave - 1) + ' waves' : G.won ? 'Gary kept ' + G.pile + '/' + G.pileMax : 'cleaned out on wave ' + G.wave) + '\n' + r.grid + (r.best ? '\nBest drop: ' + RARITY[r.best.tier].k + ' ' + r.best.name : '') + '\nPlay it: ' + shareLink;
+    const shareText = 'Hold My Loot, ' + (G.mode === 'daily' ? 'Daily Nap ' + G.daily.key : G.mode === 'endless' ? 'The Long Nap' : G.map.name) + ': ' + (G.mode === 'endless' ? 'survived ' + (G.wave - 1) + ' waves' : G.won ? 'Gary kept ' + G.pile + '/' + G.pileMax : 'cleaned out on wave ' + G.wave) + '\n' + r.grid + (r.best ? '\nBest drop: ' + RARITY[r.best.tier].k + ' ' + r.best.name : '') + (G.moment ? '\nAlso: ' + G.moment.txt + '.' : '') + '\nPlay it: ' + shareLink;
     // ---- results: hero, rewards, one big button; everything else folds away ----
     const nextOk = G.won && nextMap && G.mode === 'campaign';
     const firstEver = G.won && meta.wins === 1 && G.mode === 'campaign';
@@ -5770,7 +5852,10 @@ const R = (function () {
     if (!G.won && !endless && G.mode === 'campaign') { meta.lossReasons = meta.lossReasons || {}; const key = G.map.id + '|' + fb[0]; meta.lossReasons[key] = (meta.lossReasons[key] || 0) + 1; repeatN = meta.lossReasons[key]; }
     if (repeatN >= 3) fb[1] = 'Same thing ' + repeatN + ' times now. ' + fb[1] + (G.crew && G.crew.includes('nan') ? '' : ' Or bring Nan. Nan fixes most things.');
     let hero;
-    if (endless) hero = '<div class="rhero"><h2>LONG NAP OVER</h2><p class="rbig">Wave ' + (G.wave - 1) + '</p><p class="rsub">' + (r.endlessNew ? 'New best!' : 'Best: wave ' + r.endlessBest) + '</p></div>';
+    let weekNew = false;
+    if (endless && G.week) { meta.weekBest = meta.weekBest || {}; const wk = G.week + '|' + G.map.id, sc = G.wave - 1; if (sc > (meta.weekBest[wk] || 0)) { meta.weekBest[wk] = sc; weekNew = true; } saveMeta(); trackEvent('long_nap_end', { level_id: G.map.id, wave: sc, week: G.week, new_week_best: weekNew, crew: (G.crew || []).join(',') }); }
+    if (endless) hero = '<div class="rhero"><h2>LONG NAP OVER</h2><p class="rbig">Wave ' + (G.wave - 1) + '</p><p class="rsub">' + (weekNew ? '\ud83c\udfc6 New best this week!' : 'This week\u2019s best: wave ' + weekBest(G.map.id)) + (r.endlessNew ? ' \u00b7 all-time best!' : '') + '</p>' +
+      (boardOn() ? (meta.nick ? '<div id="boardRes"><p class="small">Checking the leaderboard\u2026</p></div>' : '<div class="nickrow"><span>Put your score on this week\u2019s leaderboard</span><div><input id="nickIn" class="codein" maxlength="14" placeholder="Nickname (no real names)" autocomplete="off"><button class="btn primary" id="nickGo">Post it</button></div></div><div id="boardRes"></div>') : '') + '</div>';
     else if (G.won) {
       let st = ''; for (let i = 0; i < 3; i++) st += '<i class="rstar' + (i < r.stars ? ' on' : '') + '" style="animation-delay:' + (.25 + i * .28) + 's"></i>';
       hero = '<div class="rhero win">' + (firstEver ? '<span class="ribbon">FIRST WIN!</span>' : '') + '<h2>LEVEL COMPLETE</h2><div class="rstars" aria-label="' + r.stars + ' of 3 stars">' + st + '</div><p class="rsub">Gary kept ' + G.pile + '/' + G.pileMax + ' \u2022 <q>Did I miss anything?</q></p></div>';
@@ -5788,13 +5873,14 @@ const R = (function () {
       '<p class="small">Gary\u2019s Stash: ' + r.stashFound + ' of ' + STASH_TOTAL + ' found.</p>' + (G.won ? rocksLine : '') +
       '<h3>Skills</h3>' + skills + (nextLine ? '<p class="next">' + nextLine + '</p>' : '') + jobsLine + '</details>';
     const dailyLine = G.mode === 'daily' && r.dailyFirst ? '<p class="rjob">\ud83c\udf19 Daily won! 2\u00d7 XP, +' + r.rk.daily + ' rocks' + (r.streak > 1 ? ' \u00b7 \ud83d\udd25 ' + r.streak + '-day streak' : '') + '</p>' : '';
-    const bragMoment = G.won && G.mode === 'campaign' ? (firstEver ? 'first_win' : newCrew.length ? 'crew_unlock' : r.stars === 3 ? 'three_stars' : ENEMIES[G.map.boss] && G.mapIdx % 4 === 3 ? 'boss_level' : '') : '';
-    const brag = bragMoment ? '<button class="brag" id="bragBtn">\ud83d\udce4 Brag to a mate</button>' : '';
+    const bragMoment = G.won && G.mode === 'campaign' ? (firstEver ? 'first_win' : newCrew.length ? 'crew_unlock' : r.stars === 3 ? 'three_stars' : G.moment ? 'funny_' + G.moment.k : ENEMIES[G.map.boss] && G.mapIdx % 4 === 3 ? 'boss_level' : '') : (G.moment && G.moment.pri >= 2 ? 'funny_' + G.moment.k : '');
+    const brag = bragMoment ? '<button class="brag" id="bragBtn">\ud83d\udce4 ' + (bragMoment.startsWith('funny_') ? (G.moment.k === 'garypants' ? 'Tell your mates what happened to Gary\u2019s pants' : 'Share this. Nobody will believe you.') : 'Brag to a mate') + '</button>' : '';
     const askMood = G.won && (meta.wins || 0) >= 2 && !meta.rated ? moodRow('results') : '';
-    const homeCard = G.won && G.mode === 'campaign' ? a2hsCard('results') : '';
+    if (G.won) sessionWins++;
+    const homeCard = (G.won && G.mode === 'campaign' ? a2hsCard('results') : '') + (sessionWins >= 3 && !toldTomorrow ? (toldTomorrow = true, tomorrowHTML()) : '');
     const jobFlash = dailyLine + (r.jobsDone.length ? '<p class="rjob">\u2705 Job done: ' + r.jobsDone[0].text + ' <b>+' + r.jobsDone[0].reward + '</b></p>' : '');
     openModal(hero + (G.won || endless ? rewardRow + unlockCards : '') + jobFlash + primary + brag + secondary + homeCard + askMood + details, 'results' + (G.won ? ' won' : ' lost'), 700);
-    const shareCtx = { won: G.won, endless, levelName: G.mode === 'daily' ? 'Daily Nap' : G.mode === 'endless' ? 'The Long Nap' : G.map.name, pile: G.pile, pileMax: G.pileMax, wave: G.wave, waveCount: G.waveCount, stars: r.stars || 0, crew: (G.crew || []).slice(0, 6), best: r.best, boss: ENEMIES[G.map.boss].name.split(',')[0], quip: G.won ? ['Gary slept through the whole thing.', 'Not a single snag was wasted.', 'The monsters have filed a complaint.'][Math.floor(Math.random() * 3)] : fb[0] };
+    const shareCtx = { moment: G.moment ? G.moment.txt : '', won: G.won, endless, levelName: G.mode === 'daily' ? 'Daily Nap' : G.mode === 'endless' ? 'The Long Nap' : G.map.name, pile: G.pile, pileMax: G.pileMax, wave: G.wave, waveCount: G.waveCount, stars: r.stars || 0, crew: (G.crew || []).slice(0, 6), best: r.best, boss: ENEMIES[G.map.boss].name.split(',')[0], quip: G.won ? ['Gary slept through the whole thing.', 'Not a single snag was wasted.', 'The monsters have filed a complaint.'][Math.floor(Math.random() * 3)] : fb[0] };
     drawPortraits($('modalCard')); startPortraitLoop();
     if (G.won) [0, 1, 2].forEach(i => { if (i < r.stars) setTimeout(() => SFX.play(i === 2 ? 'levelup' : 'coin'), 250 + i * 280); });
     if (newCrew.length) setTimeout(() => { R.poke(newCrew[0]); SFX.play(crewSfx[newCrew[0]] || 'pick'); }, 1100);
@@ -5822,6 +5908,12 @@ const R = (function () {
     $('shareBtn').onclick = ev => doShare(ev, $('shareBtn'), 'results');
     if ($('bragBtn')) $('bragBtn').onclick = ev => doShare(ev, $('bragBtn'), bragMoment);
     wireA2hs(); wireMood();
+    if (endless && boardOn()) {
+      const sc = G.wave - 1, mid = G.map.id, crew = G.crew, showRows = async () => { const rows = await boardFetch(mid); if ($('boardRes')) $('boardRes').innerHTML = boardRowsHTML(rows ? rows.slice(0, 10) : rows, true); };
+      const post = async () => { if (weekNew || !meta.boardPosted || meta.boardPosted !== G.week + '|' + mid + '|' + sc) { const ok = await boardSubmit(mid, sc, crew); if (ok) meta.boardPosted = G.week + '|' + mid + '|' + sc; trackEvent('leaderboard_submit', { level_id: mid, wave: sc, ok }); saveMeta(); } showRows(); };
+      if (meta.nick) { if (weekNew) post(); else showRows(); }
+      else if ($('nickGo')) $('nickGo').onclick = () => { const n2 = cleanNick($('nickIn').value); if (n2.length < 2) { $('nickIn').focus(); return; } meta.nick = n2; saveMeta(); $('nickGo').closest('.nickrow').remove(); post(); };
+    }
     showResultsRewire = () => { $('shareBtn').onclick = ev => doShare(ev, $('shareBtn'), 'results'); if ($('bragBtn')) $('bragBtn').onclick = ev => doShare(ev, $('bragBtn'), bragMoment); if ($('nextBtn')) $('nextBtn').onclick = ev => { trackEvent('next_level_clicked', { from_level: MAPS[mi].id }); startLevel(mi + 1); }; $('againBtn').onclick = () => { mode === 'daily' ? startDaily() : mode === 'endless' ? startLong(mi) : startLevel(mi); }; $('levelsBtn').onclick = () => showHome(); if ($('crewBtn')) $('crewBtn').onclick = () => showCrew(mi, () => startLevel(mi)); wireA2hs(); wireMood(); };
   }
   let showResultsRewire = () => {};
