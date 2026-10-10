@@ -29,7 +29,7 @@
 <meta name="apple-mobile-web-app-title" content="Hold My Loot">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A4%3C/text%3E%3C/svg%3E">
-<meta name="hml-build" content="23">
+<meta name="hml-build" content="24">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -42,7 +42,7 @@ window.HML_SUPPORT = { url: '', code: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 23;
+window.HML_BUILD = 24;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -1125,7 +1125,7 @@ const ENEMIES = {
   stack: { name: 'The Stack', hp: 2100, spd: 15, armor: 2, gold: 140, steal: 4, r: 21, boss: true,
     intro: 'THE STACK. Twenty goblins in a trenchcoat. Nobody is fooled.', tip: 'Every hit knocks a goblin loose. It speeds up as it shrinks.' },
   pantsalot: { name: 'Sir Pantsalot, the Pantsless King', hp: 1600, spd: 18, armor: 8, gold: 150, steal: 5, r: 19, boss: true,
-    intro: 'SIR PANTSALOT. A king without pants. He will take yours.', tip: 'He grabs every bit of loot near him and wears it. Grab it first.' },
+    intro: 'SIR PANTSALOT. A king without pants. He will take yours.', tip: 'He wears any loot he finds, and he steals the pants off any crew he walks past. Embarrassed crew stop working. Don\u2019t let him reach Gary.' },
   chrisso: { name: 'Chrisso, Who Has Never Been Tipsy', hp: 2300, spd: 17, armor: 4, gold: 180, steal: 5, r: 21, boss: true, whiskyImmune: true,
     intro: "CHRISSO. Has never been tipsy in his life. Says it's genetic.", tip: 'Whisky does nothing to him. He drinks the puddles to heal and speed up. Keep them off his path.' },
   barry: { name: 'Big Barry the Barramundi', hp: 2200, spd: 22, armor: 3, gold: 170, steal: 4, r: 21, boss: true, fish: true,
@@ -2021,6 +2021,20 @@ function update(G, dt) {
     if (e.shocked > 0) e.shocked -= dt;
     if (e.frozen > 0) { e.frozen -= dt; if (e.frozen <= 0 && e.frozenL >= 4) { fx(G, 'shatter', { x: e.x, y: e.y }); damage(G, e, e.maxHp * (e.boss ? .05 : .15), { src: null, pierce: true, kind: 'dream' }); if (e.dead) continue; } }
     const edef = ENEMIES[e.type];
+    if (e.type === 'pantsalot' && !(e.frozen > 0) && !(e.stun > 0)) {
+      e.pantsCd = (e.pantsCd == null ? 3.5 : e.pantsCd) - dt;
+      if (e.pantsCd <= 0) {
+        let best = -1, bd = 78;
+        G.towers.forEach((t, i) => { if (t && !t.pantsless) { const dd = Math.hypot(map.pads[i][0] - e.x, map.pads[i][1] - e.y); if (dd < bd) { bd = dd; best = i; } } });
+        if (best >= 0) {
+          const t = G.towers[best]; t.pantsless = true; t.hatless = Math.max(t.hatless, 2); t.embarrassed = 2;
+          e.pantsN = (e.pantsN || 0) + 1; e.armor += 1; G.stats.pantsStolen = (G.stats.pantsStolen || 0) + 1;
+          fx(G, 'depants', { pad: best, x: e.x, y: e.y, n: e.pantsN }); ev(G, 'depants', { tt: t.type, pad: best });
+          e.pantsCd = e.mini ? 13 : 9;
+        } else e.pantsCd = .8;
+      }
+      if (!G.garyPantsless && e.d >= e.P.len - 70) { G.garyPantsless = true; e.pantsN = (e.pantsN || 0) + 1; fx(G, 'garypants', { x: e.x, y: e.y }); ev(G, 'garypants'); }
+    }
     if (edef.fish) {
       e.splashCd = (e.splashCd == null ? 4 : e.splashCd) - dt;
       if (e.splashCd <= 0) {
@@ -3372,6 +3386,21 @@ const R = (function () {
         case 'molehill': { burst(f.x, f.y, 10, { kind: 'dust', col: ['#8B6B4A', '#6E5442'], sp: 50, up: 30, life: .6, size: 4 }); P({ kind: 'ring', x: f.x, y: f.y, life: .4, size: 8, col: '#6E5442' }); break; }
         case 'castlesplit': { snd('boing'); pop(f.x, f.y - 40, 'SPLIT!', '#C9608A', true); burst(f.x, f.y, 16, { kind: 'confetti', col: ['#F58FB8', '#7CC8FF', '#FFE07A'], sp: 120, up: 60, g: 200, life: 1, size: 3 }); break; }
         case 'zaptower': { snd('zap'); const pd = G.map.pads[f.pad]; P({ kind: 'bolt', x: 0, y: 0, life: .3, pts: [[f.x, f.y], [pd[0], pd[1] - 20]], seed: Math.random() * 10 }); pop(pd[0], pd[1] - 50, 'ZAPPED', '#2F86D8'); break; }
+        case 'depants': {
+          const pd = G.map.pads[f.pad], t = G.towers[f.pad], pete = t && t.type === 'pete';
+          snd('whoosh'); setTimeout(() => snd('boing'), 250);
+          if (!pete) P({ kind: 'junk', x: pd[0], y: pd[1] - 24, vx: (f.x - pd[0]) / .9, vy: -170, g: 300, vr: 9, life: .95, icon: '\ud83d\udc56', size: 16 });
+          say(pd[0], pd[1] - 54, pete ? '...he wasn\u2019t wearing any.' : ['OI! MY PANTS!', 'Not the good trackies!', 'Give \u2019em back!', 'I\u2019ve got work tomorrow!'][Math.floor(Math.random() * 4)], 1.9);
+          setTimeout(() => pop(f.x, f.y - 44, pete ? 'Awkward.' : '+1 PANTS (' + f.n + ')', '#8E5CE0', true), 700);
+          break;
+        }
+        case 'garypants': {
+          snd('whoosh'); snd('boing');
+          P({ kind: 'junk', x: GARY.x - 10, y: GARY.y - 10, vx: (f.x - GARY.x) / .9, vy: -200, g: 300, vr: 9, life: 1, icon: '\ud83d\udc56', size: 18 });
+          setTimeout(() => say(GARY.x, GARY.y - 34, '...why is it breezy...', 2.6), 800);
+          pop(f.x, f.y - 44, 'GARY\u2019S PANTS!', '#8E5CE0', true);
+          break;
+        }
         case 'psy': { snd('psy'); towerAnim[f.pad] = { k: 'psy', t: 0 }; const pd = G.map.pads[f.pad]; P({ kind: 'ring', x: pd[0] + 18, y: pd[1] - 20, life: .4, size: 6, col: '#C9A8FF' }); break; }
         case 'psyslam': { snd(f.yeet ? 'yeet' : 'psyslam'); P({ kind: 'ring', x: f.x, y: f.y, life: .4, size: f.r * .5, col: '#B59BFF' }); burst(f.x, f.y, 10, { kind: 'star', col: ['#C9A8FF', '#FFFFFF', '#7CF2C8'], sp: 80, life: .45, size: 2.6 }); burst(f.x, f.y, 6, { kind: 'dust', col: ['#E8D9B8'], sp: 50, life: .45, size: 4 }); if (f.yeet) pop(f.x, f.y - 26, 'YEET!', '#8E5CE0', true); break; }
         case 'masslift': { snd('masslift'); pop(f.x, f.y - 56, 'MASS LEVITATION!', '#8E5CE0', true); for (let k = 0; k < 3; k++) P({ kind: 'ring', x: f.x, y: f.y, life: .6 + k * .12, size: f.r * .3 + k * 12, col: ['#B59BFF', '#7CF2C8', '#E2C6FF'][k] }); if (!reduced) flash = Math.max(flash, .12); break; }
@@ -3599,7 +3628,17 @@ const R = (function () {
   }
 
   // ---------- characters ----------
+  let lastPerson = null;
+  function boxers(x, y, s) {
+    s = s || 1; ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+    ctx.beginPath(); ctx.moveTo(-8, -6); ctx.lineTo(8, -6); ctx.lineTo(8.5, 1.5); ctx.lineTo(1, 1.5); ctx.lineTo(0, -1); ctx.lineTo(-1, 1.5); ctx.lineTo(-8.5, 1.5); ctx.closePath();
+    ctx.fillStyle = '#FFFFFF'; ctx.fill(); ctx.strokeStyle = '#C99A9A'; ctx.lineWidth = .9; ctx.stroke();
+    ctx.fillStyle = '#E0453A'; for (const [hx, hy] of [[-5, -3.5], [4.5, -2.5], [-1.5, -4.5], [5.5, .3], [-5.5, .2]]) { ctx.beginPath(); ctx.arc(hx - .55, hy, .7, 0, 7); ctx.arc(hx + .55, hy, .7, 0, 7); ctx.moveTo(hx - 1.2, hy + .2); ctx.lineTo(hx, hy + 1.4); ctx.lineTo(hx + 1.2, hy + .2); ctx.fill(); }
+    ctx.fillStyle = '#E0453A'; ctx.fillRect(-8, -6.5, 16, 1.4);
+    ctx.restore();
+  }
   function person(x, y, o) {
+    lastPerson = [x, y];
     const blink = o.blink, side = o.side || 1;
     // torso
     soft(ctx, x, y - 9, 8.5, 8.5, o.shirt, { lw: 1.1 });
@@ -3842,6 +3881,11 @@ const R = (function () {
       }
       if (Math.random() < .06) P({ kind: 'note', x: x + (Math.random() - .5) * 30, y: yb - 34, vy: -24, vx: (Math.random() - .5) * 20, life: 1.2, size: 11, col: RAINBOW[Math.floor(Math.random() * RAINBOW.length)] });
     }
+    if (t.pantsless && t.type !== 'pete') {
+      if (t.type === 'banjo') boxers(x - 1, yb - 3, 1); else if (lastPerson) boxers(lastPerson[0], lastPerson[1] - 1, 1);
+      if (t.embarrassed > 0) { t.embarrassed -= 1 / 60; flat(ctx, (lastPerson ? lastPerson[0] : x) - 4, (lastPerson ? lastPerson[1] : y) - 27, 2.2, 1.4, 'rgba(224,69,58,.55)'); flat(ctx, (lastPerson ? lastPerson[0] : x) + 4, (lastPerson ? lastPerson[1] : y) - 27, 2.2, 1.4, 'rgba(224,69,58,.55)'); }
+    }
+    lastPerson = null;
     if (t.soggy > 0) { ctx.globalAlpha = .28; flat(ctx, x, y - 16, 20, 22, '#6FB6E0'); ctx.globalAlpha = 1; if (Math.random() < .2) P({ kind: 'drop', x: x + (Math.random() - .5) * 24, y: y - 30, vy: 40, g: 200, life: .5, size: 1.6, col: '#8FD3FF' }); if (Math.random() < .01) pop(x, y - 46, 'soggy', '#2F86D8'); }
     if (hatless) { text('!', x + 10, y - 44, 13, '#E0645A', { outline: 3 }); }
     if (EL) {
@@ -4261,10 +4305,11 @@ const R = (function () {
     // legs / boots
     soft(ctx, -38, 3, 7, 5, '#6B5038', { lw: 1 });
     // body
-    const PJ = window.GARY_LOOK || { a: '#6E9AD6', b: '#3F6CA8', e: '#2F5487', belt: '#E9C46A' };
+    const PJ = garyBoxers ? { a: '#FFFFFF', b: '#F6E6E6', e: '#C99A9A', belt: '#E0453A', hearts: '#E0453A' } : (window.GARY_LOOK || { a: '#6E9AD6', b: '#3F6CA8', e: '#2F5487', belt: '#E9C46A' });
     rr(ctx, -34, -7, 50, 16, 8); const bg3 = ctx.createLinearGradient(0, -7, 0, 9); bg3.addColorStop(0, PJ.a); bg3.addColorStop(1, PJ.b); ctx.fillStyle = bg3; ctx.fill(); ctx.strokeStyle = PJ.e; ctx.lineWidth = 1; ctx.stroke();
     if (PJ.stripes) { ctx.save(); rr(ctx, -34, -7, 50, 16, 8); ctx.clip(); ctx.fillStyle = PJ.stripes; for (let k = -34; k < 16; k += 10) ctx.fillRect(k, -7, 4, 16); ctx.restore(); }
     if (PJ.stars) { ctx.fillStyle = PJ.stars; for (const [sx, sy] of [[-26, -3], [-12, 5], [2, -4], [10, 4]]) { ctx.beginPath(); for (let q = 0; q < 10; q++) { const rr2 = q % 2 ? 1 : 2.2, an = q * Math.PI / 5 - Math.PI / 2; ctx.lineTo(sx + Math.cos(an) * rr2, sy + Math.sin(an) * rr2); } ctx.closePath(); ctx.fill(); } }
+    if (PJ.hearts) { ctx.fillStyle = PJ.hearts; for (const [hx, hy] of [[-28, -2], [-16, 4], [-6, -3], [6, 3], [12, -4], [-22, 5]]) { ctx.beginPath(); ctx.arc(hx - 1, hy, 1.3, 0, 7); ctx.arc(hx + 1, hy, 1.3, 0, 7); ctx.moveTo(hx - 2.2, hy + .4); ctx.lineTo(hx, hy + 2.6); ctx.lineTo(hx + 2.2, hy + .4); ctx.fill(); } }
     ctx.fillStyle = PJ.belt; ctx.fillRect(-20, -7, 3, 16);
     const br = Math.sin(time * 1.8) * 1.2; flat(ctx, -6, -3 + br * .3, 10, 4 + br * .4, 'rgba(255,255,255,.15)');
     // head
@@ -4451,7 +4496,9 @@ const R = (function () {
       renderErrs++; if (renderErrs <= 3 && window.__hmlReport) window.__hmlReport('render', e);
     }
   }
+  let garyBoxers = false;
   function frameInner(c, G, opts) {
+    garyBoxers = !!(G && G.garyPantsless);
     ctx = c; W = opts.W; H = opts.H; scale = opts.scale; dpr = opts.dpr; settings = opts.settings || settings;
     const now = performance.now() / 1000, dt = Math.min(.05, now - (lastT || now)) * (opts.paused ? 0 : opts.speed || 1); lastT = now;
     const time = now;
@@ -5024,6 +5071,8 @@ const R = (function () {
       else if (e.type === 'synergy' && e.first) toast('New synergy: ' + SYNERGIES.find(s => s.id === e.id).name + '. ' + SYNERGIES.find(s => s.id === e.id).desc, 'rare');
       else if (e.type === 'dreamReady') { SFX.play('ready'); if (!toldDream && !tutOn()) { toldDream = true; toast('Gary\u2019s dream is ready. Tap UNLEASH when it counts.', 'big'); } }
       else if (e.type === 'event') { SFX.play('event'); const E = EVENTS.find(x => x.id === e.id); banner(E.name, E.desc, 'event'); }
+      else if (e.type === 'depants' && !G.toldPants) { G.toldPants = true; setTimeout(() => toast('Sir Pantsalot stole ' + (CREW[e.tt] ? CREW[e.tt].n : 'someone') + '\u2019s pants. Embarrassed crew stop working for a moment.', 'bad'), 1200); }
+      else if (e.type === 'garypants') { setTimeout(() => toast('Sir Pantsalot took Gary\u2019s pants. Gary is now asleep in his boxers.', 'bad'), 1400); }
       else if (e.type === 'sinkhole') toast('A sinkhole swallowed the road. The monsters are taking another way.', 'bad');
       else if (e.type === 'bridgeswing') toast('The bridge swung to the other crossing.', 'big');
       else if (e.type === 'overheat') toast('The magnet overheated. It needs a few seconds to cool down.', 'bad');
@@ -5160,6 +5209,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 24, title: 'Sir Pantsalot delivers', notes: ['Sir Pantsalot now actually takes pants. Your crew\u2019s, and if he gets close enough, Gary\u2019s.', 'Fixed: winning a level that unlocked new crew was paying out twice.'] },
     { build: 23, title: 'Straight into the action', notes: ['New players now land right in the game, and the monsters turn up as soon as your first crew member does.', 'Put Gary on your home screen after your first win, and he\u2019ll open like an app.', 'Tell the dev what you think, right from the menu. Brag to a mate after your big wins.'] },
     { build: 22, title: 'Crew cards with a bit of colour', notes: ['Crew cards are now bigger and more colourful, with icons for what everyone does: \u26a1 STUN, \ud83d\udca5 SPLASH, \ud83c\udfaf CRITS and friends.', 'Bonus cards show who they help, and you can tap them straight away.', 'Brand-new players get two waves to settle in before the first bonus card.'] },
     { build: 21, title: 'Sturdier graphics', notes: ['If anything ever goes wrong while drawing a frame, the game now recovers by itself on the next frame instead of the screen breaking.', 'Lighter on iPhone memory when opening menus.'] },
@@ -5748,7 +5798,7 @@ const R = (function () {
     drawPortraits($('modalCard')); startPortraitLoop();
     if (G.won) [0, 1, 2].forEach(i => { if (i < r.stars) setTimeout(() => SFX.play(i === 2 ? 'levelup' : 'coin'), 250 + i * 280); });
     if (newCrew.length) setTimeout(() => { R.poke(newCrew[0]); SFX.play(crewSfx[newCrew[0]] || 'pick'); }, 1100);
-    const lpr = { level_id: G.map.id, level_name: G.map.name, chapter: G.map.chapter || 1, mode: G.mode, duration: Math.round(G.t), wave: G.wave, waves: G.waveCount, stars: r.stars || 0, kept: G.pile, retries: (attempts[G.mapIdx] || 1) - 1, crew: (G.crew || []).join(','), nan_in_crew: (G.crew || []).includes('nan'), reason: G.won ? '' : fb[0] };
+    const lpr = { level_id: G.map.id, level_name: G.map.name, chapter: G.map.chapter || 1, mode: G.mode, duration: Math.round(G.t), wave: G.wave, waves: G.waveCount, stars: r.stars || 0, kept: G.pile, retries: (attempts[G.mapIdx] || 1) - 1, crew: (G.crew || []).join(','), nan_in_crew: (G.crew || []).includes('nan'), reason: G.won ? '' : fb[0], pants_stolen: G.stats.pantsStolen || 0, gary_pantsed: !!G.garyPantsless };
     trackEvent(G.won ? 'level_complete' : 'level_fail', lpr); trackEvent('results_view', { won: G.won, level_id: G.map.id });
     if (r.rocks || r.banked.length) trackEvent('reward_claimed', { rocks: r.rocks, items: r.banked.length, gary_xp: r.garyGain, new_crew: newCrew.join(',') });
     const mi = G.mapIdx, mode = G.mode;
