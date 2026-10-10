@@ -22,8 +22,14 @@
 <meta name="twitter:description" content="Gary's asleep. Monsters want his loot. Free, in your browser.">
 <meta name="twitter:image" content="https://holdmyloot.com/preview.jpg">
 <meta name="theme-color" content="#3E5E3A">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hold My Loot">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A4%3C/text%3E%3C/svg%3E">
-<meta name="hml-build" content="22">
+<meta name="hml-build" content="23">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -36,7 +42,7 @@ window.HML_SUPPORT = { url: '', code: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 22;
+window.HML_BUILD = 23;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -569,6 +575,19 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; text
 .drafts.first .dcard { animation: bpulse 1.6s ease-in-out infinite; } .drafts.first .dcard:nth-child(2) { animation-delay: .2s; } .drafts.first .dcard:nth-child(3) { animation-delay: .4s; }
 .dcard.queued, .btn.queued { outline: 3px solid #5FA05A; outline-offset: 2px; }
 @media (max-height: 700px) { .cstage, .ccard .cstage canvas.pt { height: 70px; } }
+
+/* ===== v23: home screen card, feedback, brag ===== */
+.a2hs { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #E2F1FF, #EEE8FF); border: 1.5px solid #CFC6F2; border-radius: 16px; padding: 9px 10px; margin: 10px 0 0; text-align: left; }
+.a2hs .a2ico { font-size: 28px; } .a2hs b { display: block; font-size: 14.5px; } .a2hs span { font-size: 12.5px; font-weight: 700; color: var(--muted); } .a2hs > div { flex: 1; }
+.a2hs .btn { min-height: 40px; padding: 7px 12px; font-size: 14px; white-space: nowrap; }
+.a2steps { text-align: left; font-size: 16px; font-weight: 800; line-height: 1.5; background: var(--paper2); border-radius: 16px; padding: 12px 14px 12px 34px; margin: 8px 0 12px; }
+.a2steps li { margin-bottom: 6px; } .ios-share { display: inline-block; border: 2px solid #2F86D8; border-radius: 6px; padding: 0 5px; color: #2F86D8; font-size: 13px; }
+.moodrow { background: var(--paper2); border-radius: 16px; padding: 10px 12px; margin: 10px 0 0; display: flex; flex-direction: column; gap: 6px; text-align: center; }
+.moodrow > span { font-weight: 900; font-size: 14px; } .moodrow > div { display: flex; justify-content: center; gap: 10px; }
+.mood { font-size: 30px; width: 54px; height: 54px; border-radius: 16px; border: 2px solid var(--line); background: #FFFDF6; cursor: pointer; transition: transform .1s; } .mood:active { transform: scale(.9); }
+.fbwrap { display: flex; gap: 6px; } .fbwrap textarea { flex: 1; border: 2px solid var(--line); border-radius: 12px; padding: 8px; font: 700 14px Nunito, sans-serif; resize: none; } .fbwrap .btn { min-height: 44px; }
+.moodrow small { font-size: 11px; color: var(--muted); font-weight: 700; }
+.brag { display: block; width: 100%; margin: 8px 0 0; background: none; border: 0; font: 900 15px Nunito, sans-serif; color: #2F86D8; padding: 8px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
@@ -4712,6 +4731,7 @@ const R = (function () {
   window.__hmlReport = (where, e) => { try { const msg = String((e && (e.message || e)) || '').slice(0, 140); if (errSeen[where + msg] || errN >= 3) return; errSeen[where + msg] = 1; errN++; console.error('[Hold My Loot]', where, e); trackEvent('client_error', Object.assign({ where, msg, level_id: G ? G.map.id : '', wave: G ? G.wave : 0 }, uaFam())); } catch (e2) {} };
   window.addEventListener('error', ev => window.__hmlReport('window', ev.error || ev.message));
   window.addEventListener('unhandledrejection', ev => { const m = String((ev.reason && ev.reason.message) || ev.reason || ''); if (/fetch|network|load/i.test(m)) return; window.__hmlReport('promise', ev.reason); });
+  function standaloneNow() { try { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } }
   function trackFirst(flag, name, props) { try { meta.firsts = meta.firsts || {}; if (meta.firsts[flag]) return; meta.firsts[flag] = 1; trackEvent(name, props); } catch (e) {} }
   // ===== Crew: who they are, at a glance =====
   const CREW = {
@@ -4992,7 +5012,7 @@ const R = (function () {
     for (const e of evs) {
       if (e.type === 'firstLoot' && meta.runs < 3 && !G.instantLoot && !tutOn()) toast('Loot collects itself. Tap or swipe it to grab it faster.', 'big');
       else if (e.type === 'grabbing' && !toldGrab && !G.instantLoot && !tutOn()) { toldGrab = true; toast("One's spotted it. Tap the loot to snatch it back."); }
-      else if (e.type === 'heist' && e.item.tier >= 2) toast((Math.random() < .3 ? 'Nek minnit. ' : '') + e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad');
+      else if (e.type === 'heist' && e.item.tier >= 2) { const nowT = performance.now(); if (!(heistToastAt[e.item.name] > nowT - 8000)) { heistToastAt[e.item.name] = nowT; toast((Math.random() < .3 ? 'Nek minnit. ' : '') + e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad'); } }
       else if (e.type === 'stolen') toast(e.carry ? 'Gone, with ' + e.carry.name + '. -' + e.n + ' from the pile.' : e.n + (e.n > 1 ? ' items' : ' item') + ' nicked from the pile.', 'bad');
       else if (e.type === 'waveStart') SFX.play('wave');
       else if (e.type === 'rareDrop') { SFX.play('rare'); toast(RARITY[e.item.tier].k + ' drop: ' + e.item.name, 'rare'); }
@@ -5018,7 +5038,9 @@ const R = (function () {
       else if (e.type === 'ultimate') toast('ULTIMATE unlocked: ' + TIER_NOTES[e.tt][3].replace('ULTIMATE: ', '') + '!', 'rare');
       else if (e.type === 'levelUp') toast('Level up! ' + SKILL_NAMES[e.s] + ' ' + e.L + '. Your crew just got better.', 'rare');
       else if (e.type === 'poke') toast(e.ok ? 'Gary swung his sword in his sleep.' : 'Gary rolled over and knocked his thong off the pile.', e.ok ? 'rare' : 'bad');
-      else if (e.type === 'waveEnd') { saveRun(); if (G.grace && e.wave <= 2) { lastHud = ''; } else setTimeout(() => showDraft(e.wave, e.bonus), 550); }
+      else if (e.type === 'waveEnd') { saveRun();
+        trackEvent('wave_complete', { level_id: G.map.id, chapter: G.map.chapter || 1, mode: G.mode, wave: e.wave, perfect: !!e.perfect, kept: G.pile, towers: G.towers.filter(Boolean).length, secs: Math.round(G.t), first_run: !!G.grace });
+        if (e.wave === 1 && !storageWorks() && !toldStorage) { toldStorage = true; toast('Heads up: this browser isn\u2019t saving your progress. Open holdmyloot.com in Chrome or Safari to keep it.', 'bad'); } if (G.grace && e.wave <= 2) { lastHud = ''; } else setTimeout(() => showDraft(e.wave, e.bonus), 550); }
       else if (e.type === 'dream') { /* visuals in renderer */ }
       else if (e.type === 'over') {
         const mus = meta.settings.music !== false;
@@ -5138,6 +5160,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 23, title: 'Straight into the action', notes: ['New players now land right in the game, and the monsters turn up as soon as your first crew member does.', 'Put Gary on your home screen after your first win, and he\u2019ll open like an app.', 'Tell the dev what you think, right from the menu. Brag to a mate after your big wins.'] },
     { build: 22, title: 'Crew cards with a bit of colour', notes: ['Crew cards are now bigger and more colourful, with icons for what everyone does: \u26a1 STUN, \ud83d\udca5 SPLASH, \ud83c\udfaf CRITS and friends.', 'Bonus cards show who they help, and you can tap them straight away.', 'Brand-new players get two waves to settle in before the first bonus card.'] },
     { build: 21, title: 'Sturdier graphics', notes: ['If anything ever goes wrong while drawing a frame, the game now recovers by itself on the next frame instead of the screen breaking.', 'Lighter on iPhone memory when opening menus.'] },
     { build: 20, title: 'Helping us fix the hard bits', notes: ['The game now sends anonymous play stats (which levels people get stuck on, never names or locations) so the tricky bits can be fixed. You can switch it off in Settings.'] },
@@ -5234,13 +5257,9 @@ const R = (function () {
     const jezzaBanner = towerUnlocked(meta, 'jezza') && !meta.jezzaSeen ? '<div class="banner"><b>New crew: Jezza</b><span>He throws whisky. Tipsy monsters stumble, slow down and take 25% more damage. Find him in the build menu.</span></div>' : '';
     if (jezzaBanner) { meta.jezzaSeen = true; saveMeta(); }
     if (!meta.runs && !run) {
-      openModal('<div class="welcome"><h1 class="title">Hold My Loot</h1><p class="lede">Gary\u2019s asleep. Monsters want his loot.</p>' + saveBanner() +
-        '<div class="wcrew">' + ['chuck', 'bonk', 'nan'].map(k => ptHTML(k)).join('') + '</div>' +
-        '<div class="wsteps"><span>\ud83e\udeb5 Build crew</span><i>\u2192</i><span>\ud83d\udc00 Stop monsters</span><i>\u2192</i><span>\ud83d\udcb0 Keep the loot</span></div>' +
-        '<button class="btn primary big pulse" id="firstBtn" data-focus>PLAY</button></div>', 'home');
-      drawPortraits($('modalCard')); startPortraitLoop();
-      meta.seenBuild = window.HML_BUILD;
-      $('firstBtn').onclick = () => { SFX.play('pick'); showCrew(0, () => startLevel(0), { first: true }); };
+      // First visit: no menus. Straight into Level 1 with the starter crew; the coach takes it from here.
+      meta.seenBuild = window.HML_BUILD; meta.crewMode = 'auto';
+      firstTouch = true; startLevel(0);
       return;
     }
     const bevBanner = !jezzaBanner && towerUnlocked(meta, 'bev') && !meta.bevSeen ? '<div class="banner"><b>New crew: Bev</b><span>Bev summons bin chickens that peck and pester monsters. Pigeons join at tier 2. Find her in the build menu.</span></div>' : '';
@@ -5254,7 +5273,7 @@ const R = (function () {
     openModal(
       '<h1 class="title">Hold My Loot' + (meta.supporter ? ' <span class="supbadge" title="Supporter">\u2665</span>' : '') + '</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + saveBanner() + whatsNewCard() + jezzaBanner + bevBanner + djBanner + peteBanner + banjoBanner + playNextHTML(run) +
       (runMap ? '<button class="btn primary big cont" id="contBtn" data-focus>Continue: ' + (run.mode === 'endless' ? 'Long Nap' : run.mode === 'daily' ? 'Daily Nap' : runMap.name) + ', wave ' + (run.wave + 1) + '</button>' : '') +
-      '<h2 class="h2 tight">Up next</h2>' + goalsHTML() + supporterCard() +
+      '<h2 class="h2 tight">Up next</h2>' + goalsHTML() + a2hsCard('home') + supporterCard() +
       garyCard() +
       '<div class="rockrow"><span class="rockic" aria-hidden="true"></span><span><b>' + (meta.rocks || 0) + '</b> Shiny Rocks</span><button class="btn' + (shedAffordable() ? ' glow' : '') + '" id="shedBtn">Clive\u2019s Shed' + (shedAffordable() ? ' <i class="dot"></i>' : '') + '</button></div>' +
       '<h2 class="h2">Odd jobs</h2>' + jobsHTML(meta.jobs, null) +
@@ -5266,15 +5285,17 @@ const R = (function () {
       '<details class="how"' + (meta.runs ? '' : ' open') + '><summary>How to play</summary><ul>' +
       '<li>Tap a wooden pad to build. Tap a tower to upgrade it.</li><li>Monsters drop loot. It collects itself, but tap or swipe it to grab it first. Monsters that reach it pick it up and get tougher.</li><li>Kill fast for combos. Call the next wave early for bonus gold.</li><li>Level a crew\u2019s skill to 5 for their tier 4 ULTIMATE, and to 8 for tier 5 ELITE.</li><li>Gary\u2019s dream meter fills as you fight. Tap UNLEASH for a huge attack.</li><li>Towers at tier 2 get an ability. Tap the tower when you see the lightning badge.</li><li>Some crew combos trigger hidden synergies. Find them all.</li><li>Every run levels your crew, earns Shiny Rocks for Clive\u2019s Shed, and chips away at your odd jobs.</li></ul></details>' +
       '<p class="clive">\u201cAny questions? Good, because I\u2019m not qualified to answer them.\u201d <span>Clive, Volunteer Coordinator</span></p>' +
-      '<p class="center"><button class="wnlink" id="wnLink">What\u2019s new in v' + (window.HML_BUILD || '') + '</button></p>', 'home');
+      '<p class="center"><button class="wnlink" id="fbLink">\ud83d\udcac Tell the dev</button> \u00b7 <button class="wnlink" id="wnLink">What\u2019s new in v' + (window.HML_BUILD || '') + '</button></p>', 'home');
     if ($('contBtn')) $('contBtn').onclick = () => continueRun(run);
     $('shedBtn').onclick = showShed;
     if ($('playNext')) $('playNext').onclick = () => { SFX.play('pick'); showLevel(nextLevelIdx()); };
+    wireA2hs();
     if ($('supLater')) $('supLater').onclick = () => { meta.supSeen = true; saveMeta(); trackEvent('support_card_dismissed', {}); showHome(); };
     if ($('supHome')) $('supHome').onclick = () => { meta.supSeen = true; saveMeta(); trackEvent('support_link_clicked', { from: 'home' }); };
     drawPortraits($('modalCard'));
     if ($('wnOk')) $('wnOk').onclick = () => { meta.seenBuild = window.HML_BUILD; saveMeta(); showHome(); };
     if ($('wnLink')) $('wnLink').onclick = () => showChangelog();
+    if ($('fbLink')) $('fbLink').onclick = () => showFeedback();
     $('gearBtn').onclick = () => showGear('dreams');
     if (won) { $('dailyBtn').onclick = () => startDaily(); $('longBtn').onclick = () => pickLong(); }
     $('modalCard').querySelectorAll('.level').forEach(b => {
@@ -5287,7 +5308,7 @@ const R = (function () {
     if (storageChecked === null) storageChecked = storageWorks();
     let h = '';
     if (!storageChecked || blockSaveOver) h += '<div class="savewarn"><b>This browser isn\u2019t saving your progress</b><span>A refresh will start you from scratch. Open the game in Chrome or Safari (not inside a chat app or private tab), or back up with a save code in Menu \u2192 Settings.</span></div>';
-    else if (inAppBrowser) h += '<div class="savewarn soft"><b>You\u2019re in a chat app\u2019s browser</b><span>These sometimes throw away saved games. For safe saves, tap \u22ef and choose Open in Safari or Open in Chrome.</span></div>';
+    else if (inAppBrowser && (meta.runs || 0) >= 1) h += '<div class="savewarn soft"><b>You\u2019re in a chat app\u2019s browser</b><span>These sometimes throw away saved games. For safe saves, tap \u22ef and choose Open in Safari or Open in Chrome.</span></div>';
     if (recoveredFrom === 'backup' || recoveredFrom === 'best') { h += '<div class="saveok"><b>Progress recovered</b><span>Your main save was damaged, so Gary loaded your backup. Phew.</span></div>'; recoveredFrom = ''; saveMeta(); }
     else if (recoveredFrom === 'failed') h += '<div class="savewarn"><b>Your save couldn\u2019t be read</b><span>It\u2019s been kept safe, not deleted. If you have a save code, load it in Menu \u2192 Settings.</span></div>';
     return h;
@@ -5313,6 +5334,50 @@ const R = (function () {
   }
   function shedAffordable() { return SHED.some(s => shedLevel(meta, s.id) < s.costs.length && (meta.rocks || 0) >= s.costs[shedLevel(meta, s.id)]); }
   // the supporter card appears only after someone has clearly had fun: 5 wins, 3 sessions, never on a loss screen, dismissible
+  // ---- Put Gary on the home screen ----
+  let installEvt = null;
+  window.addEventListener('beforeinstallprompt', ev => { ev.preventDefault(); installEvt = ev; });
+  window.addEventListener('appinstalled', () => { meta.a2hsDone = 1; saveMeta(); trackEvent('app_installed', {}); });
+  const standalone = () => { try { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent || ''), isAndroid = /Android/.test(navigator.userAgent || '');
+  function a2hsOffer() { return !standalone() && !meta.a2hsDone && (meta.a2hsNo || 0) < 2 && (meta.wins || 0) >= 1 && deviceCat() !== 'desktop'; }
+  function a2hsCard(where) { return a2hsOffer() ? '<div class="a2hs"><span class="a2ico">\ud83d\udcf1</span><div><b>Put Gary on your home screen</b><span>One tap to play, like an app. Takes 5 seconds.</span></div><button class="btn primary" id="a2hsBtn" data-where="' + where + '">Show me</button></div>' : ''; }
+  function wireA2hs() {
+    const b = $('a2hsBtn'); if (!b) return;
+    trackEvent('a2hs_card_shown', { where: b.dataset.where });
+    b.onclick = async ev => {
+      ev.stopPropagation(); trackEvent('a2hs_clicked', { where: b.dataset.where, native: !!installEvt });
+      if (installEvt) { try { installEvt.prompt(); const ch = await installEvt.userChoice; if (ch && ch.outcome === 'accepted') { meta.a2hsDone = 1; saveMeta(); b.closest('.a2hs').remove(); } installEvt = null; return; } catch (e) {} }
+      showA2hsHelp();
+    };
+  }
+  function showA2hsHelp() {
+    const back = state === 'results' ? null : showHome;
+    const steps = inAppBrowser ? '<ol class="a2steps"><li>Tap <b>\u22ef</b> (top right)</li><li>Choose <b>Open in browser</b> (Safari or Chrome)</li><li>Then come back here and tap <b>Show me</b> again</li></ol>'
+      : isIOS ? '<ol class="a2steps"><li>Tap <b>Share</b> <span class="ios-share">\u2b06\ufe0e</span> at the bottom of Safari</li><li>Scroll down, tap <b>Add to Home Screen</b></li><li>Tap <b>Add</b>. Gary\u2019s on your phone.</li></ol>'
+      : '<ol class="a2steps"><li>Tap <b>\u22ee</b> (top right of Chrome)</li><li>Tap <b>Add to Home screen</b> or <b>Install app</b></li><li>Tap <b>Add</b>. Gary\u2019s on your phone.</li></ol>';
+    const prev = $('modalCard').innerHTML, prevCls = $('modalCard').className;
+    openModal('<h2 class="title sm">Gary on your home screen</h2><p class="lede sm">Opens straight into the game. Your progress comes with you.</p>' + steps +
+      '<div class="row3"><button class="btn primary big" id="a2Done">Done it</button></div><p class="center"><button class="wnlink" id="a2No">Maybe later</button></p>', 'menu');
+    const close = () => { if (back) back(); else { $('modalCard').className = prevCls; $('modalCard').innerHTML = prev; showResultsRewire(); } };
+    $('a2Done').onclick = () => { meta.a2hsDone = 1; saveMeta(); trackEvent('a2hs_done_clicked', {}); close(); };
+    $('a2No').onclick = () => { meta.a2hsNo = (meta.a2hsNo || 0) + 1; saveMeta(); close(); };
+  }
+  // ---- Tell the dev: one-tap rating + optional words, sent to analytics ----
+  const MOODS = [['\ud83d\ude0d', 'love'], ['\ud83d\ude42', 'good'], ['\ud83d\ude10', 'meh'], ['\ud83d\ude15', 'bad']];
+  function moodRow(where) { return '<div class="moodrow" data-where="' + where + '"><span>How\u2019s Hold My Loot so far?</span><div>' + MOODS.map(m => '<button class="mood" data-mood="' + m[1] + '" aria-label="' + m[1] + '">' + m[0] + '</button>').join('') + '</div></div>'; }
+  function wireMood(root) {
+    (root || $('modalCard')).querySelectorAll('.moodrow').forEach(row => row.querySelectorAll('.mood').forEach(b => b.onclick = ev => {
+      ev.stopPropagation(); const mood = b.dataset.mood, where = row.dataset.where;
+      trackEvent('feedback_rating', { mood, where, wins: meta.wins || 0, level_id: G ? G.map.id : '' }); meta.ratedAt = meta.wins || 0; meta.rated = (meta.rated || 0) + 1; saveMeta(); SFX.play('pick');
+      row.innerHTML = '<span>' + (mood === 'love' ? 'Legend. ' : mood === 'bad' ? 'Fair enough. ' : 'Cheers. ') + 'Anything to tell the dev?</span><div class="fbwrap"><textarea id="fbText" maxlength="500" rows="2" placeholder="' + (mood === 'bad' ? 'What sucked?' : 'Best bit? Worst bit? Bugs?') + '"></textarea><button class="btn" id="fbSend">Send</button></div><small>Anonymous. Please don\u2019t include your name or number.</small>';
+      $('fbSend').onclick = () => { const t = ($('fbText').value || '').trim().slice(0, 500); if (t) trackEvent('feedback_text', { mood, where, text: t, wins: meta.wins || 0, level_id: G ? G.map.id : '' }); row.innerHTML = '<span>\u2764\ufe0f Thanks. The dev reads every one.</span>'; SFX.play('coin'); };
+    }));
+  }
+  function showFeedback() {
+    openModal('<div class="menu-head"><h2 class="title sm">Tell the dev</h2><button class="btn" id="fbBack">Back</button></div><p class="small">Made by one person. Every message gets read.</p>' + moodRow('menu'), 'menu');
+    wireMood(); $('fbBack').onclick = () => { if (G && state === 'play') closeMenu(); else showHome(); };
+  }
   function supporterCard() {
     if (!SUP.url || meta.supporter || meta.supSeen || (meta.wins || 0) < 5 || (meta.sessions || 0) < 3) return '';
     return '<div class="supcard"><div><b>\u2764\ufe0f Like Hold My Loot?</b><span>Made by one person. No ads, no pay-to-win. You can shout the dev a snag, and Gary gets red pyjamas out of it.</span></div><div class="row2b"><a class="btn primary" href="' + SUP.url + '" target="_blank" rel="noopener" id="supHome">\ud83c\udf2d Shout a snag</a><button class="btn" id="supLater">Not now</button></div></div>';
@@ -5440,7 +5505,7 @@ const R = (function () {
     homeMap = mapIdx; begin();
     if (mode === 'campaign' && mapIdx === 0 && !meta.tutDone) startTut();
   }
-  const attempts = {};
+  const attempts = {}; let firstTouch = false;
   function startLevel(i, mods) {
     newGame(i, 'campaign', null, mods || levelMods[i]); mapHint();
     if (meta.runs) toast(G.map.name + '. ' + G.map.blurb, 'big');
@@ -5456,7 +5521,8 @@ const R = (function () {
     homeMap = G.mapIdx; begin();
     toast('Back on ' + G.map.name + '. Tap Start wave when ready.', 'big');
   }
-  let toldSoggy = false, toldDream = false, toldCredit = false, lastSheetR = 0, toldAbility = false;
+  const heistToastAt = {};
+  let toldStorage = false, toldSoggy = false, toldDream = false, toldCredit = false, lastSheetR = 0, toldAbility = false;
   function mapHint() {
     const m = G.map;
     if (m.magnet) setTimeout(() => toast('Tap the red magnet to drag metal monsters backwards. It overheats after 6 seconds.', 'big'), 2600);
@@ -5469,7 +5535,13 @@ const R = (function () {
   let tut = null;
   const TUT_STEPS = ['pad', 'pick', 'build2', 'start', 'loot', 'upgrade', 'dream'];
   function tutOn() { return !!(tut && G && G.mapIdx === 0 && G.mode === 'campaign' && state === 'play'); }
-  function startTut() { tut = { i: 0, since: performance.now() }; trackEvent('tutorial_start', {}); }
+  function startTut() {
+    tut = { i: 0, since: performance.now() }; trackEvent('tutorial_start', { first_touch: firstTouch });
+    if (firstTouch) {
+      firstTouch = false;
+      setTimeout(() => { if (G && G.mapIdx === 0 && G.wave === 0) { banner('Gary\u2019s asleep', 'Monsters want his loot. Stop them.', 'event'); R.say(GARY.x, GARY.y - 34, 'zzz... guard me loot...', 3); } }, 250);
+    }
+  }
   function tutDone(step) { trackEvent('tutorial_step_completed', { step, index: tut.i }); tut.i++; tut.since = performance.now(); if (tut.i >= TUT_STEPS.length) { tut = null; meta.tutDone = 1; saveMeta(); hideCoach(); } }
   function cvPt(x, y) { const r = C.getBoundingClientRect(); return { x: r.left + x * r.width / W, y: r.top + y * r.height / H }; }
   function elPt(el) { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + 4, w: r.width, h: r.height, top: r.top }; }
@@ -5489,7 +5561,7 @@ const R = (function () {
       const p = G.map.pads[1]; return showCoach(cvPt(p[0], p[1] - 6), age > 7000 ? 'TAP THE WOODEN PALLET' : 'TAP HERE', true);
     }
     if (step === 'pick') {
-      if (towers.length) return tutDone('pick');
+      if (towers.length) { if (G.grace && G.wave === 0 && !G.waveActive) setTimeout(() => { if (G && G.wave === 0 && !G.waveActive && state === 'play') { startWave(G); SFX.play('wave'); lastHud = ''; } }, 1400); return tutDone('pick'); }
       if (sheetMode !== 'build') { tut.i = 0; return; }
       const el = $('sheet').querySelector('.bcard[data-build="chuck"]') || $('sheet').querySelector('.bcard'); if (el) return showCoach(elPt(el), 'Pick Dazza', false);
       return hideCoach();
@@ -5505,12 +5577,12 @@ const R = (function () {
       return hideCoach();
     }
     if (step === 'build2') {
-      if (towers.length >= 2 || G.wave > 0) return tutDone('build2');
-      if (G.waveActive) return hideCoach();
+      if (towers.length >= 2 || G.wave > 1 || (G.wave >= 1 && !G.waveActive)) return tutDone('build2');
       if (sheetMode === 'build') { const el = $('sheet').querySelector('.bcard:not([disabled])'); if (el) return showCoach(elPt(el), 'Another one!', false); return hideCoach(); }
       if (sheetMode) return hideCoach();
       const cheapest = Math.min(...(G.crew || ['chuck']).map(k => towerCost(G, k)));
       if (G.gold < cheapest) return hideCoach();
+      if (G.waveActive && age < 2500) return hideCoach();
       const order = [3, 4, 0, 2, 5, 6]; const pi = order.find(i => G.map.pads[i] && !G.towers[i] && !(G.padLock && G.padLock[i]));
       if (pi == null) return tutDone('build2');
       const p = G.map.pads[pi]; return showCoach(cvPt(p[0], p[1] - 6), 'Hire more crew', true);
@@ -5582,7 +5654,8 @@ const R = (function () {
     if (state === 'results' || !G) return;
     hideCoach();
     state = 'results'; closeSheet();
-    const r = finishRun(G); clearRun(); saveMeta();
+    // The payout runs exactly once per level, even if results are shown again (e.g. after a crew reveal).
+    const r = G._result || (G._result = finishRun(G)); clearRun(); saveMeta();
     const endless = G.mode === 'endless';
     const secs = Math.round(G.t), afk = Math.floor(secs / 60) + 'm ' + String(secs % 60).padStart(2, '0') + 's';
     const title = endless ? 'The Long Nap is over.' : G.won ? 'Back. What\u2019d I miss?' : 'Where\u2019s my stuff. Where\u2019s all my stuff.';
@@ -5613,7 +5686,8 @@ const R = (function () {
     const cheapest = SHED.map(s => ({ s, L: shedLevel(meta, s.id) })).filter(o => o.L < o.s.costs.length).sort((a, b) => a.s.costs[a.L] - b.s.costs[b.L])[0];
     const shedHint = cheapest ? (meta.rocks >= cheapest.s.costs[cheapest.L] ? '<p class="next">You can afford ' + cheapest.s.name + ' in Clive\u2019s Shed.</p>' : '<p class="small">' + (cheapest.s.costs[cheapest.L] - meta.rocks) + ' more rocks for ' + cheapest.s.name + '.</p>') : '';
     const jobsLine = (r.jobsDone.length ? r.jobsDone.map(j => '<p class="jobdone">Job done: ' + j.text + ' <b>+' + j.reward + '</b></p>').join('') : '') + '<h3>Odd jobs</h3>' + jobsHTML(meta.jobs, null);
-    const shareText = 'Hold My Loot, ' + (G.mode === 'daily' ? 'Daily Nap ' + G.daily.key : G.mode === 'endless' ? 'The Long Nap' : G.map.name) + ': ' + (G.mode === 'endless' ? 'survived ' + (G.wave - 1) + ' waves' : G.won ? 'Gary kept ' + G.pile + '/' + G.pileMax : 'cleaned out on wave ' + G.wave) + '\n' + r.grid + (r.best ? '\nBest drop: ' + RARITY[r.best.tier].k + ' ' + r.best.name : '');
+    const shareLink = (location.protocol.startsWith('http') ? location.origin + location.pathname.replace(/index\.html$/, '') : 'https://holdmyloot.com/') + '?ref=share';
+    const shareText = 'Hold My Loot, ' + (G.mode === 'daily' ? 'Daily Nap ' + G.daily.key : G.mode === 'endless' ? 'The Long Nap' : G.map.name) + ': ' + (G.mode === 'endless' ? 'survived ' + (G.wave - 1) + ' waves' : G.won ? 'Gary kept ' + G.pile + '/' + G.pileMax : 'cleaned out on wave ' + G.wave) + '\n' + r.grid + (r.best ? '\nBest drop: ' + RARITY[r.best.tier].k + ' ' + r.best.name : '') + '\nPlay it: ' + shareLink;
     // ---- results: hero, rewards, one big button; everything else folds away ----
     const nextOk = G.won && nextMap && G.mode === 'campaign';
     const firstEver = G.won && meta.wins === 1 && G.mode === 'campaign';
@@ -5664,8 +5738,12 @@ const R = (function () {
       '<p class="small">Gary\u2019s Stash: ' + r.stashFound + ' of ' + STASH_TOTAL + ' found.</p>' + (G.won ? rocksLine : '') +
       '<h3>Skills</h3>' + skills + (nextLine ? '<p class="next">' + nextLine + '</p>' : '') + jobsLine + '</details>';
     const dailyLine = G.mode === 'daily' && r.dailyFirst ? '<p class="rjob">\ud83c\udf19 Daily won! 2\u00d7 XP, +' + r.rk.daily + ' rocks' + (r.streak > 1 ? ' \u00b7 \ud83d\udd25 ' + r.streak + '-day streak' : '') + '</p>' : '';
+    const bragMoment = G.won && G.mode === 'campaign' ? (firstEver ? 'first_win' : newCrew.length ? 'crew_unlock' : r.stars === 3 ? 'three_stars' : ENEMIES[G.map.boss] && G.mapIdx % 4 === 3 ? 'boss_level' : '') : '';
+    const brag = bragMoment ? '<button class="brag" id="bragBtn">\ud83d\udce4 Brag to a mate</button>' : '';
+    const askMood = G.won && (meta.wins || 0) >= 2 && !meta.rated ? moodRow('results') : '';
+    const homeCard = G.won && G.mode === 'campaign' ? a2hsCard('results') : '';
     const jobFlash = dailyLine + (r.jobsDone.length ? '<p class="rjob">\u2705 Job done: ' + r.jobsDone[0].text + ' <b>+' + r.jobsDone[0].reward + '</b></p>' : '');
-    openModal(hero + (G.won || endless ? rewardRow + unlockCards : '') + jobFlash + primary + secondary + details, 'results' + (G.won ? ' won' : ' lost'), 700);
+    openModal(hero + (G.won || endless ? rewardRow + unlockCards : '') + jobFlash + primary + brag + secondary + homeCard + askMood + details, 'results' + (G.won ? ' won' : ' lost'), 700);
     const shareCtx = { won: G.won, endless, levelName: G.mode === 'daily' ? 'Daily Nap' : G.mode === 'endless' ? 'The Long Nap' : G.map.name, pile: G.pile, pileMax: G.pileMax, wave: G.wave, waveCount: G.waveCount, stars: r.stars || 0, crew: (G.crew || []).slice(0, 6), best: r.best, boss: ENEMIES[G.map.boss].name.split(',')[0], quip: G.won ? ['Gary slept through the whole thing.', 'Not a single snag was wasted.', 'The monsters have filed a complaint.'][Math.floor(Math.random() * 3)] : fb[0] };
     drawPortraits($('modalCard')); startPortraitLoop();
     if (G.won) [0, 1, 2].forEach(i => { if (i < r.stars) setTimeout(() => SFX.play(i === 2 ? 'levelup' : 'coin'), 250 + i * 280); });
@@ -5678,10 +5756,10 @@ const R = (function () {
     $('againBtn').onclick = ev => { if (deliberate(ev, $('againBtn'))) { trackEvent('level_restart', { level_id: MAPS[mi].id, mode }); mode === 'daily' ? startDaily() : mode === 'endless' ? startLong(mi) : startLevel(mi); } };
     if ($('crewBtn')) $('crewBtn').onclick = ev => { if (deliberate(ev, $('crewBtn'))) showCrew(mi, () => startLevel(mi)); };
     $('levelsBtn').onclick = ev => { if (deliberate(ev, $('levelsBtn'))) showHome(); };
-    $('shareBtn').onclick = async ev => {
-      if (!deliberate(ev, $('shareBtn'))) return;
+    const doShare = async (ev, btn, moment) => {
+      if (!deliberate(ev, btn)) return;
       const msg = $('shareMsg');
-      trackEvent('share_clicked', { won: G.won, level_id: G.map.id });
+      trackEvent('share_clicked', { won: G.won, level_id: G.map.id, moment });
       try {
         const blob = await shareCardBlob(shareCtx);
         if (blob && navigator.share && navigator.canShare) { const file = new File([blob], 'hold-my-loot.png', { type: 'image/png' }); if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: shareText }); msg.textContent = 'Shared.'; return; } }
@@ -5691,7 +5769,12 @@ const R = (function () {
       try { await navigator.clipboard.writeText(shareText); msg.textContent = 'Copied. Paste it in the group chat.'; }
       catch (e) { msg.innerHTML = 'Copy this:<br><textarea readonly rows="4"></textarea>'; const ta = msg.querySelector('textarea'); ta.value = shareText; ta.focus(); ta.select(); }
     };
+    $('shareBtn').onclick = ev => doShare(ev, $('shareBtn'), 'results');
+    if ($('bragBtn')) $('bragBtn').onclick = ev => doShare(ev, $('bragBtn'), bragMoment);
+    wireA2hs(); wireMood();
+    showResultsRewire = () => { $('shareBtn').onclick = ev => doShare(ev, $('shareBtn'), 'results'); if ($('bragBtn')) $('bragBtn').onclick = ev => doShare(ev, $('bragBtn'), bragMoment); if ($('nextBtn')) $('nextBtn').onclick = ev => { trackEvent('next_level_clicked', { from_level: MAPS[mi].id }); startLevel(mi + 1); }; $('againBtn').onclick = () => { mode === 'daily' ? startDaily() : mode === 'endless' ? startLong(mi) : startLevel(mi); }; $('levelsBtn').onclick = () => showHome(); if ($('crewBtn')) $('crewBtn').onclick = () => showCrew(mi, () => startLevel(mi)); wireA2hs(); wireMood(); };
   }
+  let showResultsRewire = () => {};
 
   // ---------- menu ----------
   const TABS = [['skills', 'Skills'], ['gary', 'Gary'], ['synergy', 'Synergies'], ['stats', 'Stats'], ['settings', 'Settings']];
@@ -5748,6 +5831,7 @@ const R = (function () {
       '<textarea id="codeBox" rows="3" placeholder="Paste a save code here"></textarea><button class="btn" id="loadCode">Load save code</button><p class="small" id="codeMsg" aria-live="polite"></p>' +
       (SUP.url ? '<h3>Support the game</h3><p class="small">' + (meta.supporter ? 'You\u2019re a supporter. Gary\u2019s Supporter Scarlet pyjamas are yours. Legend.' : 'Made by one person, no ads, no pay-to-win. If it\u2019s made you laugh, you can shout the dev a snag. Supporters get a code for Gary\u2019s Supporter Scarlet pyjamas.') + '</p>' +
         (meta.supporter ? '' : '<a class="btn primary" id="supLink" href="' + SUP.url + '" target="_blank" rel="noopener">\ud83c\udf2d Shout the dev a snag</a><div class="row2b" style="margin-top:8px"><input id="supCode" class="codein" placeholder="Supporter code" autocomplete="off"><button class="btn" id="supBtn">Unlock</button></div><p class="small" id="supMsg" aria-live="polite"></p>') : '') +
+      '<h3>Tell the dev</h3><p class="small">Found a bug? Love a character? Hate a level? It all helps.</p><button class="btn" id="fbMenu">\ud83d\udcac Send feedback</button>' +
       '<h3>Version</h3><p class="small">Version ' + (window.HML_BUILD || '?') + '. The game updates itself when you open it.</p><button class="btn" id="clBtn">What\u2019s new</button>' +
       '<h3>Start over</h3><button class="btn danger" id="resetBtn">Reset all progress</button>';
   }
@@ -5769,6 +5853,7 @@ const R = (function () {
     }
     if (menuTab === 'settings') {
       $('setInstant').onchange = e => { meta.settings.instantLoot = e.target.checked; if (G) G.instantLoot = e.target.checked; saveMeta(); };
+      if ($('fbMenu')) $('fbMenu').onclick = () => showFeedback();
       if ($('supLink')) $('supLink').onclick = () => trackEvent('support_link_clicked', {});
       if ($('supBtn')) $('supBtn').onclick = () => { const v = ($('supCode').value || '').trim().toLowerCase(); if (SUP.code && v === String(SUP.code).toLowerCase()) { meta.supporter = true; meta.pj = 'scarlet'; applyLook(); saveMeta(); SFX.play('ultimate'); trackEvent('supporter_unlocked', {}); $('supMsg').textContent = 'You absolute legend. Scarlet pyjamas unlocked.'; setTimeout(() => renderMenu(), 1200); } else { $('supMsg').textContent = 'That code didn\u2019t work. Check your receipt.'; } };
       $('setAnalytics').onchange = e => { meta.settings.analytics = e.target.checked; saveMeta(); };
@@ -5837,7 +5922,7 @@ const R = (function () {
   applyLook();
   if (!meta.firstSeen) meta.firstSeen = Date.now(); if (!meta.firstSrc) meta.firstSrc = sessionSrc || 'direct'; meta.sessions = (meta.sessions || 0) + 1;
   const dayN = Math.floor((Date.now() - meta.firstSeen) / 86400000) + 1;
-  trackEvent('session_start', { returning: !firstVisit, runs: meta.runs || 0, day_number: dayN, session_number: meta.sessions, streak: (meta.daily && meta.daily.streak) || 0 }); if (firstVisit) trackEvent('first_visit', {});
+  trackEvent('session_start', { standalone: standaloneNow(), returning: !firstVisit, runs: meta.runs || 0, day_number: dayN, session_number: meta.sessions, streak: (meta.daily && meta.daily.streak) || 0 }); if (firstVisit) trackEvent('first_visit', {});
   if (dayN > 1) trackEvent('return_session', { day_number: dayN, session_number: meta.sessions });
   resize();
   if (document.fonts) document.fonts.ready.then(() => R.invalidate());
