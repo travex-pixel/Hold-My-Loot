@@ -29,7 +29,7 @@
 <meta name="apple-mobile-web-app-title" content="Hold My Loot">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A4%3C/text%3E%3C/svg%3E">
-<meta name="hml-build" content="27">
+<meta name="hml-build" content="28">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -45,7 +45,7 @@ window.HML_BOARD = { url: '', key: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 27;
+window.HML_BUILD = 28;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -632,6 +632,22 @@ small.spare { display: block; color: var(--muted); font-weight: 800; margin: 3px
 #starBtn { margin-top: 6px; font-size: 13.5px; }
 .goal.wardrobe { cursor: pointer; }
 .crew .crewbtns { position: sticky; bottom: -10px; z-index: 5; background: linear-gradient(180deg, rgba(255,250,238,0), #FFFAEE 28%); margin: 6px -4px -10px; padding: 14px 4px 10px; }
+
+/* ===== v28: tiers, heat ===== */
+.tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 4px 0 6px; }
+.tierchip { border: 2px solid var(--line); background: var(--paper2); border-radius: 14px; padding: 8px 4px 6px; font-family: inherit; color: var(--ink); display: flex; flex-direction: column; align-items: center; gap: 1px; cursor: pointer; }
+.tierchip b { font-size: 13.5px; } .tierchip small { font-size: 10px; font-weight: 800; color: var(--muted); text-align: center; line-height: 1.2; } .tierchip i { font-style: normal; color: #F2B12E; font-size: 11px; min-height: 13px; }
+.tierchip.on { border-color: #6FA05A; background: #EEF7E6; }
+.tierchip.hard.on { border-color: #E3A02C; background: #FFF1C8; }
+.tierchip.nightmare { background: linear-gradient(180deg, #3A2840, #1E1424); color: #FBE1DA; border-color: #4A3050; } .tierchip.nightmare small { color: #E8B8C0; }
+.tierchip.nightmare.on { border-color: #E0453A; box-shadow: 0 0 0 2px rgba(224,69,58,.35), 0 0 14px rgba(224,69,58,.4); }
+.tierchip[disabled] { opacity: .5; cursor: default; }
+.btn.primary.nightmare { background: linear-gradient(180deg, #4A2A40, #2A1424); color: #FFE0D8; box-shadow: 0 3px 0 #120810, 0 0 16px rgba(224,69,58,.45); border-color: #E0453A; }
+.heatrow { display: flex; flex-direction: column; background: linear-gradient(135deg, #FFF1C8, #FBE1DA); border: 1.5px solid #F2B45A; border-radius: 12px; padding: 7px 10px; margin: 4px 0 8px; } .heatrow span { font-weight: 900; font-size: 13.5px; } .heatrow small { font-size: 11.5px; font-weight: 800; color: var(--muted); }
+.heatbox { display: flex; flex-direction: column; gap: 2px; border-radius: 14px; padding: 8px 12px; margin: 6px 0 2px; animation: cpop .5s cubic-bezier(.2,1.8,.4,1) both; animation-delay: .9s; }
+.heatbox b { font-size: 16px; } .heatbox span { font-size: 13px; font-weight: 800; }
+.heatbox.up, .heatbox.new { background: linear-gradient(135deg, #FFE0A0, #FFB89A); border: 2px solid #F09A2E; } .heatbox.down { background: #E2F1FF; border: 2px solid #9CC6EE; }
+.level em.tierdone { background: #2A1424; color: #FFE0D8; }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
@@ -1621,6 +1637,7 @@ function newRun(meta, seed, mapIdx, mode, daily, runMods) {
   if (G.runMods.speed) G.mods.enemySpeed *= 1.2;
   if (G.runMods.nomercy) { G.pile = G.pileMax = 3; }
   G.modMult = 1 + .5 * Object.keys(G.runMods).filter(k => G.runMods[k]).length;
+  G.tseed = 1 + Math.floor(G.rng() * 1e6);
   G.padLock = map.pads.map(p => p[2] === 'bonus' && shedLevel(meta, 'pallets') < p[3]);
   G.stats.perfects = 0; G.stats.dreams = 0; G.stats.syn = 0; G.stats.abilities = 0; G.stats.shards = 0;
   return G;
@@ -1697,6 +1714,7 @@ function startWave(G) {
   if (G.map.bridge) { const nb = Math.floor((G.wave - 1) / 2) % 2; if (nb !== G.bridgeIdx) { G.bridgeIdx = nb; fx(G, 'bridgeswing', {}); ev(G, 'bridgeswing'); } }
   G.shouting = G.mods.shoutRound; G.mods.shoutRound = 0;
   const q = [];
+  G.traitQ = traitPlan(G, G.wave).slice();
   let def = G.mode === 'endless' ? genWave(G, G.wave) : G.runMods.chaos ? genChaos(G, G.wave) : (G.waveList || G.map.waves)[G.wave - 1];
   if (G.runMods.bossrush && (G.wave === 3 || G.wave === 6)) {
     const pool = ['kevin', 'barry', 'stack', 'pantsalot', 'chrisso', 'mortimer', 'bigmum'].filter(b => b !== G.map.boss);
@@ -1742,6 +1760,27 @@ function choosePath(G, p, type) {
   if (typeof p === 'number') return Math.min(p, n - 1);
   return G.map.gate ? G.gate : 0;
 }
+const TRAITS = { speedy: { icon: '\u26a1', name: 'Speedy', col: '#F2C14E' }, armoured: { icon: '\ud83d\udee1\ufe0f', name: 'Armoured', col: '#8A95A5' }, splitter: { icon: '\ud83e\uddec', name: 'Splitter', col: '#4CAF6A' }, healer: { icon: '\ud83d\udc9a', name: 'Healer', col: '#E85D9A' } };
+function traitPlan(G, w) {
+  if (G.grace || w < 1) return [];
+  const ch = G.map.chapter || 1, mi = G.mapIdx || 0;
+  let n = 0;
+  if (G.mode === 'endless') n = Math.floor(w / 5);
+  else { if (ch === 1 && mi < 3) n = 0; else n = Math.max(0, Math.floor((w - 2) / 2)) + (ch - 1); }
+  n += Math.floor((G.heat || 0) / 2) + (G.tier === 'hard' ? 1 : G.tier === 'nightmare' ? 3 : 0);
+  if (n <= 0) return [];
+  const pool = ['speedy', 'armoured'].concat(ch >= 2 || mi >= 5 || G.mode === 'endless' ? ['splitter', 'healer'] : []);
+  const r = mulberry32(((G.tseed || 1) * 7919 + w * 104729) >>> 0), out = [];
+  for (let k = 0; k < Math.min(n, 8); k++) out.push(pool[Math.floor(r() * pool.length)]);
+  return out;
+}
+function applyTrait(G, e, tr) {
+  e.trait = tr; e.gold = Math.round(e.gold * 1.5);
+  if (tr === 'speedy') e.spd *= 1.45;
+  if (tr === 'armoured') { e.armor = Math.max(e.armor * 2, e.armor + 5); e.hp = e.maxHp = Math.round(e.maxHp * 1.15); }
+  if (tr === 'splitter') { e.hp = e.maxHp = Math.round(e.maxHp * 1.1); }
+  if (tr === 'healer') { e.hp = e.maxHp = Math.round(e.maxHp * 1.2); e.healT = 1; }
+}
 function spawn(G, type, d, pi) {
   const def = ENEMIES[type];
   const scale = (def.boss ? (G.mode === 'endless' ? Math.pow(1.075, Math.max(0, G.wave - 10)) * (1 + Math.max(0, G.wave - 10) / 10) : 1) : (1 + .23 * (G.wave - 1)) * (G.mode === 'endless' ? Math.pow(1.075, Math.max(0, G.wave - 8)) : 1)) * G.map.hpMult;
@@ -1755,6 +1794,9 @@ function spawn(G, type, d, pi) {
   if (G.event === 'bloodmoon') e.spd *= 1.2;
   if (G.mode === 'endless' && G.wave > 25) e.spd *= Math.min(1.5, 1 + (G.wave - 25) * .012);
   if (G.grace && !def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * (G.wave <= 3 ? .7 : .82)); }
+  if (G.heat) { e.hp = e.maxHp = Math.round(e.maxHp * (1 + .08 * G.heat)); e.spd *= 1 + .01 * G.heat; if (e.shield) e.shield = Math.round(e.shield * (1 + .08 * G.heat)); }
+  if (G.tier === 'nightmare') { e.hp = e.maxHp = Math.round(e.maxHp * 1.12); if (e.shield) e.shield = Math.round(e.shield * 1.12); }
+  if (!def.boss && G.traitQ && G.traitQ.length && !['baby', 'chick', 'egg', 'minicastle'].includes(type) && !G.noTrait && G.rng() < G.traitQ.length / Math.max(1, (G.spawnQ ? G.spawnQ.length : 0) + 1)) applyTrait(G, e, G.traitQ.pop());
   if (G.grace && def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * .85); }
   if (e.tipsy) G.stats.tipsy++;
   const p = posOn(P, e.d); e.x = p.x; e.y = p.y;
@@ -1983,6 +2025,7 @@ function damage(G, e, amt, o) {
 }
 
 function kill(G, e, src) {
+  if (e.trait === 'splitter' && !e.split2) { for (let k = 0; k < 2; k++) { G.noTrait = true; const c = spawn(G, 'rat', Math.max(0, e.d - 4 - k * 6), e.pi); G.noTrait = false; if (c) { c.hp = c.maxHp = Math.max(8, Math.round(e.maxHp * .3)); c.split2 = true; c.x = e.x; c.y = e.y; } } fx(G, 'split', { x: e.x, y: e.y }); }
   e.dead = true;
   const i = G.enemies.indexOf(e); if (i >= 0) G.enemies.splice(i, 1);
   const g = Math.round(e.gold * G.mods.goldMult);
@@ -2074,6 +2117,7 @@ function update(G, dt) {
   if (G.puddles.length) G.puddles = G.puddles.filter(pd => pd.t < pd.life);
 
   for (const e of G.enemies.slice()) {
+    if (e.trait === 'healer') { e.healT -= dt; if (e.healT <= 0) { e.healT = 1.2; let n = 0; for (const o of G.enemies) if (o !== e && !o.boss && o.hp < o.maxHp && Math.hypot(o.x - e.x, o.y - e.y) < 60) { o.hp = Math.min(o.maxHp, o.hp + o.maxHp * .05); n++; } if (n) fx(G, 'traitheal', { x: e.x, y: e.y }); } }
     if (e.dead) continue;
     if (e.hit > 0) e.hit -= dt;
     if (e.stunImm > 0) e.stunImm -= dt;
@@ -2540,6 +2584,7 @@ function update(G, dt) {
       if (p.splash) {
         fx(G, 'splash', { x: p.tx, y: p.ty, r: p.splash });
         for (const e of G.enemies.slice()) {
+    if (e.trait === 'healer') { e.healT -= dt; if (e.healT <= 0) { e.healT = 1.2; let n = 0; for (const o of G.enemies) if (o !== e && !o.boss && o.hp < o.maxHp && Math.hypot(o.x - e.x, o.y - e.y) < 60) { o.hp = Math.min(o.maxHp, o.hp + o.maxHp * .05); n++; } if (n) fx(G, 'traitheal', { x: e.x, y: e.y }); } }
           const dd = Math.hypot(e.x - p.tx, e.y - p.ty);
           const q = e.queue > 0 || e.sizzled; if (q && (e === tg || dd <= p.splash)) synergy(G, 'queue', e.x, e.y);
           if (e === tg) damage(G, e, p.dmg * (q ? 1.5 : 1), { src: p.src, kind: 'chuck', icon: p.icon, pad: p.pad });
@@ -2704,10 +2749,11 @@ function finishRun(G) {
     return Object.assign({}, j, { p });
   }).filter(Boolean);
   ensureJobs(meta);
-  const rocks = Math.round((rk.salvage + rk.boss + rk.jobs + rk.daily) * G.modMult);
+  const heatMult = 1 + .12 * (G.heat || 0);
+  const rocks = Math.round((rk.salvage + rk.boss + rk.jobs + rk.daily) * G.modMult * heatMult);
   // Gary XP + dream shards
   const gBefore = garyInfo(meta.garyXp || 0);
-  const garyGain = Math.round((G.stats.kills + (G.won ? 120 : 30) + 25 * G.stats.perfects + 40 * (G.bossKills || 0)) * G.modMult);
+  const garyGain = Math.round((G.stats.kills + (G.won ? 120 : 30) + 25 * G.stats.perfects + 40 * (G.bossKills || 0)) * G.modMult * heatMult);
   meta.garyXp = (meta.garyXp || 0) + garyGain;
   const gAfter = garyInfo(meta.garyXp);
   const garyUnlocks = GARY_UNLOCKS.filter(u => u.L > gBefore.L && u.L <= gAfter.L);
@@ -2749,7 +2795,7 @@ function finishRun(G) {
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { W, H, GARY, MAPS, posOn, SKILLS, SKILL_NAMES, SKILL_DESC, TOWERS, TIER_NOTES, ENEMIES, BOSS_ITEMS, RARITY, ITEMS, ALL_ITEMS, ITEM_DESC, STASH_TOTAL, CARDS,
-  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, itemStars, starMult, starCost, weekKey, shortFirstLevel, padRoadDist, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
+  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, traitPlan, TRAITS, itemStars, starMult, starCost, weekKey, shortFirstLevel, padRoadDist, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
 
 </script>
 <script>
@@ -3157,12 +3203,22 @@ const R = (function () {
     shadeCache.set(k, v); return v;
   }
   function rgba(h, a) { const n = parseInt(h.slice(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; }
+  // Shaded ellipse. The gradient is built once per colour (in unit space) and reused every frame
+  // through a transform, instead of being rebuilt thousands of times a second. Same look, much cheaper.
+  const softCache = new WeakMap();
+  function softGrad(c, col, hi) {
+    let m = softCache.get(c); if (!m) { m = new Map(); softCache.set(c, m); }
+    const k = col + '|' + hi; let g = m.get(k);
+    if (!g) { g = c.createRadialGradient(-.35, -.45, 0, 0, 0, 1.15); g.addColorStop(0, shade(col, hi)); g.addColorStop(.55, col); g.addColorStop(1, shade(col, -.2)); m.set(k, g); if (m.size > 600) m.clear(); }
+    return g;
+  }
   function soft(c, x, y, rx, ry, col, o) {
     o = o || {};
-    const g = c.createRadialGradient(x - rx * .35, y - ry * .45, 0, x, y, Math.max(rx, ry) * 1.15);
-    g.addColorStop(0, shade(col, o.hi == null ? .32 : o.hi)); g.addColorStop(.55, col); g.addColorStop(1, shade(col, -.2));
-    c.beginPath(); c.ellipse(x, y, rx, ry, o.rot || 0, 0, Math.PI * 2); c.fillStyle = g; c.fill();
-    if (o.line !== false) { c.lineWidth = o.lw || 1.3; c.strokeStyle = shade(col, -.45); c.stroke(); }
+    if (!(rx > 0) || !(ry > 0)) return;
+    c.save(); c.translate(x, y); if (o.rot) c.rotate(o.rot); c.scale(rx, ry);
+    c.beginPath(); c.arc(0, 0, 1, 0, Math.PI * 2); c.fillStyle = softGrad(c, col, o.hi == null ? .32 : o.hi); c.fill();
+    c.restore();
+    if (o.line !== false) { c.beginPath(); c.ellipse(x, y, rx, ry, o.rot || 0, 0, Math.PI * 2); c.lineWidth = o.lw || 1.3; c.strokeStyle = shade(col, -.45); c.stroke(); }
   }
   function flat(c, x, y, rx, ry, col, a) { c.globalAlpha = a == null ? 1 : a; c.beginPath(); c.ellipse(x, y, Math.max(.1, rx), Math.max(.1, ry), 0, 0, Math.PI * 2); c.fillStyle = col; c.fill(); c.globalAlpha = 1; }
   function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
@@ -3323,8 +3379,8 @@ const R = (function () {
   }
 
   // ---------- particles ----------
-  let portraitMode = false;
-  function P(o) { if (portraitMode) return; if (parts.length < 550) parts.push(Object.assign({ t: 0, vx: 0, vy: 0, g: 0, rot: 0, vr: 0, size: 2, a: 1 }, o)); }
+  let portraitMode = false, LITE = false;
+  function P(o) { if (portraitMode) return; if (parts.length < (LITE ? 240 : 550)) parts.push(Object.assign({ t: 0, vx: 0, vy: 0, g: 0, rot: 0, vr: 0, size: 2, a: 1 }, o)); }
   function burst(x, y, n, o) { for (let i = 0; i < n; i++) { const an = Math.random() * Math.PI * 2, sp = (o.sp || 40) * (.5 + Math.random()); P(Object.assign({}, o, { x, y, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp - (o.up || 0), rot: Math.random() * 6, vr: (Math.random() - .5) * 8, col: Array.isArray(o.col) ? o.col[Math.floor(Math.random() * o.col.length)] : o.col })); } }
   function pop(x, y, txt, col, big) { pops.push({ x, y, txt, col, big, t: 0 }); }
 
@@ -3518,6 +3574,8 @@ const R = (function () {
         }
         case 'lavahit': { snd(f.sky ? 'thud' : 'fwoomp'); burst(f.x, f.y - 4, 12, { kind: 'ember', col: ['#FFB04A', '#FF6A3A', '#FFE38A'], sp: 90, up: 50, g: 160, life: .6, size: 2.6 }); P({ kind: 'ring', x: f.x, y: f.y, life: .35, size: 9, col: '#FF8A2A' }); break; }
         case 'erupt': { snd('thunder'); const pd = G.map.pads[f.pad]; pop(pd[0], pd[1] - 60, 'ERUPTION!', '#E0453A', true); burst(pd[0], pd[1] - 20, 24, { kind: 'ember', col: ['#FFB04A', '#FF6A3A', '#FFE38A'], sp: 150, up: 120, g: 120, life: 1.1, size: 3 }); break; }
+        case 'split': { snd('pop'); burst(f.x, f.y, 10, { kind: 'dust', col: ['#4CAF6A', '#9FE0A8'], sp: 80, life: .4, size: 3 }); pop(f.x, f.y - 16, 'SPLIT!', '#3E9E5A', false); break; }
+        case 'traitheal': { P({ kind: 'ring', x: f.x, y: f.y, life: .5, size: 60, col: '#E85D9A' }); if (!LITE) burst(f.x, f.y - 6, 4, { kind: 'star', col: '#E85D9A', sp: 30, up: 20, life: .5, size: 2.4 }); break; }
         case 'psy': { snd('psy'); towerAnim[f.pad] = { k: 'psy', t: 0 }; const pd = G.map.pads[f.pad]; P({ kind: 'ring', x: pd[0] + 18, y: pd[1] - 20, life: .4, size: 6, col: '#C9A8FF' }); break; }
         case 'psyslam': { snd(f.yeet ? 'yeet' : 'psyslam'); P({ kind: 'ring', x: f.x, y: f.y, life: .4, size: f.r * .5, col: '#B59BFF' }); burst(f.x, f.y, 10, { kind: 'star', col: ['#C9A8FF', '#FFFFFF', '#7CF2C8'], sp: 80, life: .45, size: 2.6 }); burst(f.x, f.y, 6, { kind: 'dust', col: ['#E8D9B8'], sp: 50, life: .45, size: 4 }); if (f.yeet) pop(f.x, f.y - 26, 'YEET!', '#8E5CE0', true); break; }
         case 'masslift': { snd('masslift'); pop(f.x, f.y - 56, 'MASS LEVITATION!', '#8E5CE0', true); for (let k = 0; k < 3; k++) P({ kind: 'ring', x: f.x, y: f.y, life: .6 + k * .12, size: f.r * .3 + k * 12, col: ['#B59BFF', '#7CF2C8', '#E2C6FF'][k] }); if (!reduced) flash = Math.max(flash, .12); break; }
@@ -3736,7 +3794,7 @@ const R = (function () {
     ctx.save();
     ctx.beginPath(); ctx.moveTo(cx - 8, y - 32); ctx.quadraticCurveTo(cx - 19 + sway, y - 12, cx - 15 + sway, y + 3); ctx.lineTo(cx + 15 + sway, y + 3); ctx.quadraticCurveTo(cx + 19 + sway, y - 12, cx + 8, y - 32); ctx.closePath();
     const base = ctx.createLinearGradient(0, y - 32, 0, y + 3); base.addColorStop(0, '#3A1E14'); base.addColorStop(1, '#1E0E0A'); ctx.fillStyle = base; ctx.fill(); ctx.clip();
-    for (let k = 0; k < 6; k++) {
+    for (let k = 0; k < (LITE ? 3 : 6); k++) {
       const yy = y - 34 + ((time * 14 + k * 7) % 42), xx = cx - 12 + (k * 9) % 24 + sway * .4;
       const lg = ctx.createRadialGradient(xx, yy, 0, xx, yy, 7); lg.addColorStop(0, 'rgba(255,230,120,1)'); lg.addColorStop(.35, 'rgba(255,140,30,.95)'); lg.addColorStop(1, 'rgba(200,40,10,0)'); ctx.fillStyle = lg; ctx.fillRect(xx - 7, yy - 7, 14, 14);
     }
@@ -3825,7 +3883,7 @@ const R = (function () {
     const ult = TOWERS[t.type].tiers[t.tier].ult, EL = TOWERS[t.type].tiers[t.tier].elite;
     const LOOK = (window.CREW_LOOK || {})[t.type] || null;
     const sc = c => LOOK && LOOK.shirt ? LOOK.shirt : EL ? (ELITE_COLS[t.type] || '#F2C14E') : c;
-    if (LOOK && LOOK.aura) { const ag = ctx.createRadialGradient(x, y - 22, 2, x, y - 22, 40); ag.addColorStop(0, rgba(LOOK.aura, .55)); ag.addColorStop(1, rgba(LOOK.aura, 0)); ctx.fillStyle = ag; ctx.fillRect(x - 40, y - 62, 80, 80); if (Math.random() < .15) P({ kind: 'star', x: x + (Math.random() - .5) * 34, y: y - 10 - Math.random() * 36, vy: -24, life: .9, size: 2.4, col: LOOK.aura }); }
+    if (LOOK && LOOK.aura) { const ag = ctx.createRadialGradient(x, y - 22, 2, x, y - 22, 40); ag.addColorStop(0, rgba(LOOK.aura, .55)); ag.addColorStop(1, rgba(LOOK.aura, 0)); ctx.fillStyle = ag; ctx.fillRect(x - 40, y - 62, 80, 80); if (!LITE && Math.random() < .15) P({ kind: 'star', x: x + (Math.random() - .5) * 34, y: y - 10 - Math.random() * 36, vy: -24, life: .9, size: 2.4, col: LOOK.aura }); }
     if (LOOK && LOOK.molten) moltenCape(x + ({ chuck: -6, jezza: 4, bev: -4, sizzle: -2 }[t.type] || -1), y, time, i);
     if (EL) {
       // rotating sunburst rays
@@ -3974,7 +4032,7 @@ const R = (function () {
       // big round wombat body of cooled rock
       ctx.beginPath(); ctx.ellipse(0, -14, 19, 14, 0, 0, 7); const bgr = ctx.createRadialGradient(-5, -20, 2, 0, -14, 22); bgr.addColorStop(0, hot[1]); bgr.addColorStop(1, hot[0]); ctx.fillStyle = bgr; ctx.fill(); ctx.strokeStyle = '#1E120E'; ctx.lineWidth = 1.2; ctx.stroke();
       // glowing lava cracks
-      ctx.strokeStyle = rgba(hot[2], Math.min(1, glow)); ctx.lineWidth = molten ? 2.4 : 1.6; ctx.lineCap = 'round'; if (molten) { ctx.shadowColor = '#FF8A2A'; ctx.shadowBlur = 6; } ctx.beginPath();
+      ctx.strokeStyle = rgba(hot[2], Math.min(1, glow)); ctx.lineWidth = molten ? 2.4 : 1.6; ctx.lineCap = 'round'; if (molten && !LITE) { ctx.shadowColor = '#FF8A2A'; ctx.shadowBlur = 6; } ctx.beginPath();
       ctx.moveTo(-12, -20); ctx.lineTo(-6, -15); ctx.lineTo(-9, -8); ctx.moveTo(2, -26); ctx.lineTo(5, -18); ctx.lineTo(1, -12); ctx.lineTo(6, -6); ctx.moveTo(11, -20); ctx.lineTo(15, -13);
       if (molten) { ctx.moveTo(-16, -12); ctx.lineTo(-11, -4); ctx.moveTo(-4, -26); ctx.lineTo(-2, -20); ctx.moveTo(8, -9); ctx.lineTo(12, -3); }
       ctx.stroke(); ctx.shadowBlur = 0;
@@ -4381,6 +4439,13 @@ const R = (function () {
       const w = Math.max(16, r * 2); rr(ctx, x - w / 2 - 1, top - 6, w + 2, 4.5, 2.2); ctx.fillStyle = 'rgba(40,30,25,.55)'; ctx.fill();
       rr(ctx, x - w / 2, top - 5, w * Math.max(0, e.hp / e.maxHp), 2.5, 1.2); ctx.fillStyle = '#8BD06A'; ctx.fill();
     }
+    if (e.trait && TRAITS[e.trait]) {
+      const T = TRAITS[e.trait], bx = x + r * .9, by = top - 2;
+      ctx.beginPath(); ctx.arc(x, (e.flyer ? e.y - 30 : y) + r * .2, r * 1.15, 0, 7); ctx.strokeStyle = rgba(T.col, .55 + .25 * Math.sin(time * 5 + e.id)); ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.beginPath(); ctx.arc(bx, by, 5.6, 0, 7); ctx.fillStyle = '#FFFDF6'; ctx.fill(); ctx.strokeStyle = T.col; ctx.lineWidth = 1.4; ctx.stroke();
+      ctx.font = '7.5px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(T.icon, bx, by + .5);
+      if (e.trait === 'speedy' && !LITE && Math.random() < .3) P({ kind: 'dust', x: e.x, y: e.y + 3, vx: -e.dx * 20, vy: -6, life: .3, size: 2.2, col: '#F2C14E' });
+    }
     if (e.stun > 0) for (let k = 0; k < 3; k++) { const a = time * 6 + k * 2.1; flat(ctx, x + Math.cos(a) * 9, top - 2 + Math.sin(a) * 2.5, 2, 2, '#FFE07A'); }
     if (e.carry && e.type !== 'pantsalot') {
       const it = e.carry, c = RARITY[it.tier].c, bob = Math.sin(time * 4 + e.wob) * 1.5;
@@ -4565,6 +4630,7 @@ const R = (function () {
     const tt = performance.now() / 1000;
     for (const k in buckets) {
       const b = buckets[k], lines = Object.keys(b.items).map(t => (ENEMIES[t].boss ? ENEMIES[t].name.split(',')[0] : SHORT[t] || t) + ' \u00d7' + b.items[t]);
+      if (k === Object.keys(buckets)[0] && G) { try { const tp = traitPlan(G, G.wave + 1), cnt = {}; tp.forEach(t2 => cnt[t2] = (cnt[t2] || 0) + 1); const tl = Object.keys(cnt).map(t2 => TRAITS[t2].icon + TRAITS[t2].name + ' \u00d7' + cnt[t2]).join('  '); if (tl) lines.push(tl); } catch (e2) {} }
       const boss = Object.keys(b.items).some(t => ENEMIES[t].boss);
       ctx.font = '800 9.5px ' + FONT; const w = Math.max(...lines.map(l => ctx.measureText(l).width)) + 14, h = 8 + lines.length * 12;
       let x = b.pos[0], y = b.pos[1] + 18 + Math.sin(tt * 3) * 1.5; x = Math.max(w / 2 + 4, Math.min(W - w / 2 - 4, x));
@@ -4702,7 +4768,7 @@ const R = (function () {
     if (key !== bgKey) { bgCanvas = buildBg(map); bgKey = key; bgChecked = now; }
     // A few times a second, make sure the background layer still has pixels. Some phones silently
     // drop canvas memory; if it's gone blank, rebuild it instead of letting frames smear.
-    if (now - bgChecked > .4) { bgChecked = now; if (bgBlank(bgCanvas)) { bgLostReport('blank'); bgCanvas = buildBg(map); bgKey = key; } }
+    if (now - bgChecked > (LITE ? 2.5 : 1)) { bgChecked = now; if (bgBlank(bgCanvas)) { bgLostReport('blank'); bgCanvas = buildBg(map); bgKey = key; } }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     // Always wipe the frame first, so a missing background can never cause smearing.
     ctx.fillStyle = (THEMES[map.theme] || {}).g || '#8DB86A'; ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
@@ -4944,8 +5010,9 @@ const R = (function () {
       ctx.font = '800 10.5px ' + FONT; const w = Math.min(190, ctx.measureText(b.txt).width + 16), h = 20;
       const x = Math.max(w / 2 + 4, Math.min(W - w / 2 - 4, b.x)), y = Math.max(h + 8, b.y - b.t * 4);
       ctx.save(); ctx.globalAlpha = Math.max(0, a); ctx.translate(x, y); ctx.scale(pop, pop);
-      ctx.shadowColor = 'rgba(40,30,20,.25)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
-      rr(ctx, -w / 2, -h, w, h, 10); ctx.fillStyle = '#FFFDF6'; ctx.fill(); ctx.shadowColor = 'transparent';
+      if (LITE) { rr(ctx, -w / 2, -h + 2, w, h, 10); ctx.fillStyle = 'rgba(40,30,20,.18)'; ctx.fill(); }
+      else { ctx.shadowColor = 'rgba(40,30,20,.25)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2; }
+      rr(ctx, -w / 2, -h, w, h, 10); ctx.fillStyle = '#FFFDF6'; ctx.fill(); ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
       ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(0, 7); ctx.lineTo(5, 0); ctx.closePath(); ctx.fill();
       ctx.strokeStyle = 'rgba(90,70,50,.35)'; ctx.lineWidth = 1; rr(ctx, -w / 2, -h, w, h, 10); ctx.stroke();
       ctx.fillStyle = '#3B2F2A'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(b.txt, 0, -h / 2 + .5, w - 10);
@@ -4953,7 +5020,7 @@ const R = (function () {
     }
   }
   function reset() { bubbles.length = 0; dreamT = 0; freezeT = 0; nums.length = 0; flash = 0; hitstop = 0; parts.length = 0; pops.length = 0; flyers.length = 0; for (const k in towerAnim) delete towerAnim[k]; shake = 0; garySwing = 0; garyRoll = 0; hintGate = true; }
-  return { _bg: () => bgCanvas, frame, reset, celebrate, takeHitstop, portrait, garyPortrait, portraitWith, poke, tickPortraitAnim, say, invalidate: () => { bgKey = ''; } };
+  return { setLite: v => { LITE = !!v; }, isLite: () => LITE, _bg: () => bgCanvas, frame, reset, celebrate, takeHitstop, portrait, garyPortrait, portraitWith, poke, tickPortraitAnim, say, invalidate: () => { bgKey = ''; } };
 })();
 
 </script>
@@ -5176,7 +5243,12 @@ const R = (function () {
     banjo: { ripe: { name: 'Overripe', spots: true, rar: 'rare', rocks: 500 }, golden: { name: 'Golden Banana', spots: false, aura: '#FFD24A', rar: 'legendary', rocks: 4500 } },
     rocco: { cool: { name: 'Cooled Off', cool: true, rar: 'rare', rocks: 600 }, molten: { name: 'Molten Core', molten: true, aura: '#FF8A2A', rar: 'legendary', rocks: 5000 } },
   };
-  const owned = (who, id) => who === 'gary' ? (GPJ[id] && (GPJ[id].earn ? GPJ[id].earn(meta) : !!(meta.owned || {})['gary.' + id])) : !!(meta.owned || {})[who + '.' + id];
+  const owned = (who, id) => who === 'gary' ? (GPJ[id] && (GPJ[id].earn ? GPJ[id].earn(meta) : !!(meta.owned || {})['gary.' + id])) : (OUTFITS[who] && OUTFITS[who][id] && OUTFITS[who][id].earn ? OUTFITS[who][id].earn(meta) : !!(meta.owned || {})[who + '.' + id]);
+  GPJ.nightmare = { name: 'Nightmare Nap', a: '#2A1020', b: '#0E0610', e: '#000000', belt: '#E0453A', stars: '#E0453A', rar: 'legendary', earn: m => (m.nightmares || 0) >= 5, how: 'Beat 5 levels on Nightmare' };
+  OUTFITS.chuck.nightmare = { name: 'Nightmare Dazza', shirt: '#1A1020', aura: '#E0453A', rar: 'legendary', earn: m => (m.nightmares || 0) >= 1, how: 'Beat a level on Nightmare' };
+  OUTFITS.nan.terror = { name: 'Night Terror Nan', shirt: '#1A1020', aura: '#B8203A', rar: 'legendary', earn: m => (m.nightmares || 0) >= 3, how: 'Beat 3 levels on Nightmare' };
+  OUTFITS.bonk.hellfire = { name: 'Hellfire Marg', shirt: '#4A0A0A', molten: true, aura: '#E0453A', rar: 'legendary', earn: m => (m.nightmares || 0) >= 8, how: 'Beat 8 levels on Nightmare' };
+  OUTFITS.rocco.inferno = { name: 'Inferno Rocco', molten: true, aura: '#E0453A', rar: 'legendary', earn: m => (m.heatBest || 0) >= 8, how: 'Reach Heat 8' };
   function applyLook() {
     const k = meta.pj && GPJ[meta.pj] && owned('gary', meta.pj) ? meta.pj : 'blue'; window.GARY_LOOK = GPJ[k];
     const cl = {}; for (const w in OUTFITS) { const id = (meta.crewLook || {})[w]; if (id && OUTFITS[w][id] && owned(w, id)) cl[w] = OUTFITS[w][id]; } window.CREW_LOOK = cl;
@@ -5311,7 +5383,7 @@ const R = (function () {
     if (key !== lastHud) {
       lastHud = key;
       $('gold').textContent = G ? G.gold : '\u2013';
-      $('wave').textContent = G ? 'Wave ' + Math.max(1, G.wave) + (isFinite(G.waveCount) ? '/' + G.waveCount : '') : 'Hold My Loot';
+      $('wave').textContent = G ? 'Wave ' + Math.max(1, G.wave) + (isFinite(G.waveCount) ? '/' + G.waveCount : '') + (G.tier === 'nightmare' ? ' \ud83d\udc80' : G.tier === 'hard' ? ' \ud83d\udd25' : '') + (G.heat ? ' \ud83d\udd25' + G.heat : '') : 'Hold My Loot';
       const pips = []; if (G) for (let i = 0; i < G.pileMax; i++) pips.push('<i class="pip' + (i < G.pile ? '' : ' gone') + '"></i>');
       $('pile').innerHTML = pips.join('');
       const playing = G && state === 'play';
@@ -5329,6 +5401,12 @@ const R = (function () {
       if (sheetMode) renderSheet();
     }
     try { tutTick(); } catch (e) { hideCoach(); }
+    // auto-start: veterans can skip the gap between waves
+    if (meta.settings.autoWave && VET() && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && $('modal').hidden && !sheetMode && !paused && !menuOpen) {
+      if (!autoAt) autoAt = performance.now() + 2200;
+      const left = Math.ceil((autoAt - performance.now()) / 1000); const sbt = $('startBtn'); if (sbt && left > 0) sbt.textContent = 'Next wave in ' + left + '\u2026';
+      if (performance.now() >= autoAt) { autoAt = 0; saveRun(); if (startWave(G)) { closeSheet(); lastHud = ''; } }
+    } else autoAt = 0;
     if (G && state === 'play' && !toldAbility && G.waveActive && G.towers.some((t, i) => abilityReady(G, i))) { toldAbility = true; if (!meta.toldAbility) { meta.toldAbility = 1; toast('A lightning badge means a tower\u2019s ability is ready. Tap the tower to use it.', 'big'); } }
     if (sheetMode === 'tower' && G && performance.now() - lastSheetR > 500) { lastSheetR = performance.now(); renderSheet(); }
     const boss = G && G.enemies.find(e => e.boss && !e.mini);
@@ -5502,11 +5580,12 @@ const R = (function () {
   });
   $('pokeBtn').addEventListener('click', () => { if (G && state === 'play' && !paused) { unleash(G); lastHud = ''; } });
   $('pauseBtn').addEventListener('click', () => { paused = !paused; SFX.duck(paused); lastHud = ''; });
-  $('speedBtn').addEventListener('click', () => { speed = speed === 1 ? 2 : 1; lastHud = ''; if (tut) tut.speedDone = true; });
+  $('speedBtn').addEventListener('click', () => { speed = speed === 1 ? 2 : speed === 2 && VET() ? 3 : 1; trackEvent('speed_set', { speed }); lastHud = ''; if (tut) tut.speedDone = true; });
   $('menuBtn').addEventListener('click', () => openMenu(G ? 'skills' : 'skills'));
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 28, title: 'Turn up the heat', notes: ['\ud83d\udd25 Heat: every win makes the next level tougher and pay more. Lose and it cools down. Unlocks after 5 wins.', 'Hard and \ud83d\udc80 Nightmare versions of every level you\u2019ve beaten, with Nightmare-only legendary outfits.', 'Monsters now turn up with traits: \u26a1 Speedy, \ud83d\udee1\ufe0f Armoured, \ud83e\uddec Splitter and \ud83d\udc9a Healer. The wave preview shows what\u2019s coming.', 'Veterans get 3\u00d7 speed and auto-start. Smooth mode makes Firefox and older phones run better.'] },
     { build: 27, title: 'Fixed: smeary screen', notes: ['On some Android phones the background could vanish and everything left streaks across the screen. The game now notices straight away and fixes itself.'] },
     { build: 26, title: 'The Wardrobe', notes: ['A whole wardrobe to spend your rocks on: Gary\u2019s pyjamas plus outfits for the crew, from Common to Legendary. Molten Marg has a cape made of actual lava.', 'Trinkets now level up to five stars using spare copies of loot. Duplicates finally matter.', 'New crew: Big Rocco, the Lava Wombat. Stomps crowds, lobs lava cubes, wins after 7 levels.'] },
     { build: 25, title: 'The weekly Long Nap', notes: ['The Long Nap now has the same waves for everyone each week, and it gets harder and harder until nobody survives. How far can you get?', 'New players get a shorter first level, and Dazza turns up for work straight away.', 'Gary leaves you a little gift every day. Share the funny moments too: everyone needs to know about the pants.'] },
@@ -5600,7 +5679,8 @@ const R = (function () {
       const unlocked = mapUnlocked(meta, i), ms = meta.maps[m.id];
       const bossName = (m.finals ? [...new Set(m.finals)] : [m.boss]).map(b => ENEMIES[b].name.split(',')[0]).join(' + ');
       const head = i === 0 ? '<h3 class="chap">Chapter 1: Gary\u2019s Backyard</h3>' : (m.chapter === 2 && MAPS[i - 1].chapter !== 2) ? '<h3 class="chap c2">Chapter 2: The Road Trip</h3>' : (m.chapter === 3 && MAPS[i - 1].chapter !== 3) ? '<h3 class="chap c3">Chapter 3: Out of Bounds</h3>' : '';
-      const won2 = ms && ms.wins, badge = unlocked && !won2 ? '<em class="tease">' + tease(m) + '</em>' : (won2 && ms.mods && Object.keys(ms.mods).length ? '<em class="mods">' + Object.keys(ms.mods).length + '/5 mods</em>' : '');
+      const won2 = ms && ms.wins, tiersDone = ms && ms.tiers ? (ms.tiers.nightmare ? '\ud83d\udc80' : ms.tiers.hard ? '\ud83d\udd25' : '') : '';
+      const badge = unlocked && !won2 ? '<em class="tease">' + tease(m) + '</em>' : tiersDone ? '<em class="mods tierdone">' + tiersDone + (ms.tiers.nightmare ? ' Nightmare' : ' Hard') + '</em>' : (won2 && ms.mods && Object.keys(ms.mods).length ? '<em class="mods">' + Object.keys(ms.mods).length + '/5 mods</em>' : '');
       return head + '<button class="level' + (m.chapter === 2 ? ' c2' : m.chapter === 3 ? ' c3' : '') + (unlocked && !won2 ? ' next' : '') + '" data-map="' + i + '"' + (unlocked ? '' : ' disabled') + '>' + badge + '<span class="lnum">' + (i + 1) + '</span><span class="ltext"><b>' + m.name + '</b><span>' +
         (unlocked ? m.blurb : 'Win ' + MAPS[i - 1].name + ' to unlock.') + '</span><small>Boss: ' + bossName + '</small></span>' + (unlocked ? starsHTML(ms ? ms.stars : 0) : '<span class="lock">Locked</span>') + '</button>';
     }).join('');
@@ -5767,7 +5847,7 @@ const R = (function () {
   }
   function showLevel(i) {
     const m = MAPS[i], ms = meta.maps[m.id] || {}, won = (ms.wins || 0) > 0, gl = garyInfo(meta.garyXp).L;
-    const pick = Object.assign({}, levelMods[i] || {});
+    const pick = Object.assign({}, levelMods[i] || {}); let tier = 'normal';
     const render = () => {
       const n = Object.keys(pick).filter(k => pick[k]).length;
       openModal('<div class="menu-head"><h2 class="title sm">' + (i + 1) + '. ' + m.name + '</h2><button class="btn" id="lvBack">Back</button></div>' +
@@ -5776,15 +5856,19 @@ const R = (function () {
         '<p class="small">Boss: ' + (m.finals ? [...new Set(m.finals)] : [m.boss]).map(x => ENEMIES[x].name.split(',')[0]).join(' + ') + (BOSS_ITEMS[m.boss] && !meta.stash[BOSS_ITEMS[m.boss].name] ? ' \u00b7 drops <b>' + BOSS_ITEMS[m.boss].icon + ' ' + BOSS_ITEMS[m.boss].name + '</b>' : '') + '</p>' +
         (!won && nextCrewKey() && TOWERS[nextCrewKey()].unlockWins === (meta.wins || 0) + 1 ? '<div class="ucard tease"><canvas class="pt sil" data-type="' + nextCrewKey() + '"></canvas><div><b>Win this and ' + CREW[nextCrewKey()].n.toUpperCase() + ' joins the crew</b><span>' + CREW[nextCrewKey()].icon + ' ' + CREW[nextCrewKey()].role + ' \u00b7 who the hell is this?</span></div></div>' : '') +
         (won ? '<div class="mastery"><span class="' + ((ms.stars || 0) >= 3 ? 'done' : '') + '">\u2b50 3 stars: keep 80%+ of the loot' + ((ms.stars || 0) >= 3 ? ' \u2713' : '') + '</span><span class="' + (ms.bestKept >= m.pileMax || ms.bestKept >= 10 ? 'done' : '') + '">\ud83d\udc8e Keep everything (best ' + (ms.bestKept || 0) + ')</span><span class="' + (ms.mods && Object.keys(ms.mods).length >= 5 ? 'done' : '') + '">\ud83d\udd25 Beat all 5 modifiers (' + (ms.mods ? Object.keys(ms.mods).length : 0) + '/5)</span></div>' : '') +
-        '<h3>Modifiers</h3>' + (won ? '<div class="mods">' + MODS.map(md => {
+        (won ? '<h3>Difficulty</h3><div class="tiers">' + ['normal', 'hard', 'nightmare'].map(t => { const T = TIERS[t], lock = t === 'nightmare' && !((ms.tiers || {}).hard), st = t === 'normal' ? (ms.stars || 0) : ((ms.tiers || {})[t] || 0);
+          return '<button class="tierchip ' + t + (tier === t ? ' on' : '') + '" data-tier="' + t + '"' + (lock ? ' disabled' : '') + '><b>' + (T.icon ? T.icon + ' ' : '') + T.n + '</b><small>' + (lock ? '\ud83d\udd12 Beat Hard first' : t === 'normal' ? 'Rewards \u00d71' : t === 'hard' ? 'Tougher, faster \u00b7 \u00d72' : 'Everything \u00b7 \u00d72.5 \u00b7 rare outfits') + '</small><i>' + '\u2605'.repeat(st) + '</i></button>'; }).join('') + '</div>' : '') +
+        (heatOn() ? '<div class="heatrow"><span>' + heatTxt(meta.heat || 0) + '</span><small>Win to heat up, lose to cool down.</small></div>' : '') +
+        (tier !== 'normal' ? '' : '<h3>Modifiers</h3>') + (tier !== 'normal' ? '' : won ? '<div class="mods">' + MODS.map(md => {
           const lock = md.gary && gl < md.gary, done = ms.mods && ms.mods[md.id];
           return '<button class="modchip' + (pick[md.id] ? ' on' : '') + (lock ? ' locked' : '') + '" data-mod="' + md.id + '"' + (lock ? ' disabled' : '') + '><b>' + md.name + (done ? ' \u2713' : '') + '</b><small>' + (lock ? 'Gary level ' + md.gary : md.desc) + '</small></button>';
         }).join('') + '</div><p class="small">' + (n ? 'Rewards \u00d7' + (1 + .5 * n).toFixed(1) + ' (rocks, Gary XP and shards).' : 'Turn some on for bigger rewards.') + '</p>' : '<p class="small">Win this level once to unlock Hard, Speed, No Mercy, Chaos and Boss Rush.</p>') +
         '<div class="crewstrip"><span>Crew' + (meta.crewMode !== 'custom' ? ' <em>\u2b50 recommended</em>' : '') + '</span><div>' + crewFor(i).map(k => ptHTML(k, 'mini')).join('') + '</div><button class="btn" id="lvCrew">Change</button></div>' +
-        '<div class="row3"><button class="btn primary big" id="lvPlay">Play' + (n ? ' (' + n + ' mod' + (n > 1 ? 's' : '') + ')' : '') + ' \u2192</button></div>', 'menu');
+        '<div class="row3"><button class="btn primary big' + (tier === 'nightmare' ? ' nightmare' : '') + '" id="lvPlay">' + (tier === 'nightmare' ? '\ud83d\udc80 Play Nightmare' : tier === 'hard' ? '\ud83d\udd25 Play Hard' : 'Play' + (n ? ' (' + n + ' mod' + (n > 1 ? 's' : '') + ')' : '')) + ' \u2192</button></div>', 'menu');
       drawPortraits($('modalCard'));
       $('lvBack').onclick = showHome;
-      $('lvPlay').onclick = () => { levelMods[i] = pick; startLevel(i, pick); };
+      $('lvPlay').onclick = () => { levelMods[i] = pick; trackEvent('tier_selected', { level_id: m.id, tier }); startLevel(i, pick, tier); };
+      $('modalCard').querySelectorAll('.tierchip').forEach(b => b.onclick = () => { tier = b.dataset.tier; SFX.play(tier === 'nightmare' ? 'boss' : 'pick'); render(); });
       $('lvCrew').onclick = () => showCrew(i, () => showLevel(i));
       $('modalCard').querySelectorAll('.modchip').forEach(b => b.onclick = () => { pick[b.dataset.mod] = !pick[b.dataset.mod]; render(); });
     };
@@ -5876,6 +5960,8 @@ const R = (function () {
     G = newRun(meta, (daily ? daily.key : (Date.now() ^ (Math.random() * 1e9))) >>> 0, mapIdx, mode, daily, mods);
     G.crew = mode === 'campaign' ? crewFor(mapIdx) : recommendCrew(mapIdx);
     if (!meta.runs && mapIdx === 0 && mode === 'campaign') { G.grace = true; shortFirstLevel(G); }
+    if (mode === 'campaign' && !G.grace) { G.heat = heatOn() ? (meta.heat || 0) : 0; G.tier = pendingTier || 'normal'; }
+    pendingTier = 'normal';
     G.showLocks = (meta.runs || 0) >= 3 || shedLevel(meta, 'pallets') > 0;
     attempts[mapIdx] = (attempts[mapIdx] || 0) + 1;
     const lp = { level_id: G.map.id, level_name: G.map.name, chapter: G.map.chapter || 1, mode, crew: G.crew.join(','), nan_in_crew: G.crew.includes('nan'), retries: attempts[mapIdx] - 1 };
@@ -5885,9 +5971,15 @@ const R = (function () {
     homeMap = mapIdx; begin();
     if (mode === 'campaign' && mapIdx === 0 && !meta.tutDone) startTut();
   }
-  const attempts = {}; let firstTouch = false;
-  function startLevel(i, mods) {
-    newGame(i, 'campaign', null, mods || levelMods[i]); mapHint();
+  const attempts = {}; let firstTouch = false, pendingTier = 'normal';
+  const VET = () => (meta.wins || 0) >= 5;
+  const heatOn = () => VET() && !meta.heatOff;
+  const heatTxt = h => '\ud83d\udd25 Heat ' + h + (h ? ': monsters +' + (h * 8) + '%, rewards +' + (h * 12) + '%' : '');
+  const TIERS = { normal: { n: 'Normal', mods: null }, hard: { n: 'Hard', mods: { hard: true, speed: true }, icon: '\ud83d\udd25' }, nightmare: { n: 'Nightmare', mods: { hard: true, speed: true, bossrush: true }, icon: '\ud83d\udc80' } };
+  function startLevel(i, mods, tier) {
+    pendingTier = tier || 'normal';
+    newGame(i, 'campaign', null, tier && TIERS[tier].mods ? TIERS[tier].mods : (mods || levelMods[i])); mapHint();
+    if (G.heat) toast(heatTxt(G.heat) + '.', 'event');
     if (meta.runs) toast(G.map.name + '. ' + G.map.blurb, 'big');
   }
   function startDaily() {
@@ -5939,6 +6031,7 @@ const R = (function () {
     homeMap = G.mapIdx; begin();
     toast('Back on ' + G.map.name + '. Tap Start wave when ready.', 'big');
   }
+  let autoAt = 0;
   const heistToastAt = {}; let sessionWins = 0, toldTomorrow = false;
   let toldStorage = false, toldSoggy = false, toldDream = false, toldCredit = false, lastSheetR = 0, toldAbility = false;
   function mapHint() {
@@ -6076,7 +6169,21 @@ const R = (function () {
     hideCoach();
     state = 'results'; closeSheet();
     // The payout runs exactly once per level, even if results are shown again (e.g. after a crew reveal).
-    const r = G._result || (G._result = finishRun(G)); clearRun(); saveMeta();
+    const firstPass = !G._result;
+    const r = G._result || (G._result = finishRun(G)); clearRun();
+    let heatLine = '';
+    if (firstPass && G.mode === 'campaign' && !G.grace) {
+      if (G.won && G.tier && G.tier !== 'normal') { const ms2 = meta.maps[G.map.id] = meta.maps[G.map.id] || {}; ms2.tiers = ms2.tiers || {}; const was = ms2.tiers[G.tier] || 0; ms2.tiers[G.tier] = Math.max(was, r.stars || 1); if (G.tier === 'nightmare' && !was) meta.nightmares = (meta.nightmares || 0) + 1; trackEvent('tier_complete', { level_id: G.map.id, tier: G.tier, stars: r.stars }); }
+      if (heatOn()) {
+        const h0 = meta.heat || 0, unlocked = !meta.heatSeen;
+        if (unlocked) { meta.heatSeen = true; meta.heat = 1; heatLine = '<div class="heatbox new"><b>\ud83d\udd25 HEAT UNLOCKED</b><span>Every win turns up the heat: tougher monsters, bigger rewards. Lose and it cools down. Now at Heat 1.</span></div>'; }
+        else { const h1 = G.won ? Math.min(10, h0 + 1) : Math.max(0, h0 - 1); meta.heat = h1; if (h1 !== h0) heatLine = '<div class="heatbox' + (h1 > h0 ? ' up' : ' down') + '"><b>\ud83d\udd25 Heat ' + h0 + ' \u2192 ' + h1 + '</b><span>' + (h1 > h0 ? 'Monsters +' + h1 * 8 + '%, rewards +' + h1 * 12 + '%. ' + (h1 >= 8 ? 'Absolute scorcher.' : h1 >= 5 ? 'Getting spicy.' : 'Warming up.') : 'Cooled down a notch. Regroup and go again.') + '</span></div>'; }
+        meta.heatBest = Math.max(meta.heatBest || 0, meta.heat || 0);
+        trackEvent('heat_change', { from: h0, to: meta.heat, won: G.won });
+      }
+    }
+    if (firstPass) G._heatLine = heatLine; else heatLine = G._heatLine || '';
+    saveMeta();
     const endless = G.mode === 'endless';
     const secs = Math.round(G.t), afk = Math.floor(secs / 60) + 'm ' + String(secs % 60).padStart(2, '0') + 's';
     const title = endless ? 'The Long Nap is over.' : G.won ? 'Back. What\u2019d I miss?' : 'Where\u2019s my stuff. Where\u2019s all my stuff.';
@@ -6168,7 +6275,7 @@ const R = (function () {
     if (G.won) sessionWins++;
     const homeCard = (G.won && G.mode === 'campaign' ? a2hsCard('results') : '') + (sessionWins >= 3 && !toldTomorrow ? (toldTomorrow = true, tomorrowHTML()) : '');
     const jobFlash = dailyLine + (r.jobsDone.length ? '<p class="rjob">\u2705 Job done: ' + r.jobsDone[0].text + ' <b>+' + r.jobsDone[0].reward + '</b></p>' : '');
-    openModal(hero + (G.won || endless ? rewardRow + unlockCards : '') + jobFlash + primary + brag + secondary + homeCard + askMood + details, 'results' + (G.won ? ' won' : ' lost'), 700);
+    openModal(hero + heatLine + (G.won || endless ? rewardRow + unlockCards : '') + jobFlash + primary + brag + secondary + homeCard + askMood + details, 'results' + (G.won ? ' won' : ' lost'), 700);
     const shareCtx = { moment: G.moment ? G.moment.txt : '', won: G.won, endless, levelName: G.mode === 'daily' ? 'Daily Nap' : G.mode === 'endless' ? 'The Long Nap' : G.map.name, pile: G.pile, pileMax: G.pileMax, wave: G.wave, waveCount: G.waveCount, stars: r.stars || 0, crew: (G.crew || []).slice(0, 6), best: r.best, boss: ENEMIES[G.map.boss].name.split(',')[0], quip: G.won ? ['Gary slept through the whole thing.', 'Not a single snag was wasted.', 'The monsters have filed a complaint.'][Math.floor(Math.random() * 3)] : fb[0] };
     drawPortraits($('modalCard')); startPortraitLoop();
     if (G.won) [0, 1, 2].forEach(i => { if (i < r.stars) setTimeout(() => SFX.play(i === 2 ? 'levelup' : 'coin'), 250 + i * 280); });
@@ -6178,8 +6285,8 @@ const R = (function () {
     if (r.rocks || r.banked.length) trackEvent('reward_claimed', { rocks: r.rocks, items: r.banked.length, gary_xp: r.garyGain, new_crew: newCrew.join(',') });
     const mi = G.mapIdx, mode = G.mode;
     if ($('nextBtn')) $('nextBtn').onclick = ev => { if (deliberate(ev, $('nextBtn'))) { trackEvent('next_level_clicked', { from_level: MAPS[mi].id }); startLevel(mi + 1); } };
-    $('againBtn').onclick = ev => { if (deliberate(ev, $('againBtn'))) { trackEvent('level_restart', { level_id: MAPS[mi].id, mode }); mode === 'daily' ? startDaily() : mode === 'endless' ? startLong(mi) : startLevel(mi); } };
-    if ($('crewBtn')) $('crewBtn').onclick = ev => { if (deliberate(ev, $('crewBtn'))) showCrew(mi, () => startLevel(mi)); };
+    $('againBtn').onclick = ev => { if (deliberate(ev, $('againBtn'))) { trackEvent('level_restart', { level_id: MAPS[mi].id, mode }); mode === 'daily' ? startDaily() : mode === 'endless' ? startLong(mi) : startLevel(mi, null, G && G.tier); } };
+    if ($('crewBtn')) $('crewBtn').onclick = ev => { if (deliberate(ev, $('crewBtn'))) showCrew(mi, () => startLevel(mi, null, G && G.tier)); };
     $('levelsBtn').onclick = ev => { if (deliberate(ev, $('levelsBtn'))) showHome(); };
     const doShare = async (ev, btn, moment) => {
       if (!deliberate(ev, btn)) return;
@@ -6203,7 +6310,7 @@ const R = (function () {
       if (meta.nick) { if (weekNew) post(); else showRows(); }
       else if ($('nickGo')) $('nickGo').onclick = () => { const n2 = cleanNick($('nickIn').value); if (n2.length < 2) { $('nickIn').focus(); return; } meta.nick = n2; saveMeta(); $('nickGo').closest('.nickrow').remove(); post(); };
     }
-    showResultsRewire = () => { $('shareBtn').onclick = ev => doShare(ev, $('shareBtn'), 'results'); if ($('bragBtn')) $('bragBtn').onclick = ev => doShare(ev, $('bragBtn'), bragMoment); if ($('nextBtn')) $('nextBtn').onclick = ev => { trackEvent('next_level_clicked', { from_level: MAPS[mi].id }); startLevel(mi + 1); }; $('againBtn').onclick = () => { mode === 'daily' ? startDaily() : mode === 'endless' ? startLong(mi) : startLevel(mi); }; $('levelsBtn').onclick = () => showHome(); if ($('crewBtn')) $('crewBtn').onclick = () => showCrew(mi, () => startLevel(mi)); wireA2hs(); wireMood(); };
+    showResultsRewire = () => { $('shareBtn').onclick = ev => doShare(ev, $('shareBtn'), 'results'); if ($('bragBtn')) $('bragBtn').onclick = ev => doShare(ev, $('bragBtn'), bragMoment); if ($('nextBtn')) $('nextBtn').onclick = ev => { trackEvent('next_level_clicked', { from_level: MAPS[mi].id }); startLevel(mi + 1); }; $('againBtn').onclick = () => { mode === 'daily' ? startDaily() : mode === 'endless' ? startLong(mi) : startLevel(mi, null, G && G.tier); }; $('levelsBtn').onclick = () => showHome(); if ($('crewBtn')) $('crewBtn').onclick = () => showCrew(mi, () => startLevel(mi)); wireA2hs(); wireMood(); };
   }
   let showResultsRewire = () => {};
 
@@ -6254,6 +6361,8 @@ const R = (function () {
       '<label class="tog"><input type="checkbox" id="setMusic"' + (meta.settings.music !== false ? ' checked' : '') + '><span><b>Music</b><small>Tavern tunes, a battle theme when a boss turns up, and a fanfare when you win.</small></span></label>' +
       '<label class="slider"><span>\ud83d\udd0a Music</span><input type="range" id="setMVol" min="0" max="1" step="0.05" value="' + (meta.settings.musicVolume == null ? .5 : meta.settings.musicVolume) + '"></label>' +
       '<label class="slider"><span>\ud83d\udd0a SFX</span><input type="range" id="setVol" min="0" max="1" step="0.05" value="' + (meta.settings.volume == null ? .6 : meta.settings.volume) + '"></label>' +
+      (VET() ? '<label class="tog"><input type="checkbox" id="setAuto"' + (meta.settings.autoWave ? ' checked' : '') + '><span><b>Auto-start next wave</b><small>Skips the wait between waves. Tap Pause any time.</small></span></label>' : '') +
+      '<label class="tog"><input type="checkbox" id="setSmooth"' + (meta.settings.smooth ? ' checked' : '') + '><span><b>Smooth mode</b><small>Fewer effects so older phones and Firefox run faster. Turns on by itself if things get choppy.</small></span></label>' +
       '<label class="tog"><input type="checkbox" id="setAnalytics"' + (meta.settings.analytics !== false ? ' checked' : '') + '><span><b>Share anonymous play stats</b><small>Helps improve the game. No names, emails or locations, ever.</small></span></label>' +
       '<label class="tog"><input type="checkbox" id="setShake"' + (meta.settings.shake ? ' checked' : '') + '><span><b>Screen shake</b><small>On crits, Gary\u2019s sword and stolen loot.</small></span></label>' +
       '<h3>Saving</h3><p class="small">' + (storageOk ? 'Progress saves on this device after every build, every wave and every run. Last saved: ' + ls + '.' : 'This browser is blocking storage, so progress won\u2019t survive a reload here. Use a save code to keep it.') + '</p>' +
@@ -6287,6 +6396,8 @@ const R = (function () {
       if ($('fbMenu')) $('fbMenu').onclick = () => showFeedback();
       if ($('supLink')) $('supLink').onclick = () => trackEvent('support_link_clicked', {});
       if ($('supBtn')) $('supBtn').onclick = () => { const v = ($('supCode').value || '').trim().toLowerCase(); if (SUP.code && v === String(SUP.code).toLowerCase()) { meta.supporter = true; meta.pj = 'scarlet'; applyLook(); saveMeta(); SFX.play('ultimate'); trackEvent('supporter_unlocked', {}); $('supMsg').textContent = 'You absolute legend. Scarlet pyjamas unlocked.'; setTimeout(() => renderMenu(), 1200); } else { $('supMsg').textContent = 'That code didn\u2019t work. Check your receipt.'; } };
+      if ($('setAuto')) $('setAuto').onchange = e => { meta.settings.autoWave = e.target.checked; saveMeta(); trackEvent('auto_wave_set', { on: e.target.checked }); };
+      $('setSmooth').onchange = e => { meta.settings.smooth = e.target.checked; R.setLite(e.target.checked || autoLite); saveMeta(); };
       $('setAnalytics').onchange = e => { meta.settings.analytics = e.target.checked; saveMeta(); };
       $('setShake').onchange = e => { meta.settings.shake = e.target.checked; saveMeta(); };
       $('clBtn').onclick = () => showChangelog(() => renderMenu());
@@ -6324,13 +6435,19 @@ const R = (function () {
   }
 
   // ---------- loop ----------
-  let last = performance.now(), slowMo = 0;
+  let last = performance.now(), slowMo = 0, perfAcc = 0, perfN = 0, slowStreak = 0, autoLite = /Firefox|FxiOS/.test(navigator.userAgent || '');
+  R.setLite(autoLite || !!meta.settings.smooth);
   function frame(now) {
     try { frameBody(now); } catch (e) { window.__hmlReport('loop', e); }
     requestAnimationFrame(frame);
   }
   function frameBody(now) {
-    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    const rawDt = (now - last) / 1000;
+    const dt = Math.min(.05, rawDt); last = now;
+    if (G && state === 'play' && !paused && !menuOpen && !autoLite && !document.hidden && rawDt < .25) {
+      perfAcc += rawDt; perfN++;
+      if (perfN >= 120) { const avg = perfAcc / perfN; perfAcc = 0; perfN = 0; if (avg > .022) { slowStreak++; if (slowStreak >= 2) { autoLite = true; R.setLite(true); trackEvent('smooth_auto', { avg_ms: Math.round(avg * 1000), browser: uaFam().browser }); } } else slowStreak = 0; }
+    }
     if (slowMo > 0) slowMo -= dt;
     const running = G && state === 'play' && !paused && !menuOpen;
     if (running && now < stopUntil) { R.frame(ctx, G, { W, H, scale, dpr, paused: true, speed, selPad, settings: meta.settings, mapIdx: homeMap }); hud(); return; }
