@@ -29,7 +29,7 @@
 <meta name="apple-mobile-web-app-title" content="Hold My Loot">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A4%3C/text%3E%3C/svg%3E">
-<meta name="hml-build" content="26">
+<meta name="hml-build" content="27">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -45,7 +45,7 @@ window.HML_BOARD = { url: '', key: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 26;
+window.HML_BUILD = 27;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -3195,6 +3195,7 @@ const R = (function () {
   function buildBg(map) {
     const th = THEMES[map.theme];
     const b = document.createElement('canvas'); b.width = Math.round(W * scale * dpr); b.height = Math.round(H * scale * dpr);
+    try { b.addEventListener('contextlost', () => { bgKey = ''; bgLostReport('contextlost'); }); b.addEventListener('contextrestored', () => { bgKey = ''; }); } catch (e) {}
     const c = b.getContext('2d'); c.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
     const r = srand(map.id.length * 7919 + map.id.charCodeAt(0) * 31);
     c.fillStyle = th.g; c.fillRect(0, 0, W, H);
@@ -4675,7 +4676,12 @@ const R = (function () {
   // ---------- frame ----------
   // Self-healing: if any draw call ever throws, reset the canvas state so one bad frame can't
   // leave transforms/clips stacked up and corrupt every frame after it.
-  let renderErrs = 0;
+  let renderErrs = 0, bgChecked = 0, bgLosses = 0;
+  function bgBlank(b) {
+    try { const c = b.getContext('2d'); const w = b.width, h = b.height; for (const [fx, fy] of [[.5, .5], [.2, .8], [.85, .25]]) { const d = c.getImageData(Math.floor(w * fx), Math.floor(h * fy), 1, 1).data; if (d[3] > 0) return false; } return true; }
+    catch (e) { return false; }
+  }
+  function bgLostReport(why) { bgLosses++; if (bgLosses <= 2 && window.__hmlReport) window.__hmlReport('bg_lost', new Error(why + ' ' + (bgCanvas ? bgCanvas.width + 'x' + bgCanvas.height : '') + ' dpr' + dpr)); }
   function frame(c, G, opts) {
     try { frameInner(c, G, opts); }
     catch (e) {
@@ -4684,15 +4690,22 @@ const R = (function () {
     }
   }
   let garyBoxers = false;
+  let mainHooked = null;
   function frameInner(c, G, opts) {
+    if (mainHooked !== c.canvas) { mainHooked = c.canvas; try { c.canvas.addEventListener('contextrestored', () => { bgKey = ''; }); c.canvas.addEventListener('contextlost', () => { bgLostReport('main_contextlost'); }); } catch (e) {} }
     garyBoxers = !!(G && G.garyPantsless);
     ctx = c; W = opts.W; H = opts.H; scale = opts.scale; dpr = opts.dpr; settings = opts.settings || settings;
     const now = performance.now() / 1000, dt = Math.min(.05, now - (lastT || now)) * (opts.paused ? 0 : opts.speed || 1); lastT = now;
     const time = now;
     const map = G ? G.map : MAPS[opts.mapIdx || 0];
     const key = map.id + '|' + W + '|' + scale + '|' + dpr;
-    if (key !== bgKey) { bgCanvas = buildBg(map); bgKey = key; }
+    if (key !== bgKey) { bgCanvas = buildBg(map); bgKey = key; bgChecked = now; }
+    // A few times a second, make sure the background layer still has pixels. Some phones silently
+    // drop canvas memory; if it's gone blank, rebuild it instead of letting frames smear.
+    if (now - bgChecked > .4) { bgChecked = now; if (bgBlank(bgCanvas)) { bgLostReport('blank'); bgCanvas = buildBg(map); bgKey = key; } }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // Always wipe the frame first, so a missing background can never cause smearing.
+    ctx.fillStyle = (THEMES[map.theme] || {}).g || '#8DB86A'; ctx.fillRect(0, 0, c.canvas.width, c.canvas.height);
     ctx.drawImage(bgCanvas, 0, 0);
     const sh = shake > 0 ? shake : 0;
     ctx.setTransform(scale * dpr, 0, 0, scale * dpr, (Math.random() - .5) * sh * scale * dpr, (Math.random() - .5) * sh * scale * dpr);
@@ -4940,7 +4953,7 @@ const R = (function () {
     }
   }
   function reset() { bubbles.length = 0; dreamT = 0; freezeT = 0; nums.length = 0; flash = 0; hitstop = 0; parts.length = 0; pops.length = 0; flyers.length = 0; for (const k in towerAnim) delete towerAnim[k]; shake = 0; garySwing = 0; garyRoll = 0; hintGate = true; }
-  return { frame, reset, celebrate, takeHitstop, portrait, garyPortrait, portraitWith, poke, tickPortraitAnim, say, invalidate: () => { bgKey = ''; } };
+  return { _bg: () => bgCanvas, frame, reset, celebrate, takeHitstop, portrait, garyPortrait, portraitWith, poke, tickPortraitAnim, say, invalidate: () => { bgKey = ''; } };
 })();
 
 </script>
@@ -5494,6 +5507,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 27, title: 'Fixed: smeary screen', notes: ['On some Android phones the background could vanish and everything left streaks across the screen. The game now notices straight away and fixes itself.'] },
     { build: 26, title: 'The Wardrobe', notes: ['A whole wardrobe to spend your rocks on: Gary\u2019s pyjamas plus outfits for the crew, from Common to Legendary. Molten Marg has a cape made of actual lava.', 'Trinkets now level up to five stars using spare copies of loot. Duplicates finally matter.', 'New crew: Big Rocco, the Lava Wombat. Stomps crowds, lobs lava cubes, wins after 7 levels.'] },
     { build: 25, title: 'The weekly Long Nap', notes: ['The Long Nap now has the same waves for everyone each week, and it gets harder and harder until nobody survives. How far can you get?', 'New players get a shorter first level, and Dazza turns up for work straight away.', 'Gary leaves you a little gift every day. Share the funny moments too: everyone needs to know about the pants.'] },
     { build: 24, title: 'Sir Pantsalot delivers', notes: ['Sir Pantsalot now actually takes pants. Your crew\u2019s, and if he gets close enough, Gary\u2019s.', 'Fixed: winning a level that unlocked new crew was paying out twice.'] },
