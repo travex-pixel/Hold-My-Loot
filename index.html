@@ -29,7 +29,7 @@
 <meta name="apple-mobile-web-app-title" content="Hold My Loot">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A4%3C/text%3E%3C/svg%3E">
-<meta name="hml-build" content="29">
+<meta name="hml-build" content="30">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -45,7 +45,7 @@ window.HML_BOARD = { url: '', key: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 29;
+window.HML_BUILD = 30;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -1449,7 +1449,7 @@ function dailySetup(meta, key) {
 
 // ---------- Long Nap (endless) ----------
 function weekKey(d) { d = d || new Date(); const t = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const day = (t.getDay() + 6) % 7; t.setDate(t.getDate() - day); return dailyKey(t); }
-function shortFirstLevel(G) { const w = G.map.waves; G.waveList = [w[0], w[1], w[3], w[5], w[w.length - 1]]; G.waveCount = G.waveList.length; }
+function shortFirstLevel(G) { const w = G.map.waves, last = w[w.length - 1].filter(g => g.t !== 'gob').map(g => ENEMIES[g.t].boss ? g : Object.assign({}, g, { n: Math.max(1, Math.ceil(g.n * .4)) })); G.waveList = [w[0], w[1], last]; G.waveCount = G.waveList.length; }
 function genWave(G, w) {
   const rng = G.wrng || G.rng;
   const pool = ['rat', 'gob']; if (w >= 2) pool.push('skel', 'mozzie'); if (w >= 4) pool.push('bog', 'crab', 'seagull'); if (w >= 6) pool.push('pants', 'medic', 'ratmum');
@@ -1896,7 +1896,7 @@ function spawn(G, type, d, pi) {
   if (G.heat) { e.hp = e.maxHp = Math.round(e.maxHp * (1 + .08 * G.heat)); e.spd *= 1 + .01 * G.heat; if (e.shield) e.shield = Math.round(e.shield * (1 + .08 * G.heat)); }
   if (G.tier === 'nightmare') { e.hp = e.maxHp = Math.round(e.maxHp * 1.12); if (e.shield) e.shield = Math.round(e.shield * 1.12); }
   if (!def.boss && G.traitQ && G.traitQ.length && !['baby', 'chick', 'egg', 'minicastle'].includes(type) && !G.noTrait && G.rng() < G.traitQ.length / Math.max(1, (G.spawnQ ? G.spawnQ.length : 0) + 1)) applyTrait(G, e, G.traitQ.pop());
-  if (G.grace && def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * .85); }
+  if (G.grace && def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * (G.waveCount <= 3 ? .62 : .85)); }
   if (e.tipsy) G.stats.tipsy++;
   const p = posOn(P, e.d); e.x = p.x; e.y = p.y;
   G.enemies.push(e);
@@ -5682,7 +5682,7 @@ const R = (function () {
     if (key !== lastHud) {
       lastHud = key;
       $('gold').textContent = G ? G.gold : '\u2013';
-      $('wave').textContent = G && G.mode === 'raid' ? '\u23f1 ' + Math.floor(Math.max(0, G.raidT) / 60) + ':' + String(Math.floor(Math.max(0, G.raidT) % 60)).padStart(2, '0') + '  \ud83d\udca5 ' + fmtK(G.raidDmg || 0) : G ? 'Wave ' + Math.max(1, G.wave) + (isFinite(G.waveCount) ? '/' + G.waveCount : '') + (G.tier === 'nightmare' ? ' \ud83d\udc80' : G.tier === 'hard' ? ' \ud83d\udd25' : '') + (G.heat ? ' \ud83d\udd25' + G.heat : '') : 'Hold My Loot';
+      $('wave').textContent = G && G.mode === 'raid' ? '\u23f1 ' + Math.floor(Math.max(0, G.raidT) / 60) + ':' + String(Math.floor(Math.max(0, G.raidT) % 60)).padStart(2, '0') + '  \ud83d\udca5 ' + fmtK(G.raidDmg || 0) : G ? 'Wave ' + Math.max(1, G.wave) + (isFinite(G.waveCount) ? '/' + G.waveCount : '') + (G.tier === 'nightmare' ? ' \ud83d\udc80' : G.tier === 'hard' ? ' \ud83d\udd25' : '') + (G.heat ? ' \ud83d\udd25' + G.heat : '') + (G.mode === 'campaign' && isFinite(G.waveCount) && G.wave === G.waveCount - 1 && !G.waveActive ? ' \u00b7 boss next!' : '') : 'Hold My Loot';
       const pips = []; if (G) for (let i = 0; i < G.pileMax; i++) pips.push('<i class="pip' + (i < G.pile ? '' : ' gone') + '"></i>');
       $('pile').innerHTML = pips.join('');
       const playing = G && state === 'play';
@@ -5701,7 +5701,7 @@ const R = (function () {
     }
     try { tutTick(); } catch (e) { hideCoach(); }
     // auto-start: veterans can skip the gap between waves
-    if (meta.settings.autoWave && VET() && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && $('modal').hidden && !sheetMode && !paused && !menuOpen) {
+    if (((meta.settings.autoWave && VET()) || (G && G.grace)) && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && $('modal').hidden && !sheetMode && !paused && !menuOpen) {
       if (!autoAt) autoAt = performance.now() + 2200;
       const left = Math.ceil((autoAt - performance.now()) / 1000); const sbt = $('startBtn'); if (sbt && left > 0) sbt.textContent = 'Next wave in ' + left + '\u2026';
       if (performance.now() >= autoAt) { autoAt = 0; saveRun(); if (startWave(G)) { closeSheet(); lastHud = ''; } }
@@ -5734,7 +5734,7 @@ const R = (function () {
       else if (e.type === 'heist' && e.item.tier >= 2 && !G.moment) { G.moment = { k: 'heist', txt: 'A ' + e.base.split(' (')[0].split(',')[0] + ' stole ' + e.item.name + ' and wore it', pri: 1 }; }
       if (e.type === 'heist' && e.item.tier >= 2) { const nowT = performance.now(); if (!(heistToastAt[e.item.name] > nowT - 8000)) { heistToastAt[e.item.name] = nowT; toast((Math.random() < .3 ? 'Nek minnit. ' : '') + e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad'); } }
       else if (e.type === 'stolen') toast(e.carry ? 'Gone, with ' + e.carry.name + '. -' + e.n + ' from the pile.' : e.n + (e.n > 1 ? ' items' : ' item') + ' nicked from the pile.', 'bad');
-      else if (e.type === 'waveStart') SFX.play('wave');
+      else if (e.type === 'waveStart') { SFX.play('wave'); if (G.grace && G.waveCount === 3) { if (e.wave === 2) banner('Wave 2 of 3', 'Nice. One more, then the boss.', 'event'); else if (e.wave === 3) banner('BOSS WAVE', 'Kevin wants Gary\u2019s loot.', 'event'); } }
       else if (e.type === 'rareDrop') { SFX.play('rare'); toast(RARITY[e.item.tier].k + ' drop: ' + e.item.name, 'rare'); }
       else if (e.type === 'boss') { R.say(GARY.x, GARY.y - 34, 'zzz... five more minutes...', 2.4); trackEvent('boss_spawn', { boss: e.bt, level_id: G.map.id, wave: G.wave }); trackFirst('bossSeen', 'first_boss_encounter', { boss: e.bt, level_id: G.map.id }); SFX.play('boss'); const d = ENEMIES[e.bt]; const parts = d.intro.split('. '); banner(parts[0], parts.slice(1).join('. '), 'boss'); const drop = BOSS_ITEMS[e.bt]; setTimeout(() => toast(d.tip + (drop && !meta.stash[drop.name] ? ' Drops: ' + drop.icon + ' ' + drop.name + '.' : ''), 'big'), 2900); }
       else if (e.type === 'bossDead') { slowMo = .9; const tw = G.towers.map((t, i) => t ? i : -1).filter(i => i >= 0); if (tw.length) { const p = G.map.pads[tw[Math.floor(Math.random() * tw.length)]]; R.say(p[0], p[1] - 52, ['Get wrecked.', 'Bye!', 'Easy.', 'Too easy.', 'And stay down.'][Math.floor(Math.random() * 5)], 1.8); }
@@ -5885,6 +5885,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 30, title: 'A snappier first game', notes: ['Brand-new players get a quick three-wave taster: two warm-ups, then Kevin the boss, at double speed.', 'The wave counter now tells you when the boss is next.'] },
     { build: 29, title: 'Raids, Mastery and three new crew', notes: ['\ud83d\udc79 Weekly Raid Boss: 3 minutes to deal as much damage as you can to The Landlord, The Council Ranger or Gary\u2019s Alarm Clock. Bronze, Silver and Gold medals. New boss every Monday.', '\ud83c\udf93 Mastery Paths: once a crew member\u2019s skill hits level 6, choose how they play. Sniper Nan or Knitting Circle?', 'New crew: Big Kev the Cassowary (charges), Gav the Tradie (road spikes and barricades) and Aunty Val the Psychic (curses, card rerolls).', 'Big late-game levels run smoother: the game now quietly turns down effects, resolution and frame rate if your phone is struggling.'] },
     { build: 28, title: 'Turn up the heat', notes: ['\ud83d\udd25 Heat: every win makes the next level tougher and pay more. Lose and it cools down. Unlocks after 5 wins.', 'Hard and \ud83d\udc80 Nightmare versions of every level you\u2019ve beaten, with Nightmare-only legendary outfits.', 'Monsters now turn up with traits: \u26a1 Speedy, \ud83d\udee1\ufe0f Armoured, \ud83e\uddec Splitter and \ud83d\udc9a Healer. The wave preview shows what\u2019s coming.', 'Veterans get 3\u00d7 speed and auto-start. Smooth mode makes Firefox and older phones run better.'] },
     { build: 27, title: 'Fixed: smeary screen', notes: ['On some Android phones the background could vanish and everything left streaks across the screen. The game now notices straight away and fixes itself.'] },
@@ -6265,7 +6266,8 @@ const R = (function () {
     clearRun(); closeModal();
     G = newRun(meta, (daily ? daily.key : (Date.now() ^ (Math.random() * 1e9))) >>> 0, mapIdx, mode, daily, mods);
     G.crew = mode === 'campaign' ? crewFor(mapIdx) : recommendCrew(mapIdx);
-    if (!meta.runs && mapIdx === 0 && mode === 'campaign') { G.grace = true; shortFirstLevel(G); }
+    if (!meta.runs && mapIdx === 0 && mode === 'campaign') { G.grace = true; shortFirstLevel(G); speed = 2; window.__tasterSpeed = true; }
+    else if (window.__tasterSpeed) { window.__tasterSpeed = false; speed = 1; }
     if (mode === 'campaign' && !G.grace) { G.heat = heatOn() ? (meta.heat || 0) : 0; G.tier = pendingTier || 'normal'; }
     pendingTier = 'normal';
     G.showLocks = (meta.runs || 0) >= 3 || shedLevel(meta, 'pallets') > 0;
