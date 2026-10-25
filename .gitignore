@@ -1,0 +1,8 @@
+review/before/
+review/after/
+review/img/before/
+review/img/after/
+node_modules/
+*.log
+*.log2
+*.log3
