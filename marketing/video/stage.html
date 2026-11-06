@@ -14,6 +14,8 @@ html, body { margin: 0; background: #000; }
 #bgc { position: absolute; inset: 0; }
 #foot img, #split img { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; }
 #phone { }
+#grid .tile { position: absolute; width: 360px; height: 640px; overflow: hidden; box-shadow: inset 0 0 0 4px #2A1E18; }
+#grid .tile img { position: absolute; left: 0; top: 0; width: 360px; height: 640px; transform-origin: 50% 45%; }
 #phone .bezel { position: absolute; left: 90px; top: 200px; width: 900px; height: 1600px; border-radius: 86px; background: #15110E; box-shadow: 0 40px 90px rgba(40,20,10,.45), inset 0 0 0 6px #3A302A; }
 #phone .scr { position: absolute; left: 116px; top: 226px; width: 848px; height: 1508px; border-radius: 64px; overflow: hidden; background: #000; }
 #phone .scr img { position: absolute; left: 0; top: 0; width: 848px; height: 1508px; transform-origin: 0 0; }
@@ -63,6 +65,7 @@ html, body { margin: 0; background: #000; }
   <div id="split" class="layer"><div class="half a"><img id="simgA" alt=""></div><div class="half b"><img id="simgB" alt=""></div><div class="bar"></div><div class="chip" id="chipA" style="top:40px"></div><div class="chip" id="chipB" style="top:1002px"></div></div>
   <div id="code" class="layer"><div class="rows" id="rows"></div><div class="shade"></div></div>
   <div id="doc" class="layer"><div class="sheet" id="sheet"></div></div>
+  <div id="grid" class="layer"></div>
   <div id="term" class="layer"><div class="tw" id="tw"></div></div>
   <div id="card" class="layer"><div class="kick" id="kick"></div><div class="big" id="big"></div><div class="small" id="small"></div></div>
   <div id="tag"></div>
@@ -118,7 +121,7 @@ function hl(line) { // tiny JS highlighter for the code scroll
 window.renderAt = async (t) => {
   const seg = SEGS.find(s => t >= s.t0 && t < s.t1) || SEGS[SEGS.length - 1], lt = t - seg.t0, k = clamp(lt / seg.d, 0, 1);
   const fresh = seg.i !== lastSeg; lastSeg = seg.i;
-  for (const id of ['foot', 'phone', 'split', 'code', 'doc', 'term', 'card']) $(id).classList.toggle('on', seg.kind === id || (id === 'foot' && seg.kind === 'foot'));
+  for (const id of ['foot', 'phone', 'split', 'code', 'doc', 'term', 'card', 'grid']) $(id).classList.toggle('on', seg.kind === id || (id === 'foot' && seg.kind === 'foot'));
   const bgOn = ['card', 'phone', 'doc'].includes(seg.kind); $('bgc').style.display = bgOn ? 'block' : 'none'; if (bgOn) drawBg(seg, t);
   let shake = '';
   if (seg.shake) { const a = seg.shake * Math.max(0, 1 - lt / .35), r = rand(Math.floor(t * 60)); shake = 'translate(' + ((r() - .5) * a).toFixed(1) + 'px,' + ((r() - .5) * a).toFixed(1) + 'px)'; }
@@ -147,8 +150,17 @@ window.renderAt = async (t) => {
     if (fresh) $('sheet').innerHTML = (seg.head ? '<p class="dh">' + markup(seg.head) + '</p>' : '') + seg.lines.map((l, i) => '<p class="dl" data-i="' + i + '">' + (seg.mark === i ? '<i class="mk"></i>' : '') + '<span>' + markup(l) + '</span></p>').join('');
     const pop = ease.back(clamp(lt / .4, 0, 1)); $('sheet').style.transform = 'scale(' + (.85 + .15 * pop).toFixed(3) + ') rotate(' + (-1.5 + pop * 1.5).toFixed(2) + 'deg)';
     const mk = document.querySelector('#sheet .mk'); if (mk) mk.style.transform = 'scaleX(' + ease.out(clamp((lt - (seg.markAt || .5)) / .45, 0, 1)).toFixed(3) + ')';
+  } else if (seg.kind === 'grid') { // up to 9 games at once, each tile popping in on its own beat
+    const gl = $('grid');
+    if (gl.children.length !== seg.tiles.length) gl.innerHTML = seg.tiles.map((_, i) => '<div class="tile" style="left:' + (i % 3) * 360 + 'px;top:' + Math.floor(i / 3) * 640 + 'px"><img alt=""></div>').join('');
+    await Promise.all(seg.tiles.map(async (tl, i) => {
+      const box = gl.children[i], img = box.firstChild, at = tl.at != null ? tl.at : (seg.stagger || .07) * i - (seg.lead || 0), p = ease.back(clamp((lt - at) / .22, 0, 1));
+      box.style.transform = 'scale(' + p.toFixed(3) + ')'; box.style.visibility = p > 0 ? 'visible' : 'hidden';
+      await setImg(img, footSrc({ shot: tl.shot, idx: frameIdx(seg, Math.max(0, lt - at), tl) }));
+      img.style.transform = 'scale(' + (tl.zoom || 1.25) + ')';
+    }));
   } else if (seg.kind === 'term') {
-    const shown = seg.lines.filter((l, i) => lt >= (seg.at ? seg.at[i] : i * .35)); $('tw').innerHTML = shown.join('\n');
+    const shown = seg.lines.filter((l, i) => lt >= (seg.at ? seg.at[i] : i * .35)); $('tw').innerHTML = shown.join('\n'); $('tw').style.fontSize = (seg.size || 34) + 'px'; $('tw').style.lineHeight = Math.round((seg.size || 34) * 1.5) + 'px'; $('tw').style.top = (seg.top || 300) + 'px';
   } else if (seg.kind === 'card') {
     if (fresh) { $('kick').innerHTML = markup(seg.kick || ''); $('big').innerHTML = markup(seg.big || ''); $('small').innerHTML = markup(seg.small || ''); const p = PAL[seg.bg || 'honey']; for (const id of ['kick', 'big', 'small']) $(id).style.color = p[2]; const stroke = (seg.bg === 'dark' || seg.bg === 'night') ? 'rgba(0,0,0,.0)' : '#FFF9EC'; $('big').style.textShadow = seg.bg === 'paper' || seg.bg === 'honey' || seg.bg === 'sky' ? strokeShadow(10, '#FFF9EC') : strokeShadow(10, '#2A1E18'); $('big').style.color = seg.bigColor || ((seg.bg === 'paper' || seg.bg === 'honey' || seg.bg === 'sky') ? '#2A1E18' : '#FFF9EC'); $('big').style.fontSize = (seg.bigSize || 220) + 'px'; }
     const pb = ease.back(clamp((lt - .05) / .32, 0, 1)), pk = ease.back(clamp(lt / .25, 0, 1)), ps = ease.back(clamp((lt - .35) / .3, 0, 1));

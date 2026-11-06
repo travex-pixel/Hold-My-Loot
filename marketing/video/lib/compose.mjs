@@ -40,7 +40,7 @@ export async function renderEpisode(spec, { browser, scale = 1 } = {}) {
   spec._stings = []; const plan = audioPlan(spec);
   await renderAudio(plan, wav, browser);
   const shots = {}; const need = new Set();
-  for (const s of spec.segs) { if (s.shot) need.add(s.shot); if (s.a) need.add(s.a.shot); if (s.b) need.add(s.b.shot); }
+  for (const s of spec.segs) { if (s.shot) need.add(s.shot); if (s.a) need.add(s.a.shot); if (s.b) need.add(s.b.shot); if (s.tiles) for (const x of s.tiles) need.add(x.shot); }
   for (const n of need) shots[n] = JSON.parse(fs.readFileSync(path.join(WORK, 'shots', n, 'meta.json'), 'utf8'));
   const ctx = await browser.newContext({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: scale });
   const page = await ctx.newPage(); page.on('pageerror', e => console.log('stage error', String(e)));

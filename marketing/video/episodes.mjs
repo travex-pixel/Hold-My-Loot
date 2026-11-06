@@ -237,6 +237,70 @@ EPISODES.ep08 = build({
   music: [{ track: 'game', start: 0, end: 99, vol: .7 }],
 });
 
+// ============ 9. 8,400 bot games ============
+// Numbers come from tests/balance.mjs on build 30 (the term lines) and tests/balance-matrix.mjs on build 31 (review/balance.md).
+const LANE = g2n(70, 420);
+EPISODES.ep09 = build({
+  id: 'ep09-bots-played-my-game', title: 'I made bots play my game 8,400 times', cover: 0.9,
+  segs: [
+    { kind: 'grid', d: 2.4, speed: 1.6, stagger: .05, lead: .7, tiles: [
+      { shot: 'chaos', from: 2 }, { shot: 'nan_crits', from: 1 }, { shot: 'lanes_wide', from: 0 },
+      { shot: 'bev_birds', from: 1 }, { shot: 'pants_crew', from: 4 }, { shot: 'banjo', from: 1 },
+      { shot: 'marg_after', from: 1 }, { shot: 'alarm_raid', from: 1 }, { shot: 'taster_build', from: 2 }] },
+    { kind: 'card', bg: 'dark', kick: 'games played', big: '0', count: [0, 8400], countDur: 1.2, small: '28 levels · every difficulty · with and without Nan', d: 2.0, hit: 'bassdrop' },
+    { kind: 'term', d: 2.6, size: 46, top: 560, lines: ['<u>$</u> node tests/balance.mjs   <b>build 30</b>', '', 'Lv  Level              <b>win%</b>', ' 4  Campfire Corner     100', ' 5  The Beer Garden      90', '<em> 6  The Laneways         40</em>', ' 7  Fairy Ring Woods    100', ' 8  Gary’s Big Day      100'], at: [0, .1, .2, .45, .65, 1.15, 1.5, 1.7] },
+    { kind: 'card', bg: 'red', kick: 'level 6 · the laneways', big: '60%', small: 'of bots lost', d: 1.8 },
+    { kind: 'foot', shot: 'lanes_wide', from: 0.5, d: 2.0, zoom: [1.0, 1.08], focus: [.5, .45] },
+    { kind: 'foot', shot: 'lanes_before', from: 1.0, d: 2.6, zoom: [1.6, 1.8], focus: LANE, tag: 'RECREATED' },
+    { kind: 'doc', head: 'Build 31 · The Laneways', lines: ['Rat Mums take the long road.', 'A few less goblins and mozzies early.', '+30 starting gold.'], mark: 0, markAt: .25, d: 2.6, bg: 'honey' },
+    { kind: 'split', d: 2.6, a: { shot: 'lanes_before', from: 3.4, zoom: 1.5, focus: LANE, label: 'BUILD 30', chip: 'red' }, b: { shot: 'lanes_after', from: 3.4, zoom: 1.3, focus: [.5, .4], label: 'BUILD 31', chip: 'green' } },
+    { kind: 'card', bg: 'green', kick: 'bots who win now', big: '92%', d: 1.8, hit: 'bassdrop' },
+    { kind: 'foot', shot: 'nan_crits', from: 1.5, d: 2.4, zoom: [1.3, 1.45], focus: [.5, .4] },
+  ],
+  caps: [
+    C(0, 'I made *bots*\nplay my game', { pos: 'center', size: 110 }),
+    C(2, 'most levels: _fine_', { pos: 'low', off: .5, d: 1.0 }), C(2, 'then ~this one~', { pos: 'low', off: 1.5 }),
+    C(4, '*three* entrances', { pos: 'top' }),
+    C(5, 'Rat Mums took\nthe ~empty lane~', { pos: 'top' }),
+    C(9, 'and Nan? *untouched.*', { pos: 'top' }),
+  ],
+  stickers: [],
+  ctaSeg: 9, ctaOff: .7,
+  music: [{ track: 'game', start: 0, end: 7.0, vol: .75, fadeOut: .2 }, { track: 'boss', start: 7.0, end: 13.4, vol: .8, fadeIn: .05, fadeOut: .2 }, { track: 'game', start: 13.4, end: 18.5, vol: .6, fadeOut: .15 }, { track: 'game', start: 19.9, end: 99, vol: .8 }],
+  stings: [{ name: 'victory', t: 18.65 }],
+});
+
+// ============ 10. 30 builds, everything that broke ============
+EPISODES.ep10 = build({
+  id: 'ep10-everything-that-broke', title: '30 builds. Everything that broke.', cover: 0.8,
+  segs: [
+    { kind: 'foot', shot: 'smear_bug', from: 3.0, d: 2.0, zoom: [1.2, 1.35], focus: [.5, .42], tag: 'RECREATED' },
+    { kind: 'card', bg: 'dark', kick: 'builds', big: '1', count: [1, 30], countDur: 1.0, small: 'one file · one person', d: 1.6 },
+    { kind: 'foot', shot: 'nan_crits', from: 0.8, d: 1.6, zoom: [1.4, 1.55], focus: [.5, .38] },
+    { kind: 'foot', shot: 'marg_before', from: 1.2, d: 1.6, zoom: [1.7, 1.9], focus: g2n(105, 230), tag: 'RECREATED' },
+    { kind: 'foot', shot: 'pants_crew', from: 1.2, d: 1.6, zoom: [1.6, 1.8], focus: g2n(170, 220) },
+    { kind: 'foot', shot: 'smear_bug', from: 1.0, d: 1.6, zoom: [1.3, 1.4], focus: [.5, .5], tag: 'RECREATED' },
+    { kind: 'foot', shot: 'save_reset', from: 2.4, d: 1.6, zoom: [1.08, 1.0], focus: [.5, .5], shake: 24 },
+    { kind: 'foot', shot: 'lanes_before', from: 2.0, d: 1.6, zoom: [1.6, 1.8], focus: LANE, tag: 'RECREATED' },
+    { kind: 'card', bg: 'honey', kick: 'build 31', big: 'ALL FIXED.', bigSize: 190, small: 'every one written down in the changelog', d: 1.8 },
+    { kind: 'foot', shot: 'win3', from: 0.3, d: 2.0, zoom: [1.0, 1.06], focus: [.5, .4] },
+    { kind: 'foot', shot: 'gary_sleep', from: 2.0, d: 2.6, zoom: [2.3, 2.5], focus: GARY },
+  ],
+  caps: [
+    C(0, '*everything* that broke', { pos: 'top', size: 110 }),
+    C(2, 'I ~nerfed~ Nan', { pos: 'top' }),
+    C(3, 'Marg couldn’t ~reach~', { pos: 'top' }),
+    C(4, 'the pants king\ntook ~zero pants~', { pos: 'top' }),
+    C(5, 'Android *ate* the map', { pos: 'top' }),
+    C(6, 'saves ~vanished~', { pos: 'top' }),
+    C(7, 'a level bots lost *60%*', { pos: 'top' }),
+    C(10, 'and Gary? *still asleep.*', { pos: 'top' }),
+  ],
+  ctaSeg: 10, ctaOff: .6,
+  music: [{ track: 'boss', start: 0, end: 13.2, vol: .8, fadeOut: .2 }, { track: 'game', start: 16.3, end: 99, vol: .8 }],
+  stings: [{ name: 'victory', t: 15.05 }],
+});
+
 // ============ Launch trailer ============
 EPISODES.trailer = build({
   id: 'trailer-launch', title: 'Hold My Loot launch trailer', cover: 0.6,

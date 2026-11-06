@@ -96,6 +96,27 @@ const SHOTS = {
     } }));
   },
 
+  // ---------- The Laneways (ep09): build 30 sent Rat Mums down the empty side lane ----------
+  async lanes(b) {
+    const crew = [[0, 'nan', 1], [1, 'chuck', 1], [2, 'jezza', 1], [3, 'chuck', 0]];
+    // overview: all three entrances busy
+    { const { ctx, page } = await openGame(b, { meta: vetMeta() });
+      await startLevel(page, 5);
+      await page.evaluate(c => { const D = window.__dir; D.place(c); D.wave(3); D.flow([['gob', .3], ['rat', .3], ['mozzie', .12], ['gob', .3], ['skel', .5], ['ratmum', .6]], { p: 'any', hp: 2.2 }); }, crew);
+      for (let i = 0; i < 75; i++) { await tick(page); await run(page, 200); }
+      await page.evaluate(() => window.__dir.clean());
+      console.log(' lanes_wide', await captureShot(page, 'lanes_wide', 6, { every: tick }));
+      await ctx.close(); }
+    for (const [name, pi, d] of [['lanes_before', 4, 250], ['lanes_after', 0, 290]]) {
+      const { ctx, page } = await openGame(b, { meta: vetMeta() });
+      await startLevel(page, 5);
+      await page.evaluate(([c, pi, d]) => { const D = window.__dir; D.place(c); D.wave(3); D.flow([['ratmum', 2.4]], { p: pi, d, keepPile: false }); }, [crew, pi, d]);
+      await tick(page); await run(page, 400);
+      await page.evaluate(() => window.__dir.clean());
+      console.log(' ' + name, await captureShot(page, name, 8, { every: tick }));
+      await ctx.close();
+    }
+  },
   // ---------- Sir Pantsalot ----------
   async pants(b) {
     const { page } = await openGame(b, { meta: vetMeta(), bossbar: false });

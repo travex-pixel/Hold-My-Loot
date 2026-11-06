@@ -69,6 +69,20 @@ and a save code you can paste on any phone. holdmyloot.com/?ref=x-ep08
 **Shorts / TikTok:** Watch me delete my whole save and get it back. #gamedev #webdev #indiegame
 **Pinned comment:** Menu, Settings, Copy save code. Do it now, thank me later.
 
+### Episode 9: 8,400 bot games
+**Title / hook:** I made bots play my game 8,400 times
+**X:** I made bots play every level of my game 8,400 times: every difficulty, with and without Nan. Most levels were
+fine. One was not: 60% of bots lost The Laneways. Build 31: 92% win. Nan: untouched. holdmyloot.com/?ref=x-ep09
+**Shorts / TikTok:** My bots found the one level that was secretly broken. #gamedev #indiegame #towerdefense #gamebalance
+**Pinned comment:** Rat Mums were sneaking down the one lane nobody guards. Now they take the long road.
+
+### Episode 10: Everything that broke
+**Title / hook:** 30 builds. Everything that broke.
+**X:** 30 builds of one game in one file. I nerfed Nan. Marg couldn't reach. The pants king took no pants. Android
+ate the map. Saves vanished. All fixed in build 31. Gary's still asleep. holdmyloot.com/?ref=x-ep10
+**Shorts / TikTok:** Every bug from 30 builds of my game, in 20 seconds. #gamedev #indiegame #bugs #buildinpublic
+**Pinned comment:** Post this one only once build 31 is live. Which bug was your favourite?
+
 ---
 
 ## Launch trailer

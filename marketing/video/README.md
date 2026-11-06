@@ -16,7 +16,8 @@ effects, and the game's fonts and palette. Nothing is stock, nothing is AI-gener
 | `ep06-pantsalot.mp4` | 6: Sir Pantsalot took zero pants for 20 builds | 19 s |
 | `ep07-android-ate-the-map.mp4` | 7: Android phones dropping the map (bug recreated, labelled) | 17 s |
 | `ep08-three-copies.mp4` | 8: every save has three copies | 17 s |
-| `ep09-*`, `ep10-*` | 9: 300 bots, 10: everything that broke. Made after the balance pass and the release build | |
+| `ep09-bots-played-my-game.mp4` | 9: 8,400 bot games found the one broken level (The Laneways, 40% to 92%) | 23 s |
+| `ep10-everything-that-broke.mp4` | 10: 30 builds, everything that broke, all fixed in build 31. Post after build 31 is live | 20 s |
 | `trailer-launch.mp4` | Launch trailer | 27 s |
 | `crew-01-chuck.mp4` ... `crew-13-val.mp4` | Meet the crew, one per character | 11 s each |
 
