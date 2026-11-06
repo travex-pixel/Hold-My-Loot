@@ -7,7 +7,7 @@
 <meta name="description" content="Gary's asleep. Monsters want his loot. A weird, funny Australian tower defence game. Free, plays in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Hold My Loot">
-<meta property="og:title" content="Hold My Loot">
+<meta property="og:title" content="Hold My Loot: a free tower defence game in your browser">
 <meta property="og:description" content="Gary's asleep. Monsters want his loot. Build a crew of idiots (Nan fixes most things) and keep the pile. Free, in your browser.">
 <meta property="og:url" content="https://holdmyloot.com/">
 <link rel="canonical" href="https://holdmyloot.com/">
@@ -18,7 +18,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Hold My Loot: a cartoon crew of Australian misfits defending a sleeping hero's loot pile">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Hold My Loot">
+<meta name="twitter:title" content="Hold My Loot: a free tower defence game in your browser">
 <meta name="twitter:description" content="Gary's asleep. Monsters want his loot. Free, in your browser.">
 <meta name="twitter:image" content="https://holdmyloot.com/preview.jpg">
 <meta name="theme-color" content="#3E5E3A">
@@ -5515,7 +5515,7 @@ const R = (function () {
       const g = x.createLinearGradient(0, 0, Wc, Hc); g.addColorStop(0, '#FFF9EC'); g.addColorStop(1, '#F1E4C6'); x.fillStyle = g; x.fillRect(0, 0, Wc, Hc);
       x.fillStyle = c.won ? '#D8EAC8' : '#F3D7D2'; x.beginPath(); x.ellipse(Wc * .78, Hc * .2, 300, 140, -.3, 0, 7); x.fill();
       x.fillStyle = '#3E5E3A'; x.font = '700 44px Fraunces, Georgia, serif'; x.textBaseline = 'top'; x.fillText('Hold My Loot', 32, 26);
-      x.fillStyle = '#3B2F2A'; x.font = '900 30px Nunito, Arial, sans-serif'; x.fillText(c.endless ? 'The Long Nap: wave ' + (c.wave - 1) : c.won ? 'Gary kept ' + c.pile + '/' + c.pileMax + ' on ' + c.levelName : 'Cleaned out on wave ' + c.wave + ' of ' + c.levelName, 32, 86);
+      x.fillStyle = '#3B2F2A'; x.font = '900 30px Nunito, Arial, sans-serif'; x.fillText(c.raid ? 'Raid: ' + c.raid.dmg.toLocaleString('en-AU') + ' damage' + (c.raid.medal ? ' \u00b7 ' + ['', 'Bronze', 'Silver', 'Gold'][c.raid.medal] : '') : c.endless ? 'The Long Nap: wave ' + (c.wave - 1) : c.won ? 'Gary kept ' + c.pile + '/' + c.pileMax + ' on ' + c.levelName : 'Cleaned out on wave ' + c.wave + ' of ' + c.levelName, 32, 86);
       if (c.won && !c.endless) for (let i = 0; i < 3; i++) { x.fillStyle = i < c.stars ? '#FFC94A' : '#E8DCC2'; x.beginPath(); for (let q = 0; q < 10; q++) { const rr2 = q % 2 ? 9 : 21, an = q * Math.PI / 5 - Math.PI / 2; x.lineTo(60 + i * 52 + Math.cos(an) * rr2, 155 + Math.sin(an) * rr2); } x.closePath(); x.fill(); }
       x.fillStyle = '#7A6A5C'; x.font = '800 20px Nunito, Arial, sans-serif'; x.fillText('\u201c' + c.quip + '\u201d', 32, c.won && !c.endless ? 190 : 140);
       if (c.moment) { x.save(); x.translate(Wc - 250, 40); x.rotate(.05); x.fillStyle = '#FFE07A'; x.beginPath(); x.moveTo(0, 0); x.lineTo(230, 0); x.lineTo(230, 78); x.lineTo(0, 78); x.closePath(); x.fill(); x.fillStyle = '#3B2F2A'; x.font = '900 14px Nunito, Arial, sans-serif'; x.fillText('ACTUAL THING THAT HAPPENED:', 12, 10); x.font = '900 17px Nunito, Arial, sans-serif'; const words = c.moment.split(' '); let line = '', yy = 32; for (const w2 of words) { if (x.measureText(line + w2).width > 206) { x.fillText(line.trim(), 12, yy); line = ''; yy += 20; } line += w2 + ' '; } x.fillText(line.trim(), 12, yy); x.restore(); }
@@ -6676,8 +6676,9 @@ const R = (function () {
     const cheapest = SHED.map(s => ({ s, L: shedLevel(meta, s.id) })).filter(o => o.L < o.s.costs.length).sort((a, b) => a.s.costs[a.L] - b.s.costs[b.L])[0];
     const shedHint = cheapest ? (meta.rocks >= cheapest.s.costs[cheapest.L] ? '<p class="next">You can afford ' + cheapest.s.name + ' in Clive\u2019s Shed.</p>' : '<p class="small">' + (cheapest.s.costs[cheapest.L] - meta.rocks) + ' more rocks for ' + cheapest.s.name + '.</p>') : '';
     const jobsLine = (r.jobsDone.length ? r.jobsDone.map(j => '<p class="jobdone">Job done: ' + j.text + ' <b>+' + j.reward + '</b></p>').join('') : '') + '<h3>Odd jobs</h3>' + jobsHTML(meta.jobs, null);
-    const shareLink = (location.protocol.startsWith('http') ? location.origin + location.pathname.replace(/index\.html$/, '') : 'https://holdmyloot.com/') + '?ref=share';
-    const shareText = 'Hold My Loot, ' + (G.mode === 'daily' ? 'Daily Nap ' + G.daily.key : G.mode === 'endless' ? 'The Long Nap' : G.map.name) + ': ' + (G.mode === 'endless' ? 'survived ' + (G.wave - 1) + ' waves' : G.won ? 'Gary kept ' + G.pile + '/' + G.pileMax : 'cleaned out on wave ' + G.wave) + '\n' + r.grid + (r.best ? '\nBest drop: ' + RARITY[r.best.tier].k + ' ' + r.best.name : '') + (G.moment ? '\nAlso: ' + G.moment.txt + '.' : '') + '\nPlay it: ' + shareLink;
+    const shareLink = (location.protocol.startsWith('http') ? location.origin + location.pathname.replace(/index\.html$/, '') : 'https://holdmyloot.com/') + '?ref=share-' + (G.mode === 'raid' ? 'raid' : G.mode === 'endless' ? 'long' : G.mode === 'daily' ? 'daily' : G.map.id);
+    const raidLine = G.mode === 'raid' ? 'Hold My Loot Raid vs ' + ENEMIES[G.raidBossType].name.split(',')[0] + ': ' + Math.round(G.raidScore || 0).toLocaleString('en-AU') + ' damage' + (G.raidMedal ? ' (' + ['', 'Bronze', 'Silver', 'Gold'][G.raidMedal] + ')' : '') : '';
+    const shareText = raidLine ? raidLine + '\nPlay it: ' + shareLink : 'Hold My Loot, ' + (G.mode === 'daily' ? 'Daily Nap ' + G.daily.key : G.mode === 'endless' ? 'The Long Nap' : G.map.name) + ': ' + (G.mode === 'endless' ? 'survived ' + (G.wave - 1) + ' waves' : G.won ? 'Gary kept ' + G.pile + '/' + G.pileMax : 'cleaned out on wave ' + G.wave) + '\n' + r.grid + (r.best ? '\nBest drop: ' + RARITY[r.best.tier].k + ' ' + r.best.name : '') + (G.moment ? '\nAlso: ' + G.moment.txt + '.' : '') + '\nPlay it: ' + shareLink;
     // ---- results: hero, rewards, one big button; everything else folds away ----
     const nextOk = G.won && nextMap && G.mode === 'campaign';
     const firstEver = G.won && meta.wins === 1 && G.mode === 'campaign';
@@ -6745,7 +6746,7 @@ const R = (function () {
     const homeCard = (G.won && G.mode === 'campaign' ? a2hsCard('results') : '') + (sessionWins >= 3 && !toldTomorrow ? (toldTomorrow = true, tomorrowHTML()) : '');
     const jobFlash = dailyLine + (r.jobsDone.length ? '<p class="rjob">\u2705 Job done: ' + r.jobsDone[0].text + ' <b>+' + r.jobsDone[0].reward + '</b></p>' : '');
     openModal(hero + heatLine + (G.won || endless ? rewardRow + unlockCards : '') + jobFlash + primary + brag + secondary + homeCard + askMood + details, 'results' + (G.won ? ' won' : ' lost'), 700);
-    const shareCtx = { moment: G.moment ? G.moment.txt : '', won: G.won, endless, levelName: G.mode === 'daily' ? 'Daily Nap' : G.mode === 'endless' ? 'The Long Nap' : G.map.name, pile: G.pile, pileMax: G.pileMax, wave: G.wave, waveCount: G.waveCount, stars: r.stars || 0, crew: (G.crew || []).slice(0, 6), best: r.best, boss: ENEMIES[G.map.boss].name.split(',')[0], quip: G.won ? ['Gary slept through the whole thing.', 'Not a single snag was wasted.', 'The monsters have filed a complaint.'][Math.floor(Math.random() * 3)] : fb[0] };
+    const shareCtx = { raid: G.mode === 'raid' ? { boss: ENEMIES[G.raidBossType].name.split(',')[0], dmg: Math.round(G.raidScore || 0), medal: G.raidMedal || 0 } : null, moment: G.moment ? G.moment.txt : '', won: G.won, endless, levelName: G.mode === 'daily' ? 'Daily Nap' : G.mode === 'endless' ? 'The Long Nap' : G.map.name, pile: G.pile, pileMax: G.pileMax, wave: G.wave, waveCount: G.waveCount, stars: G.mode === 'raid' ? (G.raidMedal || 0) : (r.stars || 0), crew: (G.crew || []).slice(0, 6), best: r.best, boss: ENEMIES[G.mode === 'raid' ? G.raidBossType : G.map.boss].name.split(',')[0], quip: G.won ? ['Gary slept through the whole thing.', 'Not a single snag was wasted.', 'The monsters have filed a complaint.'][Math.floor(Math.random() * 3)] : fb[0] };
     drawPortraits($('modalCard')); startPortraitLoop();
     if (G.won) [0, 1, 2].forEach(i => { if (i < r.stars) setTimeout(() => SFX.play(i === 2 ? 'levelup' : 'coin'), 250 + i * 280); });
     if (newCrew.length) setTimeout(() => { R.poke(newCrew[0]); SFX.play(crewSfx[newCrew[0]] || 'pick'); }, 1100);
@@ -6951,6 +6952,7 @@ const R = (function () {
   document.addEventListener('keydown', unlockAudio, true);
   document.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('button'); if (b && !b.disabled && !b.classList.contains('dcard')) SFX.play('click'); }, true);
   window.__hml = () => G;
+  window.__hmlShareCard = c => shareCardBlob(c).then(b => b && new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); }));   // for tests/share.mjs
   window.__hmlSave = { version: SAVE_VERSION, meta: () => meta, migrate, sanitize, mergeMeta, storageOk: () => storageOk };
   applyLook();
   const firstVisit = !meta.firstSeen && !meta.runs;
