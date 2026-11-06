@@ -588,6 +588,9 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; text
 @media (max-height: 700px) { .cstage, .ccard .cstage canvas.pt { height: 70px; } }
 
 /* ===== v23: home screen card, feedback, brag ===== */
+.consent { background: linear-gradient(135deg, #EAF6E4, #F4F0DC); border: 1.5px solid #BFD9A8; border-radius: 16px; padding: 10px 12px; margin: 14px 0 12px; text-align: left; display: flex; flex-direction: column; gap: 8px; }
+.consent b { display: block; } .consent span { font-size: 13px; color: #5a4a3e; } .consent a { color: inherit; }
+.consent .row2 { display: flex; gap: 8px; } .consent .row2 .btn { flex: 1; }
 .a2hs { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #E2F1FF, #EEE8FF); border: 1.5px solid #CFC6F2; border-radius: 16px; padding: 9px 10px; margin: 10px 0 0; text-align: left; }
 .a2hs .a2ico { font-size: 28px; } .a2hs b { display: block; font-size: 14.5px; } .a2hs span { font-size: 12.5px; font-weight: 700; color: var(--muted); } .a2hs > div { flex: 1; }
 .a2hs .btn { min-height: 40px; padding: 7px 12px; font-size: 14px; white-space: nowrap; }
@@ -5357,14 +5360,27 @@ const R = (function () {
   const AN = window.HML_ANALYTICS || {}, anonKey = 'hml.anon';
   const urlQ = (() => { try { return new URLSearchParams(location.search); } catch (e) { return null; } })();
   const sessionSrc = urlQ ? (urlQ.get('ref') || urlQ.get('utm_source') || '').slice(0, 40).replace(/[^a-z0-9_.-]/gi, '') : '';
-  let anonId = null, firstVisit = false; const sessionStart = Date.now(), sessionId = Math.random().toString(36).slice(2, 10);
-  try { anonId = localStorage.getItem(anonKey); if (!anonId) { anonId = 'a_' + (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)); localStorage.setItem(anonKey, anonId); firstVisit = true; } } catch (e) { anonId = 'a_nostore_' + sessionId; }
+  // Consent, cookie-free: nothing is stored for analytics until the player says yes. Before they answer, events carry a
+  // session-only id that lives in memory and dies with the tab. After yes: a random anonymous id in localStorage.
+  // After no: nothing is sent at all. meta.settings.analytics is true (yes), false (no) or undefined (not asked yet).
+  let anonId = null; const sessionStart = Date.now(), sessionId = Math.random().toString(36).slice(2, 10), sessionOnlyId = 's_' + sessionId + Date.now().toString(36);
+  const consentState = () => meta && meta.settings ? meta.settings.analytics : undefined;
+  function analyticsId() {
+    if (consentState() !== true) return sessionOnlyId;
+    if (!anonId) { try { anonId = localStorage.getItem(anonKey); if (!anonId) { anonId = 'a_' + (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)); localStorage.setItem(anonKey, anonId); } } catch (e) { anonId = 'a_nostore_' + sessionId; } }
+    return anonId;
+  }
+  // the leaderboard needs a stable id for rate limits; it is made only when someone submits a score
+  function boardPlayerId() { try { let id = localStorage.getItem('hml.board'); if (!id) { id = 'b_' + (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)); localStorage.setItem('hml.board', id); } return id; } catch (e) { return 'b_nostore_' + sessionId; } }
+  // per-tap events only for a player's first games (the first-ten-minutes funnel); later games report at level end
+  const NOISY = { tower_placed: 1, tower_upgraded: 1, ability_used: 1, wave_complete: 1, speed_set: 1, draft_reroll: 1 };
   const deviceCat = () => { const w = Math.min(screen.width || innerWidth, screen.height || innerHeight); return ('ontouchstart' in window || navigator.maxTouchPoints > 0) ? (w >= 600 ? 'tablet' : 'mobile') : 'desktop'; };
   function trackEvent(name, props, beacon) {
     try {
-      if (!AN.key || (meta && meta.settings && meta.settings.analytics === false)) return;
-      const body = JSON.stringify({ api_key: AN.key, event: name, distinct_id: anonId, timestamp: new Date().toISOString(),
-        properties: Object.assign({ $session_id: sessionId, src: sessionSrc || 'direct', first_src: (meta && meta.firstSrc) || sessionSrc || 'direct', build: window.HML_BUILD, device_category: deviceCat(), screen_w: innerWidth, screen_h: innerHeight, $process_person_profile: false }, props || {}) });
+      if (!AN.key || consentState() === false) return;
+      if (NOISY[name] && meta && (meta.runs || 0) > 5) return;
+      const body = JSON.stringify({ api_key: AN.key, event: name, distinct_id: analyticsId(), timestamp: new Date().toISOString(),
+        properties: Object.assign({ $session_id: sessionId, src: sessionSrc || 'direct', first_src: (meta && meta.firstSrc) || sessionSrc || 'direct', build: window.HML_BUILD, consent: consentState() === true ? 'yes' : 'unasked', device_category: deviceCat(), screen_w: innerWidth, screen_h: innerHeight, $process_person_profile: false }, props || {}) });
       const url = (AN.host || 'https://us.i.posthog.com').replace(/\/$/, '') + '/i/v0/e/';
       if (beacon && navigator.sendBeacon) { navigator.sendBeacon(url, new Blob([body], { type: 'application/json' })); return; }
       fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true, mode: 'cors' }).catch(() => {});
@@ -6078,7 +6094,7 @@ const R = (function () {
     openModal(
       '<h1 class="title">Hold My Loot' + (meta.supporter ? ' <span class="supbadge" title="Supporter">\u2665</span>' : '') + '</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + saveBanner() + whatsNewCard() + jezzaBanner + bevBanner + djBanner + peteBanner + banjoBanner + playNextHTML(run) +
       (runMap ? '<button class="btn primary big cont" id="contBtn" data-focus>Continue: ' + (run.mode === 'endless' ? 'Long Nap' : run.mode === 'daily' ? 'Daily Nap' : runMap.name) + ', wave ' + (run.wave + 1) + '</button>' : '') +
-      giftHTML() + '<h2 class="h2 tight">Up next</h2>' + goalsHTML() + a2hsCard('home') + supporterCard() +
+      consentCard() + giftHTML() + '<h2 class="h2 tight">Up next</h2>' + goalsHTML() + a2hsCard('home') + supporterCard() +
       garyCard() +
       '<div class="rockrow"><span class="rockic" aria-hidden="true"></span><span><b>' + (meta.rocks || 0) + '</b> Shiny Rocks</span><button class="btn' + (shedAffordable() ? ' glow' : '') + '" id="shedBtn">Clive\u2019s Shed' + (shedAffordable() ? ' <i class="dot"></i>' : '') + '</button></div>' +
       '<h2 class="h2">Odd jobs</h2>' + jobsHTML(meta.jobs, null) +
@@ -6095,7 +6111,7 @@ const R = (function () {
     if ($('contBtn')) $('contBtn').onclick = () => continueRun(run);
     $('shedBtn').onclick = showShed;
     if ($('playNext')) $('playNext').onclick = () => { SFX.play('pick'); showLevel(nextLevelIdx()); };
-    wireA2hs();
+    wireA2hs(); wireConsent();
     if ($('giftBtn')) $('giftBtn').onclick = () => openGift();
     $('modalCard').querySelectorAll('[data-wardrobe]').forEach(g => g.onclick = () => showWardrobe(g.dataset.wardrobe));
     $('modalCard').querySelectorAll('[data-pathgoal]').forEach(g => g.onclick = () => showCrewInfo(g.dataset.pathgoal, [], showHome, () => {}));
@@ -6148,6 +6164,22 @@ const R = (function () {
   }
   function shedAffordable() { return SHED.some(s => shedLevel(meta, s.id) < s.costs.length && (meta.rocks || 0) >= s.costs[shedLevel(meta, s.id)]); }
   // the supporter card appears only after someone has clearly had fun: 5 wins, 3 sessions, never on a loss screen, dismissible
+  // ---- Analytics consent: asked once, on the home screen after the first level, never in the middle of play ----
+  function setConsent(yes, where) {
+    meta.settings.analytics = !!yes; saveMeta();
+    if (yes) trackEvent('consent_given', { where });
+    else { anonId = null; try { localStorage.removeItem(anonKey); } catch (e) {} }
+  }
+  function consentCard() {
+    if (!AN.key || consentState() != null || !(meta.runs >= 1)) return '';
+    return '<div class="consent" role="region" aria-label="Play stats"><div><b>Help me fix the game?</b><span>Share anonymous play stats: which levels are too hard, where people get stuck. No cookies, names, emails or ads. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></span></div>' +
+      '<div class="row2"><button class="btn primary" id="consentYes">Sure</button><button class="btn" id="consentNo">No thanks</button></div></div>';
+  }
+  function wireConsent() {
+    const y = $('consentYes'), n = $('consentNo'); if (!y) return;
+    const done = (yes, b) => { setConsent(yes, 'home'); SFX.play(yes ? 'coin' : 'pick'); const c = b.closest('.consent'); if (c) c.remove(); toast(yes ? 'Cheers. That helps heaps.' : 'No worries. Nothing gets sent.'); };
+    y.onclick = () => done(true, y); n.onclick = () => done(false, n);
+  }
   // ---- Put Gary on the home screen ----
   let installEvt = null;
   window.addEventListener('beforeinstallprompt', ev => { ev.preventDefault(); installEvt = ev; });
@@ -6409,7 +6441,7 @@ const R = (function () {
     if (!boardOn() || !meta.nick || wave < 1) return false;
     try {
       const r2 = await fetch(BOARD.url.replace(/\/$/, '') + '/rest/v1/scores', { method: 'POST', headers: { apikey: BOARD.key, Authorization: 'Bearer ' + BOARD.key, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-        body: JSON.stringify({ week: weekKey(), map: mapId, wave: Math.min(999, wave | 0), name: meta.nick, crew: (crew || []).join(','), build: window.HML_BUILD, player: anonId }) });
+        body: JSON.stringify({ week: weekKey(), map: mapId, wave: Math.min(999, wave | 0), name: meta.nick, crew: (crew || []).join(','), build: window.HML_BUILD, player: boardPlayerId() }) });
       return r2.ok;
     } catch (e) { return false; }
   }
@@ -6792,7 +6824,7 @@ const R = (function () {
       '<label class="slider"><span>\ud83d\udd0a SFX</span><input type="range" id="setVol" min="0" max="1" step="0.05" value="' + (meta.settings.volume == null ? .6 : meta.settings.volume) + '"></label>' +
       (VET() ? '<label class="tog"><input type="checkbox" id="setAuto"' + (meta.settings.autoWave ? ' checked' : '') + '><span><b>Auto-start next wave</b><small>Skips the wait between waves. Tap Pause any time.</small></span></label>' : '') +
       '<label class="tog"><input type="checkbox" id="setSmooth"' + (meta.settings.smooth ? ' checked' : '') + '><span><b>Smooth mode</b><small>Fewer effects so older phones and Firefox run faster. Turns on by itself if things get choppy.</small></span></label>' +
-      '<label class="tog"><input type="checkbox" id="setAnalytics"' + (meta.settings.analytics !== false ? ' checked' : '') + '><span><b>Share anonymous play stats</b><small>Helps improve the game. No names, emails or locations, ever.</small></span></label>' +
+      '<label class="tog"><input type="checkbox" id="setAnalytics"' + (meta.settings.analytics === true ? ' checked' : '') + '><span><b>Share anonymous play stats</b><small>Helps fix the game. No cookies, names, emails or ads. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></small></span></label>' +
       '<label class="tog"><input type="checkbox" id="setShake"' + (meta.settings.shake ? ' checked' : '') + '><span><b>Screen shake</b><small>On crits, Gary\u2019s sword and stolen loot.</small></span></label>' +
       '<h3>Saving</h3><p class="small">' + (storageOk ? 'Progress saves on this device after every build, every wave and every run. Last saved: ' + ls + '.' : 'This browser is blocking storage, so progress won\u2019t survive a reload here. Use a save code to keep it.') + '</p>' +
       '<div class="row2b"><button class="btn" id="saveNow">Save now</button><button class="btn" id="copyCode">Copy save code</button></div>' +
@@ -6827,7 +6859,7 @@ const R = (function () {
       if ($('supBtn')) $('supBtn').onclick = () => { const v = ($('supCode').value || '').trim().toLowerCase(); if (SUP.code && v === String(SUP.code).toLowerCase()) { meta.supporter = true; meta.pj = 'scarlet'; applyLook(); saveMeta(); SFX.play('ultimate'); trackEvent('supporter_unlocked', {}); $('supMsg').textContent = 'You absolute legend. Scarlet pyjamas unlocked.'; setTimeout(() => renderMenu(), 1200); } else { $('supMsg').textContent = 'That code didn\u2019t work. Check your receipt.'; } };
       if ($('setAuto')) $('setAuto').onchange = e => { meta.settings.autoWave = e.target.checked; saveMeta(); trackEvent('auto_wave_set', { on: e.target.checked }); };
       $('setSmooth').onchange = e => { meta.settings.smooth = e.target.checked; R.setLite(e.target.checked || autoLite); saveMeta(); };
-      $('setAnalytics').onchange = e => { meta.settings.analytics = e.target.checked; saveMeta(); };
+      $('setAnalytics').onchange = e => { setConsent(e.target.checked, 'settings'); };
       $('setShake').onchange = e => { meta.settings.shake = e.target.checked; saveMeta(); };
       $('clBtn').onclick = () => showChangelog(() => renderMenu());
       $('setMusic').onchange = e => { meta.settings.music = e.target.checked; SFX.setMusic(e.target.checked); saveMeta(); };
@@ -6907,6 +6939,7 @@ const R = (function () {
   window.__hml = () => G;
   window.__hmlSave = { version: SAVE_VERSION, meta: () => meta, migrate, sanitize, mergeMeta, storageOk: () => storageOk };
   applyLook();
+  const firstVisit = !meta.firstSeen && !meta.runs;
   if (!meta.firstSeen) meta.firstSeen = Date.now(); if (!meta.firstSrc) meta.firstSrc = sessionSrc || 'direct'; meta.sessions = (meta.sessions || 0) + 1;
   const dayN = Math.floor((Date.now() - meta.firstSeen) / 86400000) + 1;
   trackEvent('session_start', { standalone: standaloneNow(), returning: !firstVisit, runs: meta.runs || 0, day_number: dayN, session_number: meta.sessions, streak: (meta.daily && meta.daily.streak) || 0 }); if (firstVisit) trackEvent('first_visit', {});

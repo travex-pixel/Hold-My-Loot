@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · Hold My Loot</title>
+<meta name="description" content="What Hold My Loot stores and sends. Short version: no cookies, no ads, no names, and nothing at all if you say no.">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root { --paper: #FFF9EC; --ink: #2A1E18; --soft: #6B5A4E; --honey: #FFC94A; --line: #EADBC0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.6 Nunito, "Trebuchet MS", system-ui, sans-serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 28px 16px 64px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 6px; }
+  h2 { font-size: 19px; margin: 28px 0 6px; }
+  p, li { color: var(--ink); }
+  .lede { color: var(--soft); margin: 0 0 18px; }
+  .short { background: #FFF1C9; border: 1.5px solid #F0D58A; border-radius: 14px; padding: 12px 14px; }
+  .short li { margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+  th { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--soft); }
+  a { color: #7A4B12; }
+  .back { display: inline-block; margin-top: 26px; background: var(--honey); color: var(--ink); text-decoration: none; font-weight: 800; padding: 10px 18px; border-radius: 999px; }
+  small { color: var(--soft); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Privacy</h1>
+  <p class="lede">Hold My Loot is a free browser game made by one person. Here is everything it keeps and sends.</p>
+
+  <div class="short">
+    <b>The short version</b>
+    <ul>
+      <li>No cookies. No ads. No accounts. No names, emails or phone numbers.</li>
+      <li>Your progress is saved on your own device and nowhere else.</li>
+      <li>Anonymous play stats are only kept if you say yes. Say no and nothing is sent.</li>
+    </ul>
+  </div>
+
+  <h2>Saved on your device</h2>
+  <p>The game uses your browser's local storage (not cookies) so you don't lose your progress. It never leaves your device unless you copy a save code yourself.</p>
+  <table>
+    <tr><th>What</th><th>Why</th></tr>
+    <tr><td>Your progress, settings and saved run (three copies, so a crash can't wipe them)</td><td>So the game remembers you</td></tr>
+    <tr><td>A random anonymous id, only after you say yes to play stats</td><td>So the stats can tell one player's second day from a new player</td></tr>
+    <tr><td>A random leaderboard id, only after you post a score</td><td>So the leaderboard can stop spam</td></tr>
+  </table>
+  <p>Clearing your browser's site data removes all of it.</p>
+
+  <h2>Play stats (PostHog)</h2>
+  <p>To find levels that are too hard and places people get stuck, the game can send anonymous events to <a href="https://posthog.com/privacy" rel="noopener">PostHog</a> (servers in the USA): things like "level 3 started", "wave 4 lost", the game's build number, your screen size and whether you're on a phone, tablet or computer.</p>
+  <ul>
+    <li><b>Before you answer</b> the "Help me fix the game?" question, events use a one-off id that lives only in memory and is gone when you close the tab. Nothing is stored on your device for stats.</li>
+    <li><b>If you say yes</b>, a random anonymous id is stored so your sessions can be counted together.</li>
+    <li><b>If you say no</b>, nothing is sent at all, and the id is deleted.</li>
+    <li>You can change your mind any time in Menu, Settings, "Share anonymous play stats".</li>
+    <li>If you type feedback into "Tell the dev", that text is sent too. Please don't put personal details in it.</li>
+  </ul>
+  <p>No profile is built about you, nothing is sold, and stats are never used for ads. Like any website, PostHog's servers see your IP address when the game connects; the game asks PostHog not to build person profiles.</p>
+
+  <h2>Leaderboard</h2>
+  <p>If the weekly leaderboard is on and you post a score, it stores the nickname you choose, your score, your crew and the leaderboard id. Nicknames are filtered and anyone can see them, so don't use your real name.</p>
+
+  <h2>Supporting the game (Ko-fi)</h2>
+  <p>The Support button opens <a href="https://ko-fi.com" rel="noopener">Ko-fi</a> in a new tab. Anything you do there is between you and Ko-fi; the game never sees your payment details.</p>
+
+  <h2>Kids</h2>
+  <p>The game doesn't ask anyone for personal information, at any age.</p>
+
+  <h2>Questions or deletion</h2>
+  <p>Use "Tell the dev" on the game's home screen. To delete play stats tied to your anonymous id, turn stats off in Settings and say so in your message.</p>
+
+  <p><small>Last updated with build 31.</small></p>
+  <a class="back" href="./">Back to the game</a>
+</main>
+</body>
+</html>

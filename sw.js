@@ -19,8 +19,9 @@ self.addEventListener('fetch', e => {
   if (url.origin === self.location.origin) {
     if (url.searchParams.has('t')) return;                              // self-update check: straight to the network
     if (url.pathname.endsWith('/sw.js')) return;
-    const isPage = req.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
-    e.respondWith(isPage ? page(req, e) : asset(req));
+    const isGame = url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+    // other pages (privacy.html) are network first with their own cache entry, never stored as the game
+    e.respondWith(isGame ? page(req, e) : req.mode === 'navigate' ? other(req) : asset(req));
     return;
   }
   if (/^fonts\.(googleapis|gstatic)\.com$/.test(url.hostname)) e.respondWith(font(req, e));
@@ -41,6 +42,10 @@ function page(req, e) {
     if (r instanceof Response && r.ok) return r;
     return cached().then(c => c || (r instanceof Response ? r : net));
   });
+}
+function other(req) {
+  return fetch(req).then(res => { if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); } return res; })
+    .catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || caches.match('./index.html')));
 }
 function asset(req) {
   return caches.match(req, { ignoreSearch: true }).then(hit => hit || fetch(req).then(res => {

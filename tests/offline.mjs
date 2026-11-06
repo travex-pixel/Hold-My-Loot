@@ -12,7 +12,7 @@ const srv = http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x'); let p = u.pathname; if (p.endsWith('/')) p += 'index.html';
   if (p === '/index.html') { setTimeout(() => { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'max-age=600' }); res.end(page()); }, u.searchParams.has('t') ? 0 : delay); return; }
   const f = path.join(root, p); if (!fs.existsSync(f)) { res.writeHead(404); return res.end(); }
-  res.writeHead(200, { 'Content-Type': p.endsWith('.js') ? 'text/javascript' : p.endsWith('.json') ? 'application/json' : 'image/png', 'Cache-Control': 'max-age=600' }); res.end(fs.readFileSync(f));
+  res.writeHead(200, { 'Content-Type': p.endsWith('.js') ? 'text/javascript' : p.endsWith('.json') ? 'application/json' : p.endsWith('.html') ? 'text/html; charset=utf-8' : 'image/png', 'Cache-Control': 'max-age=600' }); res.end(fs.readFileSync(f));
 }).listen(0);
 const URL0 = 'http://127.0.0.1:' + srv.address().port + '/?ref=homescreen';
 const b = await chromium.launch(); const ctx = await b.newContext(); await ctx.route(/posthog|googleapis|gstatic/, r => r.abort());
@@ -31,5 +31,11 @@ await p.waitForFunction(b2 => window.HML_BUILD === b2, base + 2, { timeout: 3000
 check('on a slow network the old copy opens, then the update check reloads into the new build', first === base + 1 && await shown() === base + 2, 'opened ' + first + ', now ' + await shown() + ', url ' + p.url().split('/').pop());
 delay = 0; await ctx.setOffline(true); await p.goto(URL0, { waitUntil: 'load' }).catch(() => {});
 check('offline after the update opens the newest build', await shown().catch(() => 0) === base + 2);
+// visiting another page (the privacy page) must never replace the cached game
+await ctx.setOffline(false); await p.goto(URL0.replace('/?ref=homescreen', '/privacy.html'), { waitUntil: 'load' });
+await ctx.setOffline(true); await p.goto(URL0, { waitUntil: 'load' }).catch(() => {});
+check('after opening the privacy page, offline still opens the game', await p.evaluate(() => !!window.__hml).catch(() => false) && await shown().catch(() => 0) === base + 2);
+await p.goto(URL0.replace('/?ref=homescreen', '/privacy.html'), { waitUntil: 'load' }).catch(() => {});
+check('the privacy page opens offline once seen', /Privacy/.test(await p.title().catch(() => '')));
 await b.close(); srv.close();
 process.exit(results.every(r => r[1]) ? 0 : 1);
