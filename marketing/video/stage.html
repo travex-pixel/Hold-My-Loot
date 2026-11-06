@@ -162,7 +162,7 @@ window.renderAt = async (t) => {
   const ce = $('cap');
   if (cap) {
     if (ce.dataset.k !== String(cap.t)) { ce.dataset.k = String(cap.t); ce.innerHTML = markup(cap.text); ce.style.fontSize = (cap.size || 96) + 'px'; ce.style.textShadow = strokeShadow(cap.size ? Math.max(8, cap.size / 9) : 11, '#2A1E18'); }
-    const yy = cap.pos === 'top' ? 280 : cap.pos === 'low' ? 1330 : cap.pos === 'center' ? 830 : 1120;
+    const yy = cap.pos === 'top' ? 280 : cap.pos === 'low' ? (SPEC.cta && t >= SPEC.cta.t - .05 ? 1080 : 1330) : cap.pos === 'center' ? 830 : 1120;
     ce.style.top = yy + 'px';
     const lc = t - cap.t, s = lc < .09 ? .55 + .6 * (lc / .09) : lc < .17 ? 1.15 - .15 * ((lc - .09) / .08) : 1;
     ce.style.transform = 'scale(' + s.toFixed(3) + ') rotate(' + (cap.rot != null ? cap.rot : 0) + 'deg)'; ce.style.display = 'block';

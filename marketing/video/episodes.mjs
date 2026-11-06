@@ -147,7 +147,7 @@ EPISODES.ep05 = build({
   id: 'ep05-soundtrack-is-code', title: 'My game’s soundtrack has zero audio files', cover: 1.0,
   codeText: SRC,
   segs: [
-    { kind: 'foot', shot: 'home_scroll', from: 0.2, d: 2.0, zoom: [1.0, 1.04], mute: true },
+    { kind: 'foot', shot: 'chaos', from: 5.0, d: 2.0, zoom: [1.35, 1.45], focus: [.5, .45], mute: true },
     { kind: 'code', line: MENU_LINE, lps: 1.6, mark: MENU_LINE, d: 2.6 },
     { kind: 'card', bg: 'dark', kick: 'audio files in my game', big: '0', d: 1.8, hit: 'bassdrop' },
     { kind: 'code', line: INSTR, lps: 26, d: 2.2 },
