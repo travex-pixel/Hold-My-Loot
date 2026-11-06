@@ -132,6 +132,10 @@ body {
 /* toasts stack with transforms, not layout, so a new one never shifts the page (CLS) */
 #toasts { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); width: min(90%, 370px); height: 0; pointer-events: none; z-index: 3; }
 #toasts .toast { position: absolute; left: 0; right: 0; bottom: 0; }
+#stage.paused #cv { filter: saturate(.55) brightness(.82); }
+#pausedVeil { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 26px; border-radius: 20px; border: 1.5px solid var(--line); background: var(--paper); box-shadow: 0 10px 30px rgba(50,40,25,.3); font-family: inherit; color: var(--ink); cursor: pointer; }
+#pausedVeil[hidden] { display: none; }
+#pausedVeil b { font: 700 26px Fraunces, Georgia, serif; } #pausedVeil span { font-weight: 800; font-size: 13px; color: var(--muted); }
 .toast { background: rgba(255,249,236,.96); border: 1.5px solid var(--line); border-radius: 14px; padding: 6px 11px; font-weight: 800; font-size: 13.5px; line-height: 1.25; box-shadow: 0 4px 14px rgba(60,45,25,.18); transition: opacity .35s, transform .35s; }
 .toast.big { background: #FFF1C8; border-color: #EAC66A; }
 .toast.bad { background: #FBE1DA; border-color: #E7B0A4; }
@@ -728,6 +732,7 @@ small.spare { display: block; color: var(--muted); font-weight: 800; margin: 3px
     <div id="bossbar" hidden><div id="bossname">Boss</div><div class="bosstrack"><i id="bossfill"></i></div></div>
     <div id="sheet" hidden></div>
     <div id="banner" aria-live="polite"></div>
+    <button id="pausedVeil" hidden aria-label="Paused. Tap to carry on"><b>Paused</b><span>Tap to carry on</span></button>
   </main>
   <footer id="bar">
     <button class="btn" id="pokeBtn" disabled><b>Gary's Dream</b></button>
@@ -5762,7 +5767,7 @@ const R = (function () {
   function flashSaved() { const s = $('saved'); s.classList.add('on'); clearTimeout(savedTimer); savedTimer = setTimeout(() => s.classList.remove('on'), 1400); }
   // leaving mid-wave (a call, the app switcher, another tab) pauses, so nobody comes back to a boss already at Gary
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { saveMeta(); saveRun(); if (G && state === 'play' && G.waveActive && !G.over && !paused) { paused = true; SFX.duck(true); lastHud = ''; awayPaused = true; } }
-    else if (awayPaused) { awayPaused = false; toast('Paused while you were away. Tap Pause to carry on.'); } });
+    else if (awayPaused) { awayPaused = false; toast('Paused while you were away.'); } });
   let awayPaused = false;
   window.addEventListener('pagehide', () => { saveMeta(); saveRun(); trackEvent('session_end', { duration_s: Math.round((Date.now() - sessionStart) / 1000), state }, true); });
 
@@ -5798,6 +5803,7 @@ const R = (function () {
       else if (G && G.waveActive) { sb.textContent = 'Wave ' + G.wave + (isFinite(G.waveCount) ? '/' + G.waveCount : ''); sb.disabled = true; sb.classList.remove('early'); }
       else { sb.classList.remove('early'); sb.textContent = !G || G.wave === 0 ? 'Start wave 1' : G.over || G.wave >= G.waveCount ? (G.won ? 'Done!' : 'Wave ' + G.wave) : 'Start wave ' + (G.wave + 1); sb.disabled = !playing || G.over; }
       $('pauseBtn').textContent = paused ? 'Resume' : 'Pause'; $('pauseBtn').disabled = !playing;
+      $('pausedVeil').hidden = !(paused && playing); stage.classList.toggle('paused', !!(paused && playing));
       $('speedBtn').textContent = speed + '\u00d7'; $('speedBtn').disabled = !playing;
       $('menuBtn').disabled = state === 'draft' || state === 'results';
       if (sheetMode) renderSheet();
@@ -5995,6 +6001,7 @@ const R = (function () {
   });
   $('pokeBtn').addEventListener('click', () => { if (G && state === 'play' && !paused) { unleash(G); lastHud = ''; } });
   $('pauseBtn').addEventListener('click', () => { paused = !paused; SFX.duck(paused); lastHud = ''; });
+  $('pausedVeil').addEventListener('click', () => { if (paused) { paused = false; SFX.duck(false); lastHud = ''; } });
   $('speedBtn').addEventListener('click', () => { speed = speed === 1 ? 2 : speed === 2 && VET() ? 3 : 1; trackEvent('speed_set', { speed }); lastHud = ''; if (tut) tut.speedDone = true; });
   $('menuBtn').addEventListener('click', () => openMenu(G ? 'skills' : 'skills'));
 
@@ -6541,7 +6548,7 @@ const R = (function () {
   let coachPad = -1;
   function tutTick() {
     if (!tutOn()) { hideCoach(); return; }
-    if (!$('modal').hidden || G.over) { hideCoach(); return; }
+    if (!$('modal').hidden || G.over || paused) { hideCoach(); return; }
     if ($('banner').classList.contains('show')) { hideCoach(); return; }   // never talk over the banner
     const step = TUT_STEPS[tut.i], towers = G.towers.filter(Boolean), age = performance.now() - tut.since;
     if (step === 'pad') {

@@ -90,8 +90,8 @@ const canvasXY = (page, x, y) => page.evaluate(([x, y]) => { const r = document.
   const t1 = await page.evaluate(() => window.__hml().t); await hide(false); await settle(page, 1200);
   const t2 = await page.evaluate(() => window.__hml().t);
   check('background during a boss: the game pauses while hidden', hadBoss && t1 - t0 < .6, 'advanced ' + (t1 - t0).toFixed(2) + ' s while hidden');
-  const pausedBack = t2 - t1 < .6; await page.click('#pauseBtn', { force: true }); await settle(page, 1200); const t3 = await page.evaluate(() => window.__hml().t);
-  check('background during a boss: back in the app it stays paused until you tap Pause, then carries on', pausedBack && t3 > t2 && page.errors.length === 0, page.errors[0]);
+  const pausedBack = t2 - t1 < .6 && await page.isVisible('#pausedVeil'); await page.click('#pausedVeil', { force: true }); await settle(page, 1200); const t3 = await page.evaluate(() => window.__hml().t);
+  check('background during a boss: back in the app it shows Paused until you tap, then carries on', pausedBack && t3 > t2 && !(await page.isVisible('#pausedVeil')) && page.errors.length === 0, page.errors[0] || JSON.stringify({ pausedBack, t1, t2, t3 }));
   await ctx.close(); }
 
 // 6. ad blocker: analytics, fonts and Ko-fi all blocked
