@@ -17,7 +17,10 @@ const srv = http.createServer((req, res) => {
 const URL0 = 'http://127.0.0.1:' + srv.address().port + '/?ref=homescreen';
 const b = await chromium.launch(); const ctx = await b.newContext(); await ctx.route(/posthog|googleapis|gstatic/, r => r.abort());
 const p = await ctx.newPage(); const results = []; const check = (name, ok, extra) => { results.push([name, ok]); console.log((ok ? 'PASS ' : 'FAIL ') + name + (extra ? '  ' + extra : '')); };
-const shown = () => p.evaluate(() => window.HML_BUILD);
+const shown = async () => { for (let k = 0; k < 20; k++) { try { return await p.evaluate(() => window.HML_BUILD); } catch (e) { await p.waitForTimeout(250); } } return 0; };
+// every page load records its build, so a reload by the update check can't be missed or mis-read
+await ctx.addInitScript(() => addEventListener('DOMContentLoaded', () => { try { const l = JSON.parse(sessionStorage.getItem('builds') || '[]'); l.push(window.HML_BUILD); sessionStorage.setItem('builds', JSON.stringify(l)); } catch (e) {} }));
+const loads = async () => { for (let k = 0; k < 20; k++) { try { return await p.evaluate(() => JSON.parse(sessionStorage.getItem('builds') || '[]')); } catch (e) { await p.waitForTimeout(250); } } return []; };
 await p.goto(URL0); await p.waitForFunction(() => navigator.serviceWorker && navigator.serviceWorker.controller, null, { timeout: 15000 }).catch(() => {});
 check('service worker controls the page after the first visit', await p.evaluate(() => !!navigator.serviceWorker.controller));
 await ctx.setOffline(true); await p.reload({ waitUntil: 'load' }).catch(() => {});
@@ -26,9 +29,10 @@ await ctx.setOffline(false); build = base + 1;
 await p.goto(URL0, { waitUntil: 'load' }); await p.waitForTimeout(1500);
 check('a new build reaches the installed copy on the next online visit', await shown() === base + 1, 'build ' + await shown());
 build = base + 2; delay = 6000;   // slower than the worker's 4 s timeout: cache answers first, the page's own check catches up
-await p.goto(URL0, { waitUntil: 'load' }); const first = await shown();
+const before = (await loads()).length; await p.goto(URL0, { waitUntil: 'load' });
 await p.waitForFunction(b2 => window.HML_BUILD === b2, base + 2, { timeout: 30000 }).catch(() => {});
-check('on a slow network the old copy opens, then the update check reloads into the new build', first === base + 1 && await shown() === base + 2, 'opened ' + first + ', now ' + await shown() + ', url ' + p.url().split('/').pop());
+const seq = (await loads()).slice(before);
+check('on a slow network the old copy opens, then the update check reloads into the new build', seq[0] === base + 1 && await shown() === base + 2, 'loads ' + seq.join(' > ') + ', url ' + p.url().split('/').pop());
 delay = 0; await ctx.setOffline(true); await p.goto(URL0, { waitUntil: 'load' }).catch(() => {});
 check('offline after the update opens the newest build', await shown().catch(() => 0) === base + 2);
 // visiting another page (the privacy page) must never replace the cached game

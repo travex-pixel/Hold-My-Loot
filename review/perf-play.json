@@ -1,28 +1,28 @@
 {
- "clsLoad": 0.0005,
+ "clsLoad": 0,
  "busiestWave": {
   "towers": 17,
   "enemies": 9,
-  "scriptMsPerFrame": 13.1,
+  "scriptMsPerFrame": 11.5,
   "note": "rAF fps here is headless Chromium without a GPU; phones draw the canvas on the GPU",
-  "frames": 153,
-  "avgMs": 52.63,
-  "p95": 66.8,
-  "fps": 19,
-  "slow": 152
+  "frames": 167,
+  "avgMs": 48.08,
+  "p95": 66.7,
+  "fps": 20.8,
+  "slow": 165
  },
  "heapMB": [
   4.8,
   4.8,
+  4.9,
+  5,
+  5.1,
   5,
   5.1,
   5.1,
-  5,
   5.1,
-  5.1,
-  5.2,
   5.2
  ],
- "clsPlay": 0.0125,
+ "clsPlay": 0.011,
  "clsSources": []
 }

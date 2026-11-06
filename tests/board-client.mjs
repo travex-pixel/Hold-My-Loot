@@ -33,6 +33,8 @@ async function endLongNap(page, wave, secs) {
   await page.evaluate(([w, t]) => { const g = window.__hml(); g.wave = w; g.t = t; g.pile = 0; }, [wave, secs]);
   // the run ends when a monster walks off with the last of the pile, which takes a few game seconds
   await page.waitForFunction(() => !!document.getElementById('nickIn'), null, { timeout: 60000 }).catch(() => {});
+  // the results screen ignores taps for a moment so a stray tap can't skip it; a person typing a name is slower than that
+  await page.waitForFunction(() => !document.querySelector('.arming'), null, { timeout: 10000 }).catch(() => {});
 }
 
 { const { ctx, page, posts, gets } = await open();
