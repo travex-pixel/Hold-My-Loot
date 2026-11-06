@@ -304,17 +304,21 @@ best stored locally; global board key is `raid-<boss>`.
 
 ## 9. Deliberately unfinished (switched off, config at the top of index.html)
 
-- `HML_SUPPORT = { url: '', code: '' }`. Ko-fi / Buy Me a Coffee link and a secret word. With a url,
+- `HML_SUPPORT = { url: '', codeHash: '' }`. Ko-fi / Buy Me a Coffee link and the SHA-256 of a secret word
+  (build 31; a plain `code` still works but is readable in the page source). With a url,
   Settings shows "Shout the dev a snag" and a code box, and a dismissible home card appears for
   players with 5+ wins and 3+ sessions (never on a loss screen). The code unlocks Supporter Scarlet
   pyjamas and a heart on the title. Honour system: there is no payment verification and there
   should not be until someone has actually paid. Everything is built and tested; only the link and
   the word are missing.
 - `HML_BOARD = { url: '', key: '' }`. Supabase project URL and anon key. Expects a `scores` table
-  (week int, map text, wave int, name text, crew text, build int, player text, created_at) with
-  anon insert + select. Client fetches top 20 by wave desc; nickname is sanitised to [A-Za-z0-9 _-]
-  max 14. Scores come from the client and are trivially fakeable; fine among mates. Tested only
-  against a mocked server.
+  created by `supabase/leaderboard.sql` (build 31). That file holds every server rule in Postgres, with no
+  Edge Function: plausible scores (Long Nap wave <= 150 and >= 12 game seconds a wave; Raid <= 1,500
+  damage a second), this week only, known levels, build 31+, rate limits, one best row per player per
+  board, and a nickname filter mirrored in the game (`nickOk`). The anon key can read board columns and
+  insert, nothing else. Scores still come from the client, so a careful cheat can post a plausible fake;
+  delete it in the table editor. Setup and costs: `supabase/README.md`. Tests: `tests/leaderboard-sql.mjs`
+  (real Postgres) and `tests/board-client.mjs` (mocked server).
 - `HML_ANALYTICS` is live (PostHog, US). Event list: session_start/end, first_visit, return_session,
   character_selection_open/selected, crew_confirmed, tutorial_start/step_completed, first_game_start,
   first_tower_placed/upgrade/ability_used/boss_encounter/boss_defeated, level_start/complete/fail/
@@ -323,11 +327,16 @@ best stored locally; global board key is `raid-<boss>`.
   raid_view/start/end, tier_selected/complete, heat_change, path_chosen, draft_reroll, outfit_bought/
   equipped, trinket_starred, share_clicked, a2hs_*, feedback_rating/text, support_*, client_error,
   smooth_auto, leaderboard_view/submit. Properties include level_id, chapter, mode, wave, stars, crew,
-  nan_in_crew, reason, retries, src (from ?ref=), device_category, screen size, build. No PII.
-- No service worker. The manifest exists for Add to Home Screen; nothing is cached offline on
-  purpose because the self-update relies on fetching index.html fresh.
+  nan_in_crew, reason, retries, src (from ?ref=), device_category, screen size, build, consent. No PII.
+  Consent (build 31): nothing is stored for analytics until the player says yes on the home-screen card
+  after their first level. Before that, events use a memory-only session id; after "no", nothing is sent.
+  tower_placed/upgraded, ability_used, wave_complete, speed_set and draft_reroll only fire during a
+  player's first five games (volume). The launch dashboard is "Hold My Loot: launch" in PostHog.
+- Service worker (`sw.js`, build 31): the page is network-first with a 4 s fallback to the cached copy, the
+  self-update check (`?t=`) bypasses it, assets are cache-first and Google Fonts stale-while-revalidate. Other
+  pages (privacy.html) never overwrite the cached game. Proven by `tests/offline.mjs`.
 
-## 10. Known bugs and rough edges (build 30)
+## 10. Known bugs and rough edges (build 31)
 
 - The free Dazza placed at the start of a first run does not fire `tower_placed`, so the
   first_tower_placed funnel step means "second crew member".
@@ -340,7 +349,7 @@ best stored locally; global board key is `raid-<boss>`.
 - Big Kev's Stampede (tier 4 passive) rarely triggers because it needs monsters within 140 of his
   pallet; he is usually placed further from the road.
 - Odd Jobs can ask for crew who are not in the player's current six (e.g. Banana Splits).
-- The supporter code and the leaderboard are honour-system (see section 9).
+- The supporter code is honour-system and board scores are plausibility-checked, not proven (see section 9).
 - One Android Chrome `client_error` of "Script error." with no detail has been seen (likely an
   extension). Android can drop canvas memory under pressure; the renderer detects a blank
   background every 1s (2.5s in smooth mode) and rebuilds it, and reports `bg_lost`.
@@ -363,27 +372,30 @@ best stored locally; global board key is `raid-<boss>`.
 4. Heat cash-out: bank a bonus by dropping Heat, turning it into a push-your-luck choice.
 5. Crew suggestions per level ("Try DJ Brendo here") and mastery lines like "win with Banjo in the
    crew", to pull players off the recommended six.
-6. Push notifications for the daily gift and the weekly raid. Needs a service worker and a push
-   server; conflicts with the self-update approach, so do it when moving to a store build.
+6. Push notifications for the daily gift and the weekly raid. The service worker exists since build 31,
+   but push still needs a push server beyond Supabase; do it when moving to a store build.
 7. Store builds: Google Play via TWA from the existing manifest (about US$25 one-off), later iOS via
    Capacitor. The audio and storage code were written to survive a WebView.
 8. Distribution before features: itch.io listing, CrazyGames submission, 10-second clips (Pantsalot
    stealing pants, Nan crit rainbows, bin chickens) with ?ref= links per channel.
 9. Minify or split the single file. It is ~690 KB; after the lazy pallet layout (build 31) startup
    is fast, so this is a bandwidth win on 3G rather than a CPU one.
-10. A profanity filter for leaderboard nicknames, and a basic sanity check on posted scores, before
-    the board goes public.
 11. Desktop as a first-class platform beyond the build-31 frame: hover states on cards, drag to
     pan is unnecessary, but a wider layout that uses the space (e.g. crew panel beside the map)
     was discussed and parked.
 
-## 12. Build 31 (in progress, not released)
+## 12. Build 31
 
-Desktop frame with how-to-play, keyboard shortcuts (Space start wave, 1/2/3 speed, Esc pause, M
-menu), pointer cursor over pallets and loot, "CLICK" wording on a mouse, QR code to the phone
-version; the welcome banner no longer overlaps the coach arrow; lazy pallet layout (startup
-game-logic time 1.8s -> 10ms, throttled phone 4.3s -> 1.2s to playable) with background warm-up;
-instant CSS splash screen. Release check not yet run.
+Done fresh from build 30; see CHANGELOG for the list. What matters for later work:
+- The first game is the coached taster (`TASTER`, `shortFirstLevel`), tuned with `tests/taster-sim.mjs`.
+- Balance is tuned with `tests/balance-matrix.mjs` (levels x crew with/without Nan x tiers x modifiers);
+  the report is `review/balance.md`. Nan is never the knob: levels are tuned around her. Per-level knobs
+  added: `swapFrom` / `swapScale` (when and how many goblins become seagulls), gust strength (Cliff Top),
+  Chaos waves scaled by level size and chapter.
+- Saves are version 4 (`SAVE_VERSION`, `MIGRATIONS`, `sanitize`); add a migration for any shape change.
+- Keys: M mute (remembers what was on), Space start wave, 1/2/3 speed, Escape menu.
+- Not in this build, despite earlier notes: the desktop frame (wordmark, animated crew, QR code to the phone
+  version) and CLICK wording on a mouse.
 
 ## 13. Release check (run before every upload)
 
@@ -395,4 +407,7 @@ instant CSS splash screen. Release check not yet run.
    deliberate reset and save-code load, storage-blocked and in-app-browser banners.
 5. Every script block parses; file ends with </html>; build number bumped; analytics key present;
    HML_SUPPORT and HML_BOARD still empty unless intended.
-6. Upload index.html only (other files unchanged); confirm Settings shows the new version.
+6. Upload index.html, sw.js and privacy.html (sw.js only if changed); confirm Settings shows the new version.
+7. Automated (build 31), with `node tests/serve.mjs 8081` running: syntax, taster-sim, first-minute, saves,
+   offline, consent, board-client, support, share, og, polish, bugbash, perf-startup, perf-play, and
+   leaderboard-sql. `tests/run-all.mjs` runs them in order and stops on the first failure.

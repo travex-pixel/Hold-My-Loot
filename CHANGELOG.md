@@ -169,9 +169,42 @@ players to the newest build on load and when the tab regains focus.
   Coach-only, average and slow players all win in testing. Speed resets after the taster.
 - "boss next!" on the wave counter before every final wave.
 
-## Build 31 (in progress, unreleased)
-- Desktop frame: wordmark, how to play, animated crew, keyboard shortcuts (Space, 1/2/3, Esc, M),
-  QR code to the phone version, pointer cursor over pallets and loot, CLICK wording on a mouse.
-- Coach arrow waits for the welcome banner.
-- Lazy pallet layout: game-logic startup 1,781 ms -> 10 ms; throttled phone 4.3 s -> 1.2 s to
-  playable; remaining maps pre-computed in idle time. Instant CSS splash screen.
+## Build 31
+First ten minutes
+- A brand-new player's first game is a coached three-wave taster, playable in under a minute and tuned so it
+  can't really be lost (tests/taster-sim.mjs: every three-crew path wins 100%). A "GUARD GARY!" step teaches the
+  third crew member; no boss loot in the taster.
+- Every tap answers: a pallet that can't be built on, or a card you can't afford, shakes, buzzes and says why
+  ("Need 20 more gold", "can't reach the road from here"). Empty taps ripple.
+- Every loss says what to do next; unspent gold is called out first.
+- Balance from tests/balance-matrix.mjs (8,400 bot games). Nan untouched.
+  - The Laneways: Rat Mums stay on the long lane in wave 3; waves 2-3 softer; 310 gold. Bots win 40% -> 92%.
+  - Cliff Top Gusts no longer needs Nan: stronger gusts, fewer and later seagulls. No-Nan crews 10% -> 70%.
+  - Rat Kingdom stopped being a walkover on Hard.
+  - Chaos waves keep up in later chapters (Swing Bridge Chaos 30% -> 73%).
+- Fix: Dazza's splash ran a corrupted pasted copy of other code, so every splash ticked Gav's spikes and curse timers
+  again.
+
+Safety
+- Saves: version 4 with migrations, a sanitiser for junk values, three copies (main, last good, best), unreadable
+  saves set aside instead of wiped, broken runs dropped cleanly. Build 29 and 30 saves upgrade intact.
+- Works offline once installed (service worker). A new build still reaches installed copies on the next online
+  launch, even on a slow network.
+- Startup: about 1.1 s to playable on a throttled mid-range Android over 4G (was 3.3 s). Instant splash screen.
+  Pallet layout computed lazily.
+- No layout shift on load (the board waits until it is sized; toasts stack without moving anything).
+- Leaving mid-wave (a call, the app switcher) pauses the game.
+
+Launch plumbing
+- Cookie-free play stats consent. Nothing is stored for analytics until a player says yes; "no" sends nothing.
+  Per-tap events only during a player's first five games. New privacy page.
+- Global leaderboard ready to switch on: the server rules live in supabase/leaderboard.sql (plausible scores,
+  rate limits, one best per player, nickname filter). The game filters nicknames too.
+- Fix: Raid scores were capped at 999 before posting.
+- Supporter code checked by hash, so it can't be read from the page source.
+- Raid share cards and text show damage and medal; every share link carries its own ref code.
+
+Feels finished
+- 200% zoom: HUD, menus and lists reflow instead of running off the screen.
+- Keys: M mutes everything (remembered), Space starts a wave, 1/2/3 speed, Escape opens and closes the menu.
+- Settings on the home screen; vibration toggle; the pile meter is announced to screen readers.

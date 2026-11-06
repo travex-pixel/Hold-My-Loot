@@ -29,7 +29,7 @@
 <meta name="apple-mobile-web-app-title" content="Hold My Loot">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A4%3C/text%3E%3C/svg%3E">
-<meta name="hml-build" content="30">
+<meta name="hml-build" content="31">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -48,7 +48,7 @@ window.HML_BOARD = { url: '', key: '' };
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 30;
+window.HML_BUILD = 31;
 window.__checkUpdate = function () {
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
@@ -6000,6 +6000,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 31, title: 'The big tidy-up', notes: ['Opens fast and works with no signal once you\u2019ve played.', 'Taps that can\u2019t happen now tell you why, and every loss tells you what to try next.', 'The Laneways and Cliff Top Gusts are fairer. Nan is exactly as ridiculous as before.', 'Press M to mute, and leaving mid-wave pauses the game.', 'Your save keeps three copies and recovers from damage.'] },
     { build: 30, title: 'A snappier first game', notes: ['Brand-new players get a quick three-wave taster: two warm-ups, then Kevin the boss, at double speed.', 'The wave counter now tells you when the boss is next.'] },
     { build: 29, title: 'Raids, Mastery and three new crew', notes: ['\ud83d\udc79 Weekly Raid Boss: 3 minutes to deal as much damage as you can to The Landlord, The Council Ranger or Gary\u2019s Alarm Clock. Bronze, Silver and Gold medals. New boss every Monday.', '\ud83c\udf93 Mastery Paths: once a crew member\u2019s skill hits level 6, choose how they play. Sniper Nan or Knitting Circle?', 'New crew: Big Kev the Cassowary (charges), Gav the Tradie (road spikes and barricades) and Aunty Val the Psychic (curses, card rerolls).', 'Big late-game levels run smoother: the game now quietly turns down effects, resolution and frame rate if your phone is struggling.'] },
     { build: 28, title: 'Turn up the heat', notes: ['\ud83d\udd25 Heat: every win makes the next level tougher and pay more. Lose and it cools down. Unlocks after 5 wins.', 'Hard and \ud83d\udc80 Nightmare versions of every level you\u2019ve beaten, with Nightmare-only legendary outfits.', 'Monsters now turn up with traits: \u26a1 Speedy, \ud83d\udee1\ufe0f Armoured, \ud83e\uddec Splitter and \ud83d\udc9a Healer. The wave preview shows what\u2019s coming.', 'Veterans get 3\u00d7 speed and auto-start. Smooth mode makes Firefox and older phones run better.'] },
