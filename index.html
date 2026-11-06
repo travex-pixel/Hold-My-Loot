@@ -6977,7 +6977,7 @@ const R = (function () {
   const unlockAudio = () => { SFX.unlock(); applySound(); };
   document.addEventListener('pointerdown', unlockAudio, true);
   document.addEventListener('keydown', unlockAudio, true);
-  // keyboard: M mutes everything (and remembers what was on), Escape closes the menu
+  // keyboard: M mutes everything (and remembers what was on), Escape opens and closes the menu, Space starts a wave, 1/2/3 speed
   document.addEventListener('keydown', ev => {
     if (ev.ctrlKey || ev.metaKey || ev.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test((ev.target && ev.target.tagName) || '')) return;
     if (ev.key === 'm' || ev.key === 'M') {
@@ -6985,7 +6985,12 @@ const R = (function () {
       if (on) { st.preMute = { sound: st.sound !== false, music: st.music !== false }; st.sound = false; st.music = false; }
       else { const pm = st.preMute || { sound: true, music: true }; st.sound = pm.sound; st.music = pm.music; }
       applySound(); saveMeta(); toast(on ? 'Muted. Press M to bring the noise back.' : 'Sound on.'); if (menuOpen && menuTab === 'settings') renderMenu();
-    } else if (ev.key === 'Escape' && menuOpen) closeMenu();
+    } else if (ev.key === 'Escape') { if (menuOpen) closeMenu(); else if (G && state === 'play' && $('modal').hidden) openMenu('settings'); }
+    else if (G && state === 'play' && !menuOpen && $('modal').hidden) {
+      // desktop: Space starts the next wave, 1/2/3 set the speed (3x unlocks with 5 wins, as on the button)
+      if (ev.key === ' ' || ev.code === 'Space') { ev.preventDefault(); const b = $('startBtn'); if (b && !b.disabled) b.click(); }
+      else if (ev.key === '1' || ev.key === '2' || (ev.key === '3' && VET())) { speed = +ev.key; lastHud = ''; if (tut) tut.speedDone = true; }
+    }
   });
   document.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('button'); if (b && !b.disabled && !b.classList.contains('dcard')) SFX.play('click'); }, true);
   window.__hml = () => G;

@@ -35,6 +35,18 @@ const play = async page => { await page.evaluate(() => document.getElementById('
   check('landscape: the board fits the height and nothing scrolls sideways', f.page && box[1] <= box[2] + 1 && box[0] > 150, box.map(Math.round).join('x'));
   await ctx.close(); }
 
+// desktop keys while playing: Space starts the wave, 2 sets 2x, Escape opens then closes the menu
+{ const { ctx, page } = await open({ width: 1280, height: 800 }, 1);
+  await play(page);
+  await page.keyboard.press('Space'); await settle(page, 400);
+  const started = await page.evaluate(() => window.__hml().waveActive);
+  await page.keyboard.press('2'); await settle(page, 200);
+  const sp = await page.evaluate(() => document.getElementById('speedBtn').textContent);
+  await page.keyboard.press('Escape'); await settle(page, 300); const opened = !!(await page.$('#setSound'));
+  await page.keyboard.press('Escape'); await settle(page, 300); const closed = await page.evaluate(() => document.getElementById('modal').hidden);
+  check('keys: Space starts the wave, 2 sets 2x speed, Escape opens and closes the menu', started && /2/.test(sp) && opened && closed, [started, sp, opened, closed].join(','));
+  await ctx.close(); }
+
 // home Settings link, Escape, and M to mute (persists, and restores what was on)
 { const { ctx, page } = await open({ width: 375, height: 667 });
   await page.click('#homeSettings'); await settle(page, 400);
