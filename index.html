@@ -5755,7 +5755,10 @@ const R = (function () {
   function clearRun() { try { localStorage.removeItem(RUNKEY); } catch (e) {} }
   let savedTimer = 0;
   function flashSaved() { const s = $('saved'); s.classList.add('on'); clearTimeout(savedTimer); savedTimer = setTimeout(() => s.classList.remove('on'), 1400); }
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { saveMeta(); saveRun(); } });
+  // leaving mid-wave (a call, the app switcher, another tab) pauses, so nobody comes back to a boss already at Gary
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { saveMeta(); saveRun(); if (G && state === 'play' && G.waveActive && !G.over && !paused) { paused = true; SFX.duck(true); lastHud = ''; awayPaused = true; } }
+    else if (awayPaused) { awayPaused = false; toast('Paused while you were away. Tap Pause to carry on.'); } });
+  let awayPaused = false;
   window.addEventListener('pagehide', () => { saveMeta(); saveRun(); trackEvent('session_end', { duration_s: Math.round((Date.now() - sessionStart) / 1000), state }, true); });
 
   // ---------- sizing ----------
