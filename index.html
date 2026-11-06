@@ -40,7 +40,8 @@ window.HML_ANALYTICS = { key: 'phc_nPSyxaXiPXx3RRGzXBQiups3gtxQFR6TmuAkpxY3XmhS'
    code: the word you send supporters in your thank-you message; it unlocks Gary's Supporter Scarlet pyjamas. */
 window.HML_SUPPORT = { url: '', code: '' };
 /* ===== LEADERBOARD (optional) =====
-   Supabase project URL and its public "anon" key. Leave empty and only personal bests are shown. */
+   Supabase project URL and its public "anon" key. Leave empty and only personal bests are shown.
+   Setup, costs and the server-side rules: supabase/README.md and supabase/leaderboard.sql. */
 window.HML_BOARD = { url: '', key: '' };
 </script>
 <script>
@@ -6437,15 +6438,24 @@ const R = (function () {
       if (!r2.ok) return null; return await r2.json();
     } catch (e) { return null; }
   }
-  async function boardSubmit(mapId, wave, crew) {
+  async function boardSubmit(mapId, wave, crew, secs) {
     if (!boardOn() || !meta.nick || wave < 1) return false;
     try {
       const r2 = await fetch(BOARD.url.replace(/\/$/, '') + '/rest/v1/scores', { method: 'POST', headers: { apikey: BOARD.key, Authorization: 'Bearer ' + BOARD.key, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-        body: JSON.stringify({ week: weekKey(), map: mapId, wave: Math.min(999, wave | 0), name: meta.nick, crew: (crew || []).join(','), build: window.HML_BUILD, player: boardPlayerId() }) });
+        body: JSON.stringify({ week: weekKey(), map: mapId, wave: Math.min(/^raid-/.test(mapId) ? 200000 : 150, wave | 0), name: meta.nick, crew: (crew || []).join(','), build: window.HML_BUILD, player: boardPlayerId(), secs: Math.round(secs || 0) }) });
       return r2.ok;
     } catch (e) { return false; }
   }
   const cleanNick = s2 => String(s2 || '').replace(/[^A-Za-z0-9 _\-]/g, '').trim().slice(0, 14);
+  // the same filter the leaderboard runs (supabase/leaderboard.sql, hml_name_ok); the server swaps rude names anyway
+  const NICK_CONTAINS = ['fuck','fuk','fck','shit','cunt','nigger','nigga','faggot','fagot','retard','rapist','whore','slut','bitch','wank','twat','bollock','pussy','penis','vagina','dildo','porn','nazi','hitler','kkk','jizz','spunk','bastard','chink','gook','kike','tranny','asshole','arsehole','dickhead','motherf'];
+  const NICK_TOKENS = ['ass','arse','cum','tit','tits','dick','cock','prick','piss','sex','rape','anal','anus','coon','dyke','wog','abo','paki','spic','homo','fanny','fag','nig'];
+  function nickOk(n) {
+    const leet = x => x.toLowerCase().replace(/[013457@$8]/g, ch => 'oieastasb'['013457@$8'.indexOf(ch)]), squash = x => x.replace(/(.)\1+/g, '$1');
+    const s3 = leet(n).replace(/[^a-z]/g, ''), c3 = squash(s3);
+    if (NICK_CONTAINS.some(w => s3.includes(w) || (squash(w) === w && c3.includes(w)))) return false;
+    return !leet(n).split(/[ _-]+/).map(t => t.replace(/[^a-z]/g, '')).some(t => NICK_TOKENS.includes(t) || NICK_TOKENS.includes(squash(t)));
+  }
   function boardRowsHTML(rows, mine, raid) {
     if (!rows) return '<p class="small">Couldn\u2019t reach the leaderboard. Your best still counts here.</p>';
     if (!rows.length) return '<p class="small">Nobody on the board yet this week. Be first.</p>';
@@ -6763,13 +6773,13 @@ const R = (function () {
     wireA2hs(); wireMood();
     if (G.mode === 'raid' && boardOn()) {
       const sc = Math.round(G.raidScore || 0), key = 'raid-' + G.raidBossType, crew = G.crew;
-      (async () => { if (G.raidNewBest && meta.nick) { const ok = await boardSubmit(key, sc, crew); trackEvent('leaderboard_submit', { level_id: key, wave: sc, ok }); } const rows = await boardFetch(key); if ($('raidBoard')) $('raidBoard').innerHTML = boardRowsHTML(rows ? rows.slice(0, 10) : rows, true, true) + (meta.nick ? '' : '<p class="small">Set a nickname in the Long Nap to post raid scores.</p>'); })();
+      (async () => { if (G.raidNewBest && meta.nick) { const ok = await boardSubmit(key, sc, crew, G.t); trackEvent('leaderboard_submit', { level_id: key, wave: sc, ok }); } const rows = await boardFetch(key); if ($('raidBoard')) $('raidBoard').innerHTML = boardRowsHTML(rows ? rows.slice(0, 10) : rows, true, true) + (meta.nick ? '' : '<p class="small">Set a nickname in the Long Nap to post raid scores.</p>'); })();
     }
     if (endless && boardOn()) {
       const sc = G.wave - 1, mid = G.map.id, crew = G.crew, showRows = async () => { const rows = await boardFetch(mid); if ($('boardRes')) $('boardRes').innerHTML = boardRowsHTML(rows ? rows.slice(0, 10) : rows, true); };
-      const post = async () => { if (weekNew || !meta.boardPosted || meta.boardPosted !== G.week + '|' + mid + '|' + sc) { const ok = await boardSubmit(mid, sc, crew); if (ok) meta.boardPosted = G.week + '|' + mid + '|' + sc; trackEvent('leaderboard_submit', { level_id: mid, wave: sc, ok }); saveMeta(); } showRows(); };
+      const post = async () => { if (weekNew || !meta.boardPosted || meta.boardPosted !== G.week + '|' + mid + '|' + sc) { const ok = await boardSubmit(mid, sc, crew, G.t); if (ok) meta.boardPosted = G.week + '|' + mid + '|' + sc; trackEvent('leaderboard_submit', { level_id: mid, wave: sc, ok }); saveMeta(); } showRows(); };
       if (meta.nick) { if (weekNew) post(); else showRows(); }
-      else if ($('nickGo')) $('nickGo').onclick = () => { const n2 = cleanNick($('nickIn').value); if (n2.length < 2) { $('nickIn').focus(); return; } meta.nick = n2; saveMeta(); $('nickGo').closest('.nickrow').remove(); post(); };
+      else if ($('nickGo')) $('nickGo').onclick = () => { const n2 = cleanNick($('nickIn').value); if (n2.length < 2) { $('nickIn').focus(); return; } if (!nickOk(n2)) { toast('Pick another name. That one won\u2019t go on the board.'); SFX.play('boo'); $('nickIn').focus(); return; } meta.nick = n2; saveMeta(); $('nickGo').closest('.nickrow').remove(); post(); };
     }
     showResultsRewire = () => { $('shareBtn').onclick = ev => doShare(ev, $('shareBtn'), 'results'); if ($('bragBtn')) $('bragBtn').onclick = ev => doShare(ev, $('bragBtn'), bragMoment); if ($('nextBtn')) $('nextBtn').onclick = ev => { trackEvent('next_level_clicked', { from_level: MAPS[mi].id }); startLevel(mi + 1); }; $('againBtn').onclick = () => { mode === 'raid' ? startRaid(G.raidBossType) : mode === 'daily' ? startDaily() : mode === 'endless' ? startLong(mi) : startLevel(mi, null, G && G.tier); }; $('levelsBtn').onclick = () => showHome(); if ($('crewBtn')) $('crewBtn').onclick = () => showCrew(mi, () => startLevel(mi)); wireA2hs(); wireMood(); };
   }
