@@ -37,8 +37,10 @@
 window.HML_ANALYTICS = { key: 'phc_nPSyxaXiPXx3RRGzXBQiups3gtxQFR6TmuAkpxY3XmhS', host: 'https://us.i.posthog.com' };
 /* ===== SUPPORT THE GAME (optional) =====
    url:  a Ko-fi / Buy Me a Coffee / PayPal link. Leave empty and the Support section stays hidden.
-   code: the word you send supporters in your thank-you message; it unlocks Gary's Supporter Scarlet pyjamas. */
-window.HML_SUPPORT = { url: '', code: '' };
+   codeHash: the SHA-256 of the word you send supporters in your Ko-fi thank-you message (lowercase). It unlocks
+   Gary's Supporter Scarlet pyjamas. Make it with:  node -e "console.log(require('crypto').createHash('sha256').update('yourword').digest('hex'))"
+   (A plain `code: 'yourword'` still works, but anyone who views the page source can read it.) */
+window.HML_SUPPORT = { url: '', codeHash: '' };
 /* ===== LEADERBOARD (optional) =====
    Supabase project URL and its public "anon" key. Leave empty and only personal bests are shown.
    Setup, costs and the server-side rules: supabase/README.md and supabase/leaderboard.sql. */
@@ -6866,7 +6868,9 @@ const R = (function () {
       $('setInstant').onchange = e => { meta.settings.instantLoot = e.target.checked; if (G) G.instantLoot = e.target.checked; saveMeta(); };
       if ($('fbMenu')) $('fbMenu').onclick = () => showFeedback();
       if ($('supLink')) $('supLink').onclick = () => trackEvent('support_link_clicked', {});
-      if ($('supBtn')) $('supBtn').onclick = () => { const v = ($('supCode').value || '').trim().toLowerCase(); if (SUP.code && v === String(SUP.code).toLowerCase()) { meta.supporter = true; meta.pj = 'scarlet'; applyLook(); saveMeta(); SFX.play('ultimate'); trackEvent('supporter_unlocked', {}); $('supMsg').textContent = 'You absolute legend. Scarlet pyjamas unlocked.'; setTimeout(() => renderMenu(), 1200); } else { $('supMsg').textContent = 'That code didn\u2019t work. Check your receipt.'; } };
+      if ($('supBtn')) $('supBtn').onclick = async () => { const v = ($('supCode').value || '').trim().toLowerCase(); let h = '';
+        try { if (v && crypto.subtle) h = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v)))).map(x => x.toString(16).padStart(2, '0')).join(''); } catch (e) {}
+        if ((SUP.codeHash && h === String(SUP.codeHash).toLowerCase()) || (SUP.code && v === String(SUP.code).toLowerCase())) { meta.supporter = true; meta.pj = 'scarlet'; applyLook(); saveMeta(); SFX.play('ultimate'); trackEvent('supporter_unlocked', {}); $('supMsg').textContent = 'You absolute legend. Scarlet pyjamas unlocked.'; setTimeout(() => renderMenu(), 1200); } else { $('supMsg').textContent = 'That code didn\u2019t work. Check your receipt.'; } };
       if ($('setAuto')) $('setAuto').onchange = e => { meta.settings.autoWave = e.target.checked; saveMeta(); trackEvent('auto_wave_set', { on: e.target.checked }); };
       $('setSmooth').onchange = e => { meta.settings.smooth = e.target.checked; R.setLite(e.target.checked || autoLite); saveMeta(); };
       $('setAnalytics').onchange = e => { setConsent(e.target.checked, 'settings'); };
