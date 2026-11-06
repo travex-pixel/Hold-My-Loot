@@ -7,13 +7,13 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 export const INDEX = path.join(here, '..', 'index.html');
 export function readIndex() { return fs.readFileSync(INDEX, 'utf8'); }
 export function scriptBlocks(html) { const out = []; const re = /<script>([\s\S]*?)<\/script>/g; let m; while ((m = re.exec(html))) out.push(m[1]); return out; }
-export function loadSim(html) {
+export function loadSim(html, globals) {
   html = html || readIndex();
   const blocks = scriptBlocks(html);
   const sim = blocks.find(b => b.includes('Hold My Loot v2: simulation'));
   if (!sim) throw new Error('simulation block not found');
   const module = { exports: {} };
-  const ctx = vm.createContext({ module, exports: module.exports, console, Math, Date, process: { env: {} }, typeof: undefined });
+  const ctx = vm.createContext(Object.assign({ module, exports: module.exports, console, Math, Date, process: { env: {} } }, globals || {}));
   vm.runInContext(sim, ctx, { filename: 'index.html#sim' });
   return module.exports;
 }

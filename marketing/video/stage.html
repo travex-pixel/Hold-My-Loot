@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hold My Loot video stage</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,800;9..144,900&family=Nunito:wght@800;900&family=JetBrains+Mono:wght@500;700&display=block">
+<style>
+/* 1080x1920 compositor. Every frame is drawn by renderAt(t); nothing animates on its own. */
+:root { --ink:#2A1E18; --paper:#FFF9EC; --honey:#FFC94A; --honey-d:#D49A2E; --leaf:#3E5E3A; --leaf-l:#8CC878; --berry:#E0453A; --sky:#7CC8FF; --night:#1E1A17; }
+html, body { margin: 0; background: #000; }
+#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--paper); font-family: Nunito, "Trebuchet MS", sans-serif; }
+.layer { position: absolute; inset: 0; display: none; }
+.on { display: block; }
+#bgc { position: absolute; inset: 0; }
+#foot img, #split img { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; }
+#phone { }
+#phone .bezel { position: absolute; left: 90px; top: 200px; width: 900px; height: 1600px; border-radius: 86px; background: #15110E; box-shadow: 0 40px 90px rgba(40,20,10,.45), inset 0 0 0 6px #3A302A; }
+#phone .scr { position: absolute; left: 116px; top: 226px; width: 848px; height: 1508px; border-radius: 64px; overflow: hidden; background: #000; }
+#phone .scr img { position: absolute; left: 0; top: 0; width: 848px; height: 1508px; transform-origin: 0 0; }
+#phone .notch { position: absolute; left: 470px; top: 244px; width: 140px; height: 38px; border-radius: 20px; background: #15110E; }
+#split .half { position: absolute; left: 0; width: 1080px; height: 958px; overflow: hidden; }
+#split .half.a { top: 0; } #split .half.b { top: 962px; }
+#split .bar { position: absolute; left: 0; top: 955px; width: 1080px; height: 10px; background: var(--ink); }
+.chip { position: absolute; left: 40px; padding: 14px 30px; border-radius: 26px; font: 900 54px/1 Nunito, sans-serif; letter-spacing: 2px; color: #fff; box-shadow: 0 8px 0 rgba(0,0,0,.25); }
+.chip.red { background: var(--berry); } .chip.green { background: #3E9E5A; } .chip.dark { background: var(--ink); }
+#code { background: var(--night); }
+#code .rows { position: absolute; left: 0; top: 0; width: 1080px; font: 500 34px/48px "JetBrains Mono", ui-monospace, monospace; color: #E8DCC8; white-space: pre; }
+#code .row { height: 48px; padding-left: 150px; position: relative; overflow: hidden; }
+#code .row i { position: absolute; left: 18px; width: 110px; text-align: right; font-style: normal; color: #6E6258; }
+#code .k { color: #FF8A6A; } #code .s { color: #A8D08A; } #code .n { color: #FFC94A; } #code .c { color: #8E8274; font-style: italic; } #code .f { color: #7CC8FF; }
+#code .hl { background: rgba(255,201,74,.18); }
+#code .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(30,26,23,.95) 0, rgba(30,26,23,0) 14%, rgba(30,26,23,0) 80%, rgba(30,26,23,.95) 100%); }
+#doc { }
+#doc.on { display: flex; align-items: center; justify-content: center; padding-bottom: 160px; box-sizing: border-box; }
+#doc .sheet { position: relative; width: 960px; padding: 64px 66px 40px; box-sizing: border-box; background: var(--paper); border-radius: 30px; box-shadow: 0 30px 80px rgba(40,25,10,.35); transform-origin: 50% 0; }
+#doc .dh { font: 700 44px/1.2 "JetBrains Mono", monospace; color: #8A7A66; margin: 0 0 28px; }
+#doc .dl { font: 900 62px/1.22 Nunito, sans-serif; color: var(--ink); margin: 0 0 32px; position: relative; }
+#doc .dl .mk { position: absolute; left: -12px; right: -12px; top: 6px; bottom: 2px; background: rgba(255,201,74,.75); border-radius: 10px; transform-origin: 0 50%; z-index: 0; }
+#doc .dl span { position: relative; z-index: 1; }
+#term { background: #14120F; }
+#term .tw { position: absolute; left: 40px; right: 40px; top: 300px; font: 500 34px/52px "JetBrains Mono", monospace; color: #D8E8C8; white-space: pre; }
+#term .tw b { color: var(--honey); font-weight: 700; } #term .tw em { color: #FF8A6A; font-style: normal; } #term .tw u { color: var(--leaf-l); text-decoration: none; }
+#card.on { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 46px; padding: 0 60px 120px; box-sizing: border-box; }
+#card .big, #card .small, #card .kick { text-align: center; transform-origin: 50% 50%; max-width: 960px; }
+#card .kick { font: 900 64px/1.1 Nunito, sans-serif; letter-spacing: 4px; text-transform: uppercase; }
+#card .big { font: 900 220px/0.95 Fraunces, Georgia, serif; letter-spacing: -2px; word-spacing: .14em; }
+#card .small { font: 900 64px/1.18 Nunito, sans-serif; }
+#card .kick:empty, #card .small:empty { display: none; }
+#tag { position: absolute; left: 40px; top: 210px; display: none; padding: 12px 26px; border-radius: 18px; background: var(--berry); color: #fff; font: 900 40px/1 Nunito, sans-serif; letter-spacing: 3px; box-shadow: 0 6px 0 rgba(0,0,0,.25); }
+#cap { position: absolute; left: 50px; right: 50px; text-align: center; transform-origin: 50% 50%; font: 900 96px/1.04 Nunito, sans-serif; color: #fff; }
+#cap .y { color: var(--honey); } #cap .r { color: #FF6A5A; } #cap .g { color: var(--leaf-l); }
+#stk { position: absolute; inset: 0; width: 1080px; height: 1920px; pointer-events: none; }
+#flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
+#cta { position: absolute; left: 90px; right: 90px; bottom: 360px; display: none; padding: 34px 20px; border-radius: 40px; background: linear-gradient(#FFE07A, var(--honey)); box-shadow: 0 14px 0 var(--honey-d), 0 30px 60px rgba(60,40,10,.35); text-align: center; font: 900 76px/1.05 Nunito, sans-serif; color: var(--ink); }
+#cta small { display: block; font-size: 44px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bgc" width="1080" height="1920"></canvas>
+  <div id="foot" class="layer"><img id="fimg" alt=""></div>
+  <div id="phone" class="layer"><div class="bezel"></div><div class="scr"><img id="pimg" alt=""></div><div class="notch"></div></div>
+  <div id="split" class="layer"><div class="half a"><img id="simgA" alt=""></div><div class="half b"><img id="simgB" alt=""></div><div class="bar"></div><div class="chip" id="chipA" style="top:40px"></div><div class="chip" id="chipB" style="top:1002px"></div></div>
+  <div id="code" class="layer"><div class="rows" id="rows"></div><div class="shade"></div></div>
+  <div id="doc" class="layer"><div class="sheet" id="sheet"></div></div>
+  <div id="term" class="layer"><div class="tw" id="tw"></div></div>
+  <div id="card" class="layer"><div class="kick" id="kick"></div><div class="big" id="big"></div><div class="small" id="small"></div></div>
+  <div id="tag"></div>
+  <svg id="stk" viewBox="0 0 1080 1920"></svg>
+  <div id="cta"></div>
+  <div id="cap"></div>
+  <div id="flash"></div>
+</div>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+let SPEC = null, SEGS = [], lastSeg = -1, codeLines = null;
+const FPS = 30;
+const PAL = { honey: ['#FFE07A', '#FFC94A', '#2A1E18'], paper: ['#FFF9EC', '#F6EBD3', '#2A1E18'], dark: ['#2A1E18', '#3B2F2A', '#FFF9EC'], red: ['#E0453A', '#B5302A', '#FFF9EC'], green: ['#3E9E5A', '#2E7A44', '#FFF9EC'], sky: ['#7CC8FF', '#4E9AD8', '#2A1E18'], night: ['#1E2140', '#141530', '#FFF9EC'], purple: ['#8E5CE0', '#6C3FD1', '#FFF9EC'] };
+const ease = { out: k => 1 - Math.pow(1 - k, 3), back: k => { const c = 1.9; k = Math.min(1, Math.max(0, k)); return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); } };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function strokeShadow(px, col) { const s = []; for (let a = 0; a < 24; a++) { const an = a / 24 * Math.PI * 2; s.push((Math.cos(an) * px).toFixed(1) + 'px ' + (Math.sin(an) * px).toFixed(1) + 'px 0 ' + col); } s.push('0 ' + (px + 8) + 'px 0 rgba(0,0,0,.35)'); return s.join(','); }
+// *word* = yellow, ~word~ = red, _word_ = green
+function markup(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\*([^*]+)\*/g, '<span class="y">$1</span>').replace(/~([^~]+)~/g, '<span class="r">$1</span>').replace(/_([^_]+)_/g, '<span class="g">$1</span>').replace(/\n/g, '<br>'); }
+function rand(seed) { let s = seed * 9301 + 49297; return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; }; }
+
+window.setSpec = (spec) => { SPEC = spec; let t = 0; SEGS = spec.segs.map((s, i) => { const o = Object.assign({ i, t0: t }, s); t += s.d; o.t1 = t; return o; }); lastSeg = -1; codeLines = spec.codeText ? spec.codeText.split('\n') : null; return t; };
+
+function drawBg(seg, lt) {
+  const c = $('bgc'), x = c.getContext('2d'), p = PAL[seg.bg || 'honey'] || PAL.honey;
+  const g = x.createRadialGradient(540, 900, 80, 540, 960, 1300); g.addColorStop(0, p[0]); g.addColorStop(1, p[1]); x.fillStyle = g; x.fillRect(0, 0, 1080, 1920);
+  if (seg.rays !== false) { x.save(); x.translate(540, 900); x.rotate(lt * .25 + seg.i); x.fillStyle = 'rgba(255,255,255,.13)'; for (let k = 0; k < 16; k++) { x.rotate(Math.PI / 8); x.beginPath(); x.moveTo(0, 0); x.lineTo(-170, -1500); x.lineTo(170, -1500); x.closePath(); x.fill(); } x.restore(); }
+  // paper grain dots so the cards feel printed, not flat
+  const r = rand(7 + seg.i); x.fillStyle = 'rgba(0,0,0,.05)'; for (let k = 0; k < 500; k++) { x.beginPath(); x.arc(r() * 1080, r() * 1920, 1 + r() * 2.4, 0, 7); x.fill(); }
+}
+function footSrc(f) { const m = SPEC.shots[f.shot]; const idx = clamp(Math.floor(f.idx), 0, m.frames - 1); return '/marketing/video/work/shots/' + f.shot + '/' + String(idx).padStart(5, '0') + '.jpg'; }
+async function setImg(img, src) { if (img.getAttribute('src') !== src) { img.src = src; try { await img.decode(); } catch (e) {} } }
+function zoomXf(z, fx, fy, iw, ih, bw, bh) { // scale the iw x ih image by z around focus (fx, fy as 0..1 of the image), centred in a bw x bh box, never showing an edge
+  bw = bw || iw; bh = bh || ih; const sw = iw * z, sh = ih * z; let tx = bw / 2 - fx * sw, ty = bh / 2 - fy * sh; tx = clamp(tx, bw - sw, 0); ty = clamp(ty, bh - sh, 0); return 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + z.toFixed(4) + ')'; }
+// Close-ups stay on the game board: the captured phone shows the board at x 69..1011, y 160..1729.
+const BOARD = [69, 160, 1011, 1729];
+function boardXf(z, fx, fy) {
+  const vw = 1080 / z, vh = 1920 / z; let cx = fx * 1080, cy = fy * 1920;
+  cx = clamp(cx, BOARD[0] + vw / 2, BOARD[2] - vw / 2); cy = clamp(cy, BOARD[1] + vh / 2, BOARD[3] - vh / 2);
+  if (BOARD[2] - BOARD[0] < vw) cx = (BOARD[0] + BOARD[2]) / 2; if (BOARD[3] - BOARD[1] < vh) cy = (BOARD[1] + BOARD[3]) / 2;
+  return 'translate(' + (540 - cx * z).toFixed(1) + 'px,' + (960 - cy * z).toFixed(1) + 'px) scale(' + z.toFixed(4) + ')';
+}
+function lerpArr(a, k) { return Array.isArray(a) ? a[0] + (a[1] - a[0]) * k : a; }
+function frameIdx(seg, lt, src) { src = src || seg; return ((src.from || 0) + lt * (src.speed == null ? 1 : src.speed)) * FPS; }
+
+function hl(line) { // tiny JS highlighter for the code scroll
+  let s = line.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  if (/^\s*\/\//.test(line)) return '<span class="c">' + s + '</span>';
+  s = s.replace(/('[^']*'|"[^"]*")/g, '\u0001s$1\u0002').replace(/\b(const|let|function|return|if|else|for|while|new|true|false|null)\b/g, '\u0001k$1\u0002').replace(/\b(\d+(?:\.\d+)?)\b/g, '\u0001n$1\u0002');
+  return s.replace(/\u0001(\w)/g, '<span class="$1">').replace(/\u0002/g, '</span>');
+}
+
+window.renderAt = async (t) => {
+  const seg = SEGS.find(s => t >= s.t0 && t < s.t1) || SEGS[SEGS.length - 1], lt = t - seg.t0, k = clamp(lt / seg.d, 0, 1);
+  const fresh = seg.i !== lastSeg; lastSeg = seg.i;
+  for (const id of ['foot', 'phone', 'split', 'code', 'doc', 'term', 'card']) $(id).classList.toggle('on', seg.kind === id || (id === 'foot' && seg.kind === 'foot'));
+  const bgOn = ['card', 'phone', 'doc'].includes(seg.kind); $('bgc').style.display = bgOn ? 'block' : 'none'; if (bgOn) drawBg(seg, t);
+  let shake = '';
+  if (seg.shake) { const a = seg.shake * Math.max(0, 1 - lt / .35), r = rand(Math.floor(t * 60)); shake = 'translate(' + ((r() - .5) * a).toFixed(1) + 'px,' + ((r() - .5) * a).toFixed(1) + 'px)'; }
+  $('stage').style.transform = shake;
+  if (seg.kind === 'foot') {
+    await setImg($('fimg'), footSrc({ shot: seg.shot, idx: frameIdx(seg, lt) }));
+    const z = lerpArr(seg.zoom || [1.04, 1.12], ease.out(k)); const f = seg.focus || [.5, .5];
+    $('fimg').style.transform = z >= 1.25 && seg.board !== false ? boardXf(z, lerpArr(f[0], k), lerpArr(f[1], k)) : zoomXf(z, lerpArr(f[0], k), lerpArr(f[1], k), 1080, 1920);
+  } else if (seg.kind === 'phone') {
+    await setImg($('pimg'), footSrc({ shot: seg.shot, idx: frameIdx(seg, lt) }));
+    const z = lerpArr(seg.zoom || 1, ease.out(k)), f = seg.focus || [.5, .5];
+    $('pimg').style.transform = zoomXf(z, f[0], f[1], 848, 1508);
+    const pop = seg.popIn === false ? 1 : ease.back(clamp(lt / .35, 0, 1)); const tilt = Math.sin(t * 1.3) * 1.2;
+    for (const el of document.querySelectorAll('#phone > div')) el.style.transform = 'translateY(' + ((1 - pop) * 300).toFixed(1) + 'px) rotate(' + tilt.toFixed(2) + 'deg)';
+  } else if (seg.kind === 'split') {
+    const A = seg.a, B = seg.b;
+    await setImg($('simgA'), footSrc({ shot: A.shot, idx: frameIdx(seg, lt, A) })); await setImg($('simgB'), footSrc({ shot: B.shot, idx: frameIdx(seg, lt, B) }));
+    $('simgA').style.transform = zoomXf(A.zoom || 1, A.focus[0], A.focus[1], 1080, 1920, 1080, 958); $('simgB').style.transform = zoomXf(B.zoom || 1, B.focus[0], B.focus[1], 1080, 1920, 1080, 958);
+    if (fresh) { $('chipA').textContent = A.label; $('chipA').className = 'chip ' + (A.chip || 'red'); $('chipB').textContent = B.label; $('chipB').className = 'chip ' + (B.chip || 'green'); }
+  } else if (seg.kind === 'code') {
+    const from = (seg.line || 0) - 12, rows = 40, pos = from + lt * (seg.lps || 20), base = Math.floor(pos);
+    const hlLine = seg.mark != null ? seg.mark : -1;
+    let h = ''; for (let r = 0; r < rows + 2; r++) { const n = base + r; const ln = codeLines[n] != null ? codeLines[n] : ''; h += '<div class="row' + (n === hlLine ? ' hl' : '') + '"><i>' + (n + 1) + '</i>' + hl(ln.slice(0, 200)) + '</div>'; }
+    $('rows').innerHTML = h; $('rows').style.transform = 'translateY(' + (-(pos - base) * 48 + (seg.offsetY || 0)).toFixed(1) + 'px)';
+  } else if (seg.kind === 'doc') {
+    if (fresh) $('sheet').innerHTML = (seg.head ? '<p class="dh">' + markup(seg.head) + '</p>' : '') + seg.lines.map((l, i) => '<p class="dl" data-i="' + i + '">' + (seg.mark === i ? '<i class="mk"></i>' : '') + '<span>' + markup(l) + '</span></p>').join('');
+    const pop = ease.back(clamp(lt / .4, 0, 1)); $('sheet').style.transform = 'scale(' + (.85 + .15 * pop).toFixed(3) + ') rotate(' + (-1.5 + pop * 1.5).toFixed(2) + 'deg)';
+    const mk = document.querySelector('#sheet .mk'); if (mk) mk.style.transform = 'scaleX(' + ease.out(clamp((lt - (seg.markAt || .5)) / .45, 0, 1)).toFixed(3) + ')';
+  } else if (seg.kind === 'term') {
+    const shown = seg.lines.filter((l, i) => lt >= (seg.at ? seg.at[i] : i * .35)); $('tw').innerHTML = shown.join('\n');
+  } else if (seg.kind === 'card') {
+    if (fresh) { $('kick').innerHTML = markup(seg.kick || ''); $('big').innerHTML = markup(seg.big || ''); $('small').innerHTML = markup(seg.small || ''); const p = PAL[seg.bg || 'honey']; for (const id of ['kick', 'big', 'small']) $(id).style.color = p[2]; const stroke = (seg.bg === 'dark' || seg.bg === 'night') ? 'rgba(0,0,0,.0)' : '#FFF9EC'; $('big').style.textShadow = seg.bg === 'paper' || seg.bg === 'honey' || seg.bg === 'sky' ? strokeShadow(10, '#FFF9EC') : strokeShadow(10, '#2A1E18'); $('big').style.color = seg.bigColor || ((seg.bg === 'paper' || seg.bg === 'honey' || seg.bg === 'sky') ? '#2A1E18' : '#FFF9EC'); $('big').style.fontSize = (seg.bigSize || 220) + 'px'; }
+    const pb = ease.back(clamp((lt - .05) / .32, 0, 1)), pk = ease.back(clamp(lt / .25, 0, 1)), ps = ease.back(clamp((lt - .35) / .3, 0, 1));
+    $('kick').style.transform = 'scale(' + pk.toFixed(3) + ')'; $('big').style.transform = 'scale(' + pb.toFixed(3) + ') rotate(' + ((1 - pb) * -6).toFixed(2) + 'deg)'; $('small').style.transform = 'translateY(' + ((1 - ps) * 60).toFixed(1) + 'px)'; $('small').style.opacity = ps.toFixed(3);
+    if (seg.count) { const [a, b, fmt] = seg.count, v = Math.round(a + (b - a) * ease.out(clamp(lt / (seg.countDur || 1.1), 0, 1))); $('big').innerHTML = markup((fmt || '{}').replace('{}', v.toLocaleString('en-AU'))); }
+  }
+  // tag (e.g. RECREATED) in the corner of footage
+  $('tag').style.display = seg.tag ? 'block' : 'none'; if (seg.tag) $('tag').textContent = seg.tag;
+  // caption: the one whose window contains t
+  const cap = (SPEC.caps || []).find(c => t >= c.t && t < c.t + c.d);
+  const ce = $('cap');
+  if (cap) {
+    if (ce.dataset.k !== String(cap.t)) { ce.dataset.k = String(cap.t); ce.innerHTML = markup(cap.text); ce.style.fontSize = (cap.size || 96) + 'px'; ce.style.textShadow = strokeShadow(cap.size ? Math.max(8, cap.size / 9) : 11, '#2A1E18'); }
+    const yy = cap.pos === 'top' ? 280 : cap.pos === 'low' ? 1330 : cap.pos === 'center' ? 830 : 1120;
+    ce.style.top = yy + 'px';
+    const lc = t - cap.t, s = lc < .09 ? .55 + .6 * (lc / .09) : lc < .17 ? 1.15 - .15 * ((lc - .09) / .08) : 1;
+    ce.style.transform = 'scale(' + s.toFixed(3) + ') rotate(' + (cap.rot != null ? cap.rot : 0) + 'deg)'; ce.style.display = 'block';
+  } else ce.style.display = 'none';
+  // stickers: hand-drawn red circles and arrows that draw themselves on
+  const sk = (SPEC.stickers || []).filter(s => t >= s.t && t < s.t + s.d);
+  $('stk').innerHTML = sk.map(s => { const p = clamp((t - s.t) / .28, 0, 1); if (s.kind === 'circle') { const C = 2 * Math.PI * s.r * 1.1; return '<ellipse cx="' + s.x + '" cy="' + s.y + '" rx="' + s.r * 1.12 + '" ry="' + s.r + '" fill="none" stroke="#FF3B2F" stroke-width="16" stroke-linecap="round" stroke-dasharray="' + C + '" stroke-dashoffset="' + (C * (1 - p)).toFixed(1) + '" transform="rotate(-8 ' + s.x + ' ' + s.y + ')" style="filter:drop-shadow(0 6px 0 rgba(0,0,0,.3))"/>'; }
+    if (s.kind === 'arrow') { const L = 260, an = (s.angle || 45) * Math.PI / 180, x0 = s.x - Math.cos(an) * L, y0 = s.y - Math.sin(an) * L, x1 = x0 + (s.x - x0) * p, y1 = y0 + (s.y - y0) * p; return '<g style="filter:drop-shadow(0 6px 0 rgba(0,0,0,.3))"><line x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y1 + '" stroke="#FF3B2F" stroke-width="22" stroke-linecap="round"/>' + (p >= 1 ? '<path d="M ' + s.x + ' ' + s.y + ' l ' + (-Math.cos(an - .5) * 90) + ' ' + (-Math.sin(an - .5) * 90) + ' M ' + s.x + ' ' + s.y + ' l ' + (-Math.cos(an + .5) * 90) + ' ' + (-Math.sin(an + .5) * 90) + '" stroke="#FF3B2F" stroke-width="22" stroke-linecap="round" fill="none"/>' : '') + '</g>'; }
+    return ''; }).join('');
+  // call to action pill
+  const cta = SPEC.cta && t >= SPEC.cta.t ? SPEC.cta : null; $('cta').style.display = cta ? 'block' : 'none';
+  if (cta) { $('cta').innerHTML = markup(cta.text) + (cta.sub ? '<small>' + markup(cta.sub) + '</small>' : ''); const p = ease.back(clamp((t - cta.t) / .35, 0, 1)); $('cta').style.transform = 'scale(' + (p * (1 + .03 * Math.sin(t * 7))).toFixed(3) + ')'; }
+  // white flash on hard cuts
+  const fl = seg.flash === false ? 0 : Math.max(0, .55 - lt / .12 * .55); $('flash').style.opacity = (seg.i === 0 ? 0 : fl).toFixed(3);
+  return true;
+};
+window.ready = () => document.fonts.ready.then(() => document.fonts.load('900 96px Nunito')).then(() => document.fonts.load('900 200px Fraunces')).then(() => document.fonts.load('500 30px "JetBrains Mono"')).then(() => true);
+</script>
+</body>
+</html>

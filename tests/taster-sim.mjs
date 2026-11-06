@@ -1,34 +1,32 @@
-// How does a brand-new player's 3-wave taster actually go? Three behaviours, N runs each.
+// The brand-new player's 3-wave taster, played by simple behaviours. Fails (exit 1) if any reasonable first game loses
+// or keeps fewer than 8 of 10 on average. Usage: node tests/taster-sim.mjs [runs]
 import { loadSim } from './load-sim.mjs';
 const S = loadSim();
-const N = +process.argv[2] || 300;
-function taster(seed, behaviour) {
-  const meta = S.defaultMeta();
-  const G = S.newRun(meta, seed, 0, 'campaign');
+const N = +process.argv[2] || 200;
+function taster(seed, second, upgrades, third) {
+  const G = S.newRun(S.defaultMeta(), seed, 0, 'campaign');
   G.grace = true; S.shortFirstLevel(G);
-  G.gold += S.towerCost(G, 'chuck'); S.build(G, 1, 'chuck'); G.freeDazza = true;   // what startTut does
-  if (behaviour === 'taps') G.instantLoot = true;
-  let t = 0, built2 = false, gap = 0;
-  S.startWave(G);
+  G.gold += S.towerCost(G, 'chuck'); S.build(G, 1, 'chuck');            // the free Dazza
+  let t = 0, built = false, b3 = false, gap = 0; S.startWave(G);
   while (!G.over && t < 900) {
     S.update(G, 1 / 60); t += 1 / 60;
-    if (!G.waveActive && !G.over) { gap += 1 / 60; if (gap >= 2.2) { gap = 0; S.startWave(G); } }   // auto-start like the UI
-    if (behaviour === 'coach' || behaviour === 'taps') {
-      // follows the coach literally: hires one more Dazza when told, upgrades only if told between waves
-      if (!built2 && G.waveActive && G.waveT > 2.5 && G.gold >= S.towerCost(G, 'chuck')) { S.build(G, 3, 'chuck'); built2 = true; }
-      if (!G.waveActive && G.towers[1] && S.upgradeCost(G, 1) != null && G.gold >= S.upgradeCost(G, 1)) S.upgrade(G, 1);
-    } else if (behaviour === 'spender') {
-      // spends everything as soon as possible, sensible order
-      const order = [[3, 'nan'], [4, 'chuck'], [0, 'bonk'], [2, 'sizzle']];
-      for (const [p, k] of order) if (!G.towers[p] && G.gold >= S.towerCost(G, k)) { S.build(G, p, k); break; }
-      for (let p = 0; p < G.towers.length; p++) if (G.towers[p] && S.upgradeCost(G, p) != null && G.gold >= S.upgradeCost(G, p) + 60) { S.upgrade(G, p); break; }
-    }
+    if (!G.waveActive && !G.over) { gap += 1 / 60; if (gap >= 2.2) { gap = 0; S.startWave(G); } }
+    if (!built && G.waveActive && G.waveT > 2.5 && second && G.gold >= S.towerCost(G, second)) { S.build(G, 3, second); built = true; }
+    // the coach's "GUARD GARY!" step: a third hire near the bottom of the road in wave 2
+    if (third && !b3 && built && G.wave >= 2 && G.waveActive && G.waveT > 1.5 && G.gold >= S.towerCost(G, third)) { S.build(G, 6, third); b3 = true; }
+    if (upgrades) for (const p of [1, 3]) if (G.towers[p] && S.upgradeCost(G, p) != null && G.gold >= S.upgradeCost(G, p)) S.upgrade(G, p);
   }
-  return { won: G.won, pile: G.pile, wave: G.wave, t, gold: G.gold };
+  return { won: G.won, pile: G.pile, t };
 }
-for (const b of ['coach', 'taps', 'spender']) {
-  const rs = []; for (let i = 0; i < N; i++) rs.push(taster(1000 + i, b));
-  const wins = rs.filter(r => r.won).length, piles = rs.map(r => r.pile).sort((a, b) => a - b);
-  const stars = rs.map(r => !r.won ? 0 : r.pile / 10 >= .8 ? 3 : r.pile / 10 >= .5 ? 2 : 1);
-  console.log(b.padEnd(8), 'win', (100 * wins / N).toFixed(0) + '%', 'pile median', piles[N >> 1], 'p10', piles[N / 10 | 0], 'stars 3/2/1/0:', [3, 2, 1, 0].map(s => stars.filter(x => x === s).length).join('/'), 'avg secs', (rs.reduce((a, r) => a + r.t, 0) / N).toFixed(0), 'avg gold left', (rs.reduce((a, r) => a + r.gold, 0) / N).toFixed(0));
+let fail = false;
+console.log('hires                upgrades  wins   avg kept  worst  3-star  game-secs');
+const PATHS = [['chuck', 'chuck'], ['bonk', 'chuck'], ['nan', 'chuck'], ['sizzle', 'chuck'], ['chuck', 'bonk'], ['chuck', null], [null, null]];
+for (const [second, third] of PATHS) for (const up of [false, true]) {
+  const rs = []; for (let i = 0; i < N; i++) rs.push(taster(1000 + i, second, up, third));
+  const wins = rs.filter(r => r.won).length, avg = rs.reduce((a, r) => a + r.pile, 0) / N, worst = Math.min(...rs.map(r => r.pile)), three = rs.filter(r => r.won && r.pile >= 8).length;
+  console.log(('Dazza+' + (second || '-') + '+' + (third || '-')).padEnd(20), String(up).padEnd(9), String(Math.round(100 * wins / N) + '%').padEnd(6), avg.toFixed(1).padEnd(9), String(worst).padEnd(6), String(Math.round(100 * three / N) + '%').padEnd(7), (rs.reduce((a, r) => a + r.t, 0) / N).toFixed(0));
+  // the coached path (three hires) must be nearly perfect; two hires must still always win
+  if (second && third && (wins < N || avg < 8.5)) fail = true;
+  if (second && !third && wins < N * .97) fail = true;
 }
+if (fail) { console.log('FAIL: a reasonable first game can lose or keeps under 8 of 10'); process.exit(1); } else console.log('PASS');

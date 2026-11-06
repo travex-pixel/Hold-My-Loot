@@ -60,11 +60,18 @@ window.__applyUpdate = function (latest) {
   if (location.search.indexOf('v=' + latest) === -1) location.replace(location.pathname + '?v=' + latest);
 };
 window.__checkUpdate().then(function (latest) { if (latest) window.__applyUpdate(latest); });
+// Offline support for the installed app (sw.js). It always asks the network for the page first, so the build check above
+// keeps working exactly as before; the cache only answers when there is no signal.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname))) {
+  window.addEventListener('load', function () { try { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {}); } catch (e) {} });
+}
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap"></noscript>
 <style>
 :root {
   --ink: #3B2F2A;
@@ -541,6 +548,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; text
 .supcard { background: linear-gradient(135deg, #FFF1F0, #FFF6E2); border: 1.5px solid #F2B8B5; border-radius: 16px; padding: 10px 12px; margin: 10px 0 0; display: flex; flex-direction: column; gap: 8px; }
 .supcard b { font-size: 15px; display: block; } .supcard span { font-size: 13px; font-weight: 700; color: var(--muted); line-height: 1.35; }
 .bcard.far { opacity: .5; } .bcard.far .ckeys { color: #B5403A; }
+.bcard.shake { animation: cshake .3s; }
 
 /* ===== picture-first crew cards (v22) ===== */
 .ccard { background: linear-gradient(170deg, var(--c1, #FBF4E4) 0%, var(--c2, #F1E4C6) 100%); border: 2.5px solid rgba(255,255,255,.7); box-shadow: 0 3px 0 var(--c3, #C9B48E), inset 0 0 0 1px rgba(0,0,0,.04); padding: 0 0 6px; overflow: hidden; gap: 2px; }
@@ -672,9 +680,19 @@ small.spare { display: block; color: var(--muted); font-weight: 800; margin: 3px
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
 @media (max-height: 660px) { #hud { margin-top: 4px; } #bar { margin-bottom: 4px; } .btn { min-height: 42px; padding: 7px 6px; } .title { font-size: 38px; } }
+/* instant splash: pure CSS, painted on the first frame, removed once the game has drawn */
+#splash { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: radial-gradient(120% 80% at 30% 0%, var(--page2), var(--page)); transition: opacity .35s; }
+#splash b { font: 800 44px/1 Fraunces, Georgia, serif; color: #3E5E3A; letter-spacing: -.5px; }
+#splash i { font: 800 15px Nunito, "Trebuchet MS", sans-serif; font-style: normal; color: var(--muted); }
+#splash span { font: 700 26px Georgia, serif; color: #5A6B8A; animation: zz 1.6s ease-in-out infinite; }
+@keyframes zz { 0%, 100% { opacity: .35; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-6px); } }
+#splash.gone { opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { #splash span { animation: none; } }
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><span>z z z</span><b>Hold My Loot</b><i>Gary’s having a nap…</i></div>
+<noscript><p style="padding:24px;font:700 18px sans-serif">Hold My Loot needs JavaScript switched on. Gary is very sorry.</p></noscript>
 <div id="coach" hidden aria-hidden="true"><b>TAP HERE</b><i></i><span class="cring"></span></div>
 <div id="app">
   <header id="hud">
@@ -1126,14 +1144,22 @@ function extraPads(m) {
   for (const cd of c) { if (add.length >= 6) break; if (add.every(p => Math.hypot(p[0] - cd.x, p[1] - cd.y) >= 58)) add.push([cd.x, cd.y]); }
   add.forEach((p, k) => { if (k >= 3) { p.push('bonus', k - 2); } m.pads.push(p); });
 }
+// Pallets and trees are laid out the first time a map is used, not at startup: laying out all 28 maps up front
+// cost about 2 seconds on a mid-range phone before the first tap could land. layoutMap() is idempotent.
+function layoutMap(m) {
+  if (m._laid) return m; m._laid = true;
+  if (m.auto) autoLayout(m);
+  extraPads(m);
+  return m;
+}
 for (const m of MAPS) {
   m.P = m.paths.map(mkPath); if (m.flight) m.F = mkPath(m.flight);
   m.fires = m.fire ? [m.fire] : (m.fires || []); m.waters = m.water ? [m.water] : (m.waters || []);
-  if (m.auto) autoLayout(m);
   if (m.belts) m.beltR = m.belts.map(([a, b]) => { const P = m.P[0]; let d0 = 0, d1 = 0; for (const sg of P.segs) { if (Math.abs(sg.x1 - a[0]) < 1 && Math.abs(sg.y1 - a[1]) < 1) d0 = sg.start; if (Math.abs(sg.x2 - b[0]) < 1 && Math.abs(sg.y2 - b[1]) < 1) d1 = sg.start + sg.len; } return [d0, d1]; });
-  extraPads(m);
   m.FL = (m.flights || [[[70, -30], [180, 540]], [[290, -30], [180, 540]]]).map(mkPath);
   if (m.F) m.FL.push(m.F);
+  m._pads = m.pads; m._trees = m.trees; delete m.pads; delete m.trees;
+  for (const k of ['pads', 'trees']) Object.defineProperty(m, k, { configurable: true, enumerable: true, get() { layoutMap(this); return this['_' + k]; }, set(v) { this['_' + k] = v; } });
 }
 
 const SKILLS = ['chucking', 'bonking', 'muttering', 'sizzling', 'pouring', 'flocking', 'hyping', 'levitating', 'gesturing', 'rumbling', 'charging', 'building', 'foreseeing', 'scrounging'];
@@ -1449,7 +1475,9 @@ function dailySetup(meta, key) {
 
 // ---------- Long Nap (endless) ----------
 function weekKey(d) { d = d || new Date(); const t = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const day = (t.getDay() + 6) % 7; t.setDate(t.getDate() - day); return dailyKey(t); }
-function shortFirstLevel(G) { const w = G.map.waves, last = w[w.length - 1].filter(g => g.t !== 'gob').map(g => ENEMIES[g.t].boss ? g : Object.assign({}, g, { n: Math.max(1, Math.ceil(g.n * .4)) })); G.waveList = [w[0], w[1], last]; G.waveCount = G.waveList.length; }
+// A brand-new player's first game: 3 waves, kind numbers, tuned with tests/taster-sim.mjs.
+const TASTER = { boss: .16, hp: .6 };
+function shortFirstLevel(G) { G.taster = true; const w = G.map.waves, last = w[w.length - 1].filter(g => g.t !== 'gob').map(g => ENEMIES[g.t].boss ? g : Object.assign({}, g, { n: Math.max(1, Math.ceil(g.n * .4)) })); G.waveList = [w[0], w[1], last]; G.waveCount = G.waveList.length; }
 function genWave(G, w) {
   const rng = G.wrng || G.rng;
   const pool = ['rat', 'gob']; if (w >= 2) pool.push('skel', 'mozzie'); if (w >= 4) pool.push('bog', 'crab', 'seagull'); if (w >= 6) pool.push('pants', 'medic', 'ratmum');
@@ -1892,11 +1920,11 @@ function spawn(G, type, d, pi) {
   if (def.raidBoss) { e.raidBoss = true; e.lastHp = e.hp; }
   if (G.event === 'bloodmoon') e.spd *= 1.2;
   if (G.mode === 'endless' && G.wave > 25) e.spd *= Math.min(1.5, 1 + (G.wave - 25) * .012);
-  if (G.grace && !def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * (G.wave <= 3 ? .7 : .82)); }
+  if (G.grace && !def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * (G.taster ? TASTER.hp : G.wave <= 3 ? .7 : .82)); }
   if (G.heat) { e.hp = e.maxHp = Math.round(e.maxHp * (1 + .08 * G.heat)); e.spd *= 1 + .01 * G.heat; if (e.shield) e.shield = Math.round(e.shield * (1 + .08 * G.heat)); }
   if (G.tier === 'nightmare') { e.hp = e.maxHp = Math.round(e.maxHp * 1.12); if (e.shield) e.shield = Math.round(e.shield * 1.12); }
   if (!def.boss && G.traitQ && G.traitQ.length && !['baby', 'chick', 'egg', 'minicastle'].includes(type) && !G.noTrait && G.rng() < G.traitQ.length / Math.max(1, (G.spawnQ ? G.spawnQ.length : 0) + 1)) applyTrait(G, e, G.traitQ.pop());
-  if (G.grace && def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * (G.waveCount <= 3 ? .62 : .85)); }
+  if (G.grace && def.boss) { e.hp = e.maxHp = Math.round(e.maxHp * (G.taster ? TASTER.boss : .85)); }
   if (e.tipsy) G.stats.tipsy++;
   const p = posOn(P, e.d); e.x = p.x; e.y = p.y;
   G.enemies.push(e);
@@ -2122,7 +2150,7 @@ function damage(G, e, amt, o) {
   const eff = o.pierce ? amt : Math.max(1, amt - e.armor);
   e.hp -= eff; if (o.kind) { e.hit = .14; e.hitKind = o.kind; }
   if (o.kind) fx(G, 'hit', { x: e.x, y: e.y, hk: o.kind, crit: !!o.crit, r: e.r, amt: eff, icon: o.icon });
-  if (e.type === 'kevin' && o.crit && G.kevinCd <= 0 && e.hp > e.maxHp * .12) {
+  if (e.type === 'kevin' && o.crit && G.kevinCd <= 0 && e.hp > e.maxHp * .12 && !G.taster) {
     G.kevinCd = 1.4;
     for (let i = 0; i < 2; i++) { const r = spawn(G, 'rat', Math.max(0, e.d - 12 - i * 12), e.pi); r.hp = r.maxHp = Math.round(r.maxHp * .8); }
     fx(G, 'pop', { x: e.x, y: e.y - 34, text: 'Kevin is embarrassed', col: '#C8402A', big: true });
@@ -2394,7 +2422,7 @@ function update(G, dt) {
       if (!e.flyer && !e.boss && e.trampCd <= 0) for (const tp of (map.tramps || [])) if (Math.hypot(tp[0] - e.x, tp[1] - e.y) < 14) { e.air = 1; e.trampCd = 3; e.d = Math.max(0, e.d - 30); fx(G, 'boing', { x: tp[0], y: tp[1] }); break; }
       if (!e.flyer && !e.boss && G.peels.length) for (const pl of G.peels) if (Math.hypot(pl.x - e.x, pl.y - e.y) < 12) { e.d = Math.max(0, e.d - 30); e.stun = Math.max(e.stun, .6); pl.t = 0; fx(G, 'slip', { x: e.x, y: e.y }); break; }
       if (!e.flyer) { const sg = segAt(e.P, e.d); if (sg && sg.tp) { fx(G, 'portal', { x: sg.x1, y: sg.y1 }); e.d = sg.start + sg.len + .5; fx(G, 'portal', { x: sg.x2, y: sg.y2, out: true }); } }
-      if (!e.flyer && (!e.carry || e.type === 'pantsalot')) {
+      if (!e.flyer && (!e.carry || e.type === 'pantsalot') && !(G.taster && (G.wave <= 1 || e.boss))) {
         for (const l of G.loot) {
           if (!l.claimed && l.P === e.P && e.d >= l.d - 4 && e.d <= l.d + 10) {
             e.grab = { lid: l.id, t: e.type === 'pantsalot' ? .5 : .75 }; l.claimed = e.id; e.emote = { k: 'shiny', t: .75 }; ev(G, 'grabbing'); break;
@@ -2747,14 +2775,7 @@ function update(G, dt) {
       }
       if (p.splash) {
         fx(G, 'splash', { x: p.tx, y: p.ty, r: p.splash });
-        if (G.spikes && G.spikes.length) {
-    for (let k = G.spikes.length - 1; k >= 0; k--) { const sp = G.spikes[k]; sp.life -= dt; if (sp.life <= 0 || sp.hits <= 0) { G.spikes.splice(k, 1); continue; }
-      for (const e of G.enemies) { if (e.flyer || e.dead || Math.hypot(e.x - sp.x, e.y - sp.y) > sp.r + e.r * .4) continue; e.spikeCd = e.spikeCd || {}; if ((e.spikeCd[sp.id] || 0) > G.t) continue; e.spikeCd[sp.id] = G.t + .7; sp.hits--; if (!(e.stunImm > 0)) e.stun = Math.max(e.stun, .15); damage(G, e, sp.dmg, { src: 'building', kind: 'spike', pad: sp.pad }); if (sp.hits <= 0) break; } }
-  }
-  for (const e of G.enemies.slice()) {
-    if (e.cursed > 0) e.cursed -= dt;
-    if (e.raidBoss) { if (e.lastHp != null && e.hp < e.lastHp) G.raidDmg += e.lastHp - e.hp; if (e.hp < 1e8) e.hp += 5e8; e.lastHp = e.hp; }
-    if (e.trait === 'healer') { e.healT -= dt; if (e.healT <= 0) { e.healT = 1.2; let n = 0; for (const o of G.enemies) if (o !== e && !o.boss && o.hp < o.maxHp && Math.hypot(o.x - e.x, o.y - e.y) < 60) { o.hp = Math.min(o.maxHp, o.hp + o.maxHp * .05); n++; } if (n) fx(G, 'traitheal', { x: e.x, y: e.y }); } }
+        for (const e of G.enemies.slice()) {
           const dd = Math.hypot(e.x - p.tx, e.y - p.ty);
           const q = e.queue > 0 || e.sizzled; if (q && (e === tg || dd <= p.splash)) synergy(G, 'queue', e.x, e.y);
           if (e === tg) damage(G, e, p.dmg * (q ? 1.5 : 1), { src: p.src, kind: 'chuck', icon: p.icon, pad: p.pad });
@@ -2971,7 +2992,7 @@ function finishRun(G) {
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { W, H, GARY, MAPS, posOn, SKILLS, SKILL_NAMES, SKILL_DESC, TOWERS, TIER_NOTES, ENEMIES, BOSS_ITEMS, RARITY, ITEMS, ALL_ITEMS, ITEM_DESC, STASH_TOTAL, CARDS,
-  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, initRaid, raidBossFor, RAID_MEDALS, PATHS, PATH_LEVEL, pathFor, traitPlan, TRAITS, itemStars, starMult, starCost, weekKey, shortFirstLevel, padRoadDist, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
+  xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, initRaid, raidBossFor, RAID_MEDALS, PATHS, PATH_LEVEL, pathFor, traitPlan, TRAITS, itemStars, starMult, starCost, weekKey, shortFirstLevel, TASTER, layoutMap, padRoadDist, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
 
 </script>
 <script>
@@ -5304,7 +5325,8 @@ const R = (function () {
   function fx2shake(m) { shake = Math.max(shake, m); }
   function banner2(a, b) { if (window.__hmlBanner) window.__hmlBanner(a, b); }
   function reset() { bubbles.length = 0; dreamT = 0; freezeT = 0; nums.length = 0; flash = 0; hitstop = 0; parts.length = 0; pops.length = 0; flyers.length = 0; for (const k in towerAnim) delete towerAnim[k]; shake = 0; garySwing = 0; garyRoll = 0; hintGate = true; }
-  return { setLite: v => { LITE = !!v; }, isLite: () => LITE, _bg: () => bgCanvas, frame, reset, celebrate, takeHitstop, portrait, garyPortrait, portraitWith, poke, tickPortraitAnim, say, invalidate: () => { bgKey = ''; } };
+  function tap(x, y) { P({ kind: 'ring', x, y, life: .3, size: 3, col: '#FFF6E2' }); }
+  return { tap, setLite: v => { LITE = !!v; }, isLite: () => LITE, _bg: () => bgCanvas, frame, reset, celebrate, takeHitstop, portrait, garyPortrait, portraitWith, poke, tickPortraitAnim, say, invalidate: () => { bgKey = ''; } };
 })();
 
 </script>
@@ -5314,6 +5336,14 @@ const R = (function () {
   const $ = id => document.getElementById(id);
   const stage = $('stage'), C = $('cv'), ctx = C.getContext('2d');
   const KEY = 'hml.meta.v3', RUNKEY = 'hml.run.v4';
+  // ---- save versions ----
+  // v3: builds 14-30. v4: build 31 (sanitised numbers, first/last build stamped). Every load runs the chain, so a save
+  // from any older build arrives at the current shape. Add a step for every change to the save's shape.
+  const SAVE_VERSION = 4;
+  const MIGRATIONS = {
+    3: m => { m.firstBuild = m.firstBuild || m.seenBuild || 0; m.v = 4; return m; },
+  };
+  const NUM = ['runs', 'wins', 'rocks', 'shards', 'garyXp', 'jobsDone', 'bestKept', 'sessions', 'heat', 'heatBest', 'nightmares', 'giftStreak', 'a2hsNo', 'rated'];
   let scale = 1, dpr = 1;
   // ---- bulletproof saving: main save + last-good backup + best-ever backup ----
   const BAK = 'hml.meta.bak', BEST = 'hml.meta.best';
@@ -5604,9 +5634,35 @@ const R = (function () {
   let lastHud = '', toldGrab = false, toldHat = false, lastSaved = null, homeMap = 0, pointerDown = false, storageOk = true;
 
   // ---------- saving ----------
+  function migrate(m) {
+    if (!(+m.v >= 3)) m.v = 3;                       // v1/v2 saves were already merged into the v3 shape by loadMeta
+    for (let guard = 0; m.v < SAVE_VERSION && MIGRATIONS[m.v] && guard < 20; guard++) m = MIGRATIONS[m.v](m) || m;
+    return m;
+  }
+  // A save can parse and still be wrong (a hand-edited code, a half-written value, an old bug). Numbers become finite
+  // and non-negative, containers become the right type, and anything unknown is left alone.
+  function sanitize(m) {
+    const n = (v, max) => { v = Math.floor(+v); return isFinite(v) && v > 0 ? Math.min(v, max || 1e12) : 0; };
+    const obj = v => v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+    for (const k of NUM) if (m[k] != null) m[k] = n(m[k]);
+    m.heat = Math.min(10, m.heat || 0);
+    m.xp = obj(m.xp); for (const k in m.xp) m.xp[k] = n(m.xp[k]);
+    m.stash = obj(m.stash); for (const k in m.stash) { m.stash[k] = n(m.stash[k]); if (!m.stash[k]) delete m.stash[k]; }
+    m.maps = obj(m.maps); for (const id in m.maps) { const ms = obj(m.maps[id]); for (const k of ['plays', 'wins', 'stars', 'bestKept']) ms[k] = n(ms[k]); ms.stars = Math.min(3, ms.stars); m.maps[id] = ms; }
+    m.totals = obj(m.totals); for (const k in m.totals) if (k !== 'bosses') m.totals[k] = n(m.totals[k]); m.totals.bosses = obj(m.totals.bosses);
+    m.settings = obj(m.settings); m.shed = obj(m.shed); for (const k in m.shed) m.shed[k] = n(m.shed[k], 9);
+    m.dreams = obj(m.dreams); for (const k in m.dreams) m.dreams[k] = Math.max(1, Math.min(5, n(m.dreams[k]) || 1));
+    m.equip = (Array.isArray(m.equip) ? m.equip : []).concat([null, null, null]).slice(0, 3).map(x => typeof x === 'string' && m.stash[x] ? x : null);
+    m.jobs = (Array.isArray(m.jobs) ? m.jobs : []).filter(j => j && typeof j.id === 'string' && isFinite(+j.n));
+    m.daily = Object.assign({ done: {}, count: 0 }, obj(m.daily)); m.daily.done = obj(m.daily.done); m.daily.count = n(m.daily.count);
+    for (const k of ['endlessBest', 'synergies', 'owned', 'crewLook', 'tstars', 'paths', 'raidBest', 'weekBest', 'firsts', 'lossReasons']) if (m[k] != null) m[k] = obj(m[k]);
+    if (m.crew != null && !Array.isArray(m.crew)) m.crew = null;
+    return m;
+  }
   function mergeMeta(m) {
+    m = sanitize(migrate(JSON.parse(JSON.stringify(m))));
     const d = defaultMeta();
-    const out = Object.assign(d, m, { v: 3, xp: Object.assign(d.xp, m.xp || {}), stash: m.stash || {}, maps: m.maps || {},
+    const out = Object.assign(d, m, { v: SAVE_VERSION, xp: Object.assign(d.xp, m.xp || {}), stash: m.stash || {}, maps: m.maps || {},
       totals: Object.assign(d.totals, m.totals || {}), settings: Object.assign(d.settings, { sound: true, volume: .6 }, m.settings || {}),
       shed: m.shed || {}, rocks: m.rocks || 0, jobs: m.jobs || [], jobsDone: m.jobsDone || 0,
       daily: Object.assign({ done: {}, count: 0 }, m.daily || {}), endlessBest: m.endlessBest || {},
@@ -5637,6 +5693,7 @@ const R = (function () {
   }
   function saveMeta() {
     if (blockSaveOver) return false;
+    meta.savedBuild = window.HML_BUILD;
     const json = JSON.stringify(meta);
     const prev = sget(KEY), prevO = tryParse(prev);
     if (freshStart) { freshStart = false; sset(BAK, json); sset(BEST, json); }    // deliberate reset / save code: old progress is NOT a backup
@@ -5657,7 +5714,14 @@ const R = (function () {
     if (!G || G.over || G.waveActive) return;
     try { localStorage.setItem(RUNKEY, JSON.stringify(Object.assign(snapshot(G), { crew: G.crew }))); lastSaved = new Date(); flashSaved(); } catch (e) { storageOk = false; }
   }
-  function loadRun() { try { const r = localStorage.getItem(RUNKEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+  function loadRun() {
+    try {
+      const r = localStorage.getItem(RUNKEY); if (!r) return null;
+      const s2 = JSON.parse(r), m2 = s2 && MAPS[s2.map];
+      if (!m2 || !Array.isArray(s2.towers) || s2.towers.length > m2.pads.length || !(s2.wave >= 0) || !(s2.pile > 0) || !['campaign', 'daily', 'endless'].includes(s2.mode || 'campaign')) { clearRun(); return null; }
+      return s2;
+    } catch (e) { clearRun(); return null; }
+  }
   function clearRun() { try { localStorage.removeItem(RUNKEY); } catch (e) {} }
   let savedTimer = 0;
   function flashSaved() { const s = $('saved'); s.classList.add('on'); clearTimeout(savedTimer); savedTimer = setTimeout(() => s.classList.remove('on'), 1400); }
@@ -5693,7 +5757,7 @@ const R = (function () {
       const sb = $('startBtn');
       if (G && G.waveActive && canCallEarly(G)) { sb.textContent = 'Send next early +' + earlyBonus(G); sb.disabled = !playing; sb.classList.add('early'); }
       else if (G && G.waveActive) { sb.textContent = 'Wave ' + G.wave + (isFinite(G.waveCount) ? '/' + G.waveCount : ''); sb.disabled = true; sb.classList.remove('early'); }
-      else { sb.classList.remove('early'); sb.textContent = !G || G.wave === 0 ? 'Start wave 1' : 'Start wave ' + (G.wave + 1); sb.disabled = !playing || G.over; }
+      else { sb.classList.remove('early'); sb.textContent = !G || G.wave === 0 ? 'Start wave 1' : G.over || G.wave >= G.waveCount ? (G.won ? 'Done!' : 'Wave ' + G.wave) : 'Start wave ' + (G.wave + 1); sb.disabled = !playing || G.over; }
       $('pauseBtn').textContent = paused ? 'Resume' : 'Pause'; $('pauseBtn').disabled = !playing;
       $('speedBtn').textContent = speed + '\u00d7'; $('speedBtn').disabled = !playing;
       $('menuBtn').disabled = state === 'draft' || state === 'results';
@@ -5701,7 +5765,7 @@ const R = (function () {
     }
     try { tutTick(); } catch (e) { hideCoach(); }
     // auto-start: veterans can skip the gap between waves
-    if (((meta.settings.autoWave && VET()) || (G && G.grace)) && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && $('modal').hidden && !sheetMode && !paused && !menuOpen) {
+    if (((meta.settings.autoWave && VET()) || (G && G.grace)) && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && $('modal').hidden && (!sheetMode || G.grace) && !paused && !menuOpen) {
       if (!autoAt) autoAt = performance.now() + 2200;
       const left = Math.ceil((autoAt - performance.now()) / 1000); const sbt = $('startBtn'); if (sbt && left > 0) sbt.textContent = 'Next wave in ' + left + '\u2026';
       if (performance.now() >= autoAt) { autoAt = 0; saveRun(); if (startWave(G)) { closeSheet(); lastHud = ''; } }
@@ -5717,6 +5781,7 @@ const R = (function () {
     else bb.hidden = true;
   }
 
+  function buzz(ms) { try { if (meta.settings.haptics !== false && navigator.vibrate && !matchMedia('(prefers-reduced-motion: reduce)').matches) navigator.vibrate(ms); } catch (e) {} }
   // ---------- toasts ----------
   function toast(msg, kind) {
     const box = $('toasts'); const d = document.createElement('div');
@@ -5798,7 +5863,7 @@ const R = (function () {
     if (hit >= 0 && G.padLock && G.padLock[hit] && !G.showLocks) return;
     if (hit >= 0 && G.padLock && G.padLock[hit]) { toast('Bonus pallet. Unlock it with Extra Pallets in Clive\u2019s Shed.'); return; }
     if (hit >= 0 && !G.over) { selPad = hit; sellArmed = -1; sheetMode = G.towers[hit] ? 'tower' : 'build'; sheetOpenedAt = performance.now(); renderSheet(); return; }
-    closeSheet(); pointerDown = true;
+    closeSheet(); pointerDown = true; R.tap(p.x, p.y);
   });
   C.addEventListener('pointermove', ev => { if (pointerDown && G && !paused && state === 'play') { const p = logical(ev); tapAt(G, p.x, p.y, 30); } });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(n => C.addEventListener(n, () => { pointerDown = false; }));
@@ -5820,7 +5885,7 @@ const R = (function () {
         crewList.map(k => {
           const C = CREW[k] || { n: TOWERS[k].crew, keys: [] }, c = towerCost(G, k), ok = G.gold >= c;
           const t0 = TOWERS[k].tiers[0], reach = (t0.range || t0.aura || 999) * (G.map.pads[selPad][2] === 'high' ? 1.2 : 1), far = padRoadDist(G.map, G.map.pads[selPad]) > reach - 6;
-          return '<button class="bcard' + (ok ? '' : ' poor') + (far ? ' far' : '') + '" style="' + crewStyle(k) + '" data-build="' + k + '"' + (ok && !far ? '' : ' disabled') + '><div class="cstage">' + ptHTML(k) + '</div><b class="cname">' + C.n + '</b>' + (far ? '<span class="ckeys">TOO FAR FROM THE ROAD</span>' : '<span class="kchips">' + keyChips(k, 2, 'sm') + '</span>') + '<span class="cost">' + c + '</span></button>';
+          return '<button class="bcard' + (ok ? '' : ' poor') + (far ? ' far' : '') + '" style="' + crewStyle(k) + '" data-build="' + k + '"' + (ok && !far ? '' : ' aria-disabled="true"') + ' aria-label="' + C.n + ', ' + c + ' gold' + (far ? ', too far from the road' : ok ? '' : ', not enough gold') + '"><div class="cstage">' + ptHTML(k) + '</div><b class="cname">' + C.n + '</b>' + (far ? '<span class="ckeys">TOO FAR FROM THE ROAD</span>' : '<span class="kchips">' + keyChips(k, 2, 'sm') + '</span>') + '<span class="cost">' + c + '</span></button>';
         }).join('') + '</div>';
     } else {
       const t = G.towers[selPad], d = TOWERS[t.type], uc = upgradeCost(G, selPad), nx = d.tiers[t.tier + 1];
@@ -5849,6 +5914,12 @@ const R = (function () {
     const ok = ev.detail === 0 || sheetDownOk; sheetDownOk = false;
     if (!ok) return;
     if (b.dataset.act === 'sell' && sellArmed !== selPad) { sellArmed = selPad; renderSheet(); return; }
+    if (b.dataset.build && (b.classList.contains('poor') || b.classList.contains('far'))) {
+      const k = b.dataset.build, nm = (CREW[k] || {}).n || TOWERS[k].crew;
+      b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); SFX.play('boo'); buzz(12);
+      toast(b.classList.contains('far') ? nm + ' can\u2019t reach the road from here. Try a pallet closer to it.' : 'Need ' + (towerCost(G, k) - G.gold) + ' more gold for ' + nm + '. Kills and wave clears pay.');
+      return;
+    }
     if (b.dataset.build) {
       const k = b.dataset.build, pad = selPad;
       if (build(G, pad, k)) {
@@ -5864,6 +5935,7 @@ const R = (function () {
         const p = G.map.pads[selPad];
         if (Math.random() < .45) R.say(p[0], p[1] - 52, ['Oh yeah.', 'Now we\u2019re talking.', 'Feeling dangerous.', 'Fancy.', 'Bit of all right.'][Math.floor(Math.random() * 5)], 1.6);
         trackEvent('tower_upgraded', { tower: tt, tier: before + 2, level_id: G.map.id }); trackFirst('upgrade', 'first_upgrade', { tower: tt });
+        if (G.taster) setTimeout(() => { if (sheetMode === 'tower') closeSheet(); }, 700);   // first game: get out of the way after the lesson
       }
       renderSheet(); }
     else if (b.dataset.act === 'abil') { const at = G.towers[selPad] && G.towers[selPad].type, p = G.map.pads[selPad]; if (activate(G, selPad)) { SFX.play('ability'); if (at === 'banjo') SFX.sting('banjo'); R.say(p[0], p[1] - 52, ['Watch this.', 'Hold my loot.', 'Here we go!', 'Stand back.'][Math.floor(Math.random() * 4)], 1.5); trackEvent('ability_used', { tower: at, level_id: G.map.id }); trackFirst('ability', 'first_ability_used', { tower: at }); closeSheet(); } else { toast('Nothing in range to hit.'); } }
@@ -6376,7 +6448,7 @@ const R = (function () {
   }
   // ===== Coach marks: point, don't explain. Only on Level 1 until the player has done each thing once. =====
   let tut = null;
-  const TUT_STEPS = ['pad', 'pick', 'build2', 'start', 'loot', 'upgrade', 'dream'];
+  const TUT_STEPS = ['pad', 'pick', 'build2', 'start', 'loot', 'guard', 'upgrade', 'dream'];
   function tutOn() { return !!(tut && G && G.mapIdx === 0 && G.mode === 'campaign' && state === 'play'); }
   function startTut() {
     tut = { i: 0, since: performance.now() }; trackEvent('tutorial_start', { first_touch: firstTouch });
@@ -6399,7 +6471,8 @@ const R = (function () {
   let coachPad = -1;
   function tutTick() {
     if (!tutOn()) { hideCoach(); return; }
-    if (!$('modal').hidden) { hideCoach(); return; }
+    if (!$('modal').hidden || G.over) { hideCoach(); return; }
+    if ($('banner').classList.contains('show')) { hideCoach(); return; }   // never talk over the banner
     const step = TUT_STEPS[tut.i], towers = G.towers.filter(Boolean), age = performance.now() - tut.since;
     if (step === 'pad') {
       if (towers.length) return tutDone('pad');
@@ -6424,7 +6497,7 @@ const R = (function () {
     }
     if (step === 'build2') {
       if (towers.length >= 2 || G.wave > 1 || (G.wave >= 1 && !G.waveActive)) return tutDone('build2');
-      if (sheetMode === 'build') { const el = $('sheet').querySelector('.bcard:not([disabled])'); if (el) return showCoach(elPt(el), 'Another one!', false); return hideCoach(); }
+      if (sheetMode === 'build') { const el = $('sheet').querySelector('.bcard:not(.poor):not(.far)'); if (el) return showCoach(elPt(el), 'Another one!', false); return hideCoach(); }
       if (sheetMode) return hideCoach();
       const cheapest = Math.min(...(G.crew || ['chuck']).map(k => towerCost(G, k)));
       if (G.gold < cheapest) return hideCoach();
@@ -6433,9 +6506,21 @@ const R = (function () {
       if (pi == null) return tutDone('build2');
       const p = G.map.pads[pi]; coachPad = pi; return showCoach(cvPt(p[0], p[1] - 6), G.freeDazza && towers.length === 1 ? (age > 9000 ? 'TAP THE WOODEN PALLET' : 'TAP HERE') : 'Hire more crew', true);
     }
+    if (step === 'guard') {
+      // the bottom of the road is where Kevin gets through: send the third hire there
+      if (towers.length >= 3 || !G.taster || G.wave >= 3) return tutDone('guard');
+      if (G.wave < 2) return hideCoach();
+      if (sheetMode === 'build') { const el = $('sheet').querySelector('.bcard:not(.poor):not(.far)'); if (el) return showCoach(elPt(el), 'This one!', false); return hideCoach(); }
+      if (sheetMode) return hideCoach();
+      const cheapest = Math.min(...(G.crew || ['chuck']).map(k => towerCost(G, k)));
+      if (G.gold < cheapest) return hideCoach();
+      const pi = [6, 7, 5, 10].find(i => G.map.pads[i] && !G.towers[i] && !(G.padLock && G.padLock[i]));
+      if (pi == null) return tutDone('guard');
+      const p = G.map.pads[pi]; coachPad = pi; return showCoach(cvPt(p[0], p[1] - 6), 'GUARD GARY!', true);
+    }
     if (step === 'upgrade') {
       if (towers.some(t => t.tier > 0)) return tutDone('upgrade');
-      if (G.waveActive) {
+      if (G.waveActive && !G.taster) {
         // side hint while a wave runs: you can speed things up
         if (G.wave >= 2 && speed === 1 && !sheetMode && !tut.speedDone) { if (!tut.speedT) tut.speedT = performance.now(); if (performance.now() - tut.speedT < 6000) return showCoach(elPt($('speedBtn')), 'Speed up?', false); tut.speedDone = true; trackEvent('tutorial_step_completed', { step: 'speed_hint' }); }
         return hideCoach();
@@ -6565,6 +6650,8 @@ const R = (function () {
       r.garyUnlocks.map(u2 => '<div class="ucard gary"><span class="unum">\u2b50</span><div><b>GARY LEVEL ' + u2.L + '</b><span>' + u2.text + '</span></div></div>').join('');
     // one useful line when you lose
     const fb = (() => {
+      const cheapest = Math.min(...(G.crew && G.crew.length ? G.crew : ['chuck']).map(k => TOWERS[k] ? towerCost(G, k) : 99));
+      if (G.mode === 'campaign' && G.gold >= Math.max(150, cheapest * 2)) return ['You had ' + G.gold + ' gold left over.', 'Spend it as you get it: crew first, then upgrades. Gold in your pocket stops nobody.'];
       const sb = G.stats.stolenBy || {}, top = Object.keys(sb).sort((a, b) => sb[b] - sb[a])[0], E = top && ENEMIES[top];
       if (G.enemies.some(e => e.boss && !e.mini) || (E && E.boss)) return ['That boss absolutely cooked you.', 'Save Gary\u2019s Dream for the boss wave, and upgrade before it arrives.'];
       const lostLate = G.stats.waveLost.slice(Math.max(0, G.waveCount - 3)).reduce((a, b2) => a + (b2 || 0), 0), lostAll = G.stats.waveLost.reduce((a, b2) => a + (b2 || 0), 0);
@@ -6818,6 +6905,7 @@ const R = (function () {
   document.addEventListener('keydown', unlockAudio, true);
   document.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('button'); if (b && !b.disabled && !b.classList.contains('dcard')) SFX.play('click'); }, true);
   window.__hml = () => G;
+  window.__hmlSave = { version: SAVE_VERSION, meta: () => meta, migrate, sanitize, mergeMeta, storageOk: () => storageOk };
   applyLook();
   if (!meta.firstSeen) meta.firstSeen = Date.now(); if (!meta.firstSrc) meta.firstSrc = sessionSrc || 'direct'; meta.sessions = (meta.sessions || 0) + 1;
   const dayN = Math.floor((Date.now() - meta.firstSeen) / 86400000) + 1;
@@ -6827,6 +6915,14 @@ const R = (function () {
   if (document.fonts) document.fonts.ready.then(() => R.invalidate());
   showHome();
   requestAnimationFrame(frame);
+  requestAnimationFrame(() => requestAnimationFrame(() => { const sp = $('splash'); if (sp) { sp.classList.add('gone'); setTimeout(() => sp.remove(), 400); } }));
+  // lay out the other maps' pallets in idle moments, one map at a time, so later levels open instantly
+  (function warm(i) {
+    if (i >= MAPS.length) return;
+    const next = () => { if (G && state === 'play' && G.waveActive) return setTimeout(() => warm(i), 1500);   // never during a wave
+      try { layoutMap(MAPS[i]); } catch (e) {} warm(i + 1); };
+    if (window.requestIdleCallback) requestIdleCallback(next, { timeout: 4000 }); else setTimeout(next, 120);
+  })(1);
 })();
 
 </script>

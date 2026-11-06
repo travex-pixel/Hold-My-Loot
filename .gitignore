@@ -6,3 +6,5 @@ node_modules/
 *.log
 *.log2
 *.log3
+marketing/video/work/
+marketing/video/out/
