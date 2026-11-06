@@ -81,7 +81,8 @@ fine. One was not: 60% of bots lost The Laneways. Build 31: 92% win. Nan: untouc
 **X:** 30 builds of one game in one file. I nerfed Nan. Marg couldn't reach. The pants king took no pants. Android
 ate the map. Saves vanished. All fixed in build 31. Gary's still asleep. holdmyloot.com/?ref=x-ep10
 **Shorts / TikTok:** Every bug from 30 builds of my game, in 20 seconds. #gamedev #indiegame #bugs #buildinpublic
-**Pinned comment:** Post this one only once build 31 is live. Which bug was your favourite?
+**Pinned comment:** Which bug was your favourite?
+**When:** only once build 31 is live (the video says it's out).
 
 ---
 
