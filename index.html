@@ -1006,7 +1006,7 @@ const C2 = [
       [[384, 380], [320, 380], [320, 430], [50, 430], [50, 510], [180, 510], [180, 532]]],
     finals: ['steve', 'bigmum', 'stack'], mids: [{ w: 5, t: 'barry', mini: true }, { w: 8, t: 'chrisso' }, { w: 8, t: 'mortimer', mini: true }] },
 ];
-const C2_TUNE = { servo: .88, tide: .88, smoko: .8, longpad: .82, maze: .9, pubcrawl: .62, office: .75, ratking: .88, revenge: .5, finalnap: .8 };
+const C2_TUNE = { servo: .88, tide: .88, smoko: .8, longpad: .82, maze: .9, pubcrawl: .62, office: .75, ratking: 1.12, revenge: .5, finalnap: .8 };
 const C2_TEMPLATE = [
   [['rat', 10, .6], ['gob', 8, .45]],
   [['skel', 8, .85], ['mozzie', 16, .12]],
@@ -1025,9 +1025,9 @@ function c2Waves(m) {
     tpl.forEach((g, gi) => {
       let t = g[0];
       if (m.swap && m.swap[t]) t = m.swap[t];
-      if (m.swapLate && w >= 3 && m.swapLate[t]) t = m.swapLate[t];
+      let scale = 1; if (m.swapLate && w >= (m.swapFrom || 3) && m.swapLate[t]) { t = m.swapLate[t]; scale = m.swapScale || 1; }
       const p = (t === 'seagull' || t === 'swoop') ? undefined : E ? (w < (m.flankFrom || 1) ? 'e0' : gi === 0 ? 'alt' : gi === 1 ? 'any' : 'e' + ((w + gi) % E)) : (multi && !m.gate ? 'alt' : undefined);
-      wave.push({ t, n: Math.max(1, Math.round(g[1] * (m.size || 1) * (.75 + (w - 1) * .07))), gap: g[2], at: gi * 3.2, p });
+      wave.push({ t, n: Math.max(1, Math.round(g[1] * scale * (m.size || 1) * (.75 + (w - 1) * .07))), gap: g[2] / scale, at: gi * 3.2, p });
     });
     for (const md of (m.mids || [])) if (md.w === w) wave.push({ t: md.t, n: 1, gap: 0, at: 3, p: E ? 'e0' : undefined, mini: md.mini });
     if (w === n) m.finals.forEach((b, k) => wave.push({ t: b, n: 1, gap: 0, at: 4 + k * 6, p: E ? 'e' + (k % E) : undefined }));
@@ -1062,7 +1062,7 @@ const C3 = [
     blurb: 'Big gusts blow flyers back out to sea and slow everything on the cliff. A kite enthusiast is coming.',
     gusts: true, flights: [[[384, 140], [180, 540]], [[-24, 260], [180, 540]], [[200, -30], [180, 540]]],
     paths: [[[384, 80], [60, 80], [60, 200], [300, 200], [300, 320], [60, 320], [60, 440], [180, 440], [180, 532]]],
-    swapLate: { gob: 'seagull' }, finals: ['gail'] },
+    swapLate: { gob: 'seagull' }, swapFrom: 5, swapScale: .5, finals: ['gail'] },
   { id: 'sink', name: 'Sinkhole Street', theme: 'suburb', gold: 580, hpMult: 3.2, size: 1.1,
     blurb: 'Sinkholes swallow the road on waves 4 and 7, and the monsters take another way. Plan for all three.',
     sinks: [{ w: 4, path: 0, at: [60, 185] }, { w: 7, path: 1, at: [300, 185] }],
@@ -1673,7 +1673,8 @@ function genChaos(G, w) {
   for (let g = 0; g < (w < 3 ? 2 : 3); g++) {
     const t = pool[Math.floor(G.rng() * pool.length)];
     const base = { rat: 9, gob: 10, skel: 7, bog: 3, pants: 4, mozzie: 18, crab: 4, medic: 2, seagull: 5, ratmum: 2 }[t];
-    out.push({ t, n: Math.max(1, Math.round(base * (.45 + w * .09))), gap: { mozzie: .12, gob: .4, rat: .5, bog: 1.8, pants: 1.1, medic: 3, ratmum: 2.5 }[t] || .8, at, p });
+    // later chapters' waves are bigger, so their Chaos waves are too (otherwise the crew is short of gold by the boss)
+    out.push({ t, n: Math.max(1, Math.round(base * (.45 + w * .09) * (G.map.size || 1) * (1 + ((G.map.chapter || 1) - 1) * .2))), gap: { mozzie: .12, gob: .4, rat: .5, bog: 1.8, pants: 1.1, medic: 3, ratmum: 2.5 }[t] || .8, at, p });
     at += 3 + G.rng() * 3;
   }
   if (w === G.map.waves.length) out.push({ t: G.map.boss, n: 1, gap: 0, at: 3, p: G.map.entr ? 'e0' : p });
@@ -2435,7 +2436,7 @@ function update(G, dt) {
       if (ENEMIES[e.type].fish) { const ph = (G.t * (e.enraged ? 2.4 : 1.6) + e.wob) % 1; spd *= ph < .45 ? 2 : .25; }
       if (e.type === 'stack') spd *= 1 + (1 - e.hp / e.maxHp) * 1.3;
       e.d += spd * G.mods.enemySpeed * (G.map.spdMult || 1) * (1 - slow) * dt;
-      if (G.gusting && e.flyer) e.d = Math.max(0, e.d - 55 * dt);
+      if (G.gusting && e.flyer) e.d = Math.max(0, e.d - 90 * dt);
       if (!e.flyer && !e.boss && e.trampCd <= 0) for (const tp of (map.tramps || [])) if (Math.hypot(tp[0] - e.x, tp[1] - e.y) < 14) { e.air = 1; e.trampCd = 3; e.d = Math.max(0, e.d - 30); fx(G, 'boing', { x: tp[0], y: tp[1] }); break; }
       if (!e.flyer && !e.boss && G.peels.length) for (const pl of G.peels) if (Math.hypot(pl.x - e.x, pl.y - e.y) < 12) { e.d = Math.max(0, e.d - 30); e.stun = Math.max(e.stun, .6); pl.t = 0; fx(G, 'slip', { x: e.x, y: e.y }); break; }
       if (!e.flyer) { const sg = segAt(e.P, e.d); if (sg && sg.tp) { fx(G, 'portal', { x: sg.x1, y: sg.y1 }); e.d = sg.start + sg.len + .5; fx(G, 'portal', { x: sg.x2, y: sg.y2, out: true }); } }
