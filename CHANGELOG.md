@@ -208,3 +208,9 @@ Feels finished
 - 200% zoom: HUD, menus and lists reflow instead of running off the screen.
 - Keys: M mutes everything (remembered), Space starts a wave, 1/2/3 speed, Escape opens and closes the menu.
 - Settings on the home screen; vibration toggle; the pile meter is announced to screen readers.
+- Pause you can see: the board dims and a Paused card says tap to carry on.
+- A theft shakes the pile meter red; toasts sit above Gary instead of on top of him.
+- The Paddock told players to tap the gate to send monsters the long way, but the gate already starts on the long
+  road, so obeying it sent them the short way. The blurb now says so, and the hint only shows when tapping helps.
+- Results label rocks and shards. The menu opens on Settings mid-run. Settings gear at the top of the home screen,
+  Play above "What's new", and the home-screen install card waits for a second visit.
