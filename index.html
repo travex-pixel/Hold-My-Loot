@@ -685,6 +685,17 @@ small.spare { display: block; color: var(--muted); font-weight: 800; margin: 3px
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
 .menu-foot .btn { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .toast, #bossfill, .btn, #saved { transition: none; } }
+/* 200% text zoom on a phone leaves about 190 CSS px: let the HUD and the button bar wrap instead of widening the page */
+@media (max-width: 300px) {
+  #hud { grid-template-columns: auto 1fr; gap: 4px 6px; }
+  #hud #wave { grid-column: 1 / -1; white-space: normal; font-size: 14px; } #hud .pilewrap { grid-column: 1 / -1; justify-self: start; }
+  #bar { grid-template-columns: 1fr 1fr; }
+  .tabs, .tabs.two { grid-template-columns: 1fr 1fr; }
+  #modal { padding: 4px; } #modalCard { padding: 14px 10px 12px; border-radius: 18px; }
+  .goals, .modes { grid-template-columns: 1fr; } .goal { min-height: 0; }
+  .level { grid-template-columns: 1fr; gap: 4px; } .level .lnum { display: none; }
+  .title { font-size: 32px; }
+}
 @media (max-height: 660px) { #hud { margin-top: 4px; } #bar { margin-bottom: 4px; } .btn { min-height: 42px; padding: 7px 6px; } .title { font-size: 38px; } }
 /* instant splash: pure CSS, painted on the first frame, removed once the game has drawn */
 #splash { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: radial-gradient(120% 80% at 30% 0%, var(--page2), var(--page)); transition: opacity .35s; }
@@ -6110,11 +6121,12 @@ const R = (function () {
       '<details class="how"' + (meta.runs ? '' : ' open') + '><summary>How to play</summary><ul>' +
       '<li>Tap a wooden pad to build. Tap a tower to upgrade it.</li><li>Monsters drop loot. It collects itself, but tap or swipe it to grab it first. Monsters that reach it pick it up and get tougher.</li><li>Kill fast for combos. Call the next wave early for bonus gold.</li><li>Level a crew\u2019s skill to 5 for their tier 4 ULTIMATE, and to 8 for tier 5 ELITE.</li><li>Gary\u2019s dream meter fills as you fight. Tap UNLEASH for a huge attack.</li><li>Towers at tier 2 get an ability. Tap the tower when you see the lightning badge.</li><li>Some crew combos trigger hidden synergies. Find them all.</li><li>Every run levels your crew, earns Shiny Rocks for Clive\u2019s Shed, and chips away at your odd jobs.</li></ul></details>' +
       '<p class="clive">\u201cAny questions? Good, because I\u2019m not qualified to answer them.\u201d <span>Clive, Volunteer Coordinator</span></p>' +
-      tomorrowHTML() + '<p class="center"><button class="wnlink" id="fbLink">\ud83d\udcac Tell the dev</button> \u00b7 <button class="wnlink" id="wnLink">What\u2019s new in v' + (window.HML_BUILD || '') + '</button></p>', 'home');
+      tomorrowHTML() + '<p class="center"><button class="wnlink" id="homeSettings">\u2699\ufe0f Settings</button> \u00b7 <button class="wnlink" id="fbLink">\ud83d\udcac Tell the dev</button> \u00b7 <button class="wnlink" id="wnLink">What\u2019s new in v' + (window.HML_BUILD || '') + '</button></p>', 'home');
     if ($('contBtn')) $('contBtn').onclick = () => continueRun(run);
     $('shedBtn').onclick = showShed;
     if ($('playNext')) $('playNext').onclick = () => { SFX.play('pick'); showLevel(nextLevelIdx()); };
     wireA2hs(); wireConsent();
+    if ($('homeSettings')) $('homeSettings').onclick = () => openMenu('settings');
     if ($('giftBtn')) $('giftBtn').onclick = () => openGift();
     $('modalCard').querySelectorAll('[data-wardrobe]').forEach(g => g.onclick = () => showWardrobe(g.dataset.wardrobe));
     $('modalCard').querySelectorAll('[data-pathgoal]').forEach(g => g.onclick = () => showCrewInfo(g.dataset.pathgoal, [], showHome, () => {}));
@@ -6839,6 +6851,7 @@ const R = (function () {
       '<label class="tog"><input type="checkbox" id="setSmooth"' + (meta.settings.smooth ? ' checked' : '') + '><span><b>Smooth mode</b><small>Fewer effects so older phones and Firefox run faster. Turns on by itself if things get choppy.</small></span></label>' +
       '<label class="tog"><input type="checkbox" id="setAnalytics"' + (meta.settings.analytics === true ? ' checked' : '') + '><span><b>Share anonymous play stats</b><small>Helps fix the game. No cookies, names, emails or ads. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></small></span></label>' +
       '<label class="tog"><input type="checkbox" id="setShake"' + (meta.settings.shake ? ' checked' : '') + '><span><b>Screen shake</b><small>On crits, Gary\u2019s sword and stolen loot.</small></span></label>' +
+      (navigator.vibrate ? '<label class="tog"><input type="checkbox" id="setHaptics"' + (meta.settings.haptics !== false ? ' checked' : '') + '><span><b>Vibration</b><small>A little buzz when a tap can\u2019t happen yet.</small></span></label>' : '') +
       '<h3>Saving</h3><p class="small">' + (storageOk ? 'Progress saves on this device after every build, every wave and every run. Last saved: ' + ls + '.' : 'This browser is blocking storage, so progress won\u2019t survive a reload here. Use a save code to keep it.') + '</p>' +
       '<div class="row2b"><button class="btn" id="saveNow">Save now</button><button class="btn" id="copyCode">Copy save code</button></div>' +
       '<p class="small">A save code backs up your progress or moves it to another device.</p>' +
@@ -6876,6 +6889,7 @@ const R = (function () {
       $('setSmooth').onchange = e => { meta.settings.smooth = e.target.checked; R.setLite(e.target.checked || autoLite); saveMeta(); };
       $('setAnalytics').onchange = e => { setConsent(e.target.checked, 'settings'); };
       $('setShake').onchange = e => { meta.settings.shake = e.target.checked; saveMeta(); };
+      if ($('setHaptics')) $('setHaptics').onchange = e => { meta.settings.haptics = e.target.checked; saveMeta(); if (e.target.checked) buzz(20); };
       $('clBtn').onclick = () => showChangelog(() => renderMenu());
       $('setMusic').onchange = e => { meta.settings.music = e.target.checked; SFX.setMusic(e.target.checked); saveMeta(); };
       $('setMVol').oninput = e => { meta.settings.musicVolume = +e.target.value; SFX.setMusicVolume(+e.target.value); };
@@ -6950,6 +6964,16 @@ const R = (function () {
   const unlockAudio = () => { SFX.unlock(); applySound(); };
   document.addEventListener('pointerdown', unlockAudio, true);
   document.addEventListener('keydown', unlockAudio, true);
+  // keyboard: M mutes everything (and remembers what was on), Escape closes the menu
+  document.addEventListener('keydown', ev => {
+    if (ev.ctrlKey || ev.metaKey || ev.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test((ev.target && ev.target.tagName) || '')) return;
+    if (ev.key === 'm' || ev.key === 'M') {
+      const st = meta.settings, on = st.sound !== false || st.music !== false;
+      if (on) { st.preMute = { sound: st.sound !== false, music: st.music !== false }; st.sound = false; st.music = false; }
+      else { const pm = st.preMute || { sound: true, music: true }; st.sound = pm.sound; st.music = pm.music; }
+      applySound(); saveMeta(); toast(on ? 'Muted. Press M to bring the noise back.' : 'Sound on.'); if (menuOpen && menuTab === 'settings') renderMenu();
+    } else if (ev.key === 'Escape' && menuOpen) closeMenu();
+  });
   document.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('button'); if (b && !b.disabled && !b.classList.contains('dcard')) SFX.play('click'); }, true);
   window.__hml = () => G;
   window.__hmlShareCard = c => shareCardBlob(c).then(b => b && new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); }));   // for tests/share.mjs
