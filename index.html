@@ -125,6 +125,8 @@ body {
 #saved.on { opacity: 1; }
 
 #stage { flex: 1; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; }
+/* hidden until first sized, so its jump from the default 300x150 is not a layout shift */
+#cv:not(.ready) { visibility: hidden; }
 #cv { display: block; touch-action: none; border-radius: 18px; box-shadow: 0 10px 30px rgba(50,40,25,.25), 0 0 0 1.5px rgba(120,95,60,.25); }
 
 /* toasts stack with transforms, not layout, so a new one never shifts the page (CLS) */
@@ -716,9 +718,9 @@ small.spare { display: block; color: var(--muted); font-weight: 800; margin: 3px
 <div id="app">
   <header id="hud">
     <button id="menuBtn" aria-label="Menu"><i></i><i></i><i></i></button>
-    <div class="gold" aria-label="Gold"><span class="coin" aria-hidden="true"></span><span id="gold">0</span></div>
+    <div class="gold" role="group" aria-label="Gold"><span class="coin" aria-hidden="true"></span><span id="gold">0</span></div>
     <div id="wave">Hold My Loot</div>
-    <div class="pilewrap"><span id="saved">Saved</span><span>Pile</span><div id="pile" aria-label="Items left on Gary's pile"></div></div>
+    <div class="pilewrap"><span id="saved">Saved</span><span>Pile</span><div id="pile" role="img" aria-label="Items left on Gary's pile"></div></div>
   </header>
   <main id="stage">
     <canvas id="cv" aria-label="Game board: Gary asleep at the bottom, monsters come down the road"></canvas>
@@ -5772,6 +5774,7 @@ const R = (function () {
     dpr = Math.min(dprCap, window.devicePixelRatio || 1);
     C.style.width = Math.round(W * scale) + 'px'; C.style.height = Math.round(H * scale) + 'px';
     C.width = Math.round(W * scale * dpr); C.height = Math.round(H * scale * dpr);
+    if (!C.classList.contains('ready')) requestAnimationFrame(() => C.classList.add('ready'));
     R.invalidate();
   }
   window.addEventListener('resize', resize);
@@ -5784,7 +5787,7 @@ const R = (function () {
       $('gold').textContent = G ? G.gold : '\u2013';
       $('wave').textContent = G && G.mode === 'raid' ? '\u23f1 ' + Math.floor(Math.max(0, G.raidT) / 60) + ':' + String(Math.floor(Math.max(0, G.raidT) % 60)).padStart(2, '0') + '  \ud83d\udca5 ' + fmtK(G.raidDmg || 0) : G ? 'Wave ' + Math.max(1, G.wave) + (isFinite(G.waveCount) ? '/' + G.waveCount : '') + (G.tier === 'nightmare' ? ' \ud83d\udc80' : G.tier === 'hard' ? ' \ud83d\udd25' : '') + (G.heat ? ' \ud83d\udd25' + G.heat : '') + (G.mode === 'campaign' && isFinite(G.waveCount) && G.wave === G.waveCount - 1 && !G.waveActive ? ' \u00b7 boss next!' : '') : 'Hold My Loot';
       const pips = []; if (G) for (let i = 0; i < G.pileMax; i++) pips.push('<i class="pip' + (i < G.pile ? '' : ' gone') + '"></i>');
-      $('pile').innerHTML = pips.join('');
+      $('pile').innerHTML = pips.join(''); if (G) $('pile').setAttribute('aria-label', 'Gary\u2019s pile: ' + Math.max(0, G.pile) + ' of ' + G.pileMax + ' items left');
       const playing = G && state === 'play';
       const pb = $('pokeBtn'), pct = G ? Math.floor(G.meter) : 0, ready = G && canDream(G);
       pb.style.setProperty('--fill', pct + '%'); pb.classList.toggle('ready', !!ready);
