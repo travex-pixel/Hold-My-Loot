@@ -89,7 +89,7 @@ if (isMainThread && import.meta.url === 'file://' + process.argv[1]) {
   const rows = maps.map(mi => Object.assign({ level: mi + 1, name: S.MAPS[mi].name, chapter: S.MAPS[mi].chapter || 1 }, results[mi]));
   if (!o.quiet) { console.log(['Lv', 'Name'.padEnd(22), 'win%', 'stars', 'lossW', 'early', 'pile', 'lost/wave'].join('  ')); for (const r of rows) console.log([String(r.level).padStart(2), r.name.padEnd(22), String(Math.round(r.winRate * 100)).padStart(4), r.avgStars.toFixed(2), String(r.avgLossWave).padStart(5), String(Math.round(r.earlyLoss * 100)).padStart(5), String(r.avgPile).padStart(4), r.lostPerWave.join(' ')].join('  ')); }
   if (o.json) fs.writeFileSync(o.json, JSON.stringify({ when: new Date().toISOString(), args: o, rows }, null, 1));
-} else if (!isMainThread) {
+} else if (!isMainThread && workerData && !workerData.c) {   // (balance-matrix.mjs workers import this file too)
   const S = loadSim(); const j = workerData; const rs = [];
   for (let i = 0; i < j.runs; i++) rs.push(playLevel(S, j.mi, { seed: 7000 + i * 13 + j.mi, crew: j.crew, mods: j.mods, heat: j.heat, tier: j.tier, wins: j.wins, xp: j.xp, grace: j.grace }));
   parentPort.postMessage(summarise(rs));

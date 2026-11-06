@@ -98,7 +98,7 @@ const SHOTS = {
 
   // ---------- Sir Pantsalot ----------
   async pants(b) {
-    const { page } = await openGame(b, { meta: vetMeta() });
+    const { page } = await openGame(b, { meta: vetMeta(), bossbar: false });
     await startLevel(page, 2);
     // crew lined up along the creek road so the king walks past them
     await page.evaluate(() => { const D = window.__dir; D.place([[2, 'chuck', 1], [3, 'bonk', 0], [6, 'pete', 0], [7, 'jezza', 0], [9, 'sizzle', 0]]); D.wave(8); const g = D.g(); D.hold();
