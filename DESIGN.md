@@ -400,7 +400,8 @@ Done fresh from build 30; see CHANGELOG for the list. What matters for later wor
   side panel, a QR code to the phone version.
 - Portal builds: `window.HML_PORTAL` ('' on the website). `tools/build-portal.mjs` sets it in a copy and zips it.
   In a portal build there are no links back to a playable web version (portal rules), no Ko-fi, install card,
-  leaderboard, service worker or self-update; fonts ship inside the zip. Proven by `tests/portal.mjs`.
+  leaderboard, service worker or self-update; fonts ship inside the zip; play stats are strictly opt-in; Privacy
+  opens in-game; Share copies text. Proven by `tests/portal.mjs` (22 checks, from a portal QA review).
 - Analytics carry `$raw_user_agent`, `$current_url`, `$host`, `$pathname`, `$referring_domain` and `portal`, so
   PostHog's `isLikelyBot()` works, and `first_input` marks a real player's first tap. Build 30's PostHog numbers
   include link-preview crawlers (they load the page and fire the tutorial events with no input); count build-30

@@ -37,7 +37,8 @@ Listings, tags and descriptions are in `marketing/store.md`; screenshots in `mar
 - [ ] **CrazyGames (do this first)**: their "Basic Launch" needs no SDK and shows no ads, which fits "no ads yet".
   1. `node tools/build-portal.mjs crazygames` makes `dist/hold-my-loot-crazygames-b31.zip` (about 340 KB, 6 files).
      It has no links back to holdmyloot.com, no Ko-fi, no install card, no service worker, and its own copy of the
-     fonts. Analytics stay on (tagged `portal=crazygames`, behind the same consent card).
+     fonts. Analytics are strictly opt-in there: nothing is sent until the player says yes on the consent card (tagged
+     `portal=crazygames`).
   2. `node tests/portal.mjs` proves it in a cross-origin iframe at 907x510, 1280x720 and 800x450 with every outside
      request blocked, including a mouse player winning the coached first game.
   3. Make a developer account at developer.crazygames.com and submit the zip. Orientation: portrait on mobile, any on

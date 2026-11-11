@@ -218,5 +218,12 @@ Feels finished
   no install card, no service worker or self-update, and its own copy of the fonts.
 - Analytics tell people from crawlers: every event carries the browser's user agent, the page and the referring site,
   and `first_input` marks a player's first tap. Build 30's numbers counted link-preview bots as players.
+- The first game waits for the player: the next wave starts only once they've hired the crew member the coach asks
+  for, so a new player who looks away doesn't lose. Losing it gives the short coached game again (up to three tries).
+- Keys: P pauses and Space carries on. Each card's main button takes keyboard focus. The wheel and scroll keys no
+  longer scroll the page around the game (portal iframes).
+- In short frames (907x510 and landscape phones) a card's main button stays in view while the card scrolls.
+- Portal builds: play stats are strictly opt-in, Privacy opens inside the game, Share copies text instead of
+  downloading a file, and "What's new" (about the website) is hidden.
 - Results label rocks and shards. The menu opens on Settings mid-run. Settings gear at the top of the home screen,
   Play above "What's new", and the home-screen install card waits for a second visit.

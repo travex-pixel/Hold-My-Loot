@@ -49,7 +49,8 @@ html = html.replace(m[0], '<style>\n/* fonts shipped with the build (latin, lati
 // 4. files
 fs.writeFileSync(path.join(out, 'index.html'), html);
 // the privacy page without the parts a portal build doesn't have (leaderboard, Ko-fi)
-fs.writeFileSync(path.join(out, 'privacy.html'), fs.readFileSync(path.join(root, 'privacy.html'), 'utf8').replace(/ *<!-- web-only -->[\s\S]*?<!-- \/web-only -->\n?/g, ''));
+fs.writeFileSync(path.join(out, 'privacy.html'), fs.readFileSync(path.join(root, 'privacy.html'), 'utf8').replace(/ *<!-- web-only -->[\s\S]*?<!-- \/web-only -->\n?/g, '').replace(/ *<a class="back"[^>]*>[^<]*<\/a>\n?/, ''));
+fs.copyFileSync(path.join(root, 'icon-192.png'), path.join(out, 'icon-192.png'));   // the privacy page's tab icon
 const zip = path.join(root, 'dist', `hold-my-loot-${portal}-b${build}.zip`); fs.rmSync(zip, { force: true });
 execFileSync('zip', ['-qr9', zip, '.'], { cwd: out });
 

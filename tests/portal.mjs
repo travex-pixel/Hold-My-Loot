@@ -20,7 +20,7 @@ const files = http.createServer((req, res) => {
 const gameUrl = 'http://127.0.0.1:' + files.address().port + '/games/hold-my-loot/index.html';
 // the portal's own page (a different origin) with the game in an iframe
 const host = http.createServer((req, res) => { const q = new URL(req.url, 'http://x').searchParams;
-  res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(`<!doctype html><body style="margin:0;background:#111"><iframe id="g" src="${gameUrl}" width="${q.get('w')}" height="${q.get('h')}" style="border:0;display:block" allow="autoplay; fullscreen; gamepad"></iframe></body>`); }).listen(0);
+  res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(`<!doctype html><body style="margin:0;background:#111;height:3000px"><iframe id="g" src="${gameUrl}" width="${q.get('w')}" height="${q.get('h')}" style="border:0;display:block" allow="autoplay; fullscreen; gamepad"></iframe></body>`); }).listen(0);
 const hostUrl = (w, h) => 'http://localhost:' + host.address().port + '/?w=' + w + '&h=' + h;
 
 const browser = await launch();
@@ -83,7 +83,56 @@ for (const [w, h] of [[1280, 720], [800, 450]]) {
   await ctx.close();
 }
 
-// 3. the zip itself
+// 3. QA findings, each a regression test
+{ const { ctx, page, frame, analytics } = await open(907, 510);
+  check('strictly opt-in: a new player sends no play stats before answering', analytics.length === 0, analytics.length + ' sent');
+  // an idle new player is not punished: after wave 1 the first game waits for them
+  await settle(page, 22000);
+  const idle = await frame.evaluate(() => { const g = window.__hml(); return { wave: g.wave, active: g.waveActive, over: g.over }; });
+  await settle(page, 8000);
+  const idle2 = await frame.evaluate(() => { const g = window.__hml(); return { wave: g.wave, active: g.waveActive, over: g.over }; });
+  check('an idle new player is waited for: no new wave until they hire the crew member the coach asks for', !idle.over && !idle2.over && idle2.wave === idle.wave && !idle2.active, JSON.stringify([idle, idle2]));
+  // the scroll wheel and scroll keys over the game never move the portal's page
+  const box = await (await page.$('#g')).boundingBox();
+  // a player clicks into the game first (here on the how-to-play panel, which does nothing), which focuses the iframe
+  const info = await frame.evaluate(() => { const r = document.getElementById('deskInfo').getBoundingClientRect(); return { x: r.left + 20, y: r.top + 10 }; });
+  await page.mouse.click(box.x + info.x, box.y + info.y);
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); for (let i = 0; i < 5; i++) await page.mouse.wheel(0, 400);
+  await settle(page, 300); const afterWheel = await page.evaluate(() => window.scrollY);
+  for (const k of ['ArrowDown', 'PageDown', 'End']) await page.keyboard.press(k);
+  await settle(page, 300); const afterKeys = await page.evaluate(() => window.scrollY);
+  check('wheel and scroll keys over the game do not scroll the portal page', afterWheel === 0 && afterKeys === 0, 'after wheel ' + afterWheel + ', after keys ' + afterKeys);
+  // a lost first game gives the short coached game again, not the full level
+  await frame.evaluate(() => { const g = window.__hml(); g.pile = 0; g.enemies.forEach(e => e.d = e.P.len - 1); });
+  await frame.waitForFunction(() => !document.getElementById('modal').hidden, null, { timeout: 60000 }).catch(() => {});
+  await frame.waitForFunction(() => !document.querySelector('.arming'), null, { timeout: 5000 }).catch(() => {});
+  const again = await frame.$('#againBtn, #retryBtn'); if (again) { await again.click({ force: true }); await settle(page, 1500); }
+  const retry = await frame.evaluate(() => { const g = window.__hml(); return g && { grace: !!g.grace, waves: g.waveCount }; });
+  check('after losing the first game, Try again gives the short coached game again', retry && retry.grace && retry.waves === 3, JSON.stringify(retry));
+  // keyboard: P pauses, Space carries on
+  await frame.evaluate(() => { const g = window.__hml(); if (!g.waveActive) startWave(g); }); await settle(page, 400);
+  await page.keyboard.press('p'); await settle(page, 300); const pz = await frame.evaluate(() => !document.getElementById('pausedVeil').hidden);
+  await page.keyboard.press('Space'); await settle(page, 300); const rs = await frame.evaluate(() => document.getElementById('pausedVeil').hidden);
+  check('keyboard: P pauses, Space carries on', pz && rs, JSON.stringify([pz, rs]));
+  await ctx.close(); }
+{ const { ctx, page, frame } = await open(907, 510);
+  // a returning player at the small frame: the level briefing's Play button is in view, and Privacy opens inside the game
+  await frame.evaluate(() => { const m = window.__hmlSave.meta(); m.runs = 3; m.wins = 2; m.sessions = 2; m.maps.nap = { wins: 1, stars: 3 }; m.maps.paddock = { wins: 1, stars: 2 }; });
+  await frame.evaluate(() => location.reload()).catch(() => {}); await settle(page, 600);
+  const fr = page.frames().find(f => f.url().startsWith(gameUrl)); await fr.waitForFunction(() => window.__hml, null, { timeout: 15000 }); await settle(page, 1500);
+  await fr.evaluate(() => document.getElementById('playNext') && document.getElementById('playNext').click()); await settle(page, 600);
+  const inView = await fr.evaluate(() => { const b = document.getElementById('lvPlay'); if (!b) return 'no button'; const r = b.getBoundingClientRect(); return r.bottom <= innerHeight && r.top >= 0; });
+  check('907x510: the level briefing\u2019s Play button is in view without scrolling', inView === true, String(inView));
+  await fr.evaluate(() => document.getElementById('lvBack') ? document.getElementById('lvBack').click() : 0); await settle(page, 400);
+  await fr.evaluate(() => { const g = document.getElementById('homeGear'); if (g) g.click(); }); await settle(page, 500);
+  const pages0 = ctx.pages().length;
+  await fr.click('a[href="privacy.html"]', { force: true }).catch(() => {}); await settle(page, 1000);
+  const shown = await fr.evaluate(() => !!document.querySelector('#modalCard .pvbody') && /Play stats/.test(document.getElementById('modalCard').innerText));
+  check('Privacy opens inside the game, not in a new tab outside the portal', shown && ctx.pages().length === pages0, 'tabs ' + ctx.pages().length);
+  check('the dimmed backdrop covers the whole frame', await fr.evaluate(() => { const r = document.getElementById('modal').getBoundingClientRect(); return r.left <= 0 && r.right >= innerWidth - 1; }));
+  await ctx.close(); }
+
+// 4. the zip itself
 const zip = fs.readdirSync(path.join(root, 'dist')).find(f => f.startsWith('hold-my-loot-' + portal) && f.endsWith('.zip'));
 const zbytes = fs.statSync(path.join(root, 'dist', zip)).size;
 check('the zip is far under the portal limits (CrazyGames: 50 MB initial download, 1,500 files)', zbytes < 2e6 && fs.readdirSync(dir).length < 20, Math.round(zbytes / 1024) + ' KB');

@@ -124,7 +124,7 @@ body {
 .coin { width: 17px; height: 17px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFE9A8, #F2C14E 55%, #C9922E); box-shadow: inset 0 0 0 1px rgba(150,100,30,.5); }
 #wave { font-family: Fraunces, Georgia, serif; font-weight: 700; font-size: 16px; white-space: nowrap; }
 .pilewrap { justify-self: end; display: flex; align-items: center; gap: 5px; font-weight: 800; font-size: 12px; color: var(--muted); white-space: nowrap; position: relative; }
-#pile { display: flex; gap: 2px; }
+#pile { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; max-width: 100%; }   /* a pile above 10 (the casserole) wraps instead of spilling out */
 .pip { width: 6px; height: 11px; border-radius: 3px; background: linear-gradient(#FFE08A, #E9AE3E); box-shadow: inset 0 0 0 1px rgba(150,100,30,.45); display: block; }
 .pip.gone { background: transparent; box-shadow: inset 0 0 0 1px rgba(120,100,80,.35); }
 #saved { position: absolute; right: 0; top: -15px; font-size: 10.5px; font-weight: 800; color: var(--leaf); opacity: 0; transition: opacity .3s; pointer-events: none; }
@@ -144,6 +144,16 @@ body {
 #stage.paused #cv { filter: saturate(.55) brightness(.82); }
 #pausedVeil { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 26px; border-radius: 20px; border: 1.5px solid var(--line); background: var(--paper); box-shadow: 0 10px 30px rgba(50,40,25,.3); font-family: inherit; color: var(--ink); cursor: pointer; }
 #pausedVeil[hidden] { display: none; }
+/* inside an iframe the page never scrolls: keep wheel and scroll gestures from moving the portal's page */
+.pvbody { font-size: 14px; line-height: 1.5; } .pvbody h1 { display: none; } .pvbody h2 { font-size: 17px; margin: 14px 0 4px; } .pvbody table { width: 100%; font-size: 13px; border-collapse: collapse; } .pvbody td, .pvbody th { text-align: left; padding: 4px; border-bottom: 1px solid var(--line); } .pvbody ul { padding-left: 18px; }
+html, body { overscroll-behavior: none; } #modalCard, #sheet, #deskInfo { overscroll-behavior: contain; }
+/* short frames (portal iframes, landscape phones): the main button of a card stays in view while the card scrolls */
+@media (max-height: 620px) {
+  #modalCard .rgo, #modalCard #revOk, #modalCard #lvPlay { position: sticky; bottom: 6px; z-index: 3; }
+  #modalCard .row3 { position: sticky; bottom: -16px; z-index: 3; background: var(--paper); padding-bottom: 10px; }
+}
+/* wide screens have room: the small chips on hire cards get readable */
+@media (orientation: landscape) and (min-aspect-ratio: 5/4) and (min-height: 600px) { .kchip { font-size: 11px; } .kchip.sm { font-size: 10.5px; } .bcard .ckeys { font-size: 11px; } .pathtag { font-size: 11px; } }
 #pausedVeil b { font: 700 26px Fraunces, Georgia, serif; } #pausedVeil span { font-weight: 800; font-size: 13px; color: var(--muted); }
 .toast { background: rgba(255,249,236,.96); border: 1.5px solid var(--line); border-radius: 14px; padding: 6px 11px; font-weight: 800; font-size: 13.5px; line-height: 1.25; box-shadow: 0 4px 14px rgba(60,45,25,.18); transition: opacity .35s, transform .35s; }
 .toast.big { background: #FFF1C8; border-color: #EAC66A; }
@@ -187,7 +197,7 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 .row2b { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 6px 0; }
 .row3 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
 
-#modal { position: absolute; inset: 0; z-index: 10; background: rgba(45,35,25,.45); display: flex; align-items: center; justify-content: center; padding: 10px; }
+#modal { position: fixed; inset: 0; z-index: 10; background: rgba(45,35,25,.45); display: flex; align-items: center; justify-content: center; padding: 10px; }
 #modal[hidden], #sheet[hidden], #bossbar[hidden] { display: none; }
 #modalCard { width: 100%; max-width: 430px; max-height: 100%; overflow: auto; background: var(--paper); border: 1.5px solid var(--line); border-radius: 26px; box-shadow: 0 18px 50px rgba(40,30,20,.35); padding: 20px 16px 16px; }
 #modalCard.home { background: linear-gradient(180deg, #FFFBF1 0%, var(--paper) 40%); }
@@ -5442,6 +5452,7 @@ const R = (function () {
   function trackEvent(name, props, beacon) {
     try {
       if (!AN.key || consentState() === false) return;
+      if (window.HML_PORTAL && consentState() !== true) return;   // portal builds: strictly opt-in
       if (NOISY[name] && meta && (meta.runs || 0) > 5) return;
       const body = JSON.stringify({ api_key: AN.key, event: name, distinct_id: analyticsId(), timestamp: new Date().toISOString(),
         properties: Object.assign({ $session_id: sessionId, src: sessionSrc || 'direct', first_src: (meta && meta.firstSrc) || sessionSrc || 'direct', build: window.HML_BUILD, consent: consentState() === true ? 'yes' : 'unasked', portal: window.HML_PORTAL || '', $raw_user_agent: navigator.userAgent, $current_url: location.origin + location.pathname, $host: location.host, $pathname: location.pathname, $referring_domain: refDomain, device_category: deviceCat(), screen_w: innerWidth, screen_h: innerHeight, $process_person_profile: false }, props || {}) });
@@ -5850,7 +5861,8 @@ const R = (function () {
     }
     try { tutTick(); } catch (e) { hideCoach(); }
     // auto-start: veterans can skip the gap between waves
-    if (((meta.settings.autoWave && VET()) || (G && G.grace)) && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && $('modal').hidden && (!sheetMode || G.grace) && !paused && !menuOpen) {
+    // the first game waits for the player: the next wave starts only once they've hired the crew member the coach asks for
+    if (((meta.settings.autoWave && VET()) || (G && G.grace && G.towers.filter(Boolean).length > G.wave)) && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && $('modal').hidden && (!sheetMode || G.grace) && !paused && !menuOpen) {
       if (!autoAt) autoAt = performance.now() + 2200;
       const left = Math.ceil((autoAt - performance.now()) / 1000); const sbt = $('startBtn'); if (sbt && left > 0) sbt.textContent = 'Next wave in ' + left + '\u2026';
       if (performance.now() >= autoAt) { autoAt = 0; saveRun(); if (startWave(G)) { closeSheet(); lastHud = ''; } }
@@ -6079,7 +6091,7 @@ const R = (function () {
   ];
   function whatsNewCard() {
     const seen = meta.seenBuild || 0, B = window.HML_BUILD || 0;
-    if (!meta.runs || seen >= B) return '';
+    if (!meta.runs || seen >= B || window.HML_PORTAL) return '';
     const fresh = CHANGELOG.filter(c => c.build > seen && c.build <= B).slice(0, 2);
     return '<div class="whatsnew"><div class="wn-head"><b>What\u2019s new' + (fresh.length === 1 ? ': ' + fresh[0].title : '') + '</b><button class="btn" id="wnOk">Got it</button></div><ul>' +
       fresh.map(c => c.notes.map(n => '<li>' + n + '</li>').join('')).join('') + '</ul></div>';
@@ -6103,10 +6115,12 @@ const R = (function () {
 
   // ---------- modal plumbing ----------
   let armTimer = 0;
+  let lastKeyAt = 0; addEventListener('keydown', () => { lastKeyAt = Date.now(); }, true);
   function openModal(html, cls, arm) {
     const m = $('modal'), card = $('modalCard');
     clearTimeout(armTimer);
     card.className = (cls || '') + (arm ? ' arming' : ''); freeCanvases(card); card.innerHTML = html; m.hidden = false; card.scrollTop = 0;
+    if (lastKeyAt && Date.now() - lastKeyAt < 60000) setTimeout(() => { const b = card.querySelector('.btn.primary:not([disabled])'); if (b && document.activeElement === document.body) b.focus({ preventScroll: true }); }, arm ? (+arm || 600) + 60 : 0);
     if (arm) {
       // Ignore taps that were already happening when this popped up (they never pressed down on a button).
       // A fresh tap during the short arming window is remembered and applied when it ends.
@@ -6448,7 +6462,8 @@ const R = (function () {
     clearRun(); closeModal();
     G = newRun(meta, (daily ? daily.key : (Date.now() ^ (Math.random() * 1e9))) >>> 0, mapIdx, mode, daily, mods);
     G.crew = mode === 'campaign' ? crewFor(mapIdx) : recommendCrew(mapIdx);
-    if (!meta.runs && mapIdx === 0 && mode === 'campaign') { G.grace = true; shortFirstLevel(G); speed = 2; window.__tasterSpeed = true; }
+    // the short coached first game, until the player has won once (a lost first try gets it again, up to three times)
+    if ((!meta.runs || (!meta.wins && (meta.runs || 0) < 4)) && mapIdx === 0 && mode === 'campaign') { G.grace = true; shortFirstLevel(G); speed = 2; window.__tasterSpeed = true; }
     else if (window.__tasterSpeed) { window.__tasterSpeed = false; speed = 1; }
     if (mode === 'campaign' && !G.grace) { G.heat = heatOn() ? (meta.heat || 0) : 0; G.tier = pendingTier || 'normal'; }
     pendingTier = 'normal';
@@ -6843,7 +6858,7 @@ const R = (function () {
       try {
         const blob = await shareCardBlob(shareCtx);
         if (blob && navigator.share && navigator.canShare) { const file = new File([blob], 'hold-my-loot.png', { type: 'image/png' }); if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: shareText }); msg.textContent = 'Shared.'; return; } }
-        if (blob && !navigator.share) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'hold-my-loot.png'; a.click(); msg.textContent = 'Saved a share card. Post it anywhere.'; return; }
+        if (blob && !navigator.share && !window.HML_PORTAL) { /* a portal iframe may block downloads: there, copy the text instead */ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'hold-my-loot.png'; a.click(); msg.textContent = 'Saved a share card. Post it anywhere.'; return; }
       } catch (e) { if (e && e.name === 'AbortError') return; }
       try { if (navigator.share) { await navigator.share({ text: shareText }); msg.textContent = 'Shared.'; return; } } catch (e) { if (e && e.name === 'AbortError') return; }
       try { await navigator.clipboard.writeText(shareText); msg.textContent = 'Copied. Paste it in the group chat.'; }
@@ -6925,7 +6940,7 @@ const R = (function () {
       (SUP.url ? '<h3>Support the game</h3><p class="small">' + (meta.supporter ? 'You\u2019re a supporter. Gary\u2019s Supporter Scarlet pyjamas are yours. Legend.' : 'Made by one person, no ads, no pay-to-win. If it\u2019s made you laugh, you can shout the dev a snag. Supporters get a code for Gary\u2019s Supporter Scarlet pyjamas.') + '</p>' +
         (meta.supporter ? '' : '<a class="btn primary" id="supLink" href="' + SUP.url + '" target="_blank" rel="noopener">\ud83c\udf2d Shout the dev a snag</a><div class="row2b" style="margin-top:8px"><input id="supCode" class="codein" placeholder="Supporter code" autocomplete="off"><button class="btn" id="supBtn">Unlock</button></div><p class="small" id="supMsg" aria-live="polite"></p>') : '') +
       '<h3>Tell the dev</h3><p class="small">Found a bug? Love a character? Hate a level? It all helps.</p><button class="btn" id="fbMenu">\ud83d\udcac Send feedback</button>' +
-      '<h3>Version</h3><p class="small">Version ' + (window.HML_BUILD || '?') + '. ' + (window.HML_PORTAL ? '' : 'The game updates itself when you open it.') + '</p><button class="btn" id="clBtn">What\u2019s new</button>' +
+      '<h3>Version</h3><p class="small">Version ' + (window.HML_BUILD || '?') + '. ' + (window.HML_PORTAL ? '' : 'The game updates itself when you open it.') + '</p>' + (window.HML_PORTAL ? '' : '<button class="btn" id="clBtn">What\u2019s new</button>') +
       '<h3>Start over</h3><button class="btn danger" id="resetBtn">Reset all progress</button>';
   }
   function renderMenu() {
@@ -6956,7 +6971,7 @@ const R = (function () {
       $('setAnalytics').onchange = e => { setConsent(e.target.checked, 'settings'); };
       $('setShake').onchange = e => { meta.settings.shake = e.target.checked; saveMeta(); };
       if ($('setHaptics')) $('setHaptics').onchange = e => { meta.settings.haptics = e.target.checked; saveMeta(); if (e.target.checked) buzz(20); };
-      $('clBtn').onclick = () => showChangelog(() => renderMenu());
+      if ($('clBtn')) $('clBtn').onclick = () => showChangelog(() => renderMenu());
       $('setMusic').onchange = e => { meta.settings.music = e.target.checked; SFX.setMusic(e.target.checked); saveMeta(); };
       $('setMVol').oninput = e => { meta.settings.musicVolume = +e.target.value; SFX.setMusicVolume(+e.target.value); };
       $('setMVol').onchange = () => saveMeta();
@@ -7033,6 +7048,10 @@ const R = (function () {
   // keyboard: M mutes everything (and remembers what was on), Escape opens and closes the menu, Space starts a wave, 1/2/3 speed
   document.addEventListener('keydown', ev => {
     if (ev.ctrlKey || ev.metaKey || ev.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test((ev.target && ev.target.tagName) || '')) return;
+    // the game page never scrolls; in a portal iframe these keys would scroll the portal's page instead
+    const onPage = !ev.target || ev.target === document.body || ev.target === document.documentElement || ev.target.id === 'cv';
+    if (onPage && /^(ArrowUp|ArrowDown|PageUp|PageDown|Home|End| )$/.test(ev.key)) ev.preventDefault();
+    if ((ev.key === 'p' || ev.key === 'P') && G && state === 'play' && !menuOpen && $('modal').hidden) { const b = $('pauseBtn'); if (b && !b.disabled) b.click(); return; }
     if (ev.key === 'm' || ev.key === 'M') {
       const st = meta.settings, on = st.sound !== false || st.music !== false;
       if (on) { st.preMute = { sound: st.sound !== false, music: st.music !== false }; st.sound = false; st.music = false; }
@@ -7041,10 +7060,19 @@ const R = (function () {
     } else if (ev.key === 'Escape') { if (menuOpen) closeMenu(); else if (G && state === 'play' && $('modal').hidden) openMenu('settings'); }
     else if (G && state === 'play' && !menuOpen && $('modal').hidden) {
       // desktop: Space starts the next wave, 1/2/3 set the speed (3x unlocks with 5 wins, as on the button)
-      if (ev.key === ' ' || ev.code === 'Space') { ev.preventDefault(); const b = $('startBtn'); if (b && !b.disabled) b.click(); }
+      if (ev.key === ' ' || ev.code === 'Space') { ev.preventDefault(); if (paused) { $('pausedVeil').click(); return; } const b = $('startBtn'); if (b && !b.disabled) b.click(); }
       else if (ev.key === '1' || ev.key === '2' || (ev.key === '3' && VET())) { speed = +ev.key; lastHud = ''; if (tut) tut.speedDone = true; }
     }
   });
+  addEventListener('wheel', ev => { if (!(ev.target.closest && ev.target.closest('#modalCard, #sheet, #deskInfo'))) ev.preventDefault(); }, { passive: false });
+  // portal builds show the privacy page inside the game: a new tab there would be a playable copy outside the portal
+  document.addEventListener('click', ev => {
+    const a = window.HML_PORTAL && ev.target.closest && ev.target.closest('a[href="privacy.html"]'); if (!a) return;
+    ev.preventDefault(); ev.stopPropagation();
+    const back = menuOpen ? () => renderMenu() : state === 'home' ? () => showHome() : () => closeModal();
+    fetch('privacy.html').then(r => r.text()).then(t => { const d = new DOMParser().parseFromString(t, 'text/html'); const mn = d.querySelector('main'); if (!mn) return; mn.querySelectorAll('a.back, style, script').forEach(n => n.remove()); mn.querySelectorAll('a[href^="http"]').forEach(x => x.replaceWith(document.createTextNode(x.textContent)));
+      openModal('<div class="menu-head"><h2 class="title sm">Privacy</h2><button class="btn" id="pvBack">Back</button></div><div class="pvbody">' + mn.innerHTML + '</div>', 'menu'); $('pvBack').onclick = back; }).catch(() => {});
+  }, true);
   document.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('button'); if (b && !b.disabled && !b.classList.contains('dcard')) SFX.play('click'); }, true);
   window.__hml = () => G;
   window.__hmlShareCard = c => shareCardBlob(c).then(b => b && new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); }));   // for tests/share.mjs
