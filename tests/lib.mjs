@@ -9,6 +9,8 @@ export const VIEWPORTS = {
   i15: { name: 'iPhone 15', viewport: { width: 393, height: 852 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true, userAgent: devices['iPhone 15'].userAgent },
   px8: { name: 'Pixel 8', viewport: { width: 412, height: 915 }, deviceScaleFactor: 2.625, isMobile: true, hasTouch: true, userAgent: devices['Pixel 7'].userAgent },
   desk: { name: 'Desktop 1280', viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, isMobile: false, hasTouch: false },
+  cgs: { name: 'CrazyGames 907x510', viewport: { width: 907, height: 510 }, deviceScaleFactor: 1, isMobile: false, hasTouch: false },
+  cg: { name: 'CrazyGames 1280x720', viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, isMobile: false, hasTouch: false },
 };
 
 export async function launch() { return chromium.launch(); }

@@ -376,15 +376,33 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 .syn { background: var(--paper2); border-radius: 14px; padding: 9px 11px; margin-bottom: 7px; } .syn b { display: block; font-size: 15px; } .syn span { font-size: 13px; font-weight: 700; color: var(--muted); }
 .syn.found { background: linear-gradient(90deg, #E2F7EF, #E2F1FF); } .syn.found span { color: var(--ink); }
 .tabs { grid-template-columns: repeat(5, 1fr); } .tab { font-size: 12.5px; padding: 8px 2px; }
-/* landscape phones: controls move to the sides */
-@media (orientation: landscape) and (max-height: 560px) {
-  #app { max-width: none; display: grid; grid-template-columns: minmax(150px, 210px) 1fr minmax(150px, 200px); grid-template-rows: minmax(0, 1fr); height: 100%; padding: 0 env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px); }
-  #hud { grid-column: 1; grid-row: 1; align-self: start; grid-template-columns: auto 1fr; grid-auto-rows: auto; margin: 8px; }
+/* wide screens (landscape phones, desktop, portal iframes like 907x510 to 1920x1080): the board takes the full height in
+   the middle and two side panels hug it, the HUD (plus the wordmark, how-to-play and keys when there's room) on the left
+   and the buttons on the right. The whole group is centred, so there is no dead space between board and controls. */
+@media (orientation: landscape) and (max-height: 560px), (orientation: landscape) and (min-aspect-ratio: 5/4) {
+  #app { --side: clamp(150px, 26vh, 250px); max-width: calc((100vh - 16px) * .6 + 2 * var(--side) + 28px); display: grid; grid-template-columns: var(--side) minmax(0, 1fr) var(--side); grid-template-rows: auto minmax(0, 1fr); height: 100%; padding: 0 env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px); }
+  #hud { grid-column: 1; grid-row: 1; align-self: start; grid-template-columns: auto 1fr; grid-auto-rows: auto; margin: 8px 6px 8px 8px; }
   #hud #wave { grid-column: 1 / -1; } #hud .pilewrap { grid-column: 1 / -1; justify-self: start; }
-  #stage { grid-column: 2; grid-row: 1; height: 100%; min-height: 0; overflow: hidden; }
+  #stage { grid-column: 2; grid-row: 1 / 3; height: 100%; min-height: 0; overflow: hidden; }
   #cv { position: absolute; }
-  #bar { grid-column: 3; grid-row: 1; align-self: center; grid-template-columns: 1fr 1fr; grid-auto-rows: auto; margin: 8px; }
+  #bar { grid-column: 3; grid-row: 1 / 3; align-self: center; grid-template-columns: 1fr 1fr; grid-auto-rows: auto; margin: 8px 8px 8px 6px; }
   #bar #pokeBtn, #bar #startBtn { grid-column: 1 / -1; min-height: 56px; }
+  #deskInfo { grid-column: 1; grid-row: 2; align-self: start; }
+}
+#deskInfo { display: none; }
+@media (orientation: landscape) and (min-aspect-ratio: 5/4) and (min-height: 470px) {
+  #deskInfo { display: grid; gap: 10px; margin: 2px 6px 8px 8px; padding: 12px 12px 10px; background: var(--paper); border: 1.5px solid var(--line); border-radius: 20px; box-shadow: 0 4px 14px rgba(60,45,25,.12); font-size: 13.5px; line-height: 1.35; overflow: auto; max-height: 100%; }
+  #deskInfo h2 { margin: 0; font: 800 clamp(22px, 3.4vh, 30px)/1 Fraunces, Georgia, serif; color: #3E5E3A; letter-spacing: -.3px; }
+  #deskInfo p { margin: 0; font-weight: 700; color: var(--muted); }
+  #deskInfo ul { margin: 0; padding-left: 16px; display: grid; gap: 4px; font-weight: 700; }
+  #deskInfo .keys { display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; font-weight: 700; color: var(--muted); }
+  #deskInfo kbd { font: 800 11.5px Nunito, sans-serif; background: var(--paper2); border: 1.5px solid var(--line); border-bottom-width: 3px; border-radius: 7px; padding: 1px 7px; color: var(--ink); text-align: center; }
+}
+@media (orientation: landscape) and (min-aspect-ratio: 5/4) and (max-height: 640px) { #deskInfo .tips { display: none; } }
+/* big screens: the side panels grow with the board instead of staying phone-sized */
+@media (orientation: landscape) and (min-aspect-ratio: 5/4) and (min-height: 860px) { #app { --side: 300px; } #hud, #deskInfo, #bar { zoom: 1.2; } }
+@media (orientation: landscape) and (min-aspect-ratio: 5/4) and (min-height: 1000px) { #app { --side: 350px; } #hud, #deskInfo, #bar { zoom: 1.4; } }
+@media (hover: none) { #deskInfo .keys { display: none; } }
 }
 .how.first { background: var(--paper2); border-radius: 16px; padding: 12px 14px 10px 30px; font-size: 15.5px; line-height: 1.4; margin: 6px 0 14px; }
 .how.first li { margin-bottom: 6px; }
@@ -738,6 +756,12 @@ small.spare { display: block; color: var(--muted); font-weight: 800; margin: 3px
     <div id="banner" aria-live="polite"></div>
     <button id="pausedVeil" hidden aria-label="Paused. Tap to carry on"><b>Paused</b><span>Tap to carry on</span></button>
   </main>
+  <aside id="deskInfo" aria-label="How to play">
+    <h2>Hold My Loot</h2>
+    <p>Gary's asleep. Monsters want his loot. Keep the pile.</p>
+    <ul class="tips"><li>Click a wooden pallet to hire crew.</li><li>Click crew to upgrade them.</li><li>Click dropped loot to grab it back.</li></ul>
+    <div class="keys"><kbd>Space</kbd><span>start the wave</span><kbd>1 2 3</kbd><span>speed</span><kbd>M</kbd><span>mute</span><kbd>Esc</kbd><span>menu</span></div>
+  </aside>
   <footer id="bar">
     <button class="btn" id="pokeBtn" disabled><b>Gary's Dream</b></button>
     <button class="btn" id="pauseBtn" disabled>Pause</button>
@@ -6548,9 +6572,11 @@ const R = (function () {
   function tutDone(step) { trackEvent('tutorial_step_completed', { step, index: tut.i }); tut.i++; tut.since = performance.now(); if (tut.i >= TUT_STEPS.length) { tut = null; meta.tutDone = 1; saveMeta(); hideCoach(); } }
   function cvPt(x, y) { const r = C.getBoundingClientRect(); return { x: r.left + x * r.width / W, y: r.top + y * r.height / H }; }
   function elPt(el) { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + 4, w: r.width, h: r.height, top: r.top }; }
+  const mousey = (() => { try { return matchMedia('(hover: hover) and (pointer: fine)').matches; } catch (e) { return false; } })();
   function showCoach(pt, label, ring) {
     const c = $('coach'); c.hidden = false;
     c.style.left = Math.round(pt.x) + 'px'; c.style.top = Math.round(pt.y) + 'px';
+    if (mousey) label = label.replace(/\bTAP\b/g, 'CLICK').replace(/\bTap\b/g, 'Click');   // say what the player actually does
     c.querySelector('b').textContent = label; c.classList.toggle('ring', !!ring);
   }
   function hideCoach() { const c = $('coach'); if (c) c.hidden = true; coachPad = -1; }

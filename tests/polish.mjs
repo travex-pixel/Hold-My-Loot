@@ -35,6 +35,25 @@ const play = async page => { await page.evaluate(() => document.getElementById('
   check('landscape: the board fits the height and nothing scrolls sideways', f.page && box[1] <= box[2] + 1 && box[0] > 150, box.map(Math.round).join('x'));
   await ctx.close(); }
 
+// wide screens and portal iframes (CrazyGames lists 907x510, 1216x684, 1280x720, 1366x768 and 1920x1080 on desktop)
+for (const [w, h] of [[907, 510], [1216, 684], [1280, 720], [1366, 768], [1920, 1080]]) {
+  const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
+  await ctx.addInitScript(s => { if (sessionStorage.getItem('x')) return; sessionStorage.setItem('x', 1); localStorage.clear(); localStorage.setItem('hml.meta.v3', s); }, b30);
+  const page = await ctx.newPage(); page.errors = []; page.on('pageerror', e => page.errors.push(String(e)));
+  await page.route(/posthog/, r => r.fulfill({ status: 200, body: '{}' }));
+  await page.goto(BASE, { waitUntil: 'load' }); await settle(page, 1200); await play(page);
+  const m = await page.evaluate(() => { const r = id => document.getElementById(id).getBoundingClientRect(); const cv = r('cv'), hud = r('hud'), bar = r('bar'), info = r('deskInfo');
+    return { fits: document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight, boardH: cv.height / innerHeight, gapL: Math.round(cv.left - hud.right), gapR: Math.round(bar.left - cv.right), info: info.height > 0 }; });
+  check(`${w}x${h}: board fills the height, panels hug it, nothing scrolls`, m.fits && m.boardH > .9 && m.gapL >= 0 && m.gapL < 24 && m.gapR >= 0 && m.gapR < 24 && (h < 470 || m.info) && page.errors.length === 0, JSON.stringify(m));
+  await ctx.close();
+}
+{ const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+  const page = await ctx.newPage(); await page.route(/posthog/, r => r.fulfill({ status: 200, body: '{}' }));
+  await page.goto(BASE, { waitUntil: 'load' }); await settle(page, 2500);
+  const label = await page.evaluate(() => { const c = document.getElementById('coach'); return c.hidden ? '' : c.textContent; });
+  check('with a mouse, the coach says CLICK, not TAP', /CLICK/.test(label) && !/TAP/.test(label), label);
+  await ctx.close(); }
+
 // desktop keys while playing: Space starts the wave, 2 sets 2x, Escape opens then closes the menu
 { const { ctx, page } = await open({ width: 1280, height: 800 }, 1);
   await play(page);
