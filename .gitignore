@@ -8,3 +8,4 @@ node_modules/
 *.log3
 marketing/video/work/
 marketing/video/out/
+dist/

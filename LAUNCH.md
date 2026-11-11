@@ -34,12 +34,24 @@ Listings, tags and descriptions are in `marketing/store.md`; screenshots in `mar
 
 - [ ] **itch.io**: easiest first. Upload a zip of `index.html` + `manifest.json` + icons as an HTML game,
   "This file will be played in the browser", viewport 400x780 portrait (enable fullscreen button and mobile friendly).
-- [ ] **CrazyGames**: apply as a developer, then submit a zip. Read their current requirements first: portals
-  usually want their SDK for ads and game events. The game has no ads, so ask about a no-ads path before adding any.
-- [ ] **Poki**: submit through their developer form. Same question about their SDK and ads.
+- [ ] **CrazyGames (do this first)**: their "Basic Launch" needs no SDK and shows no ads, which fits "no ads yet".
+  1. `node tools/build-portal.mjs crazygames` makes `dist/hold-my-loot-crazygames-b31.zip` (about 340 KB, 6 files).
+     It has no links back to holdmyloot.com, no Ko-fi, no install card, no service worker, and its own copy of the
+     fonts. Analytics stay on (tagged `portal=crazygames`, behind the same consent card).
+  2. `node tests/portal.mjs` proves it in a cross-origin iframe at 907x510, 1280x720 and 800x450 with every outside
+     request blocked, including a mouse player winning the coached first game.
+  3. Make a developer account at developer.crazygames.com and submit the zip. Orientation: portrait on mobile, any on
+     desktop. Covers: `marketing/store/cover-1920x1080.jpg`, `cover-800x1200.jpg`, `cover-800x800.jpg` (drawn by the
+     game itself, `node tools/covers.mjs`). Description and controls: `marketing/store.md`.
+  4. After launch, the PostHog dashboard splits real players by `portal`, so CrazyGames players can be compared
+     with holdmyloot.com players.
+- [ ] **Poki**: later, and only if you're happy with ads. Poki's Web Fit test requires their SDK (gameplayStart on
+  first input, gameplayStop on pauses, commercialBreak between levels) and blocks outside requests unless approved.
+  `node tools/build-portal.mjs poki` already makes a build with analytics removed and fonts bundled; the SDK calls
+  are not wired yet.
 
-Both portals show games in a landscape frame. On desktop the game is a centred portrait column, which looks sparse
-there. A proper desktop frame (DESIGN.md section 11) is the most valuable next build before a portal push.
+Both portals show games in a landscape frame. Build 31 fills it: the board takes the full height with the HUD,
+how-to-play and keys on the left and the buttons on the right (`tests/polish.mjs` checks every CrazyGames size).
 
 ## Launch week
 

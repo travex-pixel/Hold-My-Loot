@@ -45,11 +45,17 @@ window.HML_SUPPORT = { url: '', codeHash: '' };
    Supabase project URL and its public "anon" key. Leave empty and only personal bests are shown.
    Setup, costs and the server-side rules: supabase/README.md and supabase/leaderboard.sql. */
 window.HML_BOARD = { url: '', key: '' };
+/* ===== PORTAL BUILD =====
+   '' on holdmyloot.com. tools/build-portal.mjs sets 'crazygames' (or 'poki') in the copy it zips for a game portal.
+   A portal copy has no links back to a playable web version, no Ko-fi, no install card, no leaderboard, no service
+   worker and no self-update (the portal hosts a fixed build). Everything else plays the same. */
+window.HML_PORTAL = '';
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
 window.HML_BUILD = 31;
 window.__checkUpdate = function () {
+  if (window.HML_PORTAL) return Promise.resolve(0);
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.text(); })
     .then(function (t) {
@@ -65,7 +71,7 @@ window.__applyUpdate = function (latest) {
 window.__checkUpdate().then(function (latest) { if (latest) window.__applyUpdate(latest); });
 // Offline support for the installed app (sw.js). It always asks the network for the page first, so the build check above
 // keeps working exactly as before; the cache only answers when there is no signal.
-if ('serviceWorker' in navigator && (location.protocol === 'https:' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname))) {
+if (!window.HML_PORTAL && 'serviceWorker' in navigator && (location.protocol === 'https:' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname))) {
   window.addEventListener('load', function () { try { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {}); } catch (e) {} });
 }
 </script>
@@ -620,6 +626,9 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; text
 @media (max-height: 700px) { .cstage, .ccard .cstage canvas.pt { height: 70px; } }
 
 /* ===== v23: home screen card, feedback, brag ===== */
+/* with the gear beside it, the title must fit one line in the web font and the fallback alike, or it re-wraps when
+   the font arrives and shoves the whole home screen down (CLS). "Hold My Loot" is ~6.8x the font size wide. */
+.title.hometitle { font-size: clamp(30px, calc((min(430px, 100vw - 20px) - 84px) / 6.9), 46px); }
 .homegear { float: right; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--paper2); font-size: 18px; line-height: 1; cursor: pointer; margin: 2px 0 0 8px; }
 .consent { background: linear-gradient(135deg, #EAF6E4, #F4F0DC); border: 1.5px solid #BFD9A8; border-radius: 16px; padding: 10px 12px; margin: 14px 0 12px; text-align: left; display: flex; flex-direction: column; gap: 8px; }
 .consent b { display: block; } .consent span { font-size: 13px; color: #5a4a3e; } .consent a { color: inherit; }
@@ -5576,7 +5585,7 @@ const R = (function () {
       c.crew.forEach((k, i) => { R.portrait(tmp, k, 0); x.drawImage(tmp, 28 + i * 105, 228, 100, 90); x.fillStyle = '#3B2F2A'; x.font = '900 15px Nunito, Arial, sans-serif'; x.textAlign = 'center'; x.fillText(CREW[k] ? CREW[k].n : k, 78 + i * 105, 322); x.textAlign = 'left'; });
       if (!x.roundRect) x.roundRect = function (a, b2, w2, h2, r2) { this.moveTo(a + r2, b2); this.arcTo(a + w2, b2, a + w2, b2 + h2, r2); this.arcTo(a + w2, b2 + h2, a, b2 + h2, r2); this.arcTo(a, b2 + h2, a, b2, r2); this.arcTo(a, b2, a + w2, b2, r2); this.closePath(); };
       if (c.best) { x.fillStyle = '#FFFDF6'; x.beginPath(); x.roundRect(Wc - 230, 150, 198, 56, 14); x.fill(); x.strokeStyle = RARITY[c.best.tier].c; x.lineWidth = 3; x.stroke(); x.font = '30px serif'; x.fillStyle = '#000'; x.fillText(c.best.icon, Wc - 218, 162); x.fillStyle = RARITY[c.best.tier].c; x.font = '900 13px Nunito, Arial, sans-serif'; x.fillText(RARITY[c.best.tier].k.toUpperCase() + ' DROP', Wc - 176, 160); x.fillStyle = '#3B2F2A'; x.font = '800 16px Nunito, Arial, sans-serif'; x.fillText(c.best.name.slice(0, 20), Wc - 176, 180); }
-      x.fillStyle = '#8A7A66'; x.font = '800 15px Nunito, Arial, sans-serif'; x.fillText('Boss: ' + c.boss + '   \u00b7   ' + (location.protocol.startsWith('http') ? location.host + location.pathname.replace(/index\.html$/, '') : 'Hold My Loot'), 32, 362);
+      x.fillStyle = '#8A7A66'; x.font = '800 15px Nunito, Arial, sans-serif'; x.fillText('Boss: ' + c.boss + '   \u00b7   ' + (location.protocol.startsWith('http') && !window.HML_PORTAL ? location.host + location.pathname.replace(/index\.html$/, '') : 'Hold My Loot'), 32, 362);
       return await new Promise(res => cv.toBlob(res, 'image/png'));
     } catch (e) { return null; }
   }
@@ -5695,7 +5704,7 @@ const R = (function () {
     });
   }
   function applyLookLegacy() { const k = meta.pj && PJS[meta.pj] && PJS[meta.pj].req(meta) ? meta.pj : 'blue'; window.GARY_LOOK = PJS[k]; }
-  const SUP = window.HML_SUPPORT || {};
+  const SUP = window.HML_PORTAL ? {} : (window.HML_SUPPORT || {});
   let meta = loadMeta(), G = null, state = 'home', paused = false, speed = 1, selPad = -1, sheetMode = null, menuOpen = false, menuTab = 'skills';
   let toldEarly = false, jobToasted = {}, jobTick = 0, bossOn = false, bannerTimer = 0;
   function banner(title, sub, kind) {
@@ -5910,7 +5919,7 @@ const R = (function () {
       else if (e.type === 'poke') toast(e.ok ? 'Gary swung his sword in his sleep.' : 'Gary rolled over and knocked his thong off the pile.', e.ok ? 'rare' : 'bad');
       else if (e.type === 'waveEnd') { saveRun();
         trackEvent('wave_complete', { level_id: G.map.id, chapter: G.map.chapter || 1, mode: G.mode, wave: e.wave, perfect: !!e.perfect, kept: G.pile, towers: G.towers.filter(Boolean).length, secs: Math.round(G.t), first_run: !!G.grace });
-        if (e.wave === 1 && !storageWorks() && !toldStorage) { toldStorage = true; toast('Heads up: this browser isn\u2019t saving your progress. Open holdmyloot.com in Chrome or Safari to keep it.', 'bad'); } if (G.grace && e.wave <= 2) { lastHud = ''; } else setTimeout(() => showDraft(e.wave, e.bonus), 550); }
+        if (e.wave === 1 && !storageWorks() && !toldStorage) { toldStorage = true; toast(window.HML_PORTAL ? 'Heads up: this browser isn\u2019t saving your progress. Allow site data or leave private browsing to keep it.' : 'Heads up: this browser isn\u2019t saving your progress. Open holdmyloot.com in Chrome or Safari to keep it.', 'bad'); } if (G.grace && e.wave <= 2) { lastHud = ''; } else setTimeout(() => showDraft(e.wave, e.bonus), 550); }
       else if (e.type === 'dream') { /* visuals in renderer */ }
       else if (e.type === 'over') {
         const mus = meta.settings.music !== false;
@@ -6159,7 +6168,7 @@ const R = (function () {
     const banjoBanner = !jezzaBanner && !bevBanner && !djBanner && !peteBanner && towerUnlocked(meta, 'banjo') && !meta.banjoSeen ? '<div class="banner"><b>New crew: Banjo the Banana</b><span>A mascot in a banana suit. Seven hand gestures, from a double-spin slap to jazz hands, then a Banana Split finisher.</span></div>' : '';
     if (banjoBanner) { meta.banjoSeen = true; saveMeta(); }
     openModal(
-      '<button class="homegear" id="homeGear" aria-label="Settings">\u2699\ufe0f</button><h1 class="title">Hold My Loot' + (meta.supporter ? ' <span class="supbadge" title="Supporter">\u2665</span>' : '') + '</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + saveBanner() + playNextHTML(run) + whatsNewCard() + jezzaBanner + bevBanner + djBanner + peteBanner + banjoBanner +
+      '<button class="homegear" id="homeGear" aria-label="Settings">\u2699\ufe0f</button><h1 class="title hometitle">Hold My Loot' + (meta.supporter ? ' <span class="supbadge" title="Supporter">\u2665</span>' : '') + '</h1><p class="lede">Gary\u2019s gone AFK. Monsters want his stuff.</p>' + saveBanner() + playNextHTML(run) + whatsNewCard() + jezzaBanner + bevBanner + djBanner + peteBanner + banjoBanner +
       (runMap ? '<button class="btn primary big cont" id="contBtn" data-focus>Continue: ' + (run.mode === 'endless' ? 'Long Nap' : run.mode === 'daily' ? 'Daily Nap' : runMap.name) + ', wave ' + (run.wave + 1) + '</button>' : '') +
       consentCard() + giftHTML() + '<h2 class="h2 tight">Up next</h2>' + goalsHTML() + a2hsCard('home') + supporterCard() +
       garyCard() +
@@ -6255,7 +6264,7 @@ const R = (function () {
   window.addEventListener('appinstalled', () => { meta.a2hsDone = 1; saveMeta(); trackEvent('app_installed', {}); });
   const standalone = () => { try { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
   const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent || ''), isAndroid = /Android/.test(navigator.userAgent || '');
-  function a2hsOffer() { return !standalone() && !meta.a2hsDone && (meta.a2hsNo || 0) < 2 && (meta.wins || 0) >= 1 && (meta.sessions || 0) >= 2 && deviceCat() !== 'desktop'; }   // not in the first session
+  function a2hsOffer() { return !window.HML_PORTAL && !standalone() && !meta.a2hsDone && (meta.a2hsNo || 0) < 2 && (meta.wins || 0) >= 1 && (meta.sessions || 0) >= 2 && deviceCat() !== 'desktop'; }   // not in the first session
   function a2hsCard(where) { return a2hsOffer() ? '<div class="a2hs"><span class="a2ico">\ud83d\udcf1</span><div><b>Put Gary on your home screen</b><span>One tap to play, like an app. Takes 5 seconds.</span></div><button class="btn primary" id="a2hsBtn" data-where="' + where + '">Show me</button></div>' : ''; }
   function wireA2hs() {
     const b = $('a2hsBtn'); if (!b) return;
@@ -6468,7 +6477,7 @@ const R = (function () {
     toast('Daily Nap: ' + d.rules.map(id => CARDS.find(c => c.id === id).name).join(' + ') + '.', 'big');
   }
   // ---- Weekly Long Nap: same waves for everyone this week, on each map ----
-  const BOARD = window.HML_BOARD || {};
+  const BOARD = window.HML_PORTAL ? {} : (window.HML_BOARD || {});
   const boardOn = () => !!(BOARD.url && BOARD.key);
   // ---- Weekly Raid Boss ----
   const RAID_MAP = Math.max(0, MAPS.findIndex(m => m.id === 'longpad'));
@@ -6746,7 +6755,8 @@ const R = (function () {
     const jobsLine = (r.jobsDone.length ? r.jobsDone.map(j => '<p class="jobdone">Job done: ' + j.text + ' <b>+' + j.reward + '</b></p>').join('') : '') + '<h3>Odd jobs</h3>' + jobsHTML(meta.jobs, null);
     const shareLink = (location.protocol.startsWith('http') ? location.origin + location.pathname.replace(/index\.html$/, '') : 'https://holdmyloot.com/') + '?ref=share-' + (G.mode === 'raid' ? 'raid' : G.mode === 'endless' ? 'long' : G.mode === 'daily' ? 'daily' : G.map.id);
     const raidLine = G.mode === 'raid' ? 'Hold My Loot Raid vs ' + ENEMIES[G.raidBossType].name.split(',')[0] + ': ' + Math.round(G.raidScore || 0).toLocaleString('en-AU') + ' damage' + (G.raidMedal ? ' (' + ['', 'Bronze', 'Silver', 'Gold'][G.raidMedal] + ')' : '') : '';
-    const shareText = raidLine ? raidLine + '\nPlay it: ' + shareLink : 'Hold My Loot, ' + (G.mode === 'daily' ? 'Daily Nap ' + G.daily.key : G.mode === 'endless' ? 'The Long Nap' : G.map.name) + ': ' + (G.mode === 'endless' ? 'survived ' + (G.wave - 1) + ' waves' : G.won ? 'Gary kept ' + G.pile + '/' + G.pileMax : 'cleaned out on wave ' + G.wave) + '\n' + r.grid + (r.best ? '\nBest drop: ' + RARITY[r.best.tier].k + ' ' + r.best.name : '') + (G.moment ? '\nAlso: ' + G.moment.txt + '.' : '') + '\nPlay it: ' + shareLink;
+    const playLine = window.HML_PORTAL ? '' : '\nPlay it: ' + shareLink;
+    const shareText = raidLine ? raidLine + playLine : 'Hold My Loot, ' + (G.mode === 'daily' ? 'Daily Nap ' + G.daily.key : G.mode === 'endless' ? 'The Long Nap' : G.map.name) + ': ' + (G.mode === 'endless' ? 'survived ' + (G.wave - 1) + ' waves' : G.won ? 'Gary kept ' + G.pile + '/' + G.pileMax : 'cleaned out on wave ' + G.wave) + '\n' + r.grid + (r.best ? '\nBest drop: ' + RARITY[r.best.tier].k + ' ' + r.best.name : '') + (G.moment ? '\nAlso: ' + G.moment.txt + '.' : '') + playLine;
     // ---- results: hero, rewards, one big button; everything else folds away ----
     const nextOk = G.won && nextMap && G.mode === 'campaign';
     const firstEver = G.won && meta.wins === 1 && G.mode === 'campaign';
@@ -6915,7 +6925,7 @@ const R = (function () {
       (SUP.url ? '<h3>Support the game</h3><p class="small">' + (meta.supporter ? 'You\u2019re a supporter. Gary\u2019s Supporter Scarlet pyjamas are yours. Legend.' : 'Made by one person, no ads, no pay-to-win. If it\u2019s made you laugh, you can shout the dev a snag. Supporters get a code for Gary\u2019s Supporter Scarlet pyjamas.') + '</p>' +
         (meta.supporter ? '' : '<a class="btn primary" id="supLink" href="' + SUP.url + '" target="_blank" rel="noopener">\ud83c\udf2d Shout the dev a snag</a><div class="row2b" style="margin-top:8px"><input id="supCode" class="codein" placeholder="Supporter code" autocomplete="off"><button class="btn" id="supBtn">Unlock</button></div><p class="small" id="supMsg" aria-live="polite"></p>') : '') +
       '<h3>Tell the dev</h3><p class="small">Found a bug? Love a character? Hate a level? It all helps.</p><button class="btn" id="fbMenu">\ud83d\udcac Send feedback</button>' +
-      '<h3>Version</h3><p class="small">Version ' + (window.HML_BUILD || '?') + '. The game updates itself when you open it.</p><button class="btn" id="clBtn">What\u2019s new</button>' +
+      '<h3>Version</h3><p class="small">Version ' + (window.HML_BUILD || '?') + '. ' + (window.HML_PORTAL ? '' : 'The game updates itself when you open it.') + '</p><button class="btn" id="clBtn">What\u2019s new</button>' +
       '<h3>Start over</h3><button class="btn danger" id="resetBtn">Reset all progress</button>';
   }
   function renderMenu() {

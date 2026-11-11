@@ -2,7 +2,7 @@
 // Usage: node tests/run-all.mjs [--skip-perf]
 import { spawnSync } from 'child_process';
 const skipPerf = process.argv.includes('--skip-perf');
-const suites = ['syntax', 'smoke-sim', 'taster-sim', 'leaderboard-sql', 'og', 'first-minute', 'saves', 'offline', 'consent', 'board-client', 'support', 'share', 'polish', 'bugbash']
+const suites = ['syntax', 'smoke-sim', 'taster-sim', 'leaderboard-sql', 'og', 'first-minute', 'saves', 'offline', 'consent', 'board-client', 'support', 'share', 'polish', 'bugbash', 'portal']
   .concat(skipPerf ? [] : ['perf-startup', 'perf-play']);
 const t0 = Date.now(); const done = [];
 for (const s of suites) {

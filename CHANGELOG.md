@@ -212,5 +212,11 @@ Feels finished
 - A theft shakes the pile meter red; toasts sit above Gary instead of on top of him.
 - The Paddock told players to tap the gate to send monsters the long way, but the gate already starts on the long
   road, so obeying it sent them the short way. The blurb now says so, and the hint only shows when tapping helps.
+- Wide screens (laptops, landscape tablets, portal iframes from 907x510 to 1920x1080): the board takes the full height
+  and the side panels hug it, with how-to-play and keys on the left. The coach says CLICK to mouse players.
+- Portal builds: `tools/build-portal.mjs` makes a CrazyGames (or Poki) zip with no links back to the website, no Ko-fi,
+  no install card, no service worker or self-update, and its own copy of the fonts.
+- Analytics tell people from crawlers: every event carries the browser's user agent, the page and the referring site,
+  and `first_input` marks a player's first tap. Build 30's numbers counted link-preview bots as players.
 - Results label rocks and shards. The menu opens on Settings mid-run. Settings gear at the top of the home screen,
   Play above "What's new", and the home-screen install card waits for a second visit.

@@ -394,8 +394,18 @@ Done fresh from build 30; see CHANGELOG for the list. What matters for later wor
   Chaos waves scaled by level size and chapter.
 - Saves are version 4 (`SAVE_VERSION`, `MIGRATIONS`, `sanitize`); add a migration for any shape change.
 - Keys: M mute (remembers what was on), Space start wave, 1/2/3 speed, Escape menu.
-- Not in this build, despite earlier notes: the desktop frame (wordmark, animated crew, QR code to the phone
-  version) and CLICK wording on a mouse.
+- Wide screens: one CSS layout covers landscape phones, laptops and portal iframes. The board takes the full
+  height; `#hud` and `#deskInfo` (wordmark, how-to-play, keys) sit left, `#bar` right, all centred as a group.
+  Panels zoom at 860 px and 1000 px tall. The coach swaps TAP for CLICK on a mouse. Not built: animated crew in the
+  side panel, a QR code to the phone version.
+- Portal builds: `window.HML_PORTAL` ('' on the website). `tools/build-portal.mjs` sets it in a copy and zips it.
+  In a portal build there are no links back to a playable web version (portal rules), no Ko-fi, install card,
+  leaderboard, service worker or self-update; fonts ship inside the zip. Proven by `tests/portal.mjs`.
+- Analytics carry `$raw_user_agent`, `$current_url`, `$host`, `$pathname`, `$referring_domain` and `portal`, so
+  PostHog's `isLikelyBot()` works, and `first_input` marks a real player's first tap. Build 30's PostHog numbers
+  include link-preview crawlers (they load the page and fire the tutorial events with no input); count build-30
+  players as people who placed a crew member or stayed over 30 s. The success rule for build 31 is written down in
+  `review/build-31-success-criteria.md`.
 
 ## 13. Release check (run before every upload)
 

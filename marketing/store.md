@@ -1,7 +1,7 @@
 # Store listings
 
 Screenshots are in `marketing/store/`: six portrait shots from real gameplay (1080x1920) and two landscape shots
-(1920x1080). Trailer: `marketing/video/out/trailer-launch.mp4` (rebuild with `marketing/video/README.md`).
+(1920x1080). Covers at CrazyGames' three sizes: `cover-1920x1080.jpg`, `cover-800x1200.jpg`, `cover-800x800.jpg`. Trailer: `marketing/video/out/trailer-launch.mp4` (rebuild with `marketing/video/README.md`).
 Check each portal's current image sizes before uploading; crop from these, they are big enough.
 
 ## The one-liner (use everywhere)
