@@ -5402,6 +5402,8 @@ const R = (function () {
   // the leaderboard needs a stable id for rate limits; it is made only when someone submits a score
   function boardPlayerId() { try { let id = localStorage.getItem('hml.board'); if (!id) { id = 'b_' + (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)); localStorage.setItem('hml.board', id); } return id; } catch (e) { return 'b_nostore_' + sessionId; } }
   // per-tap events only for a player's first games (the first-ten-minutes funnel); later games report at level end
+  // where the visit came from (host only), so traffic isn't all "direct"; the browser's user agent lets PostHog tell crawlers from people
+  const refDomain = (() => { try { const r = document.referrer && new URL(document.referrer); return r && r.host !== location.host ? r.host : '$direct'; } catch (e) { return '$direct'; } })();
   const NOISY = { tower_placed: 1, tower_upgraded: 1, ability_used: 1, wave_complete: 1, speed_set: 1, draft_reroll: 1 };
   const deviceCat = () => { const w = Math.min(screen.width || innerWidth, screen.height || innerHeight); return ('ontouchstart' in window || navigator.maxTouchPoints > 0) ? (w >= 600 ? 'tablet' : 'mobile') : 'desktop'; };
   function trackEvent(name, props, beacon) {
@@ -5409,7 +5411,7 @@ const R = (function () {
       if (!AN.key || consentState() === false) return;
       if (NOISY[name] && meta && (meta.runs || 0) > 5) return;
       const body = JSON.stringify({ api_key: AN.key, event: name, distinct_id: analyticsId(), timestamp: new Date().toISOString(),
-        properties: Object.assign({ $session_id: sessionId, src: sessionSrc || 'direct', first_src: (meta && meta.firstSrc) || sessionSrc || 'direct', build: window.HML_BUILD, consent: consentState() === true ? 'yes' : 'unasked', device_category: deviceCat(), screen_w: innerWidth, screen_h: innerHeight, $process_person_profile: false }, props || {}) });
+        properties: Object.assign({ $session_id: sessionId, src: sessionSrc || 'direct', first_src: (meta && meta.firstSrc) || sessionSrc || 'direct', build: window.HML_BUILD, consent: consentState() === true ? 'yes' : 'unasked', portal: window.HML_PORTAL || '', $raw_user_agent: navigator.userAgent, $current_url: location.origin + location.pathname, $host: location.host, $pathname: location.pathname, $referring_domain: refDomain, device_category: deviceCat(), screen_w: innerWidth, screen_h: innerHeight, $process_person_profile: false }, props || {}) });
       const url = (AN.host || 'https://us.i.posthog.com').replace(/\/$/, '') + '/i/v0/e/';
       if (beacon && navigator.sendBeacon) { navigator.sendBeacon(url, new Blob([body], { type: 'application/json' })); return; }
       fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true, mode: 'cors' }).catch(() => {});
@@ -7016,6 +7018,9 @@ const R = (function () {
   if (!meta.firstSeen) meta.firstSeen = Date.now(); if (!meta.firstSrc) meta.firstSrc = sessionSrc || 'direct'; meta.sessions = (meta.sessions || 0) + 1;
   const dayN = Math.floor((Date.now() - meta.firstSeen) / 86400000) + 1;
   trackEvent('session_start', { standalone: standaloneNow(), returning: !firstVisit, runs: meta.runs || 0, day_number: dayN, session_number: meta.sessions, streak: (meta.daily && meta.daily.streak) || 0 }); if (firstVisit) trackEvent('first_visit', {});
+  // a person, not a crawler: the first tap, click or key of the session. Pages loaded by preview bots never send it.
+  const firstInput = ev => { removeEventListener('pointerdown', firstInput, true); removeEventListener('keydown', firstInput, true); trackEvent('first_input', { ms: Math.round(performance.now()), kind: ev.type }); };
+  addEventListener('pointerdown', firstInput, true); addEventListener('keydown', firstInput, true);
   if (dayN > 1) trackEvent('return_session', { day_number: dayN, session_number: meta.sessions });
   resize();
   if (document.fonts) document.fonts.ready.then(() => R.invalidate());

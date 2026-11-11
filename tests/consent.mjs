@@ -26,6 +26,10 @@ const unasked = JSON.parse(JSON.stringify(b30)); delete unasked.settings.analyti
   check('new player: every event uses a session-only id', events.every(e => /^s_/.test(e.distinct_id)) && events.every(e => e.properties.consent === 'unasked'));
   check('new player: no analytics id is stored on the device', await ls(page, 'hml.anon') === null);
   check('new player: no consent card mid-tutorial', !(await page.$('.consent')));
+  check('no first_input before the player touches anything (crawlers never send one)', !events.some(e => e.event === 'first_input'));
+  check('every event carries the browser user agent and page, so PostHog can tell people from crawlers', events.every(e => e.properties.$raw_user_agent && e.properties.$current_url && e.properties.$host && e.properties.$referring_domain));
+  await page.mouse.click(30, 300); await settle(page, 300); await page.mouse.click(40, 320); await settle(page, 300);
+  check('the first tap sends exactly one first_input', events.filter(e => e.event === 'first_input').length === 1);
   check('every event carries the build number', events.every(e => e.properties.build === +(/hml-build" content="(\d+)/.exec(fs.readFileSync('index.html', 'utf8'))[1])));
   await ctx.close(); }
 
