@@ -55,7 +55,7 @@ node tests/balance-matrix.mjs       # the full balance report (about 45 minutes)
 | `consent`, `support`, `share`, `og` | play-stats consent, Ko-fi unlock, share cards, link previews |
 | `board-client`, `leaderboard-sql` | the leaderboard, in the game (mocked) and on a real Postgres |
 | `polish`, `bugbash` | 200% zoom, wide screens and portal sizes, keys, mute; double taps, multitouch, rotation, old WebViews, random taps |
-| `endgame` | aiming (First/Last/Strongest/Weakest/Thieves), Overtime, Deep sleep and the Rock Tumbler: sim checks and the buttons on a phone |
+| `endgame` | aiming (First/Last/Strongest/Weakest/Thieves), Overtime, Deep sleep, the Rock Tumbler, the Long Nap head start and its weekly waves after Continue: sim checks and the buttons on a phone |
 | `portal` | the CrazyGames build in a cross-origin iframe, outside requests blocked: no links out, fonts bundled, first game winnable |
 | `perf-startup`, `perf-play` | time to playable on a throttled Android, frame budget, memory, layout shift |
 | `balance`, `balance-matrix` | bot win rates per level, crew, difficulty and modifier |
