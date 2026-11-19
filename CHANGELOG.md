@@ -250,3 +250,16 @@ Feels finished
   downloading a file, and "What's new" (about the website) is hidden.
 - Results label rocks and shards. The menu opens on Settings mid-run. Settings gear at the top of the home screen,
   Play above "What's new", and the home-screen install card waits for a second visit.
+
+## Build 32
+Known bugs from DESIGN.md section 10 (checks in tests/knownbugs.mjs)
+- The free Dazza on a first game now counts in play stats as a placed crew member, marked free, so
+  first_tower_placed is always the player's own first hire.
+- The Raid's Start button no longer offers "Send next early" mid-raid (tapping it sent in a second raid boss). When
+  a Raid ends it reads "Done!", never a leftover "Start wave N".
+- The level screen no longer shows "Heat 0" to players who have five wins but haven't started Heat yet.
+- Opening a crew member from the "Choose a Mastery Path" goal no longer shows a Select button that did nothing.
+- Big Kev's Stampede now reaches the road beside his pallet, so it still goes off when he stands back from the road.
+  His tier-4 damage over a wave goes up by about 2%.
+- Odd Jobs only ask for crew you can field: your own six, or anyone recommended on a level you can play. Jobs you
+  already had for anyone else are swapped for new ones.
