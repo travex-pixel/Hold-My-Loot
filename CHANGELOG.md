@@ -204,6 +204,17 @@ Launch plumbing
 - Supporter code checked by hash, so it can't be read from the page source.
 - Raid share cards and text show damage and medal; every share link carries its own ref code.
 
+For players who've maxed everything (asked for by a player at wave 50 of the Long Nap with 30,000 gold unspent)
+- Aim: tap a crew member and choose who they go for: First, Last, Strongest, Weakest or Thieves (monsters carrying
+  or grabbing loot). Each one remembers it, and the next one you hire of that crew starts the same way. Nan and Aunty
+  Val still default to the strongest, everyone else to the first. Play is identical if you never touch it (114 bot
+  games compared before and after: no differences).
+- Overtime: ELITE crew can keep going. Each level adds 15% of their damage; it costs 400 gold, then a quarter more
+  each time, up to 20. A veteran-style bot had everyone maxed by wave 25 and died around waves 41-50 holding
+  11,000-28,000 gold it couldn't spend; with Overtime it ends broke and gets 1 to 11 waves further.
+- Deep sleep: a level-5 dream keeps levelling with shards. Each of 10 levels charges that dream 6% faster.
+- Rock Tumbler: once the whole Shed is maxed, Clive turns 100 spare Shiny Rocks into 1 Dream Shard.
+
 Feels finished
 - 200% zoom: HUD, menus and lists reflow instead of running off the screen.
 - Keys: M mutes everything (remembered), Space starts a wave, 1/2/3 speed, Escape opens and closes the menu.

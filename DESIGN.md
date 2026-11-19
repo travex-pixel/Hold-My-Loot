@@ -326,7 +326,7 @@ best stored locally; global board key is `raid-<boss>`.
   boss_spawn/defeat, reward_claimed, crew_unlocked, daily_mode_start, daily_gift_opened, long_nap_end,
   raid_view/start/end, tier_selected/complete, heat_change, path_chosen, draft_reroll, outfit_bought/
   equipped, trinket_starred, share_clicked, a2hs_*, feedback_rating/text, support_*, client_error,
-  smooth_auto, leaderboard_view/submit. Properties include level_id, chapter, mode, wave, stars, crew,
+  smooth_auto, leaderboard_view/submit, aim_set, tower_overtime, deep_sleep, rocks_tumbled (build 31). Properties include level_id, chapter, mode, wave, stars, crew,
   nan_in_crew, reason, retries, src (from ?ref=), device_category, screen size, build, consent. No PII.
   Consent (build 31): nothing is stored for analytics until the player says yes on the home-screen card
   after their first level. Before that, events use a memory-only session id; after "no", nothing is sent.
@@ -393,6 +393,20 @@ Done fresh from build 30; see CHANGELOG for the list. What matters for later wor
   added: `swapFrom` / `swapScale` (when and how many goblins become seagulls), gust strength (Cliff Top),
   Chaos waves scaled by level size and chapter.
 - Saves are version 4 (`SAVE_VERSION`, `MIGRATIONS`, `sanitize`); add a migration for any shape change.
+- Aim (`AIMS`, `aimOf`, `setAim`, `AIM_CMP`): per crew member, First / Last / Strongest / Weakest / Thieves. Every
+  targeting branch in the tower loop sorts with `aimCmp(t)`; the defaults (`AIM_DEFAULT`: Nan and Val strongest,
+  the rest first) are the pre-31 behaviour exactly, so the balance matrix still holds. Jezza keeps "sober ones first"
+  ahead of the aim, and Bev spreads her birds only on First. `meta.aim[type]` remembers the last choice per crew.
+- Endgame sinks, because a maxed player had nothing to spend on:
+  - Overtime (`OT`, `overtimeCost`, `overtime`, `tierOf`): ELITE crew with a `dmg` stat buy +15% damage a level,
+    400 gold then x1.25, max 20. `tierOf(t)` is the tier the tower loop and abilities actually use. Monster health
+    grows about 12% a wave by wave 40, so this buys a handful of waves, not forever. Long Nap runs now end a few
+    waves later than the 37-53 quoted in section 8.
+  - Deep sleep (`DEEP`, `buyDeep`, `applyDeep`): a level-5 dream takes 10 more levels, +6% charge each, 25 shards
+    then +5 a level (475 a dream; a run pays at most 8 shards).
+  - Rock Tumbler (`tumble`): only when every Shed line is maxed, 100 rocks become 1 shard.
+  - Not built: a Long Nap head start (skip to wave 11 or 21 for rocks). It needs the skipped waves' cards, pile and
+    skill XP made up fairly, and the weekly wave seed burned for the skipped waves.
 - Keys: M mute (remembers what was on), Space start wave, 1/2/3 speed, Escape menu.
 - Wide screens: one CSS layout covers landscape phones, laptops and portal iframes. The board takes the full
   height; `#hud` and `#deskInfo` (wordmark, how-to-play, keys) sit left, `#bar` right, all centred as a group.

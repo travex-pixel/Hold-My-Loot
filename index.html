@@ -384,6 +384,11 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 /* sheet extras */
 .padnote { margin: -2px 0 8px; font-size: 13px; font-weight: 800; border-radius: 10px; padding: 5px 9px; }
 .padnote.high { background: #E2EFD6; color: #3E5E3A; } .padnote.shady { background: #E2F1EA; color: #2F5E4A; }
+.tumblebtns { display: flex; flex-direction: column; gap: 4px; } .dlv.deep { color: #5A4E9A; margin-top: 4px; }
+.aimrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 0 0 8px; }
+.aimrow > span { font-size: 12px; font-weight: 800; color: var(--muted); margin-right: 2px; }
+.aim { flex: 1 1 auto; font: 800 12.5px Nunito, sans-serif; color: var(--ink); background: var(--paper2); border: 1.5px solid var(--line); border-radius: 10px; padding: 6px 5px; min-height: 32px; cursor: pointer; }
+.aim.on { background: #FFE9A8; border-color: #D49A2E; box-shadow: inset 0 -2px 0 #E8B94A; }
 .abilbtn { width: 100%; margin-bottom: 9px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
 .abilbtn b { font-size: 16px; } .abilbtn small { font-size: 12.5px; font-weight: 700; color: var(--muted); }
 .abilbtn.ready { background: linear-gradient(90deg, #FFE38A, #FFC94A); border-color: #D49A2E; box-shadow: 0 3px 0 #C98F25, 0 0 14px rgba(255,200,80,.6); }
@@ -1494,6 +1499,18 @@ function buyShed(meta, id) {
   if (!S || L >= S.costs.length || meta.rocks < S.costs[L]) return false;
   meta.rocks -= S.costs[L]; meta.shed[id] = L + 1; return true;
 }
+// ---------- Endgame sinks: when everything is maxed, shards and rocks still have somewhere to go ----------
+// Deep sleep: a level-5 dream keeps levelling with shards. Each level charges that dream DEEP.step faster (it works for
+// every dream, including the ones that do no damage). Ten levels cost 475 shards a dream, at up to 8 shards a run.
+const DEEP = { step: .06, max: 10, base: 20, grow: 5 };
+function deepLevel(meta, id) { return Math.min(DEEP.max, Math.max(0, (meta.deep && meta.deep[id]) | 0)); }
+function deepCost(meta, id) { const n = deepLevel(meta, id); return ((meta.dreams || {})[id] || 0) >= 5 && n < DEEP.max ? DEEP.base + DEEP.grow * (n + 1) : null; }
+function buyDeep(meta, id) { const c = deepCost(meta, id); if (c == null || (meta.shards || 0) < c) return false; meta.shards -= c; meta.deep = meta.deep || {}; meta.deep[id] = deepLevel(meta, id) + 1; return true; }
+function applyDeep(G) { G.chargeMult = G.chargeBase * (1 + DEEP.step * deepLevel(G.meta, G.dream)); }
+// Rock tumbler: once Clive has nothing left to sell, he tumbles spare Shiny Rocks into Dream Shards.
+const TUMBLE = { rocks: 100 };
+function shedMaxed(meta) { return SHED.every(sh => shedLevel(meta, sh.id) >= sh.costs.length); }
+function tumble(meta, n) { n = Math.max(1, n | 0); if (!shedMaxed(meta) || (meta.rocks || 0) < TUMBLE.rocks * n) return false; meta.rocks -= TUMBLE.rocks * n; meta.shards = (meta.shards || 0) + n; return true; }
 const SALVAGE = [1, 2, 4, 10, 25];
 
 // ---------- Odd jobs ----------
@@ -1822,10 +1839,10 @@ function newRun(meta, seed, mapIdx, mode, daily, runMods) {
   G.mods.fireRate *= 1 + (tf.speed || 0); if (tf.slowGary) G.mods.snore = Math.max(G.mods.snore, tf.slowGary); G.mods.goldMult *= 1 + (tf.killGold || 0);
   G.dmgAll = 1 + (tf.dmg || 0); G.bossDmg = 1 + (tf.bossDmg || 0); G.flyerDmg = 1 + (tf.flyerDmg || 0); G.tipsyMult = 1 + (tf.tipsy || 0);
   G.abilMult = 1 - (tf.abil || 0); G.dreamDmg = 1 + (tf.dreamDmg || 0);
-  G.chargeMult = (1 + .12 * sh('coffee')) * (1 + (tf.dream || 0));
+  G.chargeBase = G.chargeMult = (1 + .12 * sh('coffee')) * (1 + (tf.dream || 0));
   // dream
   G.dream = meta.dreamEquip && (meta.dreams || {})[meta.dreamEquip] ? meta.dreamEquip : 'swing';
-  G.dreamLv = (meta.dreams || {})[G.dream] || 1; G.meter = 0; G.pend = []; G.synSeen = {};
+  G.dreamLv = (meta.dreams || {})[G.dream] || 1; G.meter = 0; G.pend = []; G.synSeen = {}; applyDeep(G);
   // modifiers
   G.runMods = runMods || {};
   if (G.runMods.hard) G.mods.enemyHp *= 1.4;
@@ -1861,10 +1878,52 @@ function ultLocked(G, pad) {
 }
 function sellValue(G, pad) { const t = G.towers[pad]; return t ? Math.floor(t.spent * .7) : 0; }
 function newTower(type, tier, spent) { return { type, tier: tier || 0, cd: .2, spent: spent || 0, qcd: 2, hatless: 0, acd: 0 }; }
+// ---------- Aim: who a crew member goes for first ----------
+// first = furthest along the road (what everyone did before build 31), last = furthest back, strong / weak = most / least
+// health left, loot = monsters carrying or grabbing loot. Nan and Val default to the strongest, as they always have.
+const AIMS = ['first', 'last', 'strong', 'weak', 'loot'];
+const AIM_NAMES = { first: 'First', last: 'Last', strong: 'Strongest', weak: 'Weakest', loot: 'Thieves' };
+const AIM_DEFAULT = { nan: 'strong', val: 'strong' };
+const AIM_CREW = { chuck: 1, bonk: 1, nan: 1, jezza: 1, bev: 1, pete: 1, banjo: 1, rocco: 1, kev: 1, gav: 1, val: 1 };
+const AIM_CMP = {
+  first: (a, b) => b.d - a.d,
+  last: (a, b) => a.d - b.d,
+  strong: (a, b) => b.hp - a.hp,
+  weak: (a, b) => a.hp - b.hp || b.d - a.d,
+  loot: (a, b) => ((b.carry || b.grab ? 1 : 0) - (a.carry || a.grab ? 1 : 0)) || b.d - a.d,
+};
+function aimOf(t) { return (t && AIM_CMP[t.aim] && t.aim) || AIM_DEFAULT[t.type] || 'first'; }
+function aimCmp(t) { return AIM_CMP[aimOf(t)]; }
+// Big Marg hits everything in reach from tier 3, so there is nothing to choose
+function aimable(t) { return !!(t && AIM_CREW[t.type] && !(t.type === 'bonk' && TOWERS.bonk.tiers[t.tier].multi)); }
+function setAim(G, pad, aim) { const t = G.towers[pad]; if (!t || !AIM_CMP[aim] || !AIM_CREW[t.type]) return false; if (aim === (AIM_DEFAULT[t.type] || 'first')) delete t.aim; else t.aim = aim; ev(G, 'changed'); return true; }
+// ---------- Overtime: somewhere for gold to go once a crew member is ELITE ----------
+// Each level adds OT.step of the tier's own damage to that one crew member; each costs OT.grow times the last. A whole
+// crew on Overtime 5 is +75% damage for about 3,300 gold each, which buys a strong Long Nap run a handful of waves
+// (monster health grows about 12% a wave by wave 40), so gold matters again without the run going on forever.
+const OT = { step: .15, base: 400, grow: 1.25, max: 20 };
+function overtimeCost(G, pad) {
+  const t = G.towers[pad]; if (!t) return null;
+  const def = TOWERS[t.type]; if (t.tier < def.tiers.length - 1 || def.tiers[t.tier].dmg == null || (t.ot || 0) >= OT.max) return null;
+  return Math.round(OT.base * Math.pow(OT.grow, t.ot || 0) * G.mods.costMult / 10) * 10;
+}
+function overtime(G, pad) {
+  const c = overtimeCost(G, pad); if (c == null || G.gold < c || G.over) return false;
+  const t = G.towers[pad]; G.gold -= c; t.ot = (t.ot || 0) + 1; t.spent += c;
+  fx(G, 'built', { pad, up: true }); ev(G, 'changed'); return true;
+}
+// the tier a crew member is actually working at: their tier, with Overtime's extra damage
+function tierOf(t) {
+  const tr = TOWERS[t.type].tiers[t.tier]; if (!t.ot || tr.dmg == null) return tr;
+  const key = t.tier * 100 + t.ot; if (t._otk === key) return t._otr;
+  const k = 1 + OT.step * t.ot, o = Object.assign({}, tr); o.dmg = Array.isArray(tr.dmg) ? tr.dmg.map(v => v * k) : tr.dmg * k;
+  t._otk = key; t._otr = o; return o;
+}
 function build(G, pad, type) {
   if (G.towers[pad] || G.over || !towerUnlocked(G.meta, type) || (G.padLock && G.padLock[pad])) return false;
   const c = towerCost(G, type); if (G.gold < c) return false;
   G.gold -= c; G.towers[pad] = newTower(type, 0, c); G.stats.builtTypes[type] = 1;
+  const pref = G.meta.aim && G.meta.aim[type]; if (pref && AIM_CMP[pref] && AIM_CREW[type] && pref !== (AIM_DEFAULT[type] || 'first')) G.towers[pad].aim = pref;
   fx(G, 'built', { pad }); ev(G, 'changed');
   return true;
 }
@@ -2138,7 +2197,7 @@ function synergy(G, id, x, y) {
 function abilityReady(G, pad) { const t = G.towers[pad]; return !!(t && t.tier >= 1 && t.acd <= 0); }
 function activate(G, pad) {
   const t = G.towers[pad]; if (!abilityReady(G, pad) || G.over || !G.waveActive) return false;
-  const tr = TOWERS[t.type].tiers[t.tier], px = G.map.pads[pad][0], py = G.map.pads[pad][1];
+  const tr = tierOf(t), px = G.map.pads[pad][0], py = G.map.pads[pad][1];
   const high = G.map.pads[pad][2] === 'high' ? 1.2 : 1;
   const near = r => G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= r);
   const mult = G.skillMult[TOWERS[t.type].skill] * G.dmgAll;
@@ -2534,7 +2593,7 @@ function update(G, dt) {
 
   G.towers.forEach((t, i) => {
     if (!t) return;
-    const def = TOWERS[t.type], tr = def.tiers[t.tier];
+    const def = TOWERS[t.type], tr = tierOf(t), AIM = aimCmp(t);
     const px = map.pads[i][0], py = map.pads[i][1], ptype = map.pads[i][2];
     let RM = ptype === 'high' ? 1.2 : 1, SM = ptype === 'shady' ? 1.15 : 1;
     const PTH = G.pathOf[t.type]; if (PTH) { if (PTH.range) RM *= PTH.range; if (PTH.rate) SM *= PTH.rate; }
@@ -2551,7 +2610,7 @@ function update(G, dt) {
       if (tr.ult) { t.ucd = (t.ucd == null ? 5 : t.ucd) - dt; if (t.ucd <= 0) { const es = G.enemies.filter(e => !e.flyer && Math.hypot(e.x - px, e.y - py) < 140); if (es.length) { t.ucd = tr.stampEvery; for (const e of es) { if (!e.boss && !e.raidBoss) e.d = Math.max(0, e.d - 20); damage(G, e, tr.dmg * 1.4 * mult, { src: 'charging', kind: 'charge', pad: i }); } fx(G, 'stampede', { pad: i, x: px, y: py }); fx(G, 'shake', { m: 4 }); ev(G, 'ultFire', { tt: 'kev' }); } else t.ucd = 1; } }
       t.cd -= dt * (1 + globalBuff) * G.mods.fireRate * SM * (t.rage > 0 ? 3 : 1);
       if (t.cd > 0) return;
-      const tg = G.enemies.filter(e => !e.flyer && !(e.air > 0) && Math.hypot(e.x - px, e.y - py) <= tr.range * RM && seen(G, e, px, py)).sort((a, b) => b.d - a.d)[0];
+      const tg = G.enemies.filter(e => !e.flyer && !(e.air > 0) && Math.hypot(e.x - px, e.y - py) <= tr.range * RM && seen(G, e, px, py)).sort(AIM)[0];
       if (!tg) { t.cd = 0; return; }
       t.cd = 1 / tr.rate;
       const vx = tg.x - px, vy = tg.y - py, L = Math.hypot(vx, vy) || 1, ux = vx / L, uy = vy / L, len = L + 34;
@@ -2566,7 +2625,7 @@ function update(G, dt) {
       if (tr.ult) { t.ucd = (t.ucd == null ? 6 : t.ucd) - dt; if (t.ucd <= 0) { const f = G.enemies.filter(e => !e.flyer).sort((a, b) => b.d - a.d)[0]; if (f) { t.ucd = tr.roadworksEvery; for (const e of G.enemies) if (!e.flyer && Math.hypot(e.x - f.x, e.y - f.y) < 70) { e.stun = Math.max(e.stun, e.boss || e.raidBoss ? .6 : 2); e.stunImm = 2.5; } fx(G, 'barricade', { x: f.x, y: f.y, big: true }); ev(G, 'ultFire', { tt: 'gav' }); } else t.ucd = 1; } }
       t.cd -= dt * (1 + globalBuff) * G.mods.fireRate * SM * (t.rage > 0 ? 3 : 1);
       if (t.cd > 0) return;
-      const tg = G.enemies.filter(e => !e.flyer && Math.hypot(e.x - px, e.y - py) <= tr.range * RM).sort((a, b) => b.d - a.d)[0];
+      const tg = G.enemies.filter(e => !e.flyer && Math.hypot(e.x - px, e.y - py) <= tr.range * RM).sort(AIM)[0];
       if (!tg) { t.cd = 0; return; }
       t.cd = 1 / tr.rate;
       const ahead = Math.min(tg.P.len - 2, tg.d + 26), q = posOn(tg.P, ahead);
@@ -2580,7 +2639,7 @@ function update(G, dt) {
       if (tr.ult) { t.ucd = (t.ucd == null ? 5 : t.ucd) - dt; if (t.ucd <= 0 && G.enemies.length) { t.ucd = tr.omenEvery; for (const e of G.enemies) { e.cursed = Math.max(e.cursed || 0, 3); e.curseAmp = Math.max(e.curseAmp || 0, amp); } fx(G, 'omen', { pad: i }); ev(G, 'ultFire', { tt: 'val' }); } }
       t.cd -= dt * (1 + globalBuff) * G.mods.fireRate * SM * (t.rage > 0 ? 3 : 1);
       if (t.cd > 0) return;
-      const pool = G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= tr.range * RM && !(e.cursed > 1)).sort((a, b) => b.hp - a.hp).slice(0, tr.curses);
+      const pool = G.enemies.filter(e => Math.hypot(e.x - px, e.y - py) <= tr.range * RM && !(e.cursed > 1)).sort(AIM).slice(0, tr.curses);
       if (!pool.length) { t.cd = 0; return; }
       t.cd = 1 / tr.rate;
       for (const e of pool) { e.cursed = tr.curseT; e.curseAmp = Math.max(e.curseAmp || 0, amp); damage(G, e, tr.dmg * G.dmgAll, { src: 'foreseeing', kind: 'curse', pad: i }); fx(G, 'curse', { pad: i, x: e.x, y: e.y }); }
@@ -2605,7 +2664,7 @@ function update(G, dt) {
             for (const e of G.enemies.slice()) if (!e.flyer && Math.hypot(e.x - px, e.y - py) <= SR) { n++; if (!(e.stunImm > 0)) { e.stun = Math.max(e.stun, e.boss ? tr.stun * .35 : tr.stun); e.stunImm = tr.stun + 1; } if (!e.boss) e.d = Math.max(0, e.d - 10); damage(G, e, tr.dmg * 1.15 * mult, { src: 'rumbling', kind: 'stomp', pad: i }); }
             fx(G, 'stomp', { pad: i, x: px, y: py, r: tr.stompR * RM, n }); fx(G, 'shake', { m: 3 });
           } else {
-            const tg = G.enemies.find(e => e.id === t.windTarget) || G.enemies.filter(e => !e.flyer && Math.hypot(e.x - px, e.y - py) <= tr.range * RM).sort((a, b) => b.d - a.d)[0];
+            const tg = G.enemies.find(e => e.id === t.windTarget) || G.enemies.filter(e => !e.flyer && Math.hypot(e.x - px, e.y - py) <= tr.range * RM).sort(AIM)[0];
             if (tg) G.projs.push({ kind: 'lava', x: px + 6, y: py - 26, sx: px, sy: py - 26, dist0: Math.max(20, Math.hypot(tg.x - px, tg.y - py)), tid: tg.id, tx: tg.x, ty: tg.y, spd: 210, dmg: tr.dmg * mult, burn: !!tr.burn, src: 'rumbling', spin: 0 });
             fx(G, 'lob', { pad: i });
           }
@@ -2617,7 +2676,7 @@ function update(G, dt) {
       const ground = G.enemies.filter(e => !e.flyer && !(e.air > 0) && Math.hypot(e.x - px, e.y - py) <= tr.range * RM && seen(G, e, px, py));
       if (!ground.length) { t.cd = 0; return; }
       const close = ground.filter(e => Math.hypot(e.x - px, e.y - py) <= tr.stompR * RM).length;
-      t.windMode = close >= 2 ? 'stomp' : 'lob'; t.windTarget = ground.sort((a, b) => b.d - a.d)[0].id;
+      t.windMode = close >= 2 ? 'stomp' : 'lob'; t.windTarget = ground.sort(AIM)[0].id;
       t.wind = .42; t.cd = 1 / tr.rate;
       fx(G, 'windup', { pad: i, mode: t.windMode });
       return;
@@ -2625,7 +2684,7 @@ function update(G, dt) {
     if (t.type === 'banjo') {
       t.cd -= dt * (1 + globalBuff) * G.mods.fireRate * SM * G.mods.banjoRate * (t.rage > 0 ? 3 : 1);
       if (t.cd > 0) return;
-      const inR = G.enemies.filter(e => !e.flyer && !(e.air > 0) && Math.hypot(e.x - px, e.y - py) <= tr.range * RM && seen(G, e, px, py)).sort((a, b) => b.d - a.d);
+      const inR = G.enemies.filter(e => !e.flyer && !(e.air > 0) && Math.hypot(e.x - px, e.y - py) <= tr.range * RM && seen(G, e, px, py)).sort(AIM);
       if (!inR.length) { t.cd = 0; return; }
       t.cd = 1 / tr.rate;
       t.g = ((t.g == null ? -1 : t.g) + 1) % 8;
@@ -2663,7 +2722,7 @@ function update(G, dt) {
       }
       t.cd -= dt * (1 + globalBuff) * G.mods.fireRate * SM * (t.rage > 0 ? 3 : 1);
       if (t.cd > 0) return;
-      const cands = G.enemies.filter(e => !e.boss && !e.lift && !ENEMIES[e.type].egg && Math.hypot(e.x - px, e.y - py) <= tr.range * RM && seen(G, e, px, py)).sort((a, b) => b.d - a.d);
+      const cands = G.enemies.filter(e => !e.boss && !e.lift && !ENEMIES[e.type].egg && Math.hypot(e.x - px, e.y - py) <= tr.range * RM && seen(G, e, px, py)).sort(AIM);
       if (!cands.length) { t.cd = 0; return; }
       t.cd = tr.every;
       const n = tr.n + G.mods.peteExtra;
@@ -2722,7 +2781,8 @@ function update(G, dt) {
       if (!ground.length || mine >= tr.max) { t.cd = .3; return; }
       t.cd = tr.every;
       const mult2 = G.skillMult.flocking * G.mods.birdDmg;
-      ground.sort((a, b) => G.birds.filter(x => x.tid === a.id).length - G.birds.filter(x => x.tid === b.id).length || b.d - a.d);
+      const nb = e => G.birds.filter(x => x.tid === e.id).length;
+      ground.sort(aimOf(t) === 'first' ? (a, b) => nb(a) - nb(b) || b.d - a.d : (a, b) => AIM(a, b) || nb(a) - nb(b));
       G.birds.push({ id: ++G.bid, kind: 'ibis', pad: i, x: px + 8, y: py - 22, tid: ground[0].id, life: tr.life, pcd: .2, dmg: tr.dmg * mult2, bin: !!tr.binDay, ox: (G.rng() - .5) * 10, perched: false, hits: 0, gold: !!tr.elite });
       fx(G, 'summon', { pad: i, kind: 'ibis' });
       if (tr.pigeons) {
@@ -2740,7 +2800,7 @@ function update(G, dt) {
     const warm = map.fires.some(f => Math.hypot(f.x - px, f.y - py) < 80) ? 1.2 : 1;
     const mult = G.skillMult[def.skill] * warm;
     if (t.type === 'chuck') {
-      inRange.sort((a, b) => b.d - a.d);
+      inRange.sort(AIM);
       const lvl = levelInfo(G.meta.xp.chucking || 0).L;
       const junk = CHUCK_JUNK.slice(); if (lvl >= 3) junk.push('🍉'); if (lvl >= 5) junk.push('📺');
       fx(G, 'throw', { pad: i });
@@ -2770,7 +2830,7 @@ function update(G, dt) {
           for (const e of G.enemies.slice()) if (!e.flyer && Math.hypot(e.x - px, e.y - py) < (tr.slamR || 100)) { e.d = Math.max(0, e.d - (e.boss ? 10 : 30)); damage(G, e, 60 * mult * (1 + .1 * (G.wave - 1)), { src: 'bonking', kind: 'slam', pad: i }); }
         }
       }
-      inRange.sort((a, b) => b.d - a.d);
+      inRange.sort(AIM);
       const tgs = tr.multi ? inRange : [inRange[0]];
       fx(G, 'swingPan', { pad: i, x: tgs[0].x });
       for (const e of tgs) {
@@ -2779,7 +2839,7 @@ function update(G, dt) {
         damage(G, e, tr.dmg * G.mods.bonkDmg * mult, { src: 'bonking', kind: 'bonk', pad: i });
       }
     } else if (t.type === 'jezza') {
-      inRange.sort((a, b) => ((a.tipsy > 0) - (b.tipsy > 0)) || (b.d - a.d));
+      inRange.sort((a, b) => ((a.tipsy > 0) - (b.tipsy > 0)) || AIM(a, b));
       const tg = inRange[0];
       fx(G, 'throw', { pad: i });
       const sx = px - 8, sy = py - 22;
@@ -2787,7 +2847,7 @@ function update(G, dt) {
       for (const tg2 of shots) G.projs.push({ kind: 'whisky', x: sx, y: sy, sx, sy, dist0: Math.max(20, Math.hypot(tg2.x - sx, tg2.y - sy)), tid: tg2.id, tx: tg2.x, ty: tg2.y, spd: 220, dmg: tr.dmg * mult,
         pr: tr.pr * G.mods.puddleMult * (1 + (G.skillMult.pouring - 1) * .5), life: tr.life * G.mods.puddleLife, tipsy: tr.tipsy, fire: !!tr.fire, rainbow: !!tr.ult, vuln: tr.vuln || 0, src: 'pouring', spin: rand(G, 0, 6) });
     } else if (t.type === 'nan') {
-      inRange.sort((a, b) => b.hp - a.hp);
+      inRange.sort(AIM);
       const tg = inRange[0];
       let cc = tr.crit + G.mods.nanCrit + (G.event === 'rainbow' ? .15 : 0) + ((G.pathOf.nan && G.pathOf.nan.crit) || 0);
       if (tg.stun > 0 || tg.frozen > 0) cc += .3;
@@ -2956,7 +3016,7 @@ function applyCard(G, card) { G.cards.push(card.id); card.apply(G); }
 function snapshot(G) {
   return { v: 4, runMods: G.runMods, meter: G.meter, lastWaveCleared: G.lastWaveCleared, map: G.mapIdx, mode: G.mode, daily: G.daily, wave: G.wave, gold: G.gold, pile: G.pile, pileMax: G.pileMax, pokes: G.pokes, cards: G.cards.slice(),
     mods: Object.assign({}, G.mods), stats: JSON.parse(JSON.stringify(G.stats)), xp: Object.assign({}, G.xp), gate: G.gate, t: G.t,
-    towers: G.towers.map(t => t ? { type: t.type, tier: t.tier, spent: t.spent } : null) };
+    towers: G.towers.map(t => t ? Object.assign({ type: t.type, tier: t.tier, spent: t.spent }, t.aim ? { aim: t.aim } : null, t.ot ? { ot: t.ot } : null) : null) };
 }
 function restoreRun(meta, s) {
   const G = newRun(meta, (Date.now() ^ 0x9e3779b9) >>> 0, s.map, s.mode || 'campaign', s.daily, s.runMods);
@@ -2967,7 +3027,7 @@ function restoreRun(meta, s) {
   for (const sk of (G.map.sinks || [])) if (sk.w <= s.wave) G.closed[sk.path] = true;
   if (G.map.bridge) G.bridgeIdx = Math.floor(Math.max(0, s.wave - 1) / 2) % 2;
   for (const k of ['perfects', 'dreams', 'syn', 'abilities', 'shards']) G.stats[k] = G.stats[k] || 0;
-  G.towers = G.map.pads.map((_, i) => s.towers[i] ? newTower(s.towers[i].type, s.towers[i].tier, s.towers[i].spent) : null);
+  G.towers = G.map.pads.map((_, i) => { const st = s.towers[i]; if (!st) return null; const t = newTower(st.type, st.tier, st.spent); if (AIM_CMP[st.aim] && AIM_CREW[st.type]) t.aim = st.aim; if (st.ot > 0) t.ot = Math.min(OT.max, st.ot | 0); return t; });
   G.firstLoot = true;
   return G;
 }
@@ -3066,6 +3126,7 @@ function finishRun(G) {
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { W, H, GARY, MAPS, posOn, SKILLS, SKILL_NAMES, SKILL_DESC, TOWERS, TIER_NOTES, ENEMIES, BOSS_ITEMS, RARITY, ITEMS, ALL_ITEMS, ITEM_DESC, STASH_TOTAL, CARDS,
+  spawn, AIMS, AIM_NAMES, AIM_DEFAULT, aimOf, aimable, setAim, OT, overtimeCost, overtime, tierOf, DEEP, deepLevel, deepCost, buyDeep, applyDeep, TUMBLE, shedMaxed, tumble, DREAM_COST,
   xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, initRaid, raidBossFor, RAID_MEDALS, PATHS, PATH_LEVEL, pathFor, traitPlan, TRAITS, itemStars, starMult, starCost, weekKey, shortFirstLevel, TASTER, layoutMap, padRoadDist, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
 
 </script>
@@ -4489,6 +4550,7 @@ const R = (function () {
     }
     if (t.tier === 2) { ctx.save(); ctx.translate(x + 14, y - 2); ctx.rotate(time * .8); ctx.fillStyle = '#F2C14E'; ctx.beginPath(); for (let k = 0; k < 10; k++) { const r2 = k % 2 ? 2 : 4.5, a2 = k * Math.PI / 5; ctx.lineTo(Math.cos(a2) * r2, Math.sin(a2) * r2); } ctx.closePath(); ctx.fill(); ctx.restore(); }
     if (!EL) for (let k = 0; k <= t.tier; k++) flat(ctx, x - t.tier * 4 + k * 8, y + 18, 2.2, 2.2, ult ? RAINBOW[(k * 2) % RAINBOW.length] : '#FFF6D8');
+    if (t.ot && !portraitMode) text('OT ' + t.ot, x, y + 33, 7.5, '#7A3E12', { outline: 2.4, oc: 'rgba(255,224,122,.95)' });
     if (t.djBuff && t.type !== 'dj' && Math.random() < .02) P({ kind: 'note', x: x - 12, y: y - 34, vy: -18, vx: -6, life: 1.1, size: 10, col: RAINBOW[Math.floor(Math.random() * RAINBOW.length)] });
     if (G.globalBuff > 0 && t.type !== 'sizzle' && Math.random() < .015) P({ kind: 'snagicon', x: x + 12, y: y - 30, vy: -14, life: 1, size: 1 });
   }
@@ -5741,6 +5803,8 @@ const R = (function () {
     m.stash = obj(m.stash); for (const k in m.stash) { m.stash[k] = n(m.stash[k]); if (!m.stash[k]) delete m.stash[k]; }
     m.maps = obj(m.maps); for (const id in m.maps) { const ms = obj(m.maps[id]); for (const k of ['plays', 'wins', 'stars', 'bestKept']) ms[k] = n(ms[k]); ms.stars = Math.min(3, ms.stars); m.maps[id] = ms; }
     m.totals = obj(m.totals); for (const k in m.totals) if (k !== 'bosses') m.totals[k] = n(m.totals[k]); m.totals.bosses = obj(m.totals.bosses);
+    m.deep = obj(m.deep); for (const k in m.deep) m.deep[k] = Math.min(10, n(m.deep[k]));
+    m.aim = obj(m.aim); for (const k in m.aim) if (typeof m.aim[k] !== 'string') delete m.aim[k];
     m.settings = obj(m.settings); m.shed = obj(m.shed); for (const k in m.shed) m.shed[k] = n(m.shed[k], 9);
     m.dreams = obj(m.dreams); for (const k in m.dreams) m.dreams[k] = Math.max(1, Math.min(5, n(m.dreams[k]) || 1));
     m.equip = (Array.isArray(m.equip) ? m.equip : []).concat([null, null, null]).slice(0, 3).map(x => typeof x === 'string' && m.stash[x] ? x : null);
@@ -5993,7 +6057,9 @@ const R = (function () {
       const t = G.towers[selPad], d = TOWERS[t.type], uc = upgradeCost(G, selPad), nx = d.tiers[t.tier + 1];
       const lvl = G.runL[d.skill] || 1, isUlt = nx && nx.ult, isElite = nx && nx.elite, locked = ultLocked(G, selPad);
       let upBtn;
-      if (uc == null) upBtn = '<button class="btn elitedone" disabled>ELITE. Maxed out.</button>';
+      const oc = uc == null ? overtimeCost(G, selPad) : null;
+      if (oc != null) upBtn = '<button class="btn elitebtn" data-act="ot"' + (G.gold >= oc ? '' : ' disabled') + '>Overtime ' + ((t.ot || 0) + 1) + ': +' + Math.round(OT.step * 100) + '% damage (' + oc + ')</button>';
+      else if (uc == null) upBtn = '<button class="btn elitedone" disabled>ELITE. Maxed out.</button>';
       else if (locked) upBtn = '<button class="btn" disabled>' + (isElite ? 'Elite' : 'Ultimate') + ' unlocks at ' + SKILL_NAMES[d.skill] + ' ' + (isElite ? ELITE_LEVEL : ULT_LEVEL) + ' (you\u2019re ' + lvl + ')</button>';
       else upBtn = '<button class="btn ' + (isElite ? 'elitebtn' : isUlt ? 'ultbtn' : 'primary') + '" data-act="up"' + (G.gold >= uc ? '' : ' disabled') + '>' + (isUlt ? TIER_NOTES[t.type][t.tier + 1] : 'Upgrade: ' + TIER_NOTES[t.type][t.tier + 1]) + ' (' + uc + ')</button>';
       const A = ABIL[t.type], ar = abilityReady(G, selPad);
@@ -6001,13 +6067,18 @@ const R = (function () {
         : '<button class="btn abilbtn' + (ar && G.waveActive ? ' ready' : '') + '" data-act="abil"' + (ar && G.waveActive ? '' : ' disabled') + '><b>' + A.name + '</b><small>' + (ar ? (G.waveActive ? A.desc : 'Ready. Use it during a wave.') : 'Recharging: ' + Math.ceil(t.acd) + 's') + '</small></button>';
       sheetHTML = '<div class="sheet-head"><span>' + d.name + '</span><button class="x" data-act="close">Close</button></div>' +
         abil + padNote(selPad) +
-        '<p class="tinfo">' + d.crew + ', ' + SKILL_NAMES[d.skill] + ' level ' + lvl + '. Tier ' + (t.tier + 1) + ' of 5: ' + TIER_NOTES[t.type][t.tier] + '.' + (t.hatless > 0 ? (t.credit > 0 ? ' Steve took the credit. Sulking.' : ' Lost their hat. Too scared to work.') : '') + '</p>' +
+        '<p class="tinfo">' + d.crew + ', ' + SKILL_NAMES[d.skill] + ' level ' + lvl + '. Tier ' + (t.tier + 1) + ' of 5: ' + TIER_NOTES[t.type][t.tier] + '.' + (t.ot ? ' On Overtime ' + t.ot + ': +' + Math.round(OT.step * t.ot * 100) + '% damage.' : '') + (t.hatless > 0 ? (t.credit > 0 ? ' Steve took the credit. Sulking.' : ' Lost their hat. Too scared to work.') : '') + '</p>' +
         (isElite || d.tiers[t.tier].elite ? '<p class="ultdesc elite">' + ELITE_DESC[t.type] + '</p>' : (isUlt || d.tiers[t.tier].ult) ? '<p class="ultdesc">' + ULT_DESC[t.type] + '</p>' : '') +
+        (aimable(t) ? '<div class="aimrow" role="group" aria-label="Who ' + d.crew + ' goes for first"><span>Aim at</span>' + AIMS.map(a => '<button class="aim' + (aimOf(t) === a ? ' on' : '') + '" data-aim="' + a + '" aria-pressed="' + (aimOf(t) === a) + '" title="' + AIM_HELP[a] + '">' + AIM_NAMES[a] + '</button>').join('') + '</div>' : '') +
         '<div class="row2">' + upBtn + '<button class="btn' + (sellArmed === selPad ? ' danger' : '') + '" data-act="sell">' + (sellArmed === selPad ? 'Tap again to sell' : 'Sell for ' + sellValue(G, selPad)) + '</button></div>';
     }
     // only redraw when something changed, so a tap is never swallowed by a refresh
     if (sheetHTML != null && sheetHTML !== lastSheetHTML) { freeCanvases(s); s.innerHTML = sheetHTML; lastSheetHTML = sheetHTML; drawPortraits(s); }
   }
+  const AIM_HELP = { first: 'Whoever is furthest along the road', last: 'Whoever is furthest back', strong: 'Whoever has the most health left', weak: 'Whoever has the least health left', loot: 'Whoever is carrying or grabbing loot' };
+  const AIM_QUIP = { first: ['Front of the line. Got it.', 'First in, first served.'], last: ['Back of the queue it is.', 'The stragglers. Righto.'], strong: ['The big one. Righto.', 'Biggest first. Obviously.'], weak: ['Finishing them off.', 'Easy pickings.'], loot: ['Oi! That\u2019s Gary\u2019s!', 'Hands off the loot.'] };
+  const OT_QUIP = ['Time and a half? Righto.', 'Penalty rates. Lovely.', 'I\u2019ll need a smoko after this.', 'Double time on a Sunday.'];
+  const aimSeen = {};
   // Only accept a tap that started on the sheet after it opened (stops the opening tap from picking something).
   let sheetDownOk = false;
   $('sheet').addEventListener('pointerdown', () => { sheetDownOk = performance.now() - sheetOpenedAt > 120; });
@@ -6028,9 +6099,26 @@ const R = (function () {
         const p = G.map.pads[pad], first = !G.saidHi; G.saidHi = G.saidHi || {};
         if (!G.saidHi[k]) { G.saidHi[k] = 1; const alt = BUILD_QUIP_ALT[k]; R.say(p[0], p[1] - 52, alt && Math.random() < .35 ? alt[Math.floor(Math.random() * alt.length)] : (BUILD_QUIP[k] || 'Righto.'), 2); }
         SFX.play(crewSfx[k] || 'build'); if (k === 'banjo') SFX.sting('banjo');
+        const nt = G.towers[pad]; if (nt && nt.aim && !(G.saidAim = G.saidAim || {})[k]) { G.saidAim[k] = 1; toast(((CREW[k] || {}).n || TOWERS[k].crew) + ' is aiming at ' + AIM_NAMES[nt.aim].toLowerCase() + ', like last time. Tap them to change it.'); }
         trackEvent('tower_placed', { tower: k, level_id: G.map.id, wave: G.wave }); trackFirst('tower', 'first_tower_placed', { tower: k, level_id: G.map.id });
       }
       closeSheet(); }
+    else if (b.dataset.aim) {
+      const t0 = G.towers[selPad], a = b.dataset.aim;
+      if (t0 && aimOf(t0) !== a && setAim(G, selPad, a)) {
+        meta.aim = meta.aim || {}; meta.aim[t0.type] = a; saveMeta();   // the next one you hire starts on the same aim
+        const p = G.map.pads[selPad]; R.say(p[0], p[1] - 52, AIM_QUIP[a][Math.floor(Math.random() * AIM_QUIP[a].length)], 1.6); SFX.play('pick');
+        if (!aimSeen[t0.type + a]) { aimSeen[t0.type + a] = 1; trackEvent('aim_set', { tower: t0.type, aim: a, level_id: G.map.id, mode: G.mode }); }
+      }
+      renderSheet(); }
+    else if (b.dataset.act === 'ot') {
+      sellArmed = -1; const t0 = G.towers[selPad];
+      if (overtime(G, selPad)) {
+        const p = G.map.pads[selPad];
+        if (t0.ot === 1 || Math.random() < .4) R.say(p[0], p[1] - 52, OT_QUIP[Math.floor(Math.random() * OT_QUIP.length)], 1.6);
+        if (t0.ot === 1) trackEvent('tower_overtime', { tower: t0.type, level_id: G.map.id, mode: G.mode, wave: G.wave });
+      }
+      renderSheet(); }
     else if (b.dataset.act === 'up') {
       sellArmed = -1; const t0 = G.towers[selPad], tt = t0 && t0.type, before = t0 && t0.tier;
       if (upgrade(G, selPad)) {
@@ -6060,7 +6148,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
-    { build: 31, title: 'The big tidy-up', notes: ['Opens fast, works with no signal, and your save keeps three copies.', 'The Laneways and Cliff Top Gusts are fairer. Nan is exactly as ridiculous as before.', 'Leaving mid-wave pauses the game. Press M to mute.'] },
+    { build: 31, title: 'The big tidy-up', notes: ['Tap a crew member to choose who they aim at. ELITE crew can now work Overtime.', 'Opens fast, works with no signal, and your save keeps three copies.', 'The Laneways and Cliff Top Gusts are fairer. Nan is exactly as ridiculous as before.', 'Leaving mid-wave pauses the game. Press M to mute.'] },
     { build: 30, title: 'A snappier first game', notes: ['Brand-new players get a quick three-wave taster: two warm-ups, then Kevin the boss, at double speed.', 'The wave counter now tells you when the boss is next.'] },
     { build: 29, title: 'Raids, Mastery and three new crew', notes: ['\ud83d\udc79 Weekly Raid Boss: 3 minutes to deal as much damage as you can to The Landlord, The Council Ranger or Gary\u2019s Alarm Clock. Bronze, Silver and Gold medals. New boss every Monday.', '\ud83c\udf93 Mastery Paths: once a crew member\u2019s skill hits level 6, choose how they play. Sniper Nan or Knitting Circle?', 'New crew: Big Kev the Cassowary (charges), Gav the Tradie (road spikes and barricades) and Aunty Val the Psychic (curses, card rerolls).', 'Big late-game levels run smoother: the game now quietly turns down effects, resolution and frame rate if your phone is struggling.'] },
     { build: 28, title: 'Turn up the heat', notes: ['\ud83d\udd25 Heat: every win makes the next level tougher and pay more. Lose and it cools down. Unlocks after 5 wins.', 'Hard and \ud83d\udc80 Nightmare versions of every level you\u2019ve beaten, with Nightmare-only legendary outfits.', 'Monsters now turn up with traits: \u26a1 Speedy, \ud83d\udee1\ufe0f Armoured, \ud83e\uddec Splitter and \ud83d\udc9a Healer. The wave preview shows what\u2019s coming.', 'Veterans get 3\u00d7 speed and auto-start. Smooth mode makes Firefox and older phones run better.'] },
@@ -6387,7 +6475,8 @@ const R = (function () {
         return '<div class="dream' + (eq ? ' eq' : '') + (unl ? '' : ' locked') + '"><div class="dhead"><span class="dic">' + D.icon + '</span><div><b>' + D.name + (unl ? ' Lv' + L : '') + '</b><small>' + (unl ? D.desc : 'Unlocks at Gary level ' + DREAM_UNLOCK[id]) + '</small></div></div>' +
           (unl ? '<div class="pips">' + pips + '</div><p class="dlv">Now: ' + D.lv[L - 1] + (L < 5 ? '<br>Next: ' + D.lv[L] : '') + '</p><div class="row2b">' +
           (eq ? '<button class="btn" disabled>Equipped</button>' : '<button class="btn" data-eq="' + id + '">Equip</button>') +
-          (L < 5 ? '<button class="btn' + ((meta.shards || 0) >= cost ? ' ultbtn' : '') + '" data-up="' + id + '"' + ((meta.shards || 0) >= cost ? '' : ' disabled') + '>Level up (' + cost + ' shards)</button>' : '<button class="btn ultdone" disabled>Maxed. Oh yes.</button>') + '</div>' : '') + '</div>';
+          (L < 5 ? '<button class="btn' + ((meta.shards || 0) >= cost ? ' ultbtn' : '') + '" data-up="' + id + '"' + ((meta.shards || 0) >= cost ? '' : ' disabled') + '>Level up (' + cost + ' shards)</button>' : (deepCost(meta, id) != null ? '<button class="btn' + ((meta.shards || 0) >= deepCost(meta, id) ? ' ultbtn' : '') + '" data-deep="' + id + '"' + ((meta.shards || 0) >= deepCost(meta, id) ? '' : ' disabled') + '>Deeper sleep (' + deepCost(meta, id) + ' shards)</button>' : '<button class="btn ultdone" disabled>Maxed. Oh yes.</button>')) + '</div>' +
+          (L >= 5 ? '<p class="dlv deep">' + (deepLevel(meta, id) ? 'Deep sleep ' + deepLevel(meta, id) + ' of ' + DEEP.max + ': charges ' + Math.round(DEEP.step * deepLevel(meta, id) * 100) + '% faster.' : 'Deep sleep: each level charges this dream ' + Math.round(DEEP.step * 100) + '% faster.') + '</p>' : '') : '') + '</div>';
       }).join('');
     } else if (tab === 'pj') { return showWardrobe('gary');
     } else if (tab === 'pjold') {
@@ -6412,7 +6501,8 @@ const R = (function () {
     $('modalCard').querySelectorAll('[data-pj]').forEach(b => b.onclick = () => { meta.pj = b.dataset.pj; applyLook(); saveMeta(); SFX.play('pick'); trackEvent('cosmetic_equipped', { item: meta.pj }); showGear('pj'); });
     $('gBack').onclick = () => { if (inMenu) closeMenu(); else showHome(); };
     $('modalCard').querySelectorAll('[data-gt]').forEach(b => b.onclick = () => showGear(b.dataset.gt));
-    $('modalCard').querySelectorAll('[data-eq]').forEach(b => b.onclick = () => { meta.dreamEquip = b.dataset.eq; saveMeta(); if (G && G.wave === 0) { G.dream = meta.dreamEquip; G.dreamLv = meta.dreams[G.dream]; } showGear('dreams'); });
+    $('modalCard').querySelectorAll('[data-eq]').forEach(b => b.onclick = () => { meta.dreamEquip = b.dataset.eq; saveMeta(); if (G && G.wave === 0) { G.dream = meta.dreamEquip; G.dreamLv = meta.dreams[G.dream]; applyDeep(G); } showGear('dreams'); });
+    $('modalCard').querySelectorAll('[data-deep]').forEach(b => b.onclick = () => { const id = b.dataset.deep; if (buyDeep(meta, id)) { saveMeta(); SFX.play('ultimate'); if (G && G.dream === id) applyDeep(G); trackEvent('deep_sleep', { dream: id, level: deepLevel(meta, id) }); } showGear('dreams'); });
     $('modalCard').querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const id = b.dataset.up, L = meta.dreams[id], cost = DREAM_COST[L + 1]; if ((meta.shards || 0) >= cost && L < 5) { meta.shards -= cost; meta.dreams[id] = L + 1; saveMeta(); SFX.play('ultimate'); if (G && G.dream === id) G.dreamLv = L + 1; } showGear('dreams'); });
     $('modalCard').querySelectorAll('[data-slot]').forEach(b => b.onclick = () => { meta.equip[+b.dataset.slot] = null; saveMeta(); showGear('trinkets'); });
     $('modalCard').querySelectorAll('.stile').forEach(b => b.onclick = () => {
@@ -6445,9 +6535,13 @@ const R = (function () {
     }).join('');
     openModal('<div class="menu-head"><h2 class="title sm">Clive\u2019s Shed</h2><button class="btn" id="shedBack" data-focus>Back</button></div>' +
       '<p class="lede sm"><span class="rockic"></span> ' + (meta.rocks || 0) + ' Shiny Rocks</p><p class="small">Permanent upgrades for every run. Earn rocks by banking loot, beating bosses and finishing odd jobs.</p>' +
-      '<div class="shed">' + rows + '</div><p class="clive">\u201cMost of this was here when I got the job.\u201d <span>Clive</span></p>', 'menu');
+      '<div class="shed">' + rows + (shedMaxed(meta) ? '<div class="shedrow tumbler"><div><b>Rock Tumbler</b><span>The Shed\u2019s sold out, so Clive bought a tumbler. ' + TUMBLE.rocks + ' Shiny Rocks in, 1 Dream Shard out. You have ' + (meta.shards || 0) + ' shards.</span></div>' +
+        '<div class="tumblebtns"><button class="btn' + (meta.rocks >= TUMBLE.rocks ? ' primary' : '') + '" data-tumble="1"' + (meta.rocks >= TUMBLE.rocks ? '' : ' disabled') + '><span class="rockic sm"></span>' + TUMBLE.rocks + '</button>' +
+        (meta.rocks >= TUMBLE.rocks * 10 ? '<button class="btn" data-tumble="10">\u00d710</button>' : '') + '</div></div>' : '') +
+      '</div><p class="clive">\u201c' + (shedMaxed(meta) ? 'It makes a racket, but it works.' : 'Most of this was here when I got the job.') + '\u201d <span>Clive</span></p>', 'menu');
     $('shedBack').onclick = showHome;
     $('modalCard').querySelectorAll('[data-buy]').forEach(b => b.onclick = () => { if (buyShed(meta, b.dataset.buy)) { saveMeta(); showShed(); } });
+    $('modalCard').querySelectorAll('[data-tumble]').forEach(b => b.onclick = () => { const n = +b.dataset.tumble; if (tumble(meta, n)) { saveMeta(); SFX.play('coin'); trackEvent('rocks_tumbled', { n }); showShed(); } });
   }
   function pickLong() {
     const maps = MAPS.map((m, i) => i).filter(i => meta.maps[MAPS[i].id] && meta.maps[MAPS[i].id].wins > 0);
