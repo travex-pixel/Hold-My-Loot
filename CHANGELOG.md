@@ -215,6 +215,13 @@ For players who've maxed everything (asked for by a player at wave 50 of the Lon
 - Deep sleep: a level-5 dream keeps levelling with shards. Each of 10 levels charges that dream 6% faster.
 - Rock Tumbler: once the whole Shed is maxed, Clive turns 100 spare Shiny Rocks into 1 Dream Shard.
 - The aim buttons appear once a player has won a level, so the first game stays uncluttered.
+- From a veteran playtest of all of the above on an iPhone SE, iPhone 15 and a laptop:
+  - A crew member's sheet no longer hides them on small phones, so you can watch the aim you just picked. When the
+    sheet can't fit on either side, the info scrolls and the aim and buttons stay pinned.
+  - Buying Deep sleep, a Shed upgrade or a tumble keeps your place in the list instead of jumping to the top.
+  - Aim buttons and Close are 40px tall. The "OT" label on the board is readable on a phone.
+  - The Tumbler shows your rocks next to it and what ×10 costs. The hire note reads "Nan Beryl goes for the
+    strongest, like last time" and speaks up again if you change it.
 - Fix (found in review before release): a save code or damaged save naming an aim like "valueOf" froze the game on
   the next wave. Only the five real aim names are accepted now, and the save sanitiser drops anything else.
 

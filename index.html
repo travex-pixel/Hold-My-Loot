@@ -183,8 +183,10 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 
 #sheet { position: absolute; left: 6px; right: 6px; bottom: 6px; z-index: 4; background: var(--paper); border: 1.5px solid var(--line); border-radius: 20px; box-shadow: 0 10px 28px rgba(60,45,25,.25); padding: 10px; max-height: 72%; overflow: auto; }
 #sheet.top { bottom: auto; top: 6px; }
+#sheet.tight .sheet-head { position: sticky; top: -10px; z-index: 2; background: var(--paper); margin: -10px -10px 8px; padding: 10px 10px 4px; }
+#sheet.tight .acts { position: sticky; bottom: -10px; z-index: 2; background: var(--paper); margin: 0 -10px -10px; padding: 8px 10px 10px; box-shadow: 0 -8px 10px -8px rgba(60,45,25,.25); }
 .sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-family: Fraunces, Georgia, serif; font-weight: 700; font-size: 18px; }
-.x { font: 800 13px Nunito, sans-serif; background: var(--paper2); border: 1.5px solid var(--line); border-radius: 12px; padding: 6px 11px; cursor: pointer; color: var(--ink); }
+.x { font: 800 13px Nunito, sans-serif; background: var(--paper2); border: 1.5px solid var(--line); border-radius: 12px; padding: 6px 13px; min-height: 40px; cursor: pointer; color: var(--ink); }
 .cards4 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 .tcard { text-align: left; font-family: inherit; color: var(--ink); background: var(--paper2); border: 1.5px solid var(--line); border-radius: 14px; padding: 8px 9px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; }
 .tcard:disabled { opacity: .45; cursor: default; }
@@ -387,7 +389,7 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 .tumblebtns { display: flex; flex-direction: column; gap: 4px; } .dlv.deep { color: #5A4E9A; margin-top: 4px; }
 .aimrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 0 0 8px; }
 .aimrow > span { font-size: 12px; font-weight: 800; color: var(--muted); margin-right: 2px; }
-.aim { flex: 1 1 auto; font: 800 12.5px Nunito, sans-serif; color: var(--ink); background: var(--paper2); border: 1.5px solid var(--line); border-radius: 10px; padding: 6px 5px; min-height: 32px; cursor: pointer; }
+.aim { flex: 1 1 auto; font: 800 12.5px Nunito, sans-serif; color: var(--ink); background: var(--paper2); border: 1.5px solid var(--line); border-radius: 10px; padding: 6px 5px; min-height: 40px; cursor: pointer; }
 .aim.on { background: #FFE9A8; border-color: #D49A2E; box-shadow: inset 0 -2px 0 #E8B94A; }
 .abilbtn { width: 100%; margin-bottom: 9px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
 .abilbtn b { font-size: 16px; } .abilbtn small { font-size: 12.5px; font-weight: 700; color: var(--muted); }
@@ -4558,7 +4560,7 @@ const R = (function () {
     }
     if (t.tier === 2) { ctx.save(); ctx.translate(x + 14, y - 2); ctx.rotate(time * .8); ctx.fillStyle = '#F2C14E'; ctx.beginPath(); for (let k = 0; k < 10; k++) { const r2 = k % 2 ? 2 : 4.5, a2 = k * Math.PI / 5; ctx.lineTo(Math.cos(a2) * r2, Math.sin(a2) * r2); } ctx.closePath(); ctx.fill(); ctx.restore(); }
     if (!EL) for (let k = 0; k <= t.tier; k++) flat(ctx, x - t.tier * 4 + k * 8, y + 18, 2.2, 2.2, ult ? RAINBOW[(k * 2) % RAINBOW.length] : '#FFF6D8');
-    if (t.ot && !portraitMode) text('OT ' + t.ot, x, y + 33, 7.5, '#7A3E12', { outline: 2.4, oc: 'rgba(255,224,122,.95)' });
+    if (t.ot && !portraitMode) text('OT ' + t.ot, x, y + 35, 10, '#7A3E12', { outline: 2.4, oc: 'rgba(255,224,122,.95)' });
     if (t.djBuff && t.type !== 'dj' && Math.random() < .02) P({ kind: 'note', x: x - 12, y: y - 34, vy: -18, vx: -6, life: 1.1, size: 10, col: RAINBOW[Math.floor(Math.random() * RAINBOW.length)] });
     if (G.globalBuff > 0 && t.type !== 'sizzle' && Math.random() < .015) P({ kind: 'snagicon', x: x + 12, y: y - 30, vy: -14, life: 1, size: 1 });
   }
@@ -6050,7 +6052,7 @@ const R = (function () {
   function renderSheet() {
     let sheetHTML = null;
     const s = $('sheet'); if (!G || !sheetMode || selPad < 0) { s.hidden = true; return; }
-    s.hidden = false; s.classList.toggle('top', G.map.pads[selPad][1] > 300);
+    s.hidden = false; if (sheetMode !== 'tower') s.classList.toggle('top', G.map.pads[selPad][1] > 300);
     if (sheetMode === 'build' && G.towers[selPad]) sheetMode = 'tower';
     if (sheetMode === 'tower' && !G.towers[selPad]) sheetMode = 'build';
     if (sheetMode === 'build') {
@@ -6077,13 +6079,30 @@ const R = (function () {
         abil + padNote(selPad) +
         '<p class="tinfo">' + d.crew + ', ' + SKILL_NAMES[d.skill] + ' level ' + lvl + '. Tier ' + (t.tier + 1) + ' of 5: ' + TIER_NOTES[t.type][t.tier] + '.' + (t.ot ? ' On Overtime ' + t.ot + ': +' + Math.round(OT.step * t.ot * 100) + '% damage.' : '') + (t.hatless > 0 ? (t.credit > 0 ? ' Steve took the credit. Sulking.' : ' Lost their hat. Too scared to work.') : '') + '</p>' +
         (isElite || d.tiers[t.tier].elite ? '<p class="ultdesc elite">' + ELITE_DESC[t.type] + '</p>' : (isUlt || d.tiers[t.tier].ult) ? '<p class="ultdesc">' + ULT_DESC[t.type] + '</p>' : '') +
-        (aimable(t) && !G.taster && (meta.wins || 0) > 0 ? '<div class="aimrow" role="group" aria-label="Who ' + d.crew + ' goes for first"><span>Aim at</span>' + AIMS.map(a => '<button class="aim' + (aimOf(t) === a ? ' on' : '') + '" data-aim="' + a + '" aria-pressed="' + (aimOf(t) === a) + '" title="' + AIM_HELP[a] + '">' + AIM_NAMES[a] + '</button>').join('') + '</div>' : '') +
-        '<div class="row2">' + upBtn + '<button class="btn' + (sellArmed === selPad ? ' danger' : '') + '" data-act="sell">' + (sellArmed === selPad ? 'Tap again to sell' : 'Sell for ' + sellValue(G, selPad)) + '</button></div>';
+        '<div class="acts">' + (aimable(t) && !G.taster && (meta.wins || 0) > 0 ? '<div class="aimrow" role="group" aria-label="Who ' + d.crew + ' goes for first"><span>Aim at</span>' + AIMS.map(a => '<button class="aim' + (aimOf(t) === a ? ' on' : '') + '" data-aim="' + a + '" aria-pressed="' + (aimOf(t) === a) + '" title="' + AIM_HELP[a] + '">' + AIM_NAMES[a] + '</button>').join('') + '</div>' : '') +
+        '<div class="row2">' + upBtn + '<button class="btn' + (sellArmed === selPad ? ' danger' : '') + '" data-act="sell">' + (sellArmed === selPad ? 'Tap again to sell' : 'Sell for ' + sellValue(G, selPad)) + '</button></div></div>';
     }
     // only redraw when something changed, so a tap is never swallowed by a refresh
-    if (sheetHTML != null && sheetHTML !== lastSheetHTML) { freeCanvases(s); s.innerHTML = sheetHTML; lastSheetHTML = sheetHTML; drawPortraits(s); }
+    if (sheetHTML != null && sheetHTML !== lastSheetHTML) { freeCanvases(s); s.innerHTML = sheetHTML; lastSheetHTML = sheetHTML; drawPortraits(s); placeSheet(s); }
+  }
+  // A crew member's sheet must not hide that crew member (you want to watch the aim you just picked). Use the side
+  // that leaves them in view; if neither side fits the whole sheet, take the roomier one and let the middle scroll
+  // with the title and the buttons pinned.
+  function placeSheet(s) {
+    s.style.maxHeight = ''; s.classList.remove('tight');
+    if (sheetMode !== 'tower' || !s.offsetParent) return;
+    const p = G.map.pads[selPad], pr = s.offsetParent.getBoundingClientRect(), h = s.offsetHeight;
+    const above = cvPt(p[0], p[1] - 52).y - pr.top - 10, below = pr.bottom - cvPt(p[0], p[1] + 16).y - 10;
+    let top = p[1] > 300;
+    const room = t => t ? above : below;
+    if (room(top) < h) {
+      if (room(!top) >= h) top = !top;
+      else { const best = above > below; if (room(best) >= 210) { top = best; s.style.maxHeight = Math.floor(room(best)) + 'px'; s.classList.add('tight'); } }
+    }
+    s.classList.toggle('top', top);
   }
   const AIM_HELP = { first: 'Whoever is furthest along the road', last: 'Whoever is furthest back', strong: 'Whoever has the most health left', weak: 'Whoever has the least health left', loot: 'Whoever is carrying or grabbing loot' };
+  const AIM_SAY = { first: 'the one out in front', last: 'the one at the back', strong: 'the strongest', weak: 'the weakest', loot: 'loot thieves' };
   const AIM_QUIP = { first: ['Front of the line. Got it.', 'First in, first served.'], last: ['Back of the queue it is.', 'The stragglers. Righto.'], strong: ['The big one. Righto.', 'Biggest first. Obviously.'], weak: ['Finishing them off.', 'Easy pickings.'], loot: ['Oi! That\u2019s Gary\u2019s!', 'Hands off the loot.'] };
   const OT_QUIP = ['Time and a half? Righto.', 'Penalty rates. Lovely.', 'I\u2019ll need a smoko after this.', 'Double time on a Sunday.'];
   const aimSeen = {};
@@ -6107,7 +6126,7 @@ const R = (function () {
         const p = G.map.pads[pad], first = !G.saidHi; G.saidHi = G.saidHi || {};
         if (!G.saidHi[k]) { G.saidHi[k] = 1; const alt = BUILD_QUIP_ALT[k]; R.say(p[0], p[1] - 52, alt && Math.random() < .35 ? alt[Math.floor(Math.random() * alt.length)] : (BUILD_QUIP[k] || 'Righto.'), 2); }
         SFX.play(crewSfx[k] || 'build'); if (k === 'banjo') SFX.sting('banjo');
-        const nt = G.towers[pad]; if (nt && nt.aim && !(G.saidAim = G.saidAim || {})[k]) { G.saidAim[k] = 1; toast(((CREW[k] || {}).n || TOWERS[k].crew) + ' is aiming at ' + AIM_NAMES[nt.aim].toLowerCase() + ', like last time. Tap them to change it.'); }
+        const nt = G.towers[pad]; if (nt && nt.aim && (G.saidAim = G.saidAim || {})[k] !== nt.aim) { G.saidAim[k] = nt.aim; toast(((CREW[k] || {}).n || TOWERS[k].crew) + ' goes for ' + AIM_SAY[nt.aim] + ', like last time. Tap them to change it.'); }
         trackEvent('tower_placed', { tower: k, level_id: G.map.id, wave: G.wave }); trackFirst('tower', 'first_tower_placed', { tower: k, level_id: G.map.id });
       }
       closeSheet(); }
@@ -6212,6 +6231,8 @@ const R = (function () {
   // ---------- modal plumbing ----------
   let armTimer = 0;
   let lastKeyAt = 0; addEventListener('keydown', () => { lastKeyAt = Date.now(); }, true);
+  // re-render a menu after a purchase without throwing the player back to the top of a long list
+  function keepScroll(fn) { const c = $('modalCard'), m = $('modal'), a = c.scrollTop, b = m.scrollTop; fn(); c.scrollTop = a; m.scrollTop = b; }
   function openModal(html, cls, arm) {
     const m = $('modal'), card = $('modalCard');
     clearTimeout(armTimer);
@@ -6509,8 +6530,8 @@ const R = (function () {
     $('modalCard').querySelectorAll('[data-pj]').forEach(b => b.onclick = () => { meta.pj = b.dataset.pj; applyLook(); saveMeta(); SFX.play('pick'); trackEvent('cosmetic_equipped', { item: meta.pj }); showGear('pj'); });
     $('gBack').onclick = () => { if (inMenu) closeMenu(); else showHome(); };
     $('modalCard').querySelectorAll('[data-gt]').forEach(b => b.onclick = () => showGear(b.dataset.gt));
-    $('modalCard').querySelectorAll('[data-eq]').forEach(b => b.onclick = () => { meta.dreamEquip = b.dataset.eq; saveMeta(); if (G && G.wave === 0) { G.dream = meta.dreamEquip; G.dreamLv = meta.dreams[G.dream]; applyDeep(G); } showGear('dreams'); });
-    $('modalCard').querySelectorAll('[data-deep]').forEach(b => b.onclick = () => { const id = b.dataset.deep; if (buyDeep(meta, id)) { saveMeta(); SFX.play('ultimate'); if (G && G.dream === id) applyDeep(G); trackEvent('deep_sleep', { dream: id, level: deepLevel(meta, id) }); } showGear('dreams'); });
+    $('modalCard').querySelectorAll('[data-eq]').forEach(b => b.onclick = () => { meta.dreamEquip = b.dataset.eq; saveMeta(); if (G && G.wave === 0) { G.dream = meta.dreamEquip; G.dreamLv = meta.dreams[G.dream]; applyDeep(G); } keepScroll(() => showGear('dreams')); });
+    $('modalCard').querySelectorAll('[data-deep]').forEach(b => b.onclick = () => { const id = b.dataset.deep; if (buyDeep(meta, id)) { saveMeta(); SFX.play('ultimate'); if (G && G.dream === id) applyDeep(G); trackEvent('deep_sleep', { dream: id, level: deepLevel(meta, id) }); } keepScroll(() => showGear('dreams')); });
     $('modalCard').querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const id = b.dataset.up, L = meta.dreams[id], cost = DREAM_COST[L + 1]; if ((meta.shards || 0) >= cost && L < 5) { meta.shards -= cost; meta.dreams[id] = L + 1; saveMeta(); SFX.play('ultimate'); if (G && G.dream === id) G.dreamLv = L + 1; } showGear('dreams'); });
     $('modalCard').querySelectorAll('[data-slot]').forEach(b => b.onclick = () => { meta.equip[+b.dataset.slot] = null; saveMeta(); showGear('trinkets'); });
     $('modalCard').querySelectorAll('.stile').forEach(b => b.onclick = () => {
@@ -6543,13 +6564,13 @@ const R = (function () {
     }).join('');
     openModal('<div class="menu-head"><h2 class="title sm">Clive\u2019s Shed</h2><button class="btn" id="shedBack" data-focus>Back</button></div>' +
       '<p class="lede sm"><span class="rockic"></span> ' + (meta.rocks || 0) + ' Shiny Rocks</p><p class="small">Permanent upgrades for every run. Earn rocks by banking loot, beating bosses and finishing odd jobs.</p>' +
-      '<div class="shed">' + rows + (shedMaxed(meta) ? '<div class="shedrow tumbler"><div><b>Rock Tumbler</b><span>The Shed\u2019s sold out, so Clive bought a tumbler. ' + TUMBLE.rocks + ' Shiny Rocks in, 1 Dream Shard out. You have ' + (meta.shards || 0) + ' shards.</span></div>' +
+      '<div class="shed">' + rows + (shedMaxed(meta) ? '<div class="shedrow tumbler"><div><b>Rock Tumbler</b><span>The Shed\u2019s sold out, so Clive bought a tumbler. ' + TUMBLE.rocks + ' Shiny Rocks in, 1 Dream Shard out. You have ' + (meta.rocks || 0).toLocaleString('en-AU') + ' rocks and ' + (meta.shards || 0) + ' shards.</span></div>' +
         '<div class="tumblebtns"><button class="btn' + (meta.rocks >= TUMBLE.rocks ? ' primary' : '') + '" data-tumble="1"' + (meta.rocks >= TUMBLE.rocks ? '' : ' disabled') + '><span class="rockic sm"></span>' + TUMBLE.rocks + '</button>' +
-        (meta.rocks >= TUMBLE.rocks * 10 ? '<button class="btn" data-tumble="10">\u00d710</button>' : '') + '</div></div>' : '') +
+        (meta.rocks >= TUMBLE.rocks * 10 ? '<button class="btn" data-tumble="10" aria-label="Tumble ' + (TUMBLE.rocks * 10).toLocaleString('en-AU') + ' rocks"><span class="rockic sm"></span>' + (TUMBLE.rocks * 10).toLocaleString('en-AU') + '</button>' : '') + '</div></div>' : '') +
       '</div><p class="clive">\u201c' + (shedMaxed(meta) ? 'It makes a racket, but it works.' : 'Most of this was here when I got the job.') + '\u201d <span>Clive</span></p>', 'menu');
     $('shedBack').onclick = showHome;
-    $('modalCard').querySelectorAll('[data-buy]').forEach(b => b.onclick = () => { if (buyShed(meta, b.dataset.buy)) { saveMeta(); showShed(); } });
-    $('modalCard').querySelectorAll('[data-tumble]').forEach(b => b.onclick = () => { const n = +b.dataset.tumble; if (tumble(meta, n)) { saveMeta(); SFX.play('coin'); trackEvent('rocks_tumbled', { n }); showShed(); } });
+    $('modalCard').querySelectorAll('[data-buy]').forEach(b => b.onclick = () => { if (buyShed(meta, b.dataset.buy)) { saveMeta(); keepScroll(showShed); } });
+    $('modalCard').querySelectorAll('[data-tumble]').forEach(b => b.onclick = () => { const n = +b.dataset.tumble; if (tumble(meta, n)) { saveMeta(); SFX.play('coin'); trackEvent('rocks_tumbled', { n }); keepScroll(showShed); } });
   }
   function pickLong() {
     const maps = MAPS.map((m, i) => i).filter(i => meta.maps[MAPS[i].id] && meta.maps[MAPS[i].id].wins > 0);

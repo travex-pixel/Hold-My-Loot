@@ -96,8 +96,8 @@ const browser = await launch();
   check('sheet: five aims, with Nan’s usual one lit', chips.join(' ') === 'First Last Strongest* Weakest Thieves', chips.join(' '));
   await page.click('#sheet .aim[data-aim="first"]'); await settle(page, 300);
   check('sheet: tapping an aim sets it and lights it', await page.evaluate(() => window.__hml().towers[1].aim) === 'first' && await page.$eval('#sheet .aim.on', e => e.dataset.aim) === 'first');
-  const fits = await page.evaluate(() => { const s = document.getElementById('sheet').getBoundingClientRect(); return [...document.querySelectorAll('#sheet .aim')].every(b => { const r = b.getBoundingClientRect(); return r.left >= s.left && r.right <= s.right && r.height >= 30; }); });
-  check('sheet: the aim buttons fit an iPhone SE and are big enough to tap', fits);
+  const fits = await page.evaluate(() => { const s = document.getElementById('sheet').getBoundingClientRect(); return [...document.querySelectorAll('#sheet .aim')].every(b => { const r = b.getBoundingClientRect(); return r.left >= s.left && r.right <= s.right && r.height >= 40; }) && document.querySelector('#sheet .x').getBoundingClientRect().height >= 40; });
+  check('sheet: the aim buttons fit an iPhone SE and they and Close are at least 40px tall', fits);
   const g0 = await page.evaluate(() => window.__hml().gold); const label = await page.$eval('#sheet [data-act="ot"]', e => e.textContent);
   await page.click('#sheet [data-act="ot"]'); await settle(page, 300);
   const st = await page.evaluate(() => { const g = window.__hml(); return { ot: g.towers[1].ot, gold: g.gold }; });
@@ -127,15 +127,43 @@ const browser = await launch();
   const m1 = await page.evaluate(() => { const m = window.__hmlSave.meta(); return [m.rocks, m.shards]; });
   check('shed: tumbling 1 then 10 turns 1,100 rocks into 11 shards', m1[0] === 134 && m1[1] === 91, m1.join(' rocks, ') + ' shards');
   check('shed: the buttons go once you can’t afford them', !(await page.$('[data-tumble="10"]')) && await page.$eval('[data-tumble="1"]', e => !e.disabled));
+  // buying near the bottom of a long list keeps you there
+  await page.evaluate(() => { const m = window.__hmlSave.meta(); m.rocks = 5000; });
+  await page.click('#shedBack'); await settle(page, 300); await page.click('#shedBtn'); await settle(page, 400);
+  const sc = await page.evaluate(async () => { const c = document.getElementById('modalCard'), m = document.getElementById('modal'); document.querySelector('[data-tumble="1"]').scrollIntoView({ block: 'center' }); const a = c.scrollTop + m.scrollTop; document.querySelector('[data-tumble="1"]').click(); await new Promise(r => setTimeout(r, 300)); return [a, c.scrollTop + m.scrollTop]; });
+  check('shed: tumbling doesn’t jump the list back to the top', sc[0] > 50 && Math.abs(sc[1] - sc[0]) < 2, sc.join(' -> '));
+  check('shed: the Tumbler says how many rocks you have and what ×10 costs', /You have [\d,]+ rocks and \d+ shards/.test(await page.innerText('#modalCard')) && /1,000/.test(await page.$eval('[data-tumble="10"]', e => e.textContent)));
   await page.click('#shedBack'); await settle(page, 300);
   await page.evaluate(() => document.getElementById('gearBtn').click()); await settle(page, 400);
   const before = await page.innerText('#modalCard');
+  const sc0 = await page.evaluate(() => { document.querySelector('[data-deep="swing"]').scrollIntoView({ block: 'center' }); return document.getElementById('modalCard').scrollTop + document.getElementById('modal').scrollTop; });
   await page.click('[data-deep="swing"]'); await settle(page, 400);
+  const sc1 = await page.evaluate(() => document.getElementById('modalCard').scrollTop + document.getElementById('modal').scrollTop);
+  check('dreams: buying Deep sleep keeps your place in the list', Math.abs(sc1 - sc0) < 2, sc0 + ' -> ' + sc1);
   const m2 = await page.evaluate(() => { const m = window.__hmlSave.meta(); return [m.shards, m.deep && m.deep.swing]; });
-  check('dreams: a maxed dream offers Deeper sleep, and buying it takes the shards', /Deeper sleep \(25 shards\)/.test(before) && m2[0] === 66 && m2[1] === 1 && /Deep sleep 1 of 10: charges 6% faster/.test(await page.innerText('#modalCard')), m2.join(' shards, level '));
+  check('dreams: a maxed dream offers Deeper sleep, and buying it takes the shards', /Deeper sleep \(25 shards\)/.test(before) && m2[0] === 67 && m2[1] === 1 && /Deep sleep 1 of 10: charges 6% faster/.test(await page.innerText('#modalCard')), m2.join(' shards, level '));
   await page.reload({ waitUntil: 'load' }); await settle(page, 1000);
-  check('rocks, shards and Deep sleep are saved', JSON.stringify(await page.evaluate(() => { const m = window.__hmlSave.meta(); return [m.rocks, m.shards, m.deep.swing]; })) === '[134,66,1]');
+  check('rocks, shards and Deep sleep are saved', JSON.stringify(await page.evaluate(() => { const m = window.__hmlSave.meta(); return [m.rocks, m.shards, m.deep.swing]; })) === '[4900,67,1]');
   check('no page errors in the menus', page.errors.length === 0, page.errors[0]);
+  await ctx.close(); }
+// on an iPhone SE, a crew member's sheet never hides them, and their aim and buttons stay on screen
+{ const { ctx, page } = await newPage(browser, VIEWPORTS.se);
+  await ctx.addInitScript(s => { if (sessionStorage.getItem('x')) return; sessionStorage.setItem('x', 1); localStorage.clear(); localStorage.setItem('hml.meta.v3', s); }, JSON.stringify(b30));
+  await page.goto(BASE, { waitUntil: 'load' }); await settle(page, 1300);
+  await page.evaluate(() => document.querySelector('.level[data-map="0"]').click()); await settle(page, 400);
+  await page.evaluate(() => document.getElementById('lvPlay').click()); await settle(page, 1200);
+  const pads = await page.evaluate(() => { const g = window.__hml(); g.gold = 1e7; g.map.pads.forEach((_, i) => { if (!(g.padLock && g.padLock[i])) { if (!g.towers[i]) build(g, i, 'chuck'); for (let k = 0; k < 4; k++) upgrade(g, i); } }); g.gold = 30000; return g.map.pads.map((p, i) => g.towers[i] ? p : null); });
+  await settle(page, 2600);
+  const bad = [];
+  for (let i = 0; i < pads.length; i++) { if (!pads[i]) continue;
+    await tapCanvas(page, pads[i][0], pads[i][1]); await settle(page, 450);
+    const r = await page.evaluate(i => { const g = window.__hml(), p = g.map.pads[i], c = document.querySelector('canvas').getBoundingClientRect(), y = v => c.top + v * c.height / H;
+      const s = document.getElementById('sheet'), sr = s.getBoundingClientRect(), a = s.querySelector('.acts').getBoundingClientRect(), aim = s.querySelector('.aim');
+      return { open: !s.hidden, covers: sr.top < y(p[1] + 16) && sr.bottom > y(p[1] - 52), acts: a.top >= sr.top - 1 && a.bottom <= sr.bottom + 1, aim: !!aim && aim.getBoundingClientRect().top >= sr.top }; }, i);
+    if (!r.open || r.covers || !r.acts || !r.aim) bad.push(i + ':' + JSON.stringify(r));
+    await page.click('#sheet [data-act="close"]').catch(() => {}); await settle(page, 200); }
+  check('sheet: on an iPhone SE no crew member is hidden by their own sheet; aim and buttons stay in view', !bad.length && pads.filter(Boolean).length >= 6, bad.join(' '));
+  check('no page errors opening every sheet', page.errors.length === 0, page.errors[0]);
   await ctx.close(); }
 // a save carrying junk aims loads clean; a brand-new player's first crew member has no aim row to puzzle over
 { const { ctx, page } = await newPage(browser, VIEWPORTS.se);
