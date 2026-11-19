@@ -1,0 +1,113 @@
+{
+ "v": 4,
+ "runMods": {},
+ "meter": 41,
+ "lastWaveCleared": 3,
+ "map": 4,
+ "mode": "campaign",
+ "daily": null,
+ "wave": 3,
+ "gold": 312,
+ "pile": 9,
+ "pileMax": 12,
+ "pokes": 2,
+ "cards": [
+  "tea",
+  "fund"
+ ],
+ "mods": {
+  "costMult": 0.88,
+  "dropBonus": 0.06,
+  "chuckMulti": 1,
+  "nanCrit": 0.15,
+  "bonkStun": 0,
+  "bonkDmg": 1,
+  "sizzleRange": 1,
+  "enemySpeed": 1,
+  "enemyHp": 1,
+  "goldMult": 1,
+  "rarityRolls": 1,
+  "snore": 0,
+  "tapRadius": 38,
+  "snatchGold": 5,
+  "fireRate": 1,
+  "autoMult": 0.7,
+  "puddleMult": 1,
+  "puddleLife": 1,
+  "shoutRound": 0,
+  "birdRate": 1,
+  "birdDmg": 1,
+  "tipMult": 1,
+  "peteExtra": 0,
+  "banjoRate": 1
+ },
+ "stats": {
+  "kills": 64,
+  "crits": 9,
+  "taps": 3,
+  "snatches": 1,
+  "itemsLost": 1,
+  "waveLost": [
+   0,
+   1,
+   0
+  ],
+  "banked": [],
+  "heists": 1,
+  "pokes": 0,
+  "killsBy": {
+   "chucking": 30,
+   "muttering": 34
+  },
+  "tips": 0,
+  "lifts": 0,
+  "splits": 0,
+  "tipsy": 0,
+  "bestCombo": 9,
+  "builtTypes": {
+   "nan": 1,
+   "chuck": 1
+  },
+  "perfects": 2,
+  "dreams": 0,
+  "syn": 0,
+  "abilities": 1,
+  "shards": 2
+ },
+ "xp": {
+  "muttering": 120,
+  "chucking": 80
+ },
+ "gate": 0,
+ "t": 143,
+ "towers": [
+  {
+   "type": "nan",
+   "tier": 1,
+   "spent": 165
+  },
+  {
+   "type": "chuck",
+   "tier": 0,
+   "spent": 50
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "crew": [
+  "nan",
+  "chuck",
+  "jezza",
+  "bonk",
+  "bev",
+  "rocco"
+ ]
+}

@@ -1,0 +1,15 @@
+{
+ "runs": 5,
+ "wins": 2,
+ "bestKept": 7,
+ "xp": {
+  "chucking": 200,
+  "bonking": 50,
+  "muttering": 120,
+  "sizzling": 0,
+  "scrounging": 40
+ },
+ "stash": {
+  "Bucket": 1
+ }
+}

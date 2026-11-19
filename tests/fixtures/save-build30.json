@@ -1,0 +1,279 @@
+{
+ "v": 3,
+ "xp": {
+  "chucking": 300,
+  "bonking": 710,
+  "muttering": 1120,
+  "sizzling": 1530,
+  "pouring": 1940,
+  "flocking": 2350,
+  "hyping": 2760,
+  "levitating": 3170,
+  "gesturing": 3580,
+  "rumbling": 3990,
+  "charging": 4400,
+  "building": 4810,
+  "foreseeing": 5220,
+  "scrounging": 5630
+ },
+ "runs": 44,
+ "wins": 25,
+ "stash": {
+  "Bucket": 4,
+  "Single Sock": 2,
+  "Thong of Mild Speed": 3,
+  "Gary's Sword": 2,
+  "Nan's Spare Teeth": 1,
+  "Kevin's Tail": 3,
+  "Trenchcoat of Many Pockets": 1,
+  "The King's Missing Pants": 1
+ },
+ "bestKept": 10,
+ "maps": {
+  "nap": {
+   "plays": 6,
+   "wins": 5,
+   "stars": 3,
+   "bestKept": 10,
+   "mods": {
+    "hard": true
+   }
+  },
+  "paddock": {
+   "plays": 4,
+   "wins": 3,
+   "stars": 2,
+   "bestKept": 8
+  },
+  "creek": {
+   "plays": 3,
+   "wins": 2,
+   "stars": 3,
+   "bestKept": 10,
+   "tiers": {
+    "hard": 2
+   }
+  },
+  "camp": {
+   "plays": 3,
+   "wins": 2,
+   "stars": 2,
+   "bestKept": 7
+  },
+  "garden": {
+   "plays": 5,
+   "wins": 2,
+   "stars": 1,
+   "bestKept": 4
+  },
+  "lanes": {
+   "plays": 4,
+   "wins": 2,
+   "stars": 1,
+   "bestKept": 5
+  },
+  "woods": {
+   "plays": 2,
+   "wins": 2,
+   "stars": 2,
+   "bestKept": 7
+  },
+  "bigday": {
+   "plays": 3,
+   "wins": 2,
+   "stars": 2,
+   "bestKept": 6
+  },
+  "servo": {
+   "plays": 2,
+   "wins": 1,
+   "stars": 1,
+   "bestKept": 4
+  },
+  "tide": {
+   "plays": 2,
+   "wins": 1,
+   "stars": 1,
+   "bestKept": 5
+  },
+  "smoko": {
+   "plays": 1,
+   "wins": 1,
+   "stars": 1,
+   "bestKept": 4
+  },
+  "longpad": {
+   "plays": 2,
+   "wins": 1,
+   "stars": 2,
+   "bestKept": 7
+  }
+ },
+ "totals": {
+  "kills": 8412,
+  "crits": 1190,
+  "heists": 61,
+  "snatches": 88,
+  "banked": 402,
+  "pokes": 9,
+  "time": 21480,
+  "bosses": {
+   "kevin": 6,
+   "stack": 3,
+   "pantsalot": 2,
+   "swoop": 2,
+   "chrisso": 2,
+   "mortimer": 2,
+   "bigmum": 2,
+   "steve": 2,
+   "barry": 1
+  },
+  "tipsy": 640,
+  "bestCombo": 31,
+  "rocksEarned": 6200,
+  "perfects": 52,
+  "dreams": 18
+ },
+ "settings": {
+  "instantLoot": false,
+  "shake": true,
+  "sound": true,
+  "volume": 0.45,
+  "music": false,
+  "musicVolume": 0.3,
+  "analytics": true,
+  "smooth": false,
+  "autoWave": true
+ },
+ "seenHow": true,
+ "rocks": 1902,
+ "shed": {
+  "float": 4,
+  "undies": 2,
+  "coffee": 1,
+  "mates": 3,
+  "magnet": 2,
+  "pallets": 1
+ },
+ "jobs": [
+  {
+   "id": "crits",
+   "n": 40,
+   "p": 12,
+   "reward": 30
+  },
+  {
+   "id": "tipsy",
+   "n": 60,
+   "p": 3,
+   "reward": 30
+  },
+  {
+   "id": "perfect",
+   "n": 8,
+   "p": 6,
+   "reward": 30
+  }
+ ],
+ "jobsDone": 14,
+ "daily": {
+  "done": {
+   "20261021": 8
+  },
+  "count": 4,
+  "streak": 2,
+  "lastKey": 20261021,
+  "best": 3,
+  "scores": {
+   "20261021": 8
+  }
+ },
+ "endlessBest": {
+  "nap": 19,
+  "paddock": 14
+ },
+ "jezzaSeen": true,
+ "garyXp": 6210,
+ "shards": 23,
+ "dreams": {
+  "swing": 3,
+  "snore": 2,
+  "rain": 1
+ },
+ "dreamEquip": "snore",
+ "equip": [
+  "Gary's Sword",
+  "Nan's Spare Teeth",
+  null
+ ],
+ "synergies": {
+  "duck": 1,
+  "pubbrawl": 1,
+  "queue": 1,
+  "bad": 1
+ },
+ "bevSeen": true,
+ "djSeen": true,
+ "peteSeen": true,
+ "banjoSeen": true,
+ "crewMode": "custom",
+ "crew": [
+  "nan",
+  "chuck",
+  "jezza",
+  "bonk",
+  "bev",
+  "rocco"
+ ],
+ "paths": {
+  "nan": "sniper",
+  "chuck": "tip"
+ },
+ "pj": "snags",
+ "owned": {
+  "gary.snags": 1,
+  "bonk.muumuu": 1
+ },
+ "crewLook": {
+  "bonk": "muumuu"
+ },
+ "tstars": {
+  "Gary's Sword": 2
+ },
+ "heat": 4,
+ "heatSeen": true,
+ "heatBest": 6,
+ "nightmares": 0,
+ "raidBest": {
+  "20261019|landlord": 18400
+ },
+ "weekBest": {
+  "20261019|nap": 17
+ },
+ "nick": "BinChook99",
+ "boardPosted": "",
+ "giftKey": 20261022,
+ "giftStreak": 9,
+ "firstSeen": 1758000000000,
+ "firstSrc": "reddit",
+ "sessions": 34,
+ "seenBuild": 30,
+ "toldDraft": 1,
+ "toldAbility": 1,
+ "tutDone": 1,
+ "a2hsDone": 1,
+ "rated": 1,
+ "ratedAt": 3,
+ "supSeen": true,
+ "firsts": {
+  "game": 1,
+  "tower": 1,
+  "upgrade": 1,
+  "ability": 1,
+  "bossSeen": 1,
+  "bossDown": 1
+ },
+ "lossReasons": {
+  "garden|They found the gaps.": 2
+ }
+}

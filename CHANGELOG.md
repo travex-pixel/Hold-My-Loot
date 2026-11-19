@@ -169,9 +169,84 @@ players to the newest build on load and when the tab regains focus.
   Coach-only, average and slow players all win in testing. Speed resets after the taster.
 - "boss next!" on the wave counter before every final wave.
 
-## Build 31 (in progress, unreleased)
-- Desktop frame: wordmark, how to play, animated crew, keyboard shortcuts (Space, 1/2/3, Esc, M),
-  QR code to the phone version, pointer cursor over pallets and loot, CLICK wording on a mouse.
-- Coach arrow waits for the welcome banner.
-- Lazy pallet layout: game-logic startup 1,781 ms -> 10 ms; throttled phone 4.3 s -> 1.2 s to
-  playable; remaining maps pre-computed in idle time. Instant CSS splash screen.
+## Build 31
+First ten minutes
+- A brand-new player's first game is a coached three-wave taster, playable in under a minute and tuned so it
+  can't really be lost (tests/taster-sim.mjs: every three-crew path wins 100%). A "GUARD GARY!" step teaches the
+  third crew member; no boss loot in the taster.
+- Every tap answers: a pallet that can't be built on, or a card you can't afford, shakes, buzzes and says why
+  ("Need 20 more gold", "can't reach the road from here"). Empty taps ripple.
+- Every loss says what to do next; unspent gold is called out first.
+- Balance from tests/balance-matrix.mjs (8,400 bot games). Nan untouched.
+  - The Laneways: Rat Mums stay on the long lane in wave 3; waves 2-3 softer; 310 gold. Bots win 40% -> 92%.
+  - Cliff Top Gusts no longer needs Nan: stronger gusts, fewer and later seagulls. No-Nan crews 10% -> 70%.
+  - Rat Kingdom stopped being a walkover on Hard.
+  - Chaos waves keep up in later chapters (Swing Bridge Chaos 30% -> 73%).
+- Fix: Dazza's splash ran a corrupted pasted copy of other code, so every splash ticked Gav's spikes and curse timers
+  again.
+
+Safety
+- Saves: version 4 with migrations, a sanitiser for junk values, three copies (main, last good, best), unreadable
+  saves set aside instead of wiped, broken runs dropped cleanly. Build 29 and 30 saves upgrade intact.
+- Works offline once installed (service worker). A new build still reaches installed copies on the next online
+  launch, even on a slow network.
+- Startup: about 1.1 s to playable on a throttled mid-range Android over 4G (was 3.3 s). Instant splash screen.
+  Pallet layout computed lazily.
+- No layout shift on load (the board waits until it is sized; toasts stack without moving anything).
+- Leaving mid-wave (a call, the app switcher) pauses the game.
+
+Launch plumbing
+- Cookie-free play stats consent. Nothing is stored for analytics until a player says yes; "no" sends nothing.
+  Per-tap events only during a player's first five games. New privacy page.
+- Global leaderboard ready to switch on: the server rules live in supabase/leaderboard.sql (plausible scores,
+  rate limits, one best per player, nickname filter). The game filters nicknames too.
+- Fix: Raid scores were capped at 999 before posting.
+- Supporter code checked by hash, so it can't be read from the page source.
+- Raid share cards and text show damage and medal; every share link carries its own ref code.
+
+For players who've maxed everything (asked for by a player at wave 50 of the Long Nap with 30,000 gold unspent)
+- Aim: tap a crew member and choose who they go for: First, Last, Strongest, Weakest or Thieves (monsters carrying
+  or grabbing loot). Each one remembers it, and the next one you hire of that crew starts the same way. Nan and Aunty
+  Val still default to the strongest, everyone else to the first. Play is identical if you never touch it (114 bot
+  games compared before and after: no differences).
+- Overtime: ELITE crew can keep going. Each level adds 15% of their damage; it costs 400 gold, then a quarter more
+  each time, up to 20. A veteran-style bot had everyone maxed by wave 25 and died around waves 41-50 holding
+  11,000-28,000 gold it couldn't spend; with Overtime it ends broke and gets 1 to 11 waves further.
+- Deep sleep: a level-5 dream keeps levelling with shards. Each of 10 levels charges that dream 6% faster.
+- Rock Tumbler: once the whole Shed is maxed, Clive turns 100 spare Shiny Rocks into 1 Dream Shard.
+- The aim buttons appear once a player has won a level, so the first game stays uncluttered.
+- From a veteran playtest of all of the above on an iPhone SE, iPhone 15 and a laptop:
+  - A crew member's sheet no longer hides them on small phones, so you can watch the aim you just picked. When the
+    sheet can't fit on either side, the info scrolls and the aim and buttons stay pinned.
+  - Buying Deep sleep, a Shed upgrade or a tumble keeps your place in the list instead of jumping to the top.
+  - Aim buttons and Close are 40px tall. The "OT" label on the board is readable on a phone.
+  - The Tumbler shows your rocks next to it and what ×10 costs. The hire note reads "Nan Beryl goes for the
+    strongest, like last time" and speaks up again if you change it.
+- Fix (found in review before release): a save code or damaged save naming an aim like "valueOf" froze the game on
+  the next wave. Only the five real aim names are accepted now, and the save sanitiser drops anything else.
+
+Feels finished
+- 200% zoom: HUD, menus and lists reflow instead of running off the screen.
+- Keys: M mutes everything (remembered), Space starts a wave, 1/2/3 speed, Escape opens and closes the menu.
+- Settings on the home screen; vibration toggle; the pile meter is announced to screen readers.
+- Pause you can see: the board dims and a Paused card says tap to carry on.
+- The coach no longer covers the words it is teaching: inside a sheet its bubble sits just outside the sheet and the
+  card or button to tap glows.
+- A theft shakes the pile meter red; toasts sit above Gary instead of on top of him.
+- The Paddock told players to tap the gate to send monsters the long way, but the gate already starts on the long
+  road, so obeying it sent them the short way. The blurb now says so, and the hint only shows when tapping helps.
+- Wide screens (laptops, landscape tablets, portal iframes from 907x510 to 1920x1080): the board takes the full height
+  and the side panels hug it, with how-to-play and keys on the left. The coach says CLICK to mouse players.
+- Portal builds: `tools/build-portal.mjs` makes a CrazyGames (or Poki) zip with no links back to the website, no Ko-fi,
+  no install card, no service worker or self-update, and its own copy of the fonts.
+- Analytics tell people from crawlers: every event carries the browser's user agent, the page and the referring site,
+  and `first_input` marks a player's first tap. Build 30's numbers counted link-preview bots as players.
+- The first game waits for the player: the next wave starts only once they've hired the crew member the coach asks
+  for, so a new player who looks away doesn't lose. Losing it gives the short coached game again (up to three tries).
+- Keys: P pauses and Space carries on. Each card's main button takes keyboard focus. The wheel and scroll keys no
+  longer scroll the page around the game (portal iframes).
+- In short frames (907x510 and landscape phones) a card's main button stays in view while the card scrolls.
+- Portal builds: play stats are strictly opt-in, Privacy opens inside the game, Share copies text instead of
+  downloading a file, and "What's new" (about the website) is hidden.
+- Results label rocks and shards. The menu opens on Settings mid-run. Settings gear at the top of the home screen,
+  Play above "What's new", and the home-screen install card waits for a second visit.

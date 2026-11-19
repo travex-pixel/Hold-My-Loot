@@ -1,0 +1,5802 @@
+{
+ "when": "2026-11-06T17:34:38.278Z",
+ "build": "31",
+ "runs": 30,
+ "configs": [
+  {
+   "id": "normal",
+   "label": "Normal, recommended crew",
+   "crew": "auto"
+  },
+  {
+   "id": "nonan",
+   "label": "Normal, no Nan",
+   "crew": "nonan"
+  },
+  {
+   "id": "hard",
+   "label": "Hard tier",
+   "crew": "auto",
+   "tier": "hard",
+   "mods": {
+    "hard": true,
+    "speed": true
+   }
+  },
+  {
+   "id": "hard-nonan",
+   "label": "Hard tier, no Nan",
+   "crew": "nonan",
+   "tier": "hard",
+   "mods": {
+    "hard": true,
+    "speed": true
+   }
+  },
+  {
+   "id": "nightmare",
+   "label": "Nightmare tier",
+   "crew": "auto",
+   "tier": "nightmare",
+   "mods": {
+    "hard": true,
+    "speed": true,
+    "bossrush": true
+   }
+  },
+  {
+   "id": "m-hard",
+   "label": "Mod: Hard",
+   "crew": "auto",
+   "mods": {
+    "hard": true
+   }
+  },
+  {
+   "id": "m-speed",
+   "label": "Mod: Speed",
+   "crew": "auto",
+   "mods": {
+    "speed": true
+   }
+  },
+  {
+   "id": "m-nomercy",
+   "label": "Mod: No Mercy",
+   "crew": "auto",
+   "mods": {
+    "nomercy": true
+   }
+  },
+  {
+   "id": "m-chaos",
+   "label": "Mod: Chaos",
+   "crew": "auto",
+   "mods": {
+    "chaos": true
+   }
+  },
+  {
+   "id": "m-bossrush",
+   "label": "Mod: Boss Rush",
+   "crew": "auto",
+   "mods": {
+    "bossrush": true
+   }
+  }
+ ],
+ "rows": [
+  {
+   "level": 1,
+   "name": "Gary's First Nap",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12.1
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12.3
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.67,
+    "avgLossWave": 3,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0.07,
+     1.1,
+     0.13,
+     0,
+     0.13,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.3
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.933,
+    "avgStars": 2.33,
+    "avgLossWave": 4,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.17,
+     1.17,
+     1.07,
+     0.67,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.6
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.533,
+    "avgStars": 0.77,
+    "avgLossWave": 3.1,
+    "earlyLoss": 0.433,
+    "lostPerWave": [
+     0.5,
+     1.5,
+     6.03,
+     0.07,
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 3.1
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.23,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.3
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.17,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12.2
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 5.1
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.03,
+     0.03,
+     0.07,
+     0.07,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12.2
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.7
+   }
+  },
+  {
+   "level": 2,
+   "name": "The Paddock",
+   "normal": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.57,
+    "avgLossWave": 5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.77,
+     0,
+     0.2,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9.2
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.87,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.1,
+     0.57,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.3
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.333,
+    "avgStars": 0.5,
+    "avgLossWave": 3.4,
+    "earlyLoss": 0.5,
+    "lostPerWave": [
+     0.2,
+     1.67,
+     6.7,
+     0.13,
+     0.37,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 1.7
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.233,
+    "avgStars": 0.47,
+    "avgLossWave": 2.8,
+    "earlyLoss": 0.767,
+    "lostPerWave": [
+     1.53,
+     3.9,
+     3.23,
+     0,
+     0,
+     0,
+     0,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 1.8
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.033,
+    "avgStars": 0.03,
+    "avgLossWave": 3.1,
+    "earlyLoss": 0.933,
+    "lostPerWave": [
+     0.87,
+     2.4,
+     6.93,
+     0,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0.2
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.667,
+    "avgStars": 1.43,
+    "avgLossWave": 3.4,
+    "earlyLoss": 0.267,
+    "lostPerWave": [
+     0,
+     0.97,
+     4.4,
+     0.07,
+     0.73,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 5.5
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.4,
+    "avgLossWave": 3,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0,
+     0.13,
+     1.97,
+     0,
+     0.33,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.8
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.8,
+    "avgStars": 2.13,
+    "avgLossWave": 3,
+    "earlyLoss": 0.2,
+    "lostPerWave": [
+     0,
+     0,
+     1.1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 3
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.9,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.17,
+     0.1,
+     0.3,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.1
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 0.7,
+    "avgStars": 1.5,
+    "avgLossWave": 3,
+    "earlyLoss": 0.3,
+    "lostPerWave": [
+     0,
+     0,
+     5.83,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 5.7
+   }
+  },
+  {
+   "level": 3,
+   "name": "Puddle Crossing",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.57,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.6
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.43,
+    "avgLossWave": 2,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0.3,
+     1.6,
+     0.07,
+     0.37,
+     0,
+     0.3,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.667,
+    "avgStars": 1.03,
+    "avgLossWave": 4.9,
+    "earlyLoss": 0.1,
+    "lostPerWave": [
+     0.07,
+     4.53,
+     0.27,
+     0.77,
+     0.23,
+     2.13,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4.3
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.1,
+    "avgStars": 0.13,
+    "avgLossWave": 2.9,
+    "earlyLoss": 0.733,
+    "lostPerWave": [
+     2,
+     6.03,
+     1.27,
+     0.47,
+     0,
+     0.43,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0.2
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0,
+    "avgStars": 0,
+    "avgLossWave": 2.9,
+    "earlyLoss": 1,
+    "lostPerWave": [
+     0.57,
+     4.87,
+     4.97,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.8,
+    "avgStars": 1.7,
+    "avgLossWave": 5.7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     3,
+     0.03,
+     0.6,
+     0.3,
+     1.53,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 6.1
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.47,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     1.63,
+     0,
+     0.1,
+     0,
+     0.53,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9.5
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.7,
+    "avgLossWave": 2,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0,
+     0.47,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4.6
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.7,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.4,
+     0.07,
+     0.73,
+     0.43,
+     0,
+     0.03,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.1
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 0.233,
+    "avgStars": 0.6,
+    "avgLossWave": 3,
+    "earlyLoss": 0.767,
+    "lostPerWave": [
+     0,
+     0.57,
+     8.03,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 2.5
+   }
+  },
+  {
+   "level": 4,
+   "name": "Campfire Corner",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.1,
+     0,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.5
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 0.867,
+    "avgStars": 0.97,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.63,
+     0,
+     2.27,
+     0,
+     0,
+     5,
+     0,
+     0
+    ],
+    "avgPile": 3.1
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.8,
+    "avgStars": 1.53,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.53,
+     1.23,
+     0.73,
+     0,
+     1.53,
+     0,
+     0,
+     2.83,
+     0,
+     0
+    ],
+    "avgPile": 5
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.433,
+    "avgStars": 0.47,
+    "avgLossWave": 7.5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.17,
+     2.43,
+     0,
+     3.73,
+     0,
+     0,
+     4.5,
+     0,
+     0
+    ],
+    "avgPile": 1.3
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.667,
+    "avgStars": 1,
+    "avgLossWave": 5.9,
+    "earlyLoss": 0.133,
+    "lostPerWave": [
+     0.53,
+     2.37,
+     1.63,
+     0.03,
+     0.7,
+     0,
+     0,
+     3.5,
+     0,
+     0
+    ],
+    "avgPile": 3.4
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.43,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.27,
+     0,
+     0.33,
+     0,
+     0.43,
+     0,
+     0,
+     1.67,
+     0,
+     0
+    ],
+    "avgPile": 9.3
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.9,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0.3,
+     0,
+     0,
+     0.5,
+     0,
+     0
+    ],
+    "avgPile": 10.9
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.1,
+     0,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4.5
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.77,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.1,
+     0.07,
+     0,
+     0,
+     0,
+     1.2,
+     0,
+     0
+    ],
+    "avgPile": 10.8
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.1,
+     0,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.6
+   }
+  },
+  {
+   "level": 5,
+   "name": "The Beer Garden",
+   "normal": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 2.27,
+    "avgLossWave": 4,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     2.2,
+     0,
+     1.1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.3
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 2.57,
+    "avgLossWave": 3.3,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0.27,
+     1.2,
+     0.1,
+     0.27,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9.5
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.033,
+    "avgStars": 0.07,
+    "avgLossWave": 2.4,
+    "earlyLoss": 0.833,
+    "lostPerWave": [
+     2.27,
+     7.43,
+     0.3,
+     0.2,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0.2
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0,
+    "avgStars": 0,
+    "avgLossWave": 2,
+    "earlyLoss": 1,
+    "lostPerWave": [
+     5.67,
+     4.5,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0,
+    "avgStars": 0,
+    "avgLossWave": 2,
+    "earlyLoss": 1,
+    "lostPerWave": [
+     3.33,
+     6.87,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.233,
+    "avgStars": 0.33,
+    "avgLossWave": 2.8,
+    "earlyLoss": 0.5,
+    "lostPerWave": [
+     1.37,
+     6.93,
+     0.4,
+     0.97,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 1.2
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.767,
+    "avgStars": 1.6,
+    "avgLossWave": 3.7,
+    "earlyLoss": 0.067,
+    "lostPerWave": [
+     0,
+     3.4,
+     0.37,
+     1.77,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 6.1
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.6,
+    "avgStars": 1.63,
+    "avgLossWave": 2.5,
+    "earlyLoss": 0.3,
+    "lostPerWave": [
+     0,
+     1.33,
+     0,
+     0.27,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 2.4
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.03,
+     0,
+     0.07,
+     0.1,
+     0,
+     0.1,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.2
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 0.733,
+    "avgStars": 1.67,
+    "avgLossWave": 3.3,
+    "earlyLoss": 0.2,
+    "lostPerWave": [
+     0,
+     2.2,
+     2.9,
+     0.17,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 6.3
+   }
+  },
+  {
+   "level": 6,
+   "name": "The Laneways",
+   "normal": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 1.83,
+    "avgLossWave": 5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     2.83,
+     0,
+     1.4,
+     0.63,
+     0.2,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 6.5
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.43,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     1.8,
+     0,
+     0.03,
+     0.93,
+     0.2,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.3
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.067,
+    "avgStars": 0.07,
+    "avgLossWave": 4.4,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     5.93,
+     0,
+     4,
+     0.43,
+     0.27,
+     0,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 0.1
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.233,
+    "avgStars": 0.3,
+    "avgLossWave": 5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.03,
+     5.07,
+     0,
+     1.77,
+     2.7,
+     0.3,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 1
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.1,
+    "avgStars": 0.13,
+    "avgLossWave": 3.1,
+    "earlyLoss": 0.867,
+    "lostPerWave": [
+     0.3,
+     6.07,
+     3.6,
+     0,
+     0.07,
+     0.1,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0.4
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.467,
+    "avgStars": 0.7,
+    "avgLossWave": 4.4,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     5,
+     0,
+     3,
+     1.1,
+     0.13,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 2.4
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.467,
+    "avgStars": 0.87,
+    "avgLossWave": 4.2,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     4.5,
+     0,
+     3.1,
+     0.6,
+     0.13,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 2.8
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.2,
+    "avgStars": 0.37,
+    "avgLossWave": 2.7,
+    "earlyLoss": 0.533,
+    "lostPerWave": [
+     0,
+     2.53,
+     0,
+     0.6,
+     0.13,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0.7
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.37,
+    "avgLossWave": 5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.7,
+     0.83,
+     0.53,
+     0.33,
+     0.47,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.8
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 0.767,
+    "avgStars": 1.9,
+    "avgLossWave": 3,
+    "earlyLoss": 0.233,
+    "lostPerWave": [
+     0,
+     2.83,
+     1.7,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 6.8
+   }
+  },
+  {
+   "level": 7,
+   "name": "Fairy Ring Woods",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.57,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     1.5,
+     0,
+     0.63,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9.9
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.67,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.63,
+     0,
+     1.07,
+     0,
+     0,
+     0.17,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9.8
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.333,
+    "avgStars": 0.5,
+    "avgLossWave": 2.3,
+    "earlyLoss": 0.633,
+    "lostPerWave": [
+     6.93,
+     0.37,
+     1.5,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 1.8
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.7,
+    "avgStars": 0.8,
+    "avgLossWave": 3.3,
+    "earlyLoss": 0.267,
+    "lostPerWave": [
+     4.83,
+     0.07,
+     3.53,
+     0,
+     0,
+     0.4,
+     0,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 2.6
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0,
+    "avgStars": 0,
+    "avgLossWave": 1.8,
+    "earlyLoss": 1,
+    "lostPerWave": [
+     9,
+     0.3,
+     0.83,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 2,
+    "avgLossWave": 3,
+    "earlyLoss": 0.1,
+    "lostPerWave": [
+     2.77,
+     0.2,
+     1.53,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 7.3
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.933,
+    "avgStars": 2.13,
+    "avgLossWave": 3,
+    "earlyLoss": 0.067,
+    "lostPerWave": [
+     2.97,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 7.6
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.633,
+    "avgStars": 1.67,
+    "avgLossWave": 1.7,
+    "earlyLoss": 0.367,
+    "lostPerWave": [
+     1.43,
+     0,
+     0.27,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 2.8
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.7
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.67,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     1.5,
+     0,
+     0.43,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9.5
+   }
+  },
+  {
+   "level": 8,
+   "name": "Gary's Big Day",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 1.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.03,
+     0,
+     2.8,
+     0.03,
+     1.67,
+     0,
+     0.6,
+     0.27,
+     0,
+     0
+    ],
+    "avgPile": 6.6
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.6,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.37,
+     0,
+     0.6,
+     0,
+     0.1,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.1
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.267,
+    "avgStars": 0.43,
+    "avgLossWave": 4.4,
+    "earlyLoss": 0.3,
+    "lostPerWave": [
+     1.33,
+     1.2,
+     4.43,
+     0.7,
+     1.53,
+     0,
+     0.57,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 1.4
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.1,
+    "avgStars": 0.13,
+    "avgLossWave": 3.7,
+    "earlyLoss": 0.6,
+    "lostPerWave": [
+     2.47,
+     1,
+     5.33,
+     0.07,
+     1.3,
+     0,
+     0.07,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 0.4
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.033,
+    "avgStars": 0.03,
+    "avgLossWave": 2.9,
+    "earlyLoss": 0.867,
+    "lostPerWave": [
+     3.4,
+     2.53,
+     4.3,
+     0.2,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0.1
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.5,
+    "avgStars": 0.77,
+    "avgLossWave": 4.8,
+    "earlyLoss": 0.2,
+    "lostPerWave": [
+     0.63,
+     1.17,
+     4.23,
+     0.07,
+     0.97,
+     0,
+     1.6,
+     0.33,
+     0,
+     0
+    ],
+    "avgPile": 2.6
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.833,
+    "avgStars": 1.37,
+    "avgLossWave": 7.4,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.13,
+     0.57,
+     2.3,
+     0.13,
+     2.4,
+     0,
+     1.47,
+     0.33,
+     0,
+     0
+    ],
+    "avgPile": 5.1
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.333,
+    "avgStars": 0.43,
+    "avgLossWave": 3.7,
+    "earlyLoss": 0.467,
+    "lostPerWave": [
+     0.03,
+     0,
+     2.33,
+     0.03,
+     0.83,
+     0,
+     0.27,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0.9
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.73,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.13,
+     0.07,
+     0.23,
+     0.27,
+     0.1,
+     0.67,
+     0,
+     0
+    ],
+    "avgPile": 10.6
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 1.87,
+    "avgLossWave": 5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.03,
+     0,
+     3.47,
+     0,
+     1.33,
+     0,
+     0.07,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 7.2
+   }
+  },
+  {
+   "level": 9,
+   "name": "Servo Stop",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.77,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.27,
+     0,
+     0.13,
+     0,
+     0.43,
+     0.3,
+     0,
+     0
+    ],
+    "avgPile": 9.9
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.87,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.67,
+     0,
+     0.13,
+     0,
+     0.33,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.2
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.2,
+    "avgStars": 0.3,
+    "avgLossWave": 7.1,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.1,
+     0.27,
+     1.97,
+     0.83,
+     2.63,
+     0,
+     2.57,
+     1.87,
+     0,
+     0
+    ],
+    "avgPile": 1.1
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.7,
+    "avgStars": 1.17,
+    "avgLossWave": 5.8,
+    "earlyLoss": 0.067,
+    "lostPerWave": [
+     0.23,
+     0.27,
+     2.93,
+     0.43,
+     0.8,
+     0,
+     2.3,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 3.9
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.5,
+    "avgStars": 0.9,
+    "avgLossWave": 4.1,
+    "earlyLoss": 0.3,
+    "lostPerWave": [
+     0.07,
+     0.27,
+     5.6,
+     0.33,
+     0.67,
+     0.13,
+     0.17,
+     0.8,
+     0,
+     0
+    ],
+    "avgPile": 3
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.633,
+    "avgStars": 1.27,
+    "avgLossWave": 7.8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.47,
+     0.07,
+     1.3,
+     0,
+     2.5,
+     1.9,
+     0,
+     0
+    ],
+    "avgPile": 4.2
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.933,
+    "avgStars": 2.27,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.03,
+     0,
+     0.43,
+     0,
+     1.03,
+     0,
+     1.07,
+     0.93,
+     0,
+     0
+    ],
+    "avgPile": 8.3
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.8,
+    "avgStars": 2.07,
+    "avgLossWave": 7.3,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.27,
+     0,
+     0.13,
+     0,
+     0.33,
+     0.3,
+     0,
+     0
+    ],
+    "avgPile": 3
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.3
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.5
+   }
+  },
+  {
+   "level": 10,
+   "name": "Low Tide",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.7
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.6,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.57,
+     0,
+     0.7,
+     0,
+     0.57,
+     0.1,
+     0,
+     0
+    ],
+    "avgPile": 9.8
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.933,
+    "avgStars": 2.03,
+    "avgLossWave": 4,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0.4,
+     0.37,
+     1.27,
+     0,
+     1.8,
+     0,
+     0,
+     0.27,
+     0,
+     0
+    ],
+    "avgPile": 7.4
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.433,
+    "avgStars": 0.7,
+    "avgLossWave": 6.9,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.2,
+     1.73,
+     0,
+     5.27,
+     0,
+     1.3,
+     0.83,
+     0,
+     0
+    ],
+    "avgPile": 2.5
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.733,
+    "avgStars": 1.63,
+    "avgLossWave": 2.8,
+    "earlyLoss": 0.233,
+    "lostPerWave": [
+     1.4,
+     0.9,
+     1.33,
+     0,
+     1.2,
+     0.17,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 6.1
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.77,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.37,
+     0.6,
+     0,
+     0.3,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.5
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.17,
+     0,
+     0.73,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.2
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4.7
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.1,
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.6
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.37,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.6
+   }
+  },
+  {
+   "level": 11,
+   "name": "Smoko Ridge",
+   "normal": {
+    "n": 30,
+    "winRate": 0.867,
+    "avgStars": 2.13,
+    "avgLossWave": 7.5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     1.53,
+     0.33,
+     0,
+     1.77,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 8.2
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 0.867,
+    "avgStars": 1.23,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.07,
+     1.43,
+     0.1,
+     0,
+     0.1,
+     5,
+     0,
+     0
+    ],
+    "avgPile": 4.3
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.167,
+    "avgStars": 0.2,
+    "avgLossWave": 6.8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.23,
+     5.73,
+     1.13,
+     0,
+     3.4,
+     0.73,
+     0,
+     0
+    ],
+    "avgPile": 0.6
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.333,
+    "avgStars": 0.37,
+    "avgLossWave": 7.5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.43,
+     3.53,
+     0.77,
+     0,
+     1.37,
+     3.67,
+     0,
+     0
+    ],
+    "avgPile": 1.2
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.5,
+    "avgStars": 0.87,
+    "avgLossWave": 6.8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.87,
+     4.97,
+     0.43,
+     0,
+     1.13,
+     1.27,
+     0,
+     0
+    ],
+    "avgPile": 3.2
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.433,
+    "avgStars": 0.63,
+    "avgLossWave": 6.6,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.13,
+     4.57,
+     1.33,
+     0,
+     3.2,
+     0.73,
+     0,
+     0
+    ],
+    "avgPile": 2.1
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.4,
+    "avgStars": 0.6,
+    "avgLossWave": 6.8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.33,
+     4.67,
+     0.77,
+     0,
+     2.8,
+     0.6,
+     0,
+     0
+    ],
+    "avgPile": 2.1
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.6,
+    "avgStars": 1.53,
+    "avgLossWave": 5.3,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     1.2,
+     0.17,
+     0,
+     0.8,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 2.4
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0.4,
+     0,
+     0
+    ],
+    "avgPile": 11.3
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.8,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.07,
+     0.8,
+     0.2,
+     0,
+     0,
+     0.17,
+     0,
+     0
+    ],
+    "avgPile": 10.4
+   }
+  },
+  {
+   "level": 12,
+   "name": "The Long Paddock",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.03,
+     0,
+     0.13,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.7
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.833,
+    "avgStars": 1.93,
+    "avgLossWave": 3.8,
+    "earlyLoss": 0.067,
+    "lostPerWave": [
+     0.03,
+     0.87,
+     0.77,
+     2.17,
+     0.5,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 7.2
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.933,
+    "avgStars": 2.3,
+    "avgLossWave": 3,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     2.6,
+     0,
+     0.27,
+     0.03,
+     0.2,
+     0,
+     0.03,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.5
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.4,
+    "avgStars": 0.97,
+    "avgLossWave": 3.9,
+    "earlyLoss": 0.4,
+    "lostPerWave": [
+     0.2,
+     1.9,
+     3.8,
+     1.1,
+     0.03,
+     0.73,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 3.4
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.5,
+    "avgLossWave": 4,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.3,
+     0.27,
+     1.3,
+     0.3,
+     0.07,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9.6
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.87,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.33,
+     0,
+     0.3,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.1
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.83,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.03,
+     0,
+     0.13,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.5
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.5
+   }
+  },
+  {
+   "level": 13,
+   "name": "Mushroom Maze",
+   "normal": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2,
+    "avgLossWave": 7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.03,
+     0,
+     2.8,
+     0,
+     0.57,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 7.9
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.2
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.667,
+    "avgStars": 1.23,
+    "avgLossWave": 6.2,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.37,
+     2.27,
+     0.47,
+     2.73,
+     0,
+     1.3,
+     0.27,
+     0,
+     0
+    ],
+    "avgPile": 4.2
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.933,
+    "avgStars": 2.4,
+    "avgLossWave": 5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.07,
+     0,
+     1.1,
+     0,
+     2.17,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.4
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.667,
+    "avgStars": 1.03,
+    "avgLossWave": 5.1,
+    "earlyLoss": 0.133,
+    "lostPerWave": [
+     0,
+     0.23,
+     4.33,
+     0.03,
+     2.77,
+     0,
+     0.67,
+     0.47,
+     0,
+     0
+    ],
+    "avgPile": 3.6
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.933,
+    "avgStars": 1.97,
+    "avgLossWave": 7.5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.9,
+     0.07,
+     2.47,
+     0,
+     0.6,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 7.3
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.867,
+    "avgStars": 1.53,
+    "avgLossWave": 6,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.97,
+     0.03,
+     3.2,
+     0,
+     0.47,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 5.9
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.433,
+    "avgStars": 0.83,
+    "avgLossWave": 4.5,
+    "earlyLoss": 0.167,
+    "lostPerWave": [
+     0,
+     0,
+     0.97,
+     0,
+     2,
+     0,
+     0.13,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 1.6
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.77,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.37,
+     0.43,
+     0.23,
+     0.1,
+     0.07,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 11.1
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 1.8,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.03,
+     0,
+     3.7,
+     0,
+     0.2,
+     0.1,
+     0,
+     0
+    ],
+    "avgPile": 6.7
+   }
+  },
+  {
+   "level": 14,
+   "name": "Pub Crawl",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.1,
+     0,
+     0.1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.7
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.83,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.23,
+     0,
+     0.8,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.6
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.833,
+    "avgStars": 1.83,
+    "avgLossWave": 4.8,
+    "earlyLoss": 0.1,
+    "lostPerWave": [
+     0,
+     0,
+     3.2,
+     0.27,
+     0.87,
+     0,
+     0.8,
+     0.13,
+     0,
+     0
+    ],
+    "avgPile": 7
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.7,
+    "avgStars": 1.3,
+    "avgLossWave": 4.4,
+    "earlyLoss": 0.067,
+    "lostPerWave": [
+     0,
+     0,
+     3.4,
+     0.27,
+     3,
+     0,
+     0.07,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4.6
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 1.8,
+    "avgLossWave": 3,
+    "earlyLoss": 0.1,
+    "lostPerWave": [
+     0,
+     0,
+     4.23,
+     0,
+     0.93,
+     0,
+     0.03,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 6.2
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.73,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.8,
+     0.07,
+     0.47,
+     0,
+     0.3,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.2
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.77,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.67,
+     0,
+     0.2,
+     0,
+     0.23,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9.9
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.1,
+     0,
+     0.1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4.7
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.13,
+     0,
+     0.1,
+     0,
+     0.1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.3
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.4,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.6
+   }
+  },
+  {
+   "level": 15,
+   "name": "Head Office",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12.3
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.3
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.2,
+     0,
+     0.5,
+     0,
+     0.07,
+     0,
+     0.03,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.2
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.73,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.37,
+     0,
+     0.53,
+     0,
+     0.07,
+     0,
+     0,
+     0.5,
+     0,
+     0
+    ],
+    "avgPile": 9.7
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.7,
+    "avgStars": 1.5,
+    "avgLossWave": 3,
+    "earlyLoss": 0.3,
+    "lostPerWave": [
+     0.9,
+     0,
+     4.67,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 5.8
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.13,
+     0,
+     0.1,
+     0,
+     0.17,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.5
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.1,
+     0,
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.3
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 5.3
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.7
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.8
+   }
+  },
+  {
+   "level": 16,
+   "name": "Rat Kingdom",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.83,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0.7,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.3
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0.1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.3
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.733,
+    "avgStars": 1.47,
+    "avgLossWave": 3.9,
+    "earlyLoss": 0.1,
+    "lostPerWave": [
+     0,
+     1.8,
+     0.97,
+     0,
+     3.17,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 5.2
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.6,
+    "avgLossWave": 2,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0,
+     0.57,
+     0.17,
+     0,
+     1.07,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9.8
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.633,
+    "avgStars": 1.27,
+    "avgLossWave": 3.4,
+    "earlyLoss": 0.2,
+    "lostPerWave": [
+     0,
+     2.3,
+     1.23,
+     0,
+     3.17,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4.4
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.27,
+    "avgLossWave": 2,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0,
+     0.33,
+     0.1,
+     0,
+     2.83,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.5
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.57,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.13,
+     0.37,
+     0,
+     1.8,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 9.3
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 2.47,
+    "avgLossWave": 5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0.6,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 3.4
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0.07,
+     0.07,
+     0,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 11.1
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.13,
+     0,
+     0.33,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.2
+   }
+  },
+  {
+   "level": 17,
+   "name": "Steve's Revenge",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.83,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0.83,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.9
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 1.77,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.23,
+     0,
+     5.27,
+     0,
+     0,
+     0.17,
+     0,
+     0
+    ],
+    "avgPile": 5.7
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.833,
+    "avgStars": 1.4,
+    "avgLossWave": 6,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.13,
+     0,
+     5.47,
+     0,
+     1,
+     0.27,
+     0,
+     0
+    ],
+    "avgPile": 4.9
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.4,
+    "avgStars": 0.57,
+    "avgLossWave": 6.3,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.13,
+     0,
+     7.73,
+     0,
+     0.03,
+     1.17,
+     0,
+     0
+    ],
+    "avgPile": 1.6
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.833,
+    "avgStars": 1.47,
+    "avgLossWave": 6,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.07,
+     0,
+     0.43,
+     0,
+     6.4,
+     0,
+     0.17,
+     0.2,
+     0,
+     0
+    ],
+    "avgPile": 5.3
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.867,
+    "avgStars": 1.5,
+    "avgLossWave": 5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.13,
+     0,
+     5.97,
+     0,
+     0.13,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 5.4
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.37,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.03,
+     0,
+     3.1,
+     0,
+     0.03,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 9.1
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.867,
+    "avgStars": 2.57,
+    "avgLossWave": 5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0.67,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.8
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.73,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     1.33,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.3
+   }
+  },
+  {
+   "level": 18,
+   "name": "The Final Nap",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12.9
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0.1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12.3
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.2,
+     0,
+     0.1,
+     0,
+     0.13,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12.2
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.53,
+    "avgLossWave": 7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.87,
+     0,
+     1.23,
+     0,
+     0.07,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.6
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.33,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.9
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12.2
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.13,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.8
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 5.9
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12.6
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.9
+   }
+  },
+  {
+   "level": 19,
+   "name": "Scrapyard Magnet",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.63,
+     0,
+     0.07,
+     0,
+     0.03,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.9
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.83,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.27,
+     0,
+     0.7,
+     0,
+     0.4,
+     0,
+     0.07,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.6
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.6,
+    "avgStars": 1.3,
+    "avgLossWave": 5,
+    "earlyLoss": 0.167,
+    "lostPerWave": [
+     2,
+     0.47,
+     1.9,
+     0,
+     1.63,
+     0.17,
+     0.77,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 4.5
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.8,
+    "avgStars": 1.17,
+    "avgLossWave": 5.5,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     2.5,
+     0.77,
+     1.87,
+     0,
+     1.53,
+     0,
+     0.53,
+     0.33,
+     0,
+     0
+    ],
+    "avgPile": 3.7
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.6,
+    "avgStars": 1.13,
+    "avgLossWave": 3.4,
+    "earlyLoss": 0.267,
+    "lostPerWave": [
+     3.57,
+     0.93,
+     1.77,
+     0,
+     0.97,
+     0.23,
+     0.03,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 4.4
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.37,
+     0.17,
+     0.93,
+     0,
+     1.27,
+     0,
+     0.6,
+     0.23,
+     0,
+     0
+    ],
+    "avgPile": 8.1
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.8,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.3,
+     0,
+     0.87,
+     0,
+     0.53,
+     0,
+     0.2,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.2
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.47,
+    "avgLossWave": 3,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0,
+     0,
+     0.6,
+     0,
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 3.9
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.8,
+    "avgLossWave": 4,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.3,
+     0.47,
+     0.13,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.2
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.43,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.5
+   }
+  },
+  {
+   "level": 20,
+   "name": "Blackout Storm",
+   "normal": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.53,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.03,
+     0,
+     0.9,
+     0,
+     0.17,
+     1.27,
+     0,
+     0
+    ],
+    "avgPile": 10
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 1.07,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.47,
+     0,
+     0.03,
+     0,
+     0.23,
+     6.43,
+     0,
+     0
+    ],
+    "avgPile": 3.7
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.267,
+    "avgStars": 0.43,
+    "avgLossWave": 7.5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.17,
+     0,
+     0.7,
+     0,
+     2.67,
+     1.1,
+     2.1,
+     4.07,
+     0,
+     0
+    ],
+    "avgPile": 1.6
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.467,
+    "avgStars": 0.47,
+    "avgLossWave": 7.9,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.33,
+     0,
+     0.23,
+     0,
+     1.8,
+     7.4,
+     0,
+     0
+    ],
+    "avgPile": 1.6
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.4,
+    "avgStars": 0.83,
+    "avgLossWave": 5.9,
+    "earlyLoss": 0.1,
+    "lostPerWave": [
+     0.17,
+     0.27,
+     3.2,
+     0.1,
+     1.9,
+     1.23,
+     0.1,
+     1.9,
+     0,
+     0
+    ],
+    "avgPile": 2.9
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.533,
+    "avgStars": 1.07,
+    "avgLossWave": 7.6,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.07,
+     0,
+     0.23,
+     0,
+     2.23,
+     0.43,
+     1.73,
+     3.93,
+     0,
+     0
+    ],
+    "avgPile": 3.7
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.833,
+    "avgStars": 1.97,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     1,
+     0,
+     0.73,
+     2.7,
+     0,
+     0
+    ],
+    "avgPile": 7.2
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.767,
+    "avgStars": 1.97,
+    "avgLossWave": 6.1,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.03,
+     0,
+     0.9,
+     0,
+     0.17,
+     0.77,
+     0,
+     0
+    ],
+    "avgPile": 3
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.73,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.03,
+     0.07,
+     0.07,
+     0,
+     0,
+     1.13,
+     0,
+     0
+    ],
+    "avgPile": 10.3
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.07,
+     0,
+     0.17,
+     0,
+     0.03,
+     0.2,
+     0,
+     0
+    ],
+    "avgPile": 12.2
+   }
+  },
+  {
+   "level": 21,
+   "name": "Conveyor Factory",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 11.8
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 1.7,
+    "avgLossWave": 7.3,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.33,
+     0,
+     2.93,
+     0,
+     0.7,
+     0.47,
+     0,
+     0
+    ],
+    "avgPile": 6.7
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.867,
+    "avgStars": 1.7,
+    "avgLossWave": 5.8,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     2.3,
+     0.37,
+     0.67,
+     0.57,
+     0.3,
+     0,
+     0.5,
+     1.23,
+     0,
+     0
+    ],
+    "avgPile": 6.3
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.3,
+    "avgStars": 0.33,
+    "avgLossWave": 6.1,
+    "earlyLoss": 0.067,
+    "lostPerWave": [
+     0,
+     0,
+     4.1,
+     0,
+     4.43,
+     0,
+     1.3,
+     0.5,
+     0,
+     0
+    ],
+    "avgPile": 1
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.167,
+    "avgStars": 0.33,
+    "avgLossWave": 3,
+    "earlyLoss": 0.8,
+    "lostPerWave": [
+     2.1,
+     0.27,
+     6.83,
+     0.1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 1.2
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.9,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.2,
+     0,
+     0,
+     0.27,
+     0.07,
+     0,
+     0.2,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.5
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.17,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.13,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 11.7
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 4.8
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.5
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 0.867,
+    "avgStars": 2.23,
+    "avgLossWave": 3,
+    "earlyLoss": 0.133,
+    "lostPerWave": [
+     0,
+     0,
+     3.2,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.4
+   }
+  },
+  {
+   "level": 22,
+   "name": "Ice Rink",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.9,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0.4,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.8
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.83,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.27,
+     0,
+     0.33,
+     0,
+     0.3,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.2
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.7,
+    "avgStars": 1.4,
+    "avgLossWave": 6.1,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.37,
+     0.67,
+     0.97,
+     3,
+     0.43,
+     0.8,
+     0.57,
+     0,
+     0
+    ],
+    "avgPile": 4.9
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.833,
+    "avgStars": 1.53,
+    "avgLossWave": 6.8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.1,
+     0.13,
+     1.57,
+     0.1,
+     1.17,
+     0,
+     2.13,
+     0.97,
+     0,
+     0
+    ],
+    "avgPile": 5.3
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.533,
+    "avgStars": 0.9,
+    "avgLossWave": 4.2,
+    "earlyLoss": 0.2,
+    "lostPerWave": [
+     0,
+     0.37,
+     4.23,
+     0.23,
+     2.2,
+     0.37,
+     0.07,
+     0.43,
+     0,
+     0
+    ],
+    "avgPile": 3.4
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.7,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.13,
+     0.17,
+     1,
+     0,
+     0.23,
+     0.1,
+     0,
+     0
+    ],
+    "avgPile": 10.4
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.53,
+    "avgLossWave": 7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.3,
+     0.17,
+     0.23,
+     1.37,
+     0.03,
+     0.07,
+     0.13,
+     0,
+     0
+    ],
+    "avgPile": 9.1
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.933,
+    "avgStars": 2.63,
+    "avgLossWave": 4,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0.33,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4.8
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.93,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.4,
+     0.1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.4
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.9,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.1,
+     0,
+     0.47,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.1
+   }
+  },
+  {
+   "level": 23,
+   "name": "Cliff Top Gusts",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.07,
+     0,
+     0,
+     0,
+     0.13,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 12.3
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 0.7,
+    "avgStars": 1.07,
+    "avgLossWave": 7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.43,
+     0,
+     1.77,
+     0,
+     4.43,
+     0.4,
+     0,
+     0
+    ],
+    "avgPile": 3.8
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.27,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.23,
+     0,
+     0,
+     0,
+     0.97,
+     2.17,
+     0,
+     0
+    ],
+    "avgPile": 8.3
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.033,
+    "avgStars": 0.03,
+    "avgLossWave": 7.3,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     2.53,
+     0,
+     2.27,
+     0,
+     6.07,
+     0.87,
+     0,
+     0
+    ],
+    "avgPile": 0.1
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 2.03,
+    "avgLossWave": 6,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0.13,
+     0,
+     2.4,
+     0,
+     0.1,
+     0,
+     1.27,
+     0.47,
+     0,
+     0
+    ],
+    "avgPile": 7.4
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.77,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0,
+     0,
+     1.2,
+     0.17,
+     0,
+     0
+    ],
+    "avgPile": 10.4
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.83,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.03,
+     0,
+     0,
+     0,
+     0.23,
+     0.57,
+     0,
+     0
+    ],
+    "avgPile": 11.3
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.87,
+    "avgLossWave": 7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.07,
+     0,
+     0,
+     0,
+     0.13,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 5.3
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.9
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 11.8
+   }
+  },
+  {
+   "level": 24,
+   "name": "Sinkhole Street",
+   "normal": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 1.53,
+    "avgLossWave": 7.3,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.1,
+     0.03,
+     0,
+     1.73,
+     0,
+     3.73,
+     0.6,
+     0,
+     0
+    ],
+    "avgPile": 5.1
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.83,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.6,
+     0,
+     0.03,
+     0,
+     0.5,
+     0.1,
+     0,
+     0
+    ],
+    "avgPile": 10.2
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.033,
+    "avgStars": 0.03,
+    "avgLossWave": 5.5,
+    "earlyLoss": 0.067,
+    "lostPerWave": [
+     0.07,
+     4,
+     0.73,
+     0.5,
+     4.1,
+     0.03,
+     1.83,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 0.2
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.7,
+    "avgStars": 1.27,
+    "avgLossWave": 7.6,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0.03,
+     0,
+     2.03,
+     0,
+     0.4,
+     0,
+     2.97,
+     1.77,
+     0,
+     0
+    ],
+    "avgPile": 4.5
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0,
+    "avgStars": 0,
+    "avgLossWave": 3.3,
+    "earlyLoss": 0.9,
+    "lostPerWave": [
+     0,
+     3.5,
+     6.17,
+     0,
+     0.1,
+     0,
+     0.43,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.267,
+    "avgStars": 0.37,
+    "avgLossWave": 7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.2,
+     0.33,
+     0,
+     4.47,
+     0,
+     5.3,
+     0.3,
+     0,
+     0
+    ],
+    "avgPile": 1.4
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.4,
+    "avgStars": 0.57,
+    "avgLossWave": 6.9,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     1.1,
+     0.23,
+     0.27,
+     3.63,
+     0,
+     3.53,
+     0.57,
+     0,
+     0
+    ],
+    "avgPile": 2
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.333,
+    "avgStars": 0.67,
+    "avgLossWave": 5.8,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0,
+     0.1,
+     0.03,
+     0,
+     1.43,
+     0,
+     1.6,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 1
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.97,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0.1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.6
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.6,
+    "avgLossWave": 3,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0,
+     0.1,
+     1.2,
+     0,
+     0.23,
+     0,
+     0.53,
+     0.03,
+     0,
+     0
+    ],
+    "avgPile": 9.2
+   }
+  },
+  {
+   "level": 25,
+   "name": "Trampoline Park",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.8
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.37,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.93,
+     0,
+     1.73,
+     0,
+     0.33,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.5
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.13,
+     0,
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.6
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.567,
+    "avgStars": 0.8,
+    "avgLossWave": 6.9,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     3.07,
+     0,
+     4.03,
+     0,
+     1.83,
+     0.23,
+     0,
+     0
+    ],
+    "avgPile": 2.5
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.7,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.03,
+     1.13,
+     0,
+     0,
+     0.17,
+     0,
+     0.07,
+     0,
+     0
+    ],
+    "avgPile": 10.5
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 10.9
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 12
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4.8
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.7
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 3,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.3
+   }
+  },
+  {
+   "level": 26,
+   "name": "Sprinkler Lawn",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.87,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.3,
+     0,
+     0.23,
+     0,
+     0.1,
+     0.23,
+     0,
+     0
+    ],
+    "avgPile": 10.8
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 0.733,
+    "avgStars": 1.37,
+    "avgLossWave": 7.8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.7,
+     0,
+     1.57,
+     0,
+     1.9,
+     1.2,
+     0,
+     0
+    ],
+    "avgPile": 5
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.3,
+    "avgStars": 0.43,
+    "avgLossWave": 4.7,
+    "earlyLoss": 0.333,
+    "lostPerWave": [
+     0.5,
+     1.07,
+     4.97,
+     1.13,
+     0.67,
+     0.07,
+     0.63,
+     0.7,
+     0,
+     0
+    ],
+    "avgPile": 1.5
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.1,
+    "avgStars": 0.17,
+    "avgLossWave": 5.3,
+    "earlyLoss": 0.233,
+    "lostPerWave": [
+     0.1,
+     0.4,
+     5.5,
+     0.43,
+     2.33,
+     0.07,
+     1.37,
+     0.23,
+     0,
+     0
+    ],
+    "avgPile": 0.5
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0,
+    "avgStars": 0,
+    "avgLossWave": 2.9,
+    "earlyLoss": 1,
+    "lostPerWave": [
+     2.4,
+     1.73,
+     6.53,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.667,
+    "avgStars": 1.47,
+    "avgLossWave": 5.3,
+    "earlyLoss": 0.067,
+    "lostPerWave": [
+     0,
+     0.1,
+     2.57,
+     1.5,
+     0.23,
+     0,
+     0.77,
+     1.67,
+     0,
+     0
+    ],
+    "avgPile": 5
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 2.2,
+    "avgLossWave": 4.7,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0.3,
+     0.17,
+     1.1,
+     0.63,
+     0.2,
+     0,
+     0.67,
+     0.57,
+     0,
+     0
+    ],
+    "avgPile": 8.1
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 2.47,
+    "avgLossWave": 6,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.3,
+     0,
+     0.23,
+     0,
+     0.1,
+     0.23,
+     0,
+     0
+    ],
+    "avgPile": 3.8
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.9,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.17,
+     0.3,
+     0.07,
+     0,
+     0.07,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 0.867,
+    "avgStars": 2.3,
+    "avgLossWave": 3,
+    "earlyLoss": 0.133,
+    "lostPerWave": [
+     0,
+     0,
+     3,
+     0,
+     0.17,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.3
+   }
+  },
+  {
+   "level": 27,
+   "name": "Swing Bridge",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.7,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.93,
+     0,
+     0,
+     0.1,
+     0,
+     0,
+     0.37,
+     0,
+     0
+    ],
+    "avgPile": 10.1
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.8,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.23,
+     0,
+     0.4,
+     0,
+     0.13,
+     0.3,
+     0,
+     0
+    ],
+    "avgPile": 10.5
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.533,
+    "avgStars": 0.87,
+    "avgLossWave": 5.1,
+    "earlyLoss": 0.1,
+    "lostPerWave": [
+     0.03,
+     3.5,
+     0.27,
+     1.03,
+     1.43,
+     0,
+     0.97,
+     0.93,
+     0,
+     0
+    ],
+    "avgPile": 3.2
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.233,
+    "avgStars": 0.33,
+    "avgLossWave": 6.8,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0.17,
+     0.97,
+     1.83,
+     0.37,
+     2.87,
+     0,
+     2.17,
+     2.13,
+     0,
+     0
+    ],
+    "avgPile": 1.3
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.133,
+    "avgStars": 0.23,
+    "avgLossWave": 2.9,
+    "earlyLoss": 0.8,
+    "lostPerWave": [
+     0.03,
+     4.8,
+     4.8,
+     0.33,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 0.6
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.867,
+    "avgStars": 2,
+    "avgLossWave": 7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     1.1,
+     0.07,
+     0.03,
+     0.83,
+     0.33,
+     0.93,
+     1.1,
+     0,
+     0
+    ],
+    "avgPile": 7.3
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 2.07,
+    "avgLossWave": 5.7,
+    "earlyLoss": 0.033,
+    "lostPerWave": [
+     0,
+     2.3,
+     0,
+     0.3,
+     0.57,
+     0,
+     0.23,
+     0.8,
+     0,
+     0
+    ],
+    "avgPile": 7.5
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.8,
+    "avgStars": 2.2,
+    "avgLossWave": 3.5,
+    "earlyLoss": 0.133,
+    "lostPerWave": [
+     0,
+     0.77,
+     0,
+     0,
+     0.1,
+     0,
+     0,
+     0.2,
+     0,
+     0
+    ],
+    "avgPile": 3.2
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 0.733,
+    "avgStars": 2.07,
+    "avgLossWave": 8,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.03,
+     0,
+     0,
+     0,
+     0,
+     3.83,
+     0,
+     0
+    ],
+    "avgPile": 8.2
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 0.7,
+    "avgStars": 1.7,
+    "avgLossWave": 3,
+    "earlyLoss": 0.3,
+    "lostPerWave": [
+     0,
+     0.93,
+     4.07,
+     0.07,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 6.3
+   }
+  },
+  {
+   "level": 28,
+   "name": "Eclipse Night Market",
+   "normal": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.87,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0.77,
+     0,
+     0.17,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11
+   },
+   "nonan": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 1.97,
+    "avgLossWave": 7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.8,
+     0,
+     1.37,
+     0,
+     1.23,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 7.8
+   },
+   "hard": {
+    "n": 30,
+    "winRate": 0.5,
+    "avgStars": 0.8,
+    "avgLossWave": 6.2,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     1.57,
+     0.77,
+     3.93,
+     0,
+     2.7,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 3.1
+   },
+   "hard-nonan": {
+    "n": 30,
+    "winRate": 0.467,
+    "avgStars": 0.67,
+    "avgLossWave": 6.4,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     3.5,
+     0,
+     3.7,
+     0,
+     2.47,
+     0,
+     0,
+     0.07
+    ],
+    "avgPile": 2.2
+   },
+   "nightmare": {
+    "n": 30,
+    "winRate": 0.833,
+    "avgStars": 1.6,
+    "avgLossWave": 6.6,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0.07,
+     2.27,
+     0,
+     2.27,
+     0,
+     1.3,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 5.6
+   },
+   "m-hard": {
+    "n": 30,
+    "winRate": 0.967,
+    "avgStars": 2.23,
+    "avgLossWave": 7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.7,
+     0.03,
+     1.6,
+     0,
+     1.27,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.5
+   },
+   "m-speed": {
+    "n": 30,
+    "winRate": 0.9,
+    "avgStars": 1.97,
+    "avgLossWave": 7,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.77,
+     0,
+     2.03,
+     0,
+     1.73,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 8.3
+   },
+   "m-nomercy": {
+    "n": 30,
+    "winRate": 0.933,
+    "avgStars": 2.37,
+    "avgLossWave": 5,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.17,
+     0,
+     0.73,
+     0,
+     0.1,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 4.1
+   },
+   "m-chaos": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.9,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.07,
+     0.3,
+     0.03,
+     0.17,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11
+   },
+   "m-bossrush": {
+    "n": 30,
+    "winRate": 1,
+    "avgStars": 2.9,
+    "avgLossWave": 0,
+    "earlyLoss": 0,
+    "lostPerWave": [
+     0,
+     0,
+     0.33,
+     0,
+     0.6,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "avgPile": 11.5
+   }
+  }
+ ]
+}

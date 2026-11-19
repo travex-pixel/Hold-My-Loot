@@ -1,0 +1,33 @@
+{
+ "clsLoad": 0.0094,
+ "busiestWave": {
+  "towers": 17,
+  "enemies": 11,
+  "scriptMsPerFrame": 11.3,
+  "note": "rAF fps here is headless Chromium without a GPU; phones draw the canvas on the GPU",
+  "frames": 168,
+  "avgMs": 47.64,
+  "p95": 66.7,
+  "fps": 21,
+  "slow": 167
+ },
+ "heapMB": [
+  4.8,
+  4.9,
+  4.9,
+  5.1,
+  5.1,
+  5.1,
+  5.2,
+  5.2,
+  5.2,
+  5.2
+ ],
+ "clsPlay": 0.0344,
+ "clsSources": [
+  [
+   0.011,
+   "toast rare|toast rare"
+  ]
+ ]
+}
