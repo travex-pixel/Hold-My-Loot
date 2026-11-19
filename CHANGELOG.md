@@ -252,6 +252,13 @@ Feels finished
   Play above "What's new", and the home-screen install card waits for a second visit.
 
 ## Build 32
+Long Nap
+- Head start: with a best of 25 on a map you can start its Long Nap at wave 11, and with 35 at wave 21. You get the gold
+  a strong crew earns over the skipped waves (2,100 / 7,000) and half the bonus picks (5 / 10); skipped waves pay no
+  rocks. Measured with the veteran bot on 3 maps x 4 seeds: it ends within a wave of a full run on average, never
+  further, and saves 20-30% of the time. Wave 21 is still everyone's wave 21 that week.
+- Fix: Continue on a Long Nap lost the weekly seed, so every wave after a resume was random instead of everyone's.
+
 Known bugs from DESIGN.md section 10 (checks in tests/knownbugs.mjs)
 - The free Dazza on a first game now counts in play stats as a placed crew member, marked free, so
   first_tower_placed is always the player's own first hire.
