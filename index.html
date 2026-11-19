@@ -29,7 +29,7 @@
 <meta name="apple-mobile-web-app-title" content="Hold My Loot">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A4%3C/text%3E%3C/svg%3E">
-<meta name="hml-build" content="31">
+<meta name="hml-build" content="32">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -53,7 +53,7 @@ window.HML_PORTAL = '';
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 31;
+window.HML_BUILD = 32;
 window.__checkUpdate = function () {
   if (window.HML_PORTAL) return Promise.resolve(0);
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
@@ -742,6 +742,12 @@ small.spare { display: block; color: var(--muted); font-weight: 800; margin: 3px
 .raidhero.ranger { background: linear-gradient(135deg, #4E5A2A, #2A3214); } .raidhero.alarm { background: linear-gradient(135deg, #8A1E26, #3A0A10); }
 .raidrules { margin: 6px 0; padding-left: 18px; font-size: 13px; font-weight: 800; line-height: 1.5; }
 .medals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 0; } .medals span { background: var(--paper2); border-radius: 12px; padding: 6px; text-align: center; font-weight: 900; font-size: 13px; opacity: .65; } .medals span small { display: block; font-size: 11px; color: var(--muted); } .medals span.got { opacity: 1; background: #FFF1C8; border: 1.5px solid #E3A02C; }
+.headrow { margin-top: 12px; padding: 10px; border: 1.5px dashed var(--line); border-radius: 14px; background: var(--paper2); }
+.headrow p { margin: 0 0 8px; }
+.headbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.headbtns .btn { display: flex; flex-direction: column; align-items: center; min-height: 52px; }
+.headbtns .btn small { font-size: 12px; font-weight: 700; color: var(--muted); }
+.headtease { margin-top: 10px; }
 .btn.raidgo { background: linear-gradient(180deg, #4A2A40, #2A1424); color: #FFE0D8; border-color: #E0453A; box-shadow: 0 3px 0 #120810, 0 0 16px rgba(224,69,58,.45); }
 .rhero.raid h2 { color: #8A1E26; }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
@@ -825,7 +831,8 @@ function mkPath(pts) {
   }
   return { pts, segs, len };
 }
-function padRoadDist(m, p) { let md = 1e9; for (const P of m.P) for (const s2 of P.segs) { if (s2.tp) continue; const vx = s2.x2 - s2.x1, vy = s2.y2 - s2.y1, L2 = vx * vx + vy * vy || 1; let t = ((p[0] - s2.x1) * vx + (p[1] - s2.y1) * vy) / L2; t = Math.max(0, Math.min(1, t)); md = Math.min(md, Math.hypot(p[0] - (s2.x1 + vx * t), p[1] - (s2.y1 + vy * t))); } return md; }
+function padRoadPt(m, p) { let best = { x: p[0], y: p[1], d: 1e9 }; for (const P of m.P) for (const s2 of P.segs) { if (s2.tp) continue; const vx = s2.x2 - s2.x1, vy = s2.y2 - s2.y1, L2 = vx * vx + vy * vy || 1; let t = ((p[0] - s2.x1) * vx + (p[1] - s2.y1) * vy) / L2; t = Math.max(0, Math.min(1, t)); const x = s2.x1 + vx * t, y = s2.y1 + vy * t, d = Math.hypot(p[0] - x, p[1] - y); if (d < best.d) best = { x, y, d }; } return best; }
+function padRoadDist(m, p) { return padRoadPt(m, p).d; }
 function segAt(P, d) { for (const s of P.segs) if (d < s.start + s.len) return s; return null; }
 function posOn(P, d) {
   const s0 = P.segs[0];
@@ -870,7 +877,7 @@ const MAPS = [
     waves: [
       [{ t: 'rat', n: 7, gap: 1.1, at: 0 }],
       [{ t: 'rat', n: 7, gap: .9, at: 0 }, { t: 'skel', n: 2, gap: 1.5, at: 4 }],
-      [{ t: 'gob', n: 6, gap: .7, at: 0 }, { t: 'rat', n: 5, gap: .8, at: 3 }, { t: 'mozzie', n: 12, gap: .15, at: 7 }],
+      [{ t: 'gob', n: 6, gap: .7, at: 0 }, { t: 'rat', n: 5, gap: .8, at: 3 }, { t: 'mozzie', n: 8, gap: .4, at: 8 }],   // first swarm: was 12 at .15 (a cliff for new players)
       [{ t: 'skel', n: 6, gap: 1.1, at: 0 }, { t: 'bog', n: 1, gap: 0, at: 4 }],
       [{ t: 'gob', n: 10, gap: .5, at: 0 }, { t: 'bog', n: 2, gap: 3, at: 2 }],
       [{ t: 'skel', n: 8, gap: .8, at: 0 }, { t: 'pants', n: 2, gap: 2, at: 4 }, { t: 'mozzie', n: 18, gap: .12, at: 8 }],
@@ -1519,42 +1526,59 @@ function applyDeep(G) { G.chargeMult = G.chargeBase * (1 + DEEP.step * deepLevel
 const TUMBLE = { rocks: 100 };
 function shedMaxed(meta) { return SHED.every(sh => shedLevel(meta, sh.id) >= sh.costs.length); }
 function tumble(meta, n) { n = Math.max(1, n | 0); if (!shedMaxed(meta) || (meta.rocks || 0) < TUMBLE.rocks * n) return false; meta.rocks -= TUMBLE.rocks * n; meta.shards = (meta.shards || 0) + n; return true; }
+// The Long Nap's waves come from a weekly seed so everyone gets the same ones. genWave is the only thing that draws
+// from it, so wave N is reached by drawing waves 1..N-1 first (a resumed run or a head start must do the same).
+function seedLongNap(G, week) { G.week = week; G.wrng = mulberry32((week * 31 + G.mapIdx * 977) >>> 0); }
+function burnWaves(G, n) { for (let w = 1; w <= n; w++) genWave(G, w); }
+// Head start: a veteran who has already lasted well past wave 11 (or 21) on a map can start there. They get the gold a
+// strong crew earns over the skipped waves (measured with the veteran bot) and half the bonus picks; the skipped waves
+// pay no rocks or XP. Tuned so a head start ends about where a full run does, never further.
+const HEAD = { waves: [11, 21], need: { 11: 25, 21: 35 }, gold: { 11: 2100, 21: 7000 }, picks: { 11: 5, 21: 10 } };
+function headStartOK(meta, mapId, to) { return !!HEAD.need[to] && ((meta.endlessBest || {})[mapId] || 0) >= HEAD.need[to]; }
+function headStart(G, to) {
+  if (G.mode !== 'endless' || G.wave !== 0 || G.waveActive || !HEAD.need[to]) return false;
+  burnWaves(G, to - 1); G.wave = G.lastWaveCleared = to - 1; G.gold += HEAD.gold[to];
+  for (let w = 0; w < to - 1; w++) G.stats.waveLost[w] = 0;
+  G.stats.headStart = to; return true;
+}
 const SALVAGE = [1, 2, 4, 10, 25];
 
 // ---------- Odd jobs ----------
 const JOBS = [
   { id: 'snatch', t: n => 'Snatch ' + n + ' loot back from monsters', v: G => G.stats.snatches, n: [3, 6, 10] },
   { id: 'kills', t: n => 'Stop ' + n + ' monsters', v: G => G.stats.kills, n: [60, 150, 300] },
-  { id: 'crits', t: n => 'Land ' + n + ' Nan crits', v: G => G.stats.crits, n: [15, 40, 80] },
-  { id: 'tipsy', t: n => 'Get ' + n + ' monsters tipsy', v: G => G.stats.tipsy, n: [20, 60, 120], req: m => towerUnlocked(m, 'jezza') },
-  { id: 'birds', t: n => 'Stop ' + n + ' monsters with Bev\u2019s birds', v: G => G.stats.killsBy.flocking, n: [15, 40, 80], req: m => towerUnlocked(m, 'bev') },
-  { id: 'chuckk', t: n => 'Stop ' + n + ' monsters with the Chuckery', v: G => G.stats.killsBy.chucking, n: [30, 80, 150] },
-  { id: 'bonkk', t: n => 'Stop ' + n + ' monsters with the Bonk Booth', v: G => G.stats.killsBy.bonking, n: [15, 40, 80] },
+  { id: 'crits', crew: 'nan', t: n => 'Land ' + n + ' Nan crits', v: G => G.stats.crits, n: [15, 40, 80] },
+  { id: 'tipsy', crew: 'jezza', t: n => 'Get ' + n + ' monsters tipsy', v: G => G.stats.tipsy, n: [20, 60, 120], req: m => towerUnlocked(m, 'jezza') },
+  { id: 'birds', crew: 'bev', t: n => 'Stop ' + n + ' monsters with Bev\u2019s birds', v: G => G.stats.killsBy.flocking, n: [15, 40, 80], req: m => towerUnlocked(m, 'bev') },
+  { id: 'chuckk', crew: 'chuck', t: n => 'Stop ' + n + ' monsters with the Chuckery', v: G => G.stats.killsBy.chucking, n: [30, 80, 150] },
+  { id: 'bonkk', crew: 'bonk', t: n => 'Stop ' + n + ' monsters with the Bonk Booth', v: G => G.stats.killsBy.bonking, n: [15, 40, 80] },
   { id: 'rare', t: n => 'Bank ' + n + ' Decent-or-better items', v: G => G.stats.banked.filter(i => i.tier >= 2).length, n: [3, 6, 12] },
   { id: 'combo', t: n => 'Hit a ' + n + '-kill combo', v: G => G.stats.bestCombo, n: [10, 18, 26], max: true },
   { id: 'flawless', t: () => 'Win a level with nothing stolen', v: G => G.won && G.mode !== 'endless' && G.stats.itemsLost === 0 ? 1 : 0, n: [1, 1, 1], max: true },
   { id: 'pokes', t: n => 'Unleash Gary\u2019s dream ' + n + ' times', v: G => G.stats.dreams || 0, n: [2, 4, 7] },
   { id: 'perfect', t: n => 'Get ' + n + ' perfect waves', v: G => G.stats.perfects || 0, n: [4, 8, 14] },
   { id: 'synergy', t: n => 'Trigger ' + n + ' tower synergies', v: G => G.stats.syn || 0, n: [20, 60, 150] },
-  { id: 'splits', t: n => 'Land ' + n + ' Banana Splits', v: G => G.stats.splits || 0, n: [5, 15, 35], req: m => towerUnlocked(m, 'banjo') },
-  { id: 'lifts', t: n => 'Lift ' + n + ' monsters with Long Peter', v: G => G.stats.lifts || 0, n: [20, 60, 140], req: m => towerUnlocked(m, 'pete') },
-  { id: 'tips', t: n => 'Earn ' + n + ' gold from DJ tips', v: G => G.stats.tips || 0, n: [150, 400, 900], req: m => towerUnlocked(m, 'dj') },
+  { id: 'splits', crew: 'banjo', t: n => 'Land ' + n + ' Banana Splits', v: G => G.stats.splits || 0, n: [5, 15, 35], req: m => towerUnlocked(m, 'banjo') },
+  { id: 'lifts', crew: 'pete', t: n => 'Lift ' + n + ' monsters with Long Peter', v: G => G.stats.lifts || 0, n: [20, 60, 140], req: m => towerUnlocked(m, 'pete') },
+  { id: 'tips', crew: 'dj', t: n => 'Earn ' + n + ' gold from DJ tips', v: G => G.stats.tips || 0, n: [150, 400, 900], req: m => towerUnlocked(m, 'dj') },
   { id: 'ability', t: n => 'Use tower abilities ' + n + ' times', v: G => G.stats.abilities || 0, n: [3, 6, 10] },
   { id: 'nobonk', t: () => 'Win a level without a Bonk Booth', v: G => G.won && G.mode !== 'endless' && !G.stats.builtTypes.bonk ? 1 : 0, n: [1, 1, 1], max: true },
   { id: 'long', t: n => 'Reach wave ' + n + ' in the Long Nap', v: G => G.mode === 'endless' ? G.wave : 0, n: [8, 12, 16], max: true, req: m => (m.wins || 0) > 0 },
   { id: 'daily', t: () => 'Win a Daily Nap', v: G => G.mode === 'daily' && G.won ? 1 : 0, n: [1, 1, 1], max: true, req: m => (m.wins || 0) > 0 },
 ];
 const JOB_REWARD = [15, 30, 50];
-function newJob(meta) {
+// crew: the crew the player can field. A job that needs someone else is never offered (and one already held is dropped).
+const jobFits = (J, crew) => !J.crew || !crew || crew.includes(J.crew);
+function newJob(meta, crew) {
   const active = (meta.jobs || []).map(j => j.id);
   const tier = meta.jobsDone < 5 ? 0 : meta.jobsDone < 15 ? 1 : 2;
-  const pool = JOBS.filter(j => !active.includes(j.id) && (!j.req || j.req(meta)) && j.id !== meta.lastJob);
+  const pool = JOBS.filter(j => !active.includes(j.id) && (!j.req || j.req(meta)) && j.id !== meta.lastJob && jobFits(j, crew));
   const J = pool[Math.floor(Math.random() * pool.length)];
   return { id: J.id, n: J.n[tier], p: 0, reward: JOB_REWARD[tier] };
 }
-function ensureJobs(meta) {
-  meta.jobs = (meta.jobs || []).filter(j => JOBS.some(J => J.id === j.id));
-  while (meta.jobs.length < 3) meta.jobs.push(newJob(meta));
+function ensureJobs(meta, crew) {
+  meta.jobs = (meta.jobs || []).filter(j => JOBS.some(J => J.id === j.id && jobFits(J, crew)));
+  while (meta.jobs.length < 3) meta.jobs.push(newJob(meta, crew));
 }
 function jobText(j) { return JOBS.find(J => J.id === j.id).t(j.n); }
 function jobLive(j, G) { const J = JOBS.find(J => J.id === j.id); const v = G ? J.v(G) : 0; return Math.min(j.n, J.max ? Math.max(j.p, v) : j.p + v); }
@@ -1953,7 +1977,7 @@ function sell(G, pad) {
 function toggleGate(G) { if (!G.map.gate) return false; G.gate = G.gate ? 0 : 1; fx(G, 'gate', {}); return true; }
 
 function earlyBonus(G) { return 10 + 3 * (G.wave + 1); }
-function canCallEarly(G) { return G.waveActive && !G.over && !G.spawnQ.length && G.wave < G.waveCount; }
+function canCallEarly(G) { return G.waveActive && !G.over && !G.spawnQ.length && G.wave < G.waveCount && G.mode !== 'raid' && !G.grace; }
 function toggleMagnet(G) { const M = G.magnet; if (!G.map.magnet || M.cd > 0) return false; M.on = !M.on; fx(G, 'magnet', { on: M.on }); return true; }
 function toggleBelt(G) { const B = G.belt; if (!G.map.belts || B.cd > 0 || !G.waveActive) return false; B.rev = 6; B.cd = 16; fx(G, 'belt', {}); return true; }
 function litAt(G, x, y) {
@@ -2617,7 +2641,7 @@ function update(G, dt) {
     if (t.hatless > 0) { t.hatless -= dt; return; }
     if (t.type === 'kev') {
       const mult = G.skillMult.charging * G.dmgAll, KN = tr.knock || 0;
-      if (tr.ult) { t.ucd = (t.ucd == null ? 5 : t.ucd) - dt; if (t.ucd <= 0) { const es = G.enemies.filter(e => !e.flyer && Math.hypot(e.x - px, e.y - py) < 140); if (es.length) { t.ucd = tr.stampEvery; for (const e of es) { if (!e.boss && !e.raidBoss) e.d = Math.max(0, e.d - 20); damage(G, e, tr.dmg * 1.4 * mult, { src: 'charging', kind: 'charge', pad: i }); } fx(G, 'stampede', { pad: i, x: px, y: py }); fx(G, 'shake', { m: 4 }); ev(G, 'ultFire', { tt: 'kev' }); } else t.ucd = 1; } }
+      if (tr.ult) { t.ucd = (t.ucd == null ? 5 : t.ucd) - dt; if (t.ucd <= 0) { const rp = padRoadPt(map, map.pads[i]), es = G.enemies.filter(e => !e.flyer && Math.hypot(e.x - rp.x, e.y - rp.y) < 140); if (es.length) { t.ucd = tr.stampEvery; for (const e of es) { if (!e.boss && !e.raidBoss) e.d = Math.max(0, e.d - 20); damage(G, e, tr.dmg * 1.4 * mult, { src: 'charging', kind: 'charge', pad: i }); } fx(G, 'stampede', { pad: i, x: rp.x, y: rp.y }); fx(G, 'shake', { m: 4 }); ev(G, 'ultFire', { tt: 'kev' }); } else t.ucd = 1; } }
       t.cd -= dt * (1 + globalBuff) * G.mods.fireRate * SM * (t.rage > 0 ? 3 : 1);
       if (t.cd > 0) return;
       const tg = G.enemies.filter(e => !e.flyer && !(e.air > 0) && Math.hypot(e.x - px, e.y - py) <= tr.range * RM && seen(G, e, px, py)).sort(AIM)[0];
@@ -3015,16 +3039,17 @@ function update(G, dt) {
 
 function cardTower(c) { if (c._tw === undefined) { const m2 = c.req ? /towerUnlocked\(m,\s*'(\w+)'\)/.exec(String(c.req)) : null; c._tw = m2 ? m2[1] : null; } return c._tw; }
 function rollCards(G) {
-  const pool = CARDS.filter(c => (c.repeat || !G.cards.includes(c.id)) && (!c.req || c.req(G.meta)) && !(G.crew && cardTower(c) && !G.crew.includes(cardTower(c))));
+  // no cursed cards until a player has won three levels; when they do appear, they're listed last
+  const pool = CARDS.filter(c => (c.repeat || !G.cards.includes(c.id)) && (!c.req || c.req(G.meta)) && !(G.crew && cardTower(c) && !G.crew.includes(cardTower(c))) && !(c.cursed && ((G.meta && G.meta.wins) || 0) < 3));
   const out = [];
   while (out.length < G.draftN && pool.length) out.push(pool.splice(Math.floor(G.rng() * pool.length), 1)[0]);
-  return out;
+  return out.filter(c => !c.cursed).concat(out.filter(c => c.cursed));
 }
 function applyCard(G, card) { G.cards.push(card.id); card.apply(G); }
 
 // ---------- save / resume (between waves only) ----------
 function snapshot(G) {
-  return { v: 4, runMods: G.runMods, meter: G.meter, lastWaveCleared: G.lastWaveCleared, map: G.mapIdx, mode: G.mode, daily: G.daily, wave: G.wave, gold: G.gold, pile: G.pile, pileMax: G.pileMax, pokes: G.pokes, cards: G.cards.slice(),
+  return { v: 4, week: G.week, runMods: G.runMods, meter: G.meter, lastWaveCleared: G.lastWaveCleared, map: G.mapIdx, mode: G.mode, daily: G.daily, wave: G.wave, gold: G.gold, pile: G.pile, pileMax: G.pileMax, pokes: G.pokes, cards: G.cards.slice(),
     mods: Object.assign({}, G.mods), stats: JSON.parse(JSON.stringify(G.stats)), xp: Object.assign({}, G.xp), gate: G.gate, t: G.t,
     towers: G.towers.map(t => t ? Object.assign({ type: t.type, tier: t.tier, spent: t.spent }, t.aim ? { aim: t.aim } : null, t.ot ? { ot: t.ot } : null) : null) };
 }
@@ -3034,6 +3059,7 @@ function restoreRun(meta, s) {
   Object.assign(G.mods, s.mods); G.stats = Object.assign(G.stats, s.stats); G.xp = Object.assign(G.xp, s.xp);
   for (const k of SKILLS) { const L = levelInfo((meta.xp[k] || 0) + G.xp[k]).L; G.runL[k] = L; G.skillMult[k] = 1 + .03 * (L - 1); }
   G.meter = s.meter || 0; G.lastWaveCleared = s.lastWaveCleared || s.wave;
+  if (G.mode === 'endless') { seedLongNap(G, s.week > 0 ? s.week : weekKey()); burnWaves(G, s.wave); }   // same waves as everyone after Continue
   for (const sk of (G.map.sinks || [])) if (sk.w <= s.wave) G.closed[sk.path] = true;
   if (G.map.bridge) G.bridgeIdx = Math.floor(Math.max(0, s.wave - 1) / 2) % 2;
   for (const k of ['perfects', 'dreams', 'syn', 'abilities', 'shards']) G.stats[k] = G.stats[k] || 0;
@@ -3083,7 +3109,7 @@ function finishRun(G) {
     if (p >= j.n) { jobsDone.push({ text: jobText(j), reward: j.reward }); rk.jobs += j.reward; meta.jobsDone++; meta.lastJob = j.id; return null; }
     return Object.assign({}, j, { p });
   }).filter(Boolean);
-  ensureJobs(meta);
+  ensureJobs(meta, G.fieldCrew);
   if (G.mode === 'raid') {
     const sc = Math.round(G.raidDmg || 0), med = sc >= RAID_MEDALS[3] ? 3 : sc >= RAID_MEDALS[2] ? 2 : sc >= RAID_MEDALS[1] ? 1 : 0;
     rk.raid = [15, 50, 110, 200][med]; G.raidMedal = med; G.raidScore = sc;
@@ -3136,7 +3162,7 @@ function finishRun(G) {
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { W, H, GARY, MAPS, posOn, SKILLS, SKILL_NAMES, SKILL_DESC, TOWERS, TIER_NOTES, ENEMIES, BOSS_ITEMS, RARITY, ITEMS, ALL_ITEMS, ITEM_DESC, STASH_TOTAL, CARDS,
-  spawn, AIMS, AIM_NAMES, AIM_DEFAULT, aimOf, aimable, setAim, OT, overtimeCost, overtime, tierOf, DEEP, deepLevel, deepCost, buyDeep, applyDeep, TUMBLE, shedMaxed, tumble, DREAM_COST,
+  spawn, seedLongNap, burnWaves, HEAD, headStartOK, headStart, genWave, weekKey, AIMS, AIM_NAMES, AIM_DEFAULT, aimOf, aimable, setAim, OT, overtimeCost, overtime, tierOf, DEEP, deepLevel, deepCost, buyDeep, applyDeep, TUMBLE, shedMaxed, tumble, DREAM_COST,
   xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, initRaid, raidBossFor, RAID_MEDALS, PATHS, PATH_LEVEL, pathFor, traitPlan, TRAITS, itemStars, starMult, starCost, weekKey, shortFirstLevel, TASTER, layoutMap, padRoadDist, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
 
 </script>
@@ -5579,6 +5605,11 @@ const R = (function () {
     const c = meta.crew.filter(k => TOWERS[k] && towerUnlocked(meta, k)).slice(0, CREW_SIZE);
     return c.length ? c : recommendCrew(mapIdx);
   }
+  // who the player can actually field, for Odd Jobs: their own six, or anyone recommended on a level they can play
+  function fieldCrew() {
+    if (meta.crewMode === 'custom' && Array.isArray(meta.crew)) return crewFor(0);
+    const s = new Set(); MAPS.forEach((m, i) => { if (mapUnlocked(meta, i)) recommendCrew(i).forEach(k => s.add(k)); }); return [...s];
+  }
   // live portrait canvases (animated only while visible)
   let portraitLoop = 0;
   function freeCanvases(root) { try { (root || document).querySelectorAll('canvas.pt').forEach(cv => { cv.width = 0; cv.height = 0; }); } catch (e) {} }
@@ -5687,13 +5718,13 @@ const R = (function () {
     openModal('<div class="cinfo-wrap" style="' + crewStyle(k) + '"><div class="cstage big">' + ptHTML(k, 'big') + '</div><h2 class="title sm">' + C.n + '</h2><span class="crole">' + C.icon + ' ' + C.role + '</span><span class="kchips">' + keyChips(k, 3) + '</span>' +
       '<div class="cstats">' + bars.map((b, i) => '<div class="cstat"><span>' + b + '</span><i>' + '<em class="f"></em>'.repeat(C.st[i]) + '<em></em>'.repeat(5 - C.st[i]) + '</i></div>').join('') + '</div>' +
       '<p class="cab">' + C.ab + '</p><p class="cvs">Great against <b>' + C.vs + '</b>.</p>' + masteryHTML(k) +
-      '<div class="crewbtns"><button class="btn" id="ciBack">Back</button><button class="btn primary big" id="ciSel">' + (sel ? 'Remove' : 'Select') + '</button></div></div>', 'menu crew');
+      '<div class="crewbtns"><button class="btn" id="ciBack">Back</button>' + (onSel ? '<button class="btn primary big" id="ciSel">' + (sel ? 'Remove' : 'Select') + '</button>' : '') + '</div></div>', 'menu crew');
     drawPortraits($('modalCard')); startPortraitLoop(); R.poke(k);
     $('ciBack').onclick = back;
     $('modalCard').querySelectorAll('.pathbtn').forEach(b => b.onclick = () => { meta.paths = meta.paths || {}; meta.paths[k] = b.dataset.path; saveMeta(); SFX.play('levelup'); R.poke(k); trackEvent('path_chosen', { character: k, path: b.dataset.path }); showCrewInfo(k, crew, back, onSel); });
-    $('ciSel').onclick = () => { onSel(k); SFX.play(crewSfx[k] || 'pick'); back(); };
+    if (onSel) $('ciSel').onclick = () => { onSel(k); SFX.play(crewSfx[k] || 'pick'); back(); };
   }
-  const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: a gate you can tap' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
+  const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: two roads and a gate (leave it shut)' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
   // Gary's pyjamas: cosmetics only. Earned by playing; one reserved for supporters.
   const PJS = {
     blue: { name: 'Standard Issue', a: '#6E9AD6', b: '#3F6CA8', e: '#2F5487', belt: '#E9C46A', req: () => true, how: 'Gary\u2019s own' },
@@ -5934,9 +5965,9 @@ const R = (function () {
       if (sheetMode) renderSheet();
     }
     try { tutTick(); } catch (e) { hideCoach(); }
-    // auto-start: veterans can skip the gap between waves
+    // auto-start: veterans can skip the gap between waves (never before the first wave of a head start: there's gold to spend)
     // the first game waits for the player: the next wave starts only once they've hired the crew member the coach asks for
-    if (((meta.settings.autoWave && VET()) || (G && G.grace && G.towers.filter(Boolean).length > G.wave)) && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && $('modal').hidden && (!sheetMode || G.grace) && !paused && !menuOpen) {
+    if (((meta.settings.autoWave && VET()) || (G && G.grace && G.towers.filter(Boolean).length > G.wave)) && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && !(G.stats.headStart && G.wave === G.stats.headStart - 1) && $('modal').hidden && (!sheetMode || G.grace) && !paused && !menuOpen) {
       if (!autoAt) autoAt = performance.now() + 2200;
       const left = Math.ceil((autoAt - performance.now()) / 1000); const sbt = $('startBtn'); if (sbt && left > 0) sbt.textContent = 'Next wave in ' + left + '\u2026';
       if (performance.now() >= autoAt) { autoAt = 0; saveRun(); if (startWave(G)) { closeSheet(); lastHud = ''; } }
@@ -5972,7 +6003,7 @@ const R = (function () {
       if (e.type === 'firstLoot' && meta.runs < 3 && !G.instantLoot && !tutOn()) toast('Loot collects itself. Tap or swipe it to grab it faster.', 'big');
       else if (e.type === 'grabbing' && !toldGrab && !G.instantLoot && !tutOn()) { toldGrab = true; toast("One's spotted it. Tap the loot to snatch it back."); }
       else if (e.type === 'heist' && e.item.tier >= 2 && !G.moment) { G.moment = { k: 'heist', txt: 'A ' + e.base.split(' (')[0].split(',')[0] + ' stole ' + e.item.name + ' and wore it', pri: 1 }; }
-      if (e.type === 'heist' && e.item.tier >= 2) { const nowT = performance.now(); if (!(heistToastAt[e.item.name] > nowT - 8000)) { heistToastAt[e.item.name] = nowT; toast((Math.random() < .3 ? 'Nek minnit. ' : '') + e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad'); } }
+      if (e.type === 'heist' && e.item.tier >= 2 && !G.taster) { const nowT = performance.now(); if (!(heistToastAt[e.item.name] > nowT - 8000)) { heistToastAt[e.item.name] = nowT; toast((Math.random() < .3 ? 'Nek minnit. ' : '') + e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad'); } }
       else if (e.type === 'stolen') { const pw = document.querySelector('.pilewrap'); if (pw) { pw.classList.remove('hit'); void pw.offsetWidth; pw.classList.add('hit'); } buzz(40); }
       if (e.type === 'stolen') toast(e.carry ? 'Gone, with ' + e.carry.name + '. -' + e.n + ' from the pile.' : e.n + (e.n > 1 ? ' items' : ' item') + ' nicked from the pile.', 'bad');
       else if (e.type === 'waveStart') { SFX.play('wave'); if (G.grace && G.waveCount === 3) { if (e.wave === 2) banner('Wave 2 of 3', 'Nice. One more, then the boss.', 'event'); else if (e.wave === 3) banner('BOSS WAVE', 'Kevin wants Gary\u2019s loot.', 'event'); } }
@@ -6175,6 +6206,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 32, title: 'Head start', notes: ['Long Nap veterans can start at wave 11 or 21. Same waves as everyone, with the gold you\u2019d have earned.', 'Continue on a Long Nap now gives you this week\u2019s waves, not random ones.', 'The Paddock\u2019s first mozzie swarm is less of an ambush, and the first game can\u2019t be rushed into a loss.', 'Raids can\u2019t be sped up with Send early any more, Big Kev\u2019s Stampede reaches the road, and Odd Jobs only ask for crew you can use.'] },
     { build: 31, title: 'The big tidy-up', notes: ['Tap a crew member to choose who they aim at. ELITE crew can now work Overtime.', 'Opens fast, works with no signal, and your save keeps three copies.', 'The Laneways and Cliff Top Gusts are fairer. Nan is exactly as ridiculous as before.', 'Leaving mid-wave pauses the game. Press M to mute.'] },
     { build: 30, title: 'A snappier first game', notes: ['Brand-new players get a quick three-wave taster: two warm-ups, then Kevin the boss, at double speed.', 'The wave counter now tells you when the boss is next.'] },
     { build: 29, title: 'Raids, Mastery and three new crew', notes: ['\ud83d\udc79 Weekly Raid Boss: 3 minutes to deal as much damage as you can to The Landlord, The Council Ranger or Gary\u2019s Alarm Clock. Bronze, Silver and Gold medals. New boss every Monday.', '\ud83c\udf93 Mastery Paths: once a crew member\u2019s skill hits level 6, choose how they play. Sniper Nan or Knitting Circle?', 'New crew: Big Kev the Cassowary (charges), Gav the Tradie (road spikes and barricades) and Aunty Val the Psychic (curses, card rerolls).', 'Big late-game levels run smoother: the game now quietly turns down effects, resolution and frame rate if your phone is struggling.'] },
@@ -6266,7 +6298,7 @@ const R = (function () {
     if (updateReady) { saveMeta(); window.__applyUpdate(updateReady); return; }
     SFX.music('menu'); SFX.duck(false); bossOn = false; stage.classList.remove('bossfight');
     state = 'home'; G = null; menuOpen = false; closeSheet(); R.reset(); lastHud = '';
-    ensureJobs(meta);
+    ensureJobs(meta, fieldCrew());
     const run = loadRun();
     const runMap = run && MAPS[run.map];
     const won = (meta.wins || 0) > 0;
@@ -6323,7 +6355,7 @@ const R = (function () {
     if ($('homeGear')) $('homeGear').onclick = () => openMenu('settings');
     if ($('giftBtn')) $('giftBtn').onclick = () => openGift();
     $('modalCard').querySelectorAll('[data-wardrobe]').forEach(g => g.onclick = () => showWardrobe(g.dataset.wardrobe));
-    $('modalCard').querySelectorAll('[data-pathgoal]').forEach(g => g.onclick = () => showCrewInfo(g.dataset.pathgoal, [], showHome, () => {}));
+    $('modalCard').querySelectorAll('[data-pathgoal]').forEach(g => g.onclick = () => showCrewInfo(g.dataset.pathgoal, [], showHome, null));
     if ($('supLater')) $('supLater').onclick = () => { meta.supSeen = true; saveMeta(); trackEvent('support_card_dismissed', {}); showHome(); };
     if ($('supHome')) $('supHome').onclick = () => { meta.supSeen = true; saveMeta(); trackEvent('support_link_clicked', { from: 'home' }); };
     drawPortraits($('modalCard'));
@@ -6478,7 +6510,7 @@ const R = (function () {
         (won ? '<div class="mastery"><span class="' + ((ms.stars || 0) >= 3 ? 'done' : '') + '">\u2b50 3 stars: keep 80%+ of the loot' + ((ms.stars || 0) >= 3 ? ' \u2713' : '') + '</span><span class="' + (ms.bestKept >= m.pileMax || ms.bestKept >= 10 ? 'done' : '') + '">\ud83d\udc8e Keep everything (best ' + (ms.bestKept || 0) + ')</span><span class="' + (ms.mods && Object.keys(ms.mods).length >= 5 ? 'done' : '') + '">\ud83d\udd25 Beat all 5 modifiers (' + (ms.mods ? Object.keys(ms.mods).length : 0) + '/5)</span></div>' : '') +
         (won ? '<h3>Difficulty</h3><div class="tiers">' + ['normal', 'hard', 'nightmare'].map(t => { const T = TIERS[t], lock = t === 'nightmare' && !((ms.tiers || {}).hard), st = t === 'normal' ? (ms.stars || 0) : ((ms.tiers || {})[t] || 0);
           return '<button class="tierchip ' + t + (tier === t ? ' on' : '') + '" data-tier="' + t + '"' + (lock ? ' disabled' : '') + '><b>' + (T.icon ? T.icon + ' ' : '') + T.n + '</b><small>' + (lock ? '\ud83d\udd12 Beat Hard first' : t === 'normal' ? 'Rewards \u00d71' : t === 'hard' ? 'Tougher, faster \u00b7 \u00d72' : 'Everything \u00b7 \u00d72.5 \u00b7 rare outfits') + '</small><i>' + '\u2605'.repeat(st) + '</i></button>'; }).join('') + '</div>' : '') +
-        (heatOn() ? '<div class="heatrow"><span>' + heatTxt(meta.heat || 0) + '</span><small>Win to heat up, lose to cool down.</small></div>' : '') +
+        (heatOn() && (meta.heatSeen || meta.heat) ? '<div class="heatrow"><span>' + heatTxt(meta.heat || 0) + '</span><small>Win to heat up, lose to cool down.</small></div>' : '') +
         (tier !== 'normal' ? '' : '<h3>Modifiers</h3>') + (tier !== 'normal' ? '' : won ? '<div class="mods">' + MODS.map(md => {
           const lock = md.gary && gl < md.gary, done = ms.mods && ms.mods[md.id];
           return '<button class="modchip' + (pick[md.id] ? ' on' : '') + (lock ? ' locked' : '') + '" data-mod="' + md.id + '"' + (lock ? ' disabled' : '') + '><b>' + md.name + (done ? ' \u2713' : '') + '</b><small>' + (lock ? 'Gary level ' + md.gary : md.desc) + '</small></button>';
@@ -6584,10 +6616,10 @@ const R = (function () {
   function newGame(mapIdx, mode, daily, mods) {
     clearRun(); closeModal();
     G = newRun(meta, (daily ? daily.key : (Date.now() ^ (Math.random() * 1e9))) >>> 0, mapIdx, mode, daily, mods);
-    G.crew = mode === 'campaign' ? crewFor(mapIdx) : recommendCrew(mapIdx);
+    G.crew = mode === 'campaign' ? crewFor(mapIdx) : recommendCrew(mapIdx); G.fieldCrew = fieldCrew();
     // the short coached first game, until the player has won once (a lost first try gets it again, up to three times)
     if ((!meta.runs || (!meta.wins && (meta.runs || 0) < 4)) && mapIdx === 0 && mode === 'campaign') { G.grace = true; shortFirstLevel(G); speed = 2; window.__tasterSpeed = true; }
-    else if (window.__tasterSpeed) { window.__tasterSpeed = false; speed = 1; }
+    else if (window.__tasterSpeed) { window.__tasterSpeed = false; }   // keep 2x: level 2 at 1x felt like the game slowed down
     if (mode === 'campaign' && !G.grace) { G.heat = heatOn() ? (meta.heat || 0) : 0; G.tier = pendingTier || 'normal'; }
     pendingTier = 'normal';
     G.showLocks = (meta.runs || 0) >= 3 || shedLevel(meta, 'pallets') > 0;
@@ -6640,8 +6672,9 @@ const R = (function () {
     lastHud = ''; trackEvent('raid_start', { boss });
     toast(ENEMIES[boss].intro + ' Build your crew, then tap Start.', 'big');
   }
-  function startLong(i) {
-    newGame(i, 'endless'); G.week = weekKey(); G.wrng = mulberry32((G.week * 31 + i * 977) >>> 0);
+  function startLong(i, to) {
+    newGame(i, 'endless'); seedLongNap(G, weekKey());
+    if (to && headStartOK(meta, G.map.id, to) && headStart(G, to)) { trackEvent('head_start', { level_id: G.map.id, wave: to }); lastHud = ''; return showDraft(G.wave, 0, false, { k: 1, n: HEAD.picks[to] }); }
     toast('This week\u2019s Long Nap. Same waves for everyone until Monday. How long can Gary sleep?', 'big');
   }
   function weekBest(mapId) { return ((meta.weekBest || {})[weekKey() + '|' + mapId]) || 0; }
@@ -6676,18 +6709,26 @@ const R = (function () {
     if (!rows.length) return '<p class="small">Nobody on the board yet this week. Be first.</p>';
     return '<ol class="board">' + rows.map((r2, k) => '<li class="' + (mine && r2.name === meta.nick ? 'me' : '') + '"><span class="bpos">' + (k === 0 ? '\ud83e\udd47' : k === 1 ? '\ud83e\udd48' : k === 2 ? '\ud83e\udd49' : (k + 1)) + '</span><b>' + String(r2.name).replace(/</g, '') + '</b><span class="bw">' + (raid ? fmtK(r2.wave) + ' dmg' : 'wave ' + r2.wave) + '</span></li>').join('') + '</ol>';
   }
+  // veterans can skip the easy waves (see HEAD in the simulation for how it's kept fair)
+  function headHTML(mapId) {
+    const best = (meta.endlessBest || {})[mapId] || 0, open = HEAD.waves.filter(w => headStartOK(meta, mapId, w));
+    if (!open.length) return best >= 12 ? '<p class="small headtease">\u23e9 Last to wave ' + HEAD.need[11] + ' here and you can skip the easy waves next time. Your best: wave ' + best + '.</p>' : '';
+    return '<div class="headrow"><p class="small"><b>\u23e9 Head start.</b> Skip the easy waves. You get the gold a strong crew would have earned and half the bonus picks. Skipped waves pay no rocks.</p><div class="headbtns">' +
+      open.map(w => '<button class="btn" data-head="' + w + '">Start at wave ' + w + '<small>' + HEAD.gold[w].toLocaleString('en-AU') + ' gold \u00b7 ' + HEAD.picks[w] + ' picks</small></button>').join('') + '</div></div>';
+  }
   async function showBoard(i, after) {
     const m = MAPS[i];
     openModal('<div class="menu-head"><h2 class="title sm">\ud83c\udfc6 Long Nap: ' + m.name + '</h2><button class="btn" id="bdBack">Back</button></div><p class="small">This week\u2019s waves are the same for everyone. Resets Monday. The waves get harder and harder: nobody survives forever.</p>' +
       '<div class="mybest">Your best this week: <b>' + (weekBest(m.id) ? 'wave ' + weekBest(m.id) : 'not yet') + '</b></div>' + (boardOn() ? '<div id="bdRows"><p class="small">Loading\u2026</p></div>' : '') +
-      '<div class="row3"><button class="btn primary big" id="bdPlay">Play the Long Nap \u2192</button></div>', 'menu');
+      headHTML(m.id) + '<div class="row3"><button class="btn primary big" id="bdPlay">Play the Long Nap \u2192</button></div>', 'menu');
     $('bdBack').onclick = after || showHome; $('bdPlay').onclick = () => startLong(i);
+    $('modalCard').querySelectorAll('[data-head]').forEach(b => b.onclick = () => startLong(i, +b.dataset.head));
     trackEvent('leaderboard_view', { level_id: m.id, global: boardOn() });
     if (boardOn()) { const rows = await boardFetch(m.id); if ($('bdRows')) $('bdRows').innerHTML = boardRowsHTML(rows, true); }
   }
   function continueRun(run) {
     closeModal();
-    try { G = restoreRun(meta, run); G.crew = (run.crew && run.crew.length) ? run.crew : crewFor(G.mapIdx); } catch (e) { clearRun(); showHome(); return; }
+    try { G = restoreRun(meta, run); G.crew = (run.crew && run.crew.length) ? run.crew : crewFor(G.mapIdx); G.fieldCrew = fieldCrew(); } catch (e) { clearRun(); showHome(); return; }
     homeMap = G.mapIdx; begin();
     toast('Back on ' + G.map.name + '. Tap Start wave when ready.', 'big');
   }
@@ -6712,7 +6753,7 @@ const R = (function () {
     if (firstTouch) {
       firstTouch = false;
       // The screen is alive before the player decides anything: Dazza is already on duty.
-      if (G && G.mapIdx === 0 && G.wave === 0 && !G.towers[1]) { G.gold += towerCost(G, 'chuck'); build(G, 1, 'chuck'); G.freeDazza = true; const p = G.map.pads[1]; setTimeout(() => R.say(p[0], p[1] - 52, 'Righto. I\u2019ve got this.', 2.2), 700); }
+      if (G && G.mapIdx === 0 && G.wave === 0 && !G.towers[1]) { G.gold += towerCost(G, 'chuck'); build(G, 1, 'chuck'); G.freeDazza = true; trackEvent('tower_placed', { tower: 'chuck', level_id: G.map.id, wave: G.wave, free: true }); const p = G.map.pads[1]; setTimeout(() => R.say(p[0], p[1] - 52, 'Righto. I\u2019ve got this.', 2.2), 700); }
       setTimeout(() => { if (G && G.mapIdx === 0 && G.wave <= 1) { banner('Gary\u2019s asleep', 'Monsters want his loot. Stop them.', 'event'); R.say(GARY.x, GARY.y - 34, 'zzz... guard me loot...', 3); } }, 250);
     }
   }
@@ -6738,8 +6779,15 @@ const R = (function () {
     return showCoach({ x, y: sr.bottom + 2 }, label, false, { el, under: true });
   }
   let coachPad = -1;
+  // Gary's Dream: point at it the first time it's full mid-wave, on whatever level that happens (until they use one)
+  function dreamHint() {
+    if (meta.toldDreamBtn || !G || G.mode === 'raid' || !$('modal').hidden || G.over || paused || sheetMode || $('banner').classList.contains('show')) return false;
+    if (G.stats.dreams > 0 || (meta.wins || 0) >= 5) { meta.toldDreamBtn = 1; saveMeta(); return false; }
+    if (!G.waveActive || !canDream(G)) return false;
+    showCoach(elPt($('pokeBtn')), 'TRY THIS!', false); return true;
+  }
   function tutTick() {
-    if (!tutOn()) { hideCoach(); return; }
+    if (!tutOn()) { if (!dreamHint()) hideCoach(); return; }
     if (!$('modal').hidden || G.over || paused) { hideCoach(); return; }
     if ($('banner').classList.contains('show')) { hideCoach(); return; }   // never talk over the banner
     const step = TUT_STEPS[tut.i], towers = G.towers.filter(Boolean), age = performance.now() - tut.since;
@@ -6765,7 +6813,7 @@ const R = (function () {
       return hideCoach();
     }
     if (step === 'build2') {
-      if (towers.length >= 2 || G.wave > 1 || (G.wave >= 1 && !G.waveActive)) return tutDone('build2');
+      if (towers.length >= 2 || G.wave > 1 || (G.wave >= 1 && !G.waveActive && !G.taster)) return tutDone('build2');
       if (sheetMode === 'build') { const el = $('sheet').querySelector('.bcard:not(.poor):not(.far)'); if (el) return coachSheet(el, 'Another one!'); return hideCoach(); }
       if (sheetMode) return hideCoach();
       const cheapest = Math.min(...(G.crew || ['chuck']).map(k => towerCost(G, k)));
@@ -6820,21 +6868,23 @@ const R = (function () {
   }
 
   // ---------- draft ----------
-  function showDraft(wave, bonus, rerolled) {
-    if (!G || G.over || (state !== 'play' && !rerolled)) return;
+  function showDraft(wave, bonus, rerolled, head) {
+    if (!G || G.over || (state !== 'play' && !rerolled && !(head && head.k > 1))) return;
     state = 'draft';
     const cards = rollCards(G);
     SFX.play('card');
-    const firstDraft = !meta.toldDraft; meta.toldDraft = 1;
-    openModal('<h2 class="title sm">Wave ' + wave + ' done!</h2><p class="lede">+' + bonus + ' gold. ' + (firstDraft ? 'Pick a bonus. It lasts the whole level. \ud83d\udc47' : 'Pick a bonus.') + '</p><div class="armbar" aria-hidden="true"><i></i></div><div class="drafts' + (firstDraft ? ' first' : '') + '">' +
+    const firstDraft = !head && !meta.toldDraft; meta.toldDraft = 1;
+    openModal((head ? '<h2 class="title sm">Head start: bonus ' + head.k + ' of ' + head.n + '</h2><p class="lede">Wave ' + (wave + 1) + ' is next and you\u2019ve got ' + Math.round(G.gold).toLocaleString('en-AU') + ' gold. Pick a bonus for the run.</p>' : '<h2 class="title sm">Wave ' + wave + ' done!</h2><p class="lede">+' + bonus + ' gold. ' + (firstDraft ? 'Pick a bonus. It lasts the whole level. \ud83d\udc47' : 'Pick a bonus.') + '</p>') + '<div class="armbar" aria-hidden="true"><i></i></div><div class="drafts' + (firstDraft ? ' first' : '') + '">' +
       cards.map((c, i) => { const tw = CARD_TOWER[c.id] || cardTower(c); return '<button class="dcard' + (c.cursed ? ' cursed' : '') + '" data-i="' + i + '"' + (tw ? ' style="' + crewStyle(tw) + '"' : '') + '><span class="dicon">' + (tw ? '<canvas class="pt" data-type="' + tw + '"></canvas>' : (c.cursed ? '\ud83d\udc80' : CARD_ICON[c.id] || '\u2728')) + '</span><span class="dtext">' + (c.cursed ? '<em>Cursed deal</em>' : '') + '<b>' + c.name + '</b><span>' + c.desc + '</span></span></button>'; }).join('') + '</div>', '', 420);
     drawPortraits($('modalCard'));
-    if (G.rerolls > 0) { const rb = document.createElement('button'); rb.className = 'btn reroll'; rb.textContent = '\ud83d\udd2e Aunty Val: reroll (' + G.rerolls + ' left)'; $('modalCard').appendChild(rb); rb.onclick = () => { G.rerolls--; SFX.play('psy'); trackEvent('draft_reroll', {}); showDraft(wave, bonus, true); }; }
+    if (G.rerolls > 0) { const rb = document.createElement('button'); rb.className = 'btn reroll'; rb.textContent = '\ud83d\udd2e Aunty Val: reroll (' + G.rerolls + ' left)'; $('modalCard').appendChild(rb); rb.onclick = () => { G.rerolls--; SFX.play('psy'); trackEvent('draft_reroll', {}); showDraft(wave, bonus, true, head); }; }
     $('modalCard').querySelectorAll('.dcard').forEach(b => b.onclick = ev => {
       if (!deliberate(ev, b)) return;
       SFX.play('pick');
-      const c = cards[+b.dataset.i]; applyCard(G, c); closeModal(); state = 'play'; lastHud = ''; saveRun();
-      toast(c.name + '. Tap Start wave when ready.');
+      const c = cards[+b.dataset.i]; applyCard(G, c);
+      if (head && head.k < head.n) return showDraft(wave, bonus, true, { k: head.k + 1, n: head.n });
+      closeModal(); state = 'play'; lastHud = ''; saveRun();
+      toast(head ? 'Wave ' + (wave + 1) + ' next. Hire your crew, then tap Start wave.' : c.name + '. Tap Start wave when ready.', head ? 'big' : undefined);
     });
   }
 
@@ -6955,7 +7005,7 @@ const R = (function () {
       const nk = nextCrewKey(), asp = nk && TOWERS[nk].unlockWins === (meta.wins || 0) + 1 && G.mode === 'campaign' ? '<div class="ucard tease"><canvas class="pt sil" data-type="' + nk + '"></canvas><div><b>Win this and ' + CREW[nk].n.toUpperCase() + ' joins</b><span>' + CREW[nk].icon + ' ' + CREW[nk].role + '</span></div></div>' : '';
       hero = '<div class="rhero lose"><h2>' + (Math.random() < .25 ? 'NOT HAPPY, JAN' : Math.random() < .3 ? 'YEAH, NAH' : 'SO CLOSE') + '</h2><p class="rbig">Wave ' + G.wave + ' / ' + G.waveCount + '</p><p class="rquip">' + fb[0] + '</p><p class="rhint">\ud83d\udca1 ' + fb[1] + '</p>' + asp + '</div>';
     }
-    const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: a gate you can tap' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
+    const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: two roads and a gate (leave it shut)' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
     const primary = nextOk ? '<button class="btn primary big rgo" id="nextBtn">NEXT LEVEL \u2192</button><p class="rtease">Up next: <b>' + nextMap.name + '</b> \u00b7 ' + tease(nextMap) + (nextMap.chapter > MAPS[G.mapIdx].chapter ? ' \u00b7 CHAPTER ' + nextMap.chapter : '') + '</p>' : '<button class="btn primary big rgo" id="againBtn">' + (G.won || endless ? 'PLAY AGAIN' : 'TRY AGAIN') + '</button>';
     const secondary = '<div class="rsec">' + (nextOk ? '<button class="btn" id="againBtn">Play again</button>' : (!G.won && !endless && G.mode === 'campaign' ? '<button class="btn' + (repeatN >= 3 ? ' primary' : '') + '" id="crewBtn">Change crew</button>' : '')) + '<button class="btn" id="levelsBtn">Home</button><button class="btn" id="shareBtn">Share</button></div><p class="small" id="shareMsg" aria-live="polite"></p>';
     const details = '<details class="rdetails"><summary>Run details</summary>' + (G.won ? '' : rocksLine) + shedHint +
@@ -7006,7 +7056,7 @@ const R = (function () {
     }
     if (endless && boardOn()) {
       const sc = G.wave - 1, mid = G.map.id, crew = G.crew, showRows = async () => { const rows = await boardFetch(mid); if ($('boardRes')) $('boardRes').innerHTML = boardRowsHTML(rows ? rows.slice(0, 10) : rows, true); };
-      const post = async () => { if (weekNew || !meta.boardPosted || meta.boardPosted !== G.week + '|' + mid + '|' + sc) { const ok = await boardSubmit(mid, sc, crew, G.t); if (ok) meta.boardPosted = G.week + '|' + mid + '|' + sc; trackEvent('leaderboard_submit', { level_id: mid, wave: sc, ok }); saveMeta(); } showRows(); };
+      const post = async () => { if (weekNew || !meta.boardPosted || meta.boardPosted !== G.week + '|' + mid + '|' + sc) { const ok = await boardSubmit(mid, sc, crew, G.t + (G.stats.headStart ? (G.stats.headStart - 1) * 30 : 0)); if (ok) meta.boardPosted = G.week + '|' + mid + '|' + sc; trackEvent('leaderboard_submit', { level_id: mid, wave: sc, ok }); saveMeta(); } showRows(); };
       if (meta.nick) { if (weekNew) post(); else showRows(); }
       else if ($('nickGo')) $('nickGo').onclick = () => { const n2 = cleanNick($('nickIn').value); if (n2.length < 2) { $('nickIn').focus(); return; } if (!nickOk(n2)) { toast('Pick another name. That one won\u2019t go on the board.'); SFX.play('boo'); $('nickIn').focus(); return; } meta.nick = n2; saveMeta(); $('nickGo').closest('.nickrow').remove(); post(); };
     }

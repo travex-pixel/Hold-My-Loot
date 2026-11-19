@@ -80,6 +80,25 @@ check('aim: Bev sends her bird where she is told', pick('bev', 'strong', G => G.
   for (const sh of S.SHED) r.shed[sh.id] = sh.costs.length;
   check('tumbler: 100 rocks in, 1 shard out, and never more than you have', S.tumble(r, 1) && r.rocks === 900 && r.shards === 4 && S.tumble(r, 9) && r.rocks === 0 && r.shards === 13 && !S.tumble(r, 1)); }
 
+// ---------- the Long Nap: same waves after Continue, and the head start ----------
+{ const waveOf = G => G.spawnQ.map(q => q.type).join(',');
+  const G = S.newRun(vet(), 3, 0, 'endless'); S.seedLongNap(G, 20261116); G.gold = 1e6;
+  S.build(G, 1, 'nan'); S.build(G, 2, 'chuck'); for (let k = 0; k < 4; k++) { S.upgrade(G, 1); S.upgrade(G, 2); }
+  for (let w = 0; w < 3; w++) { S.startWave(G); for (let f = 0; f < 60 * 120 && G.waveActive; f++) S.update(G, 1 / 60); }
+  const G2 = S.restoreRun(vet(), JSON.parse(JSON.stringify(S.snapshot(G))));
+  S.startWave(G); S.startWave(G2);
+  check('long nap: after Continue the next wave is this week’s wave, not a random one', G.wave === 4 && G2.wave === 4 && waveOf(G) === waveOf(G2) && waveOf(G).length > 0, waveOf(G).slice(0, 40) + ' | ' + waveOf(G2).slice(0, 40));
+  const m = vet(); m.endlessBest = { [S.MAPS[0].id]: 30 };
+  check('head start: wave 11 opens at a best of 25, wave 21 at 35', S.headStartOK(m, S.MAPS[0].id, 11) && !S.headStartOK(m, S.MAPS[0].id, 21) && !S.headStartOK(m, S.MAPS[1].id, 11) && !S.headStartOK(m, S.MAPS[0].id, 15));
+  const H = S.newRun(m, 5, 0, 'endless'); S.seedLongNap(H, 20261116); const g0 = H.gold;
+  const ok = S.headStart(H, 21);
+  const R = S.newRun(m, 9, 0, 'endless'); S.seedLongNap(R, 20261116); S.burnWaves(R, 20); const ref = S.genWave(R, 21);
+  S.startWave(H); const q = H.spawnQ.map(x => x.type), want = [];
+  for (const g of ref) for (let k = 0; k < g.n; k++) want.push(g.t);
+  check('head start: starts at wave 21 with this week’s wave 21 and the measured gold', ok && H.wave === 21 && H.gold === g0 + S.HEAD.gold[21] && q.slice().sort().join() === want.slice().sort().join(), q.length + ' vs ' + want.length);
+  const C = S.newRun(m, 5, 0, 'campaign'); const E = S.newRun(m, 5, 0, 'endless'); S.startWave(E);
+  check('head start: refused outside the Long Nap and once a run has started', !S.headStart(C, 11) && !S.headStart(E, 11)); }
+
 // ---------- the buttons ----------
 const b30 = JSON.parse(fs.readFileSync(new URL('./fixtures/save-build30.json', import.meta.url))); b30.settings.analytics = false; b30.seenBuild = 99;
 for (const k in b30.xp) b30.xp[k] = 6000; b30.rocks = 1234; b30.shards = 80; b30.dreams = Object.assign({}, b30.dreams, { swing: 5 }); for (const sh of S.SHED) (b30.shed = b30.shed || {})[sh.id] = sh.costs.length;
@@ -164,6 +183,33 @@ const browser = await launch();
     await page.click('#sheet [data-act="close"]').catch(() => {}); await settle(page, 200); }
   check('sheet: on an iPhone SE no crew member is hidden by their own sheet; aim and buttons stay in view', !bad.length && pads.filter(Boolean).length >= 6, bad.join(' '));
   check('no page errors opening every sheet', page.errors.length === 0, page.errors[0]);
+  await ctx.close(); }
+// the head start from the Long Nap screen: ten bonus picks, then wave 21, and it survives Continue
+{ const { ctx, page } = await newPage(browser, VIEWPORTS.se);
+  const vetSave = Object.assign({}, b30, { endlessBest: Object.assign({}, b30.endlessBest, { [S.MAPS[0].id]: 41 }) });
+  await ctx.addInitScript(s => { if (sessionStorage.getItem('x')) return; sessionStorage.setItem('x', 1); localStorage.clear(); localStorage.setItem('hml.meta.v3', s); }, JSON.stringify(vetSave));
+  await page.goto(BASE, { waitUntil: 'load' }); await settle(page, 1300);
+  await page.click('#longBtn'); await settle(page, 400); await page.click('.level[data-l="0"]'); await settle(page, 500);
+  const btns = await page.$$eval('[data-head]', e => e.map(b => b.textContent));
+  check('long nap screen: a veteran sees head starts at wave 11 and 21', btns.length === 2 && /wave 11/.test(btns[0]) && /wave 21/.test(btns[1]) && /7,000 gold/.test(btns[1]), btns.join(' / '));
+  await page.click('[data-head="21"]'); await settle(page, 700);
+  const t1 = await page.innerText('#modalCard h2');
+  for (let k = 0; k < 10; k++) { await settle(page, 520); const c = await page.$('#modalCard .dcard'); if (!c) break; await c.click(); }
+  await settle(page, 600);
+  const st = await page.evaluate(() => { const g = window.__hml(); return { wave: g.wave, gold: Math.round(g.gold), cards: g.cards.length, modal: !document.getElementById('modal').hidden, start: document.getElementById('startBtn').textContent }; });
+  check('head start: ten picks, then wave 21 is next with the gold in hand', /bonus 1 of 10/.test(t1) && st.wave === 20 && st.cards === 10 && !st.modal && st.gold >= 7000 && /21/.test(st.start), t1 + ' ' + JSON.stringify(st));
+  await settle(page, 3000); const still = await page.evaluate(() => ({ wave: window.__hml().wave, active: window.__hml().waveActive }));
+  check('head start: auto-start waits for you to spend the gold before wave 21', still.wave === 20 && !still.active, JSON.stringify(still));
+  await page.reload({ waitUntil: 'load' }); await settle(page, 1200); await page.click('#contBtn', { force: true }); await settle(page, 900);
+  const back = await page.evaluate(() => { const g = window.__hml(); return g && { wave: g.wave, cards: g.cards.length, head: g.stats.headStart }; });
+  check('head start: survives a reload and Continue', back && back.wave === 20 && back.cards === 10 && back.head === 21, JSON.stringify(back));
+  check('no page errors in the head start', page.errors.length === 0, page.errors[0]);
+  await ctx.close(); }
+{ const { ctx, page } = await newPage(browser, VIEWPORTS.se);
+  await ctx.addInitScript(s => { if (sessionStorage.getItem('x')) return; sessionStorage.setItem('x', 1); localStorage.clear(); localStorage.setItem('hml.meta.v3', s); }, JSON.stringify(Object.assign({}, b30, { endlessBest: { [S.MAPS[0].id]: 14 } })));
+  await page.goto(BASE, { waitUntil: 'load' }); await settle(page, 1300);
+  await page.click('#longBtn'); await settle(page, 400); await page.click('.level[data-l="0"]'); await settle(page, 500);
+  check('long nap screen: no head start before wave 25, just a note saying how to earn it', !(await page.$('[data-head]')) && /Last to wave 25/.test(await page.innerText('#modalCard')));
   await ctx.close(); }
 // a save carrying junk aims loads clean; a brand-new player's first crew member has no aim row to puzzle over
 { const { ctx, page } = await newPage(browser, VIEWPORTS.se);

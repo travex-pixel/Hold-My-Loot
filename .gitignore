@@ -9,3 +9,4 @@ node_modules/
 marketing/video/work/
 marketing/video/out/
 dist/
+.claude/worktrees/
