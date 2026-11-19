@@ -405,8 +405,15 @@ Done fresh from build 30; see CHANGELOG for the list. What matters for later wor
   - Deep sleep (`DEEP`, `buyDeep`, `applyDeep`): a level-5 dream takes 10 more levels, +6% charge each, 25 shards
     then +5 a level (475 a dream; a run pays at most 8 shards).
   - Rock Tumbler (`tumble`): only when every Shed line is maxed, 100 rocks become 1 shard.
-  - Not built: a Long Nap head start (skip to wave 11 or 21 for rocks). It needs the skipped waves' cards, pile and
-    skill XP made up fairly, and the weekly wave seed burned for the skipped waves.
+  - Long Nap head start (build 32, `HEAD`, `headStart`, `headStartOK`): with a best of 25 on a map you can start
+    there at wave 11; with 35, at wave 21. You get 2,100 / 7,000 gold (what the veteran bot earns over those waves:
+    2,050-2,650 by wave 10, 6,550-8,140 by wave 20) and 5 / 10 bonus picks (half the skipped waves'). Skipped waves pay
+    no rocks or XP. Measured on 3 maps x 4 seeds: head-start runs end within a wave of full runs on average and never
+    further, and save 20-30% of the run's time. The weekly seed is burned for the skipped waves (`burnWaves`), so
+    wave 21 is everyone's wave 21. Auto-start never fires before the first wave of a head start. Board submissions
+    credit 30 s per skipped wave so the server's "too fast" rule (12 s a wave) doesn't reject them.
+  - Fixed in build 32: Continue on a Long Nap lost the weekly seed, so every wave after a resume was random. The
+    snapshot now keeps `week` and `restoreRun` re-seeds and burns to the saved wave (`seedLongNap`).
 - Keys: M mute (remembers what was on), Space start wave, 1/2/3 speed, Escape menu.
 - Wide screens: one CSS layout covers landscape phones, laptops and portal iframes. The board takes the full
   height; `#hud` and `#deskInfo` (wordmark, how-to-play, keys) sit left, `#bar` right, all centred as a group.

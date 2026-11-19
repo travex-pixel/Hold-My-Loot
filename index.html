@@ -742,6 +742,12 @@ small.spare { display: block; color: var(--muted); font-weight: 800; margin: 3px
 .raidhero.ranger { background: linear-gradient(135deg, #4E5A2A, #2A3214); } .raidhero.alarm { background: linear-gradient(135deg, #8A1E26, #3A0A10); }
 .raidrules { margin: 6px 0; padding-left: 18px; font-size: 13px; font-weight: 800; line-height: 1.5; }
 .medals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 0; } .medals span { background: var(--paper2); border-radius: 12px; padding: 6px; text-align: center; font-weight: 900; font-size: 13px; opacity: .65; } .medals span small { display: block; font-size: 11px; color: var(--muted); } .medals span.got { opacity: 1; background: #FFF1C8; border: 1.5px solid #E3A02C; }
+.headrow { margin-top: 12px; padding: 10px; border: 1.5px dashed var(--line); border-radius: 14px; background: var(--paper2); }
+.headrow p { margin: 0 0 8px; }
+.headbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.headbtns .btn { display: flex; flex-direction: column; align-items: center; min-height: 52px; }
+.headbtns .btn small { font-size: 12px; font-weight: 700; color: var(--muted); }
+.headtease { margin-top: 10px; }
 .btn.raidgo { background: linear-gradient(180deg, #4A2A40, #2A1424); color: #FFE0D8; border-color: #E0453A; box-shadow: 0 3px 0 #120810, 0 0 16px rgba(224,69,58,.45); }
 .rhero.raid h2 { color: #8A1E26; }
 .menu-foot { margin-top: 14px; padding-top: 10px; border-top: 1px solid #EFE3C9; }
@@ -1519,6 +1525,21 @@ function applyDeep(G) { G.chargeMult = G.chargeBase * (1 + DEEP.step * deepLevel
 const TUMBLE = { rocks: 100 };
 function shedMaxed(meta) { return SHED.every(sh => shedLevel(meta, sh.id) >= sh.costs.length); }
 function tumble(meta, n) { n = Math.max(1, n | 0); if (!shedMaxed(meta) || (meta.rocks || 0) < TUMBLE.rocks * n) return false; meta.rocks -= TUMBLE.rocks * n; meta.shards = (meta.shards || 0) + n; return true; }
+// The Long Nap's waves come from a weekly seed so everyone gets the same ones. genWave is the only thing that draws
+// from it, so wave N is reached by drawing waves 1..N-1 first (a resumed run or a head start must do the same).
+function seedLongNap(G, week) { G.week = week; G.wrng = mulberry32((week * 31 + G.mapIdx * 977) >>> 0); }
+function burnWaves(G, n) { for (let w = 1; w <= n; w++) genWave(G, w); }
+// Head start: a veteran who has already lasted well past wave 11 (or 21) on a map can start there. They get the gold a
+// strong crew earns over the skipped waves (measured with the veteran bot) and half the bonus picks; the skipped waves
+// pay no rocks or XP. Tuned so a head start ends about where a full run does, never further.
+const HEAD = { waves: [11, 21], need: { 11: 25, 21: 35 }, gold: { 11: 2100, 21: 7000 }, picks: { 11: 5, 21: 10 } };
+function headStartOK(meta, mapId, to) { return !!HEAD.need[to] && ((meta.endlessBest || {})[mapId] || 0) >= HEAD.need[to]; }
+function headStart(G, to) {
+  if (G.mode !== 'endless' || G.wave !== 0 || G.waveActive || !HEAD.need[to]) return false;
+  burnWaves(G, to - 1); G.wave = G.lastWaveCleared = to - 1; G.gold += HEAD.gold[to];
+  for (let w = 0; w < to - 1; w++) G.stats.waveLost[w] = 0;
+  G.stats.headStart = to; return true;
+}
 const SALVAGE = [1, 2, 4, 10, 25];
 
 // ---------- Odd jobs ----------
@@ -3024,7 +3045,7 @@ function applyCard(G, card) { G.cards.push(card.id); card.apply(G); }
 
 // ---------- save / resume (between waves only) ----------
 function snapshot(G) {
-  return { v: 4, runMods: G.runMods, meter: G.meter, lastWaveCleared: G.lastWaveCleared, map: G.mapIdx, mode: G.mode, daily: G.daily, wave: G.wave, gold: G.gold, pile: G.pile, pileMax: G.pileMax, pokes: G.pokes, cards: G.cards.slice(),
+  return { v: 4, week: G.week, runMods: G.runMods, meter: G.meter, lastWaveCleared: G.lastWaveCleared, map: G.mapIdx, mode: G.mode, daily: G.daily, wave: G.wave, gold: G.gold, pile: G.pile, pileMax: G.pileMax, pokes: G.pokes, cards: G.cards.slice(),
     mods: Object.assign({}, G.mods), stats: JSON.parse(JSON.stringify(G.stats)), xp: Object.assign({}, G.xp), gate: G.gate, t: G.t,
     towers: G.towers.map(t => t ? Object.assign({ type: t.type, tier: t.tier, spent: t.spent }, t.aim ? { aim: t.aim } : null, t.ot ? { ot: t.ot } : null) : null) };
 }
@@ -3034,6 +3055,7 @@ function restoreRun(meta, s) {
   Object.assign(G.mods, s.mods); G.stats = Object.assign(G.stats, s.stats); G.xp = Object.assign(G.xp, s.xp);
   for (const k of SKILLS) { const L = levelInfo((meta.xp[k] || 0) + G.xp[k]).L; G.runL[k] = L; G.skillMult[k] = 1 + .03 * (L - 1); }
   G.meter = s.meter || 0; G.lastWaveCleared = s.lastWaveCleared || s.wave;
+  if (G.mode === 'endless') { seedLongNap(G, s.week > 0 ? s.week : weekKey()); burnWaves(G, s.wave); }   // same waves as everyone after Continue
   for (const sk of (G.map.sinks || [])) if (sk.w <= s.wave) G.closed[sk.path] = true;
   if (G.map.bridge) G.bridgeIdx = Math.floor(Math.max(0, s.wave - 1) / 2) % 2;
   for (const k of ['perfects', 'dreams', 'syn', 'abilities', 'shards']) G.stats[k] = G.stats[k] || 0;
@@ -3136,7 +3158,7 @@ function finishRun(G) {
 }
 
 if (typeof module !== 'undefined' && module.exports) module.exports = { W, H, GARY, MAPS, posOn, SKILLS, SKILL_NAMES, SKILL_DESC, TOWERS, TIER_NOTES, ENEMIES, BOSS_ITEMS, RARITY, ITEMS, ALL_ITEMS, ITEM_DESC, STASH_TOTAL, CARDS,
-  spawn, AIMS, AIM_NAMES, AIM_DEFAULT, aimOf, aimable, setAim, OT, overtimeCost, overtime, tierOf, DEEP, deepLevel, deepCost, buyDeep, applyDeep, TUMBLE, shedMaxed, tumble, DREAM_COST,
+  spawn, seedLongNap, burnWaves, HEAD, headStartOK, headStart, genWave, weekKey, AIMS, AIM_NAMES, AIM_DEFAULT, aimOf, aimable, setAim, OT, overtimeCost, overtime, tierOf, DEEP, deepLevel, deepCost, buyDeep, applyDeep, TUMBLE, shedMaxed, tumble, DREAM_COST,
   xpFor, levelInfo, defaultMeta, mapUnlocked, towerUnlocked, SHED, shedLevel, buyShed, JOBS, ensureJobs, jobText, jobLive, dailyKey, dayKeyOffset, initRaid, raidBossFor, RAID_MEDALS, PATHS, PATH_LEVEL, pathFor, traitPlan, TRAITS, itemStars, starMult, starCost, weekKey, shortFirstLevel, TASTER, layoutMap, padRoadDist, dailySetup, genWave, cardTower, SYN_PAIRS, toggleMagnet, toggleBelt, litAt, GESTURES, earlyBonus, canCallEarly, ultLocked, ULT_DESC, ULT_LEVEL, ELITE_LEVEL, ELITE_DESC, ELITE_TITLE, SYNERGIES, DREAMS, DREAM_ORDER, DREAM_UNLOCK, DREAM_COST, ABIL, GARY_UNLOCKS, garyInfo, trinketSlots, ITEM_FX, itemFxText, MODS, EVENTS, addMeter, canDream, unleash, activate, abilityReady, buyOffer, segAt, newRun, build, upgrade, sell, upgradeCost, sellValue, towerCost, toggleGate, startWave, update, tapAt, poke, rollCards, applyCard, finishRun, snapshot, restoreRun };
 
 </script>
@@ -5934,9 +5956,9 @@ const R = (function () {
       if (sheetMode) renderSheet();
     }
     try { tutTick(); } catch (e) { hideCoach(); }
-    // auto-start: veterans can skip the gap between waves
+    // auto-start: veterans can skip the gap between waves (never before the first wave of a head start: there's gold to spend)
     // the first game waits for the player: the next wave starts only once they've hired the crew member the coach asks for
-    if (((meta.settings.autoWave && VET()) || (G && G.grace && G.towers.filter(Boolean).length > G.wave)) && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && $('modal').hidden && (!sheetMode || G.grace) && !paused && !menuOpen) {
+    if (((meta.settings.autoWave && VET()) || (G && G.grace && G.towers.filter(Boolean).length > G.wave)) && G && state === 'play' && !G.waveActive && !G.over && G.wave > 0 && G.wave < G.waveCount && !(G.stats.headStart && G.wave === G.stats.headStart - 1) && $('modal').hidden && (!sheetMode || G.grace) && !paused && !menuOpen) {
       if (!autoAt) autoAt = performance.now() + 2200;
       const left = Math.ceil((autoAt - performance.now()) / 1000); const sbt = $('startBtn'); if (sbt && left > 0) sbt.textContent = 'Next wave in ' + left + '\u2026';
       if (performance.now() >= autoAt) { autoAt = 0; saveRun(); if (startWave(G)) { closeSheet(); lastHud = ''; } }
@@ -6640,8 +6662,9 @@ const R = (function () {
     lastHud = ''; trackEvent('raid_start', { boss });
     toast(ENEMIES[boss].intro + ' Build your crew, then tap Start.', 'big');
   }
-  function startLong(i) {
-    newGame(i, 'endless'); G.week = weekKey(); G.wrng = mulberry32((G.week * 31 + i * 977) >>> 0);
+  function startLong(i, to) {
+    newGame(i, 'endless'); seedLongNap(G, weekKey());
+    if (to && headStartOK(meta, G.map.id, to) && headStart(G, to)) { trackEvent('head_start', { level_id: G.map.id, wave: to }); lastHud = ''; return showDraft(G.wave, 0, false, { k: 1, n: HEAD.picks[to] }); }
     toast('This week\u2019s Long Nap. Same waves for everyone until Monday. How long can Gary sleep?', 'big');
   }
   function weekBest(mapId) { return ((meta.weekBest || {})[weekKey() + '|' + mapId]) || 0; }
@@ -6676,12 +6699,20 @@ const R = (function () {
     if (!rows.length) return '<p class="small">Nobody on the board yet this week. Be first.</p>';
     return '<ol class="board">' + rows.map((r2, k) => '<li class="' + (mine && r2.name === meta.nick ? 'me' : '') + '"><span class="bpos">' + (k === 0 ? '\ud83e\udd47' : k === 1 ? '\ud83e\udd48' : k === 2 ? '\ud83e\udd49' : (k + 1)) + '</span><b>' + String(r2.name).replace(/</g, '') + '</b><span class="bw">' + (raid ? fmtK(r2.wave) + ' dmg' : 'wave ' + r2.wave) + '</span></li>').join('') + '</ol>';
   }
+  // veterans can skip the easy waves (see HEAD in the simulation for how it's kept fair)
+  function headHTML(mapId) {
+    const best = (meta.endlessBest || {})[mapId] || 0, open = HEAD.waves.filter(w => headStartOK(meta, mapId, w));
+    if (!open.length) return best >= 12 ? '<p class="small headtease">\u23e9 Last to wave ' + HEAD.need[11] + ' here and you can skip the easy waves next time. Your best: wave ' + best + '.</p>' : '';
+    return '<div class="headrow"><p class="small"><b>\u23e9 Head start.</b> Skip the easy waves. You get the gold a strong crew would have earned and half the bonus picks. Skipped waves pay no rocks.</p><div class="headbtns">' +
+      open.map(w => '<button class="btn" data-head="' + w + '">Start at wave ' + w + '<small>' + HEAD.gold[w].toLocaleString('en-AU') + ' gold \u00b7 ' + HEAD.picks[w] + ' picks</small></button>').join('') + '</div></div>';
+  }
   async function showBoard(i, after) {
     const m = MAPS[i];
     openModal('<div class="menu-head"><h2 class="title sm">\ud83c\udfc6 Long Nap: ' + m.name + '</h2><button class="btn" id="bdBack">Back</button></div><p class="small">This week\u2019s waves are the same for everyone. Resets Monday. The waves get harder and harder: nobody survives forever.</p>' +
       '<div class="mybest">Your best this week: <b>' + (weekBest(m.id) ? 'wave ' + weekBest(m.id) : 'not yet') + '</b></div>' + (boardOn() ? '<div id="bdRows"><p class="small">Loading\u2026</p></div>' : '') +
-      '<div class="row3"><button class="btn primary big" id="bdPlay">Play the Long Nap \u2192</button></div>', 'menu');
+      headHTML(m.id) + '<div class="row3"><button class="btn primary big" id="bdPlay">Play the Long Nap \u2192</button></div>', 'menu');
     $('bdBack').onclick = after || showHome; $('bdPlay').onclick = () => startLong(i);
+    $('modalCard').querySelectorAll('[data-head]').forEach(b => b.onclick = () => startLong(i, +b.dataset.head));
     trackEvent('leaderboard_view', { level_id: m.id, global: boardOn() });
     if (boardOn()) { const rows = await boardFetch(m.id); if ($('bdRows')) $('bdRows').innerHTML = boardRowsHTML(rows, true); }
   }
@@ -6820,21 +6851,23 @@ const R = (function () {
   }
 
   // ---------- draft ----------
-  function showDraft(wave, bonus, rerolled) {
-    if (!G || G.over || (state !== 'play' && !rerolled)) return;
+  function showDraft(wave, bonus, rerolled, head) {
+    if (!G || G.over || (state !== 'play' && !rerolled && !(head && head.k > 1))) return;
     state = 'draft';
     const cards = rollCards(G);
     SFX.play('card');
-    const firstDraft = !meta.toldDraft; meta.toldDraft = 1;
-    openModal('<h2 class="title sm">Wave ' + wave + ' done!</h2><p class="lede">+' + bonus + ' gold. ' + (firstDraft ? 'Pick a bonus. It lasts the whole level. \ud83d\udc47' : 'Pick a bonus.') + '</p><div class="armbar" aria-hidden="true"><i></i></div><div class="drafts' + (firstDraft ? ' first' : '') + '">' +
+    const firstDraft = !head && !meta.toldDraft; meta.toldDraft = 1;
+    openModal((head ? '<h2 class="title sm">Head start: bonus ' + head.k + ' of ' + head.n + '</h2><p class="lede">Wave ' + (wave + 1) + ' is next and you\u2019ve got ' + Math.round(G.gold).toLocaleString('en-AU') + ' gold. Pick a bonus for the run.</p>' : '<h2 class="title sm">Wave ' + wave + ' done!</h2><p class="lede">+' + bonus + ' gold. ' + (firstDraft ? 'Pick a bonus. It lasts the whole level. \ud83d\udc47' : 'Pick a bonus.') + '</p>') + '<div class="armbar" aria-hidden="true"><i></i></div><div class="drafts' + (firstDraft ? ' first' : '') + '">' +
       cards.map((c, i) => { const tw = CARD_TOWER[c.id] || cardTower(c); return '<button class="dcard' + (c.cursed ? ' cursed' : '') + '" data-i="' + i + '"' + (tw ? ' style="' + crewStyle(tw) + '"' : '') + '><span class="dicon">' + (tw ? '<canvas class="pt" data-type="' + tw + '"></canvas>' : (c.cursed ? '\ud83d\udc80' : CARD_ICON[c.id] || '\u2728')) + '</span><span class="dtext">' + (c.cursed ? '<em>Cursed deal</em>' : '') + '<b>' + c.name + '</b><span>' + c.desc + '</span></span></button>'; }).join('') + '</div>', '', 420);
     drawPortraits($('modalCard'));
-    if (G.rerolls > 0) { const rb = document.createElement('button'); rb.className = 'btn reroll'; rb.textContent = '\ud83d\udd2e Aunty Val: reroll (' + G.rerolls + ' left)'; $('modalCard').appendChild(rb); rb.onclick = () => { G.rerolls--; SFX.play('psy'); trackEvent('draft_reroll', {}); showDraft(wave, bonus, true); }; }
+    if (G.rerolls > 0) { const rb = document.createElement('button'); rb.className = 'btn reroll'; rb.textContent = '\ud83d\udd2e Aunty Val: reroll (' + G.rerolls + ' left)'; $('modalCard').appendChild(rb); rb.onclick = () => { G.rerolls--; SFX.play('psy'); trackEvent('draft_reroll', {}); showDraft(wave, bonus, true, head); }; }
     $('modalCard').querySelectorAll('.dcard').forEach(b => b.onclick = ev => {
       if (!deliberate(ev, b)) return;
       SFX.play('pick');
-      const c = cards[+b.dataset.i]; applyCard(G, c); closeModal(); state = 'play'; lastHud = ''; saveRun();
-      toast(c.name + '. Tap Start wave when ready.');
+      const c = cards[+b.dataset.i]; applyCard(G, c);
+      if (head && head.k < head.n) return showDraft(wave, bonus, true, { k: head.k + 1, n: head.n });
+      closeModal(); state = 'play'; lastHud = ''; saveRun();
+      toast(head ? 'Wave ' + (wave + 1) + ' next. Hire your crew, then tap Start wave.' : c.name + '. Tap Start wave when ready.', head ? 'big' : undefined);
     });
   }
 
@@ -7006,7 +7039,7 @@ const R = (function () {
     }
     if (endless && boardOn()) {
       const sc = G.wave - 1, mid = G.map.id, crew = G.crew, showRows = async () => { const rows = await boardFetch(mid); if ($('boardRes')) $('boardRes').innerHTML = boardRowsHTML(rows ? rows.slice(0, 10) : rows, true); };
-      const post = async () => { if (weekNew || !meta.boardPosted || meta.boardPosted !== G.week + '|' + mid + '|' + sc) { const ok = await boardSubmit(mid, sc, crew, G.t); if (ok) meta.boardPosted = G.week + '|' + mid + '|' + sc; trackEvent('leaderboard_submit', { level_id: mid, wave: sc, ok }); saveMeta(); } showRows(); };
+      const post = async () => { if (weekNew || !meta.boardPosted || meta.boardPosted !== G.week + '|' + mid + '|' + sc) { const ok = await boardSubmit(mid, sc, crew, G.t + (G.stats.headStart ? (G.stats.headStart - 1) * 30 : 0)); if (ok) meta.boardPosted = G.week + '|' + mid + '|' + sc; trackEvent('leaderboard_submit', { level_id: mid, wave: sc, ok }); saveMeta(); } showRows(); };
       if (meta.nick) { if (weekNew) post(); else showRows(); }
       else if ($('nickGo')) $('nickGo').onclick = () => { const n2 = cleanNick($('nickIn').value); if (n2.length < 2) { $('nickIn').focus(); return; } if (!nickOk(n2)) { toast('Pick another name. That one won\u2019t go on the board.'); SFX.play('boo'); $('nickIn').focus(); return; } meta.nick = n2; saveMeta(); $('nickGo').closest('.nickrow').remove(); post(); };
     }
