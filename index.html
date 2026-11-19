@@ -831,7 +831,8 @@ function mkPath(pts) {
   }
   return { pts, segs, len };
 }
-function padRoadDist(m, p) { let md = 1e9; for (const P of m.P) for (const s2 of P.segs) { if (s2.tp) continue; const vx = s2.x2 - s2.x1, vy = s2.y2 - s2.y1, L2 = vx * vx + vy * vy || 1; let t = ((p[0] - s2.x1) * vx + (p[1] - s2.y1) * vy) / L2; t = Math.max(0, Math.min(1, t)); md = Math.min(md, Math.hypot(p[0] - (s2.x1 + vx * t), p[1] - (s2.y1 + vy * t))); } return md; }
+function padRoadPt(m, p) { let best = { x: p[0], y: p[1], d: 1e9 }; for (const P of m.P) for (const s2 of P.segs) { if (s2.tp) continue; const vx = s2.x2 - s2.x1, vy = s2.y2 - s2.y1, L2 = vx * vx + vy * vy || 1; let t = ((p[0] - s2.x1) * vx + (p[1] - s2.y1) * vy) / L2; t = Math.max(0, Math.min(1, t)); const x = s2.x1 + vx * t, y = s2.y1 + vy * t, d = Math.hypot(p[0] - x, p[1] - y); if (d < best.d) best = { x, y, d }; } return best; }
+function padRoadDist(m, p) { return padRoadPt(m, p).d; }
 function segAt(P, d) { for (const s of P.segs) if (d < s.start + s.len) return s; return null; }
 function posOn(P, d) {
   const s0 = P.segs[0];
@@ -1546,36 +1547,38 @@ const SALVAGE = [1, 2, 4, 10, 25];
 const JOBS = [
   { id: 'snatch', t: n => 'Snatch ' + n + ' loot back from monsters', v: G => G.stats.snatches, n: [3, 6, 10] },
   { id: 'kills', t: n => 'Stop ' + n + ' monsters', v: G => G.stats.kills, n: [60, 150, 300] },
-  { id: 'crits', t: n => 'Land ' + n + ' Nan crits', v: G => G.stats.crits, n: [15, 40, 80] },
-  { id: 'tipsy', t: n => 'Get ' + n + ' monsters tipsy', v: G => G.stats.tipsy, n: [20, 60, 120], req: m => towerUnlocked(m, 'jezza') },
-  { id: 'birds', t: n => 'Stop ' + n + ' monsters with Bev\u2019s birds', v: G => G.stats.killsBy.flocking, n: [15, 40, 80], req: m => towerUnlocked(m, 'bev') },
-  { id: 'chuckk', t: n => 'Stop ' + n + ' monsters with the Chuckery', v: G => G.stats.killsBy.chucking, n: [30, 80, 150] },
-  { id: 'bonkk', t: n => 'Stop ' + n + ' monsters with the Bonk Booth', v: G => G.stats.killsBy.bonking, n: [15, 40, 80] },
+  { id: 'crits', crew: 'nan', t: n => 'Land ' + n + ' Nan crits', v: G => G.stats.crits, n: [15, 40, 80] },
+  { id: 'tipsy', crew: 'jezza', t: n => 'Get ' + n + ' monsters tipsy', v: G => G.stats.tipsy, n: [20, 60, 120], req: m => towerUnlocked(m, 'jezza') },
+  { id: 'birds', crew: 'bev', t: n => 'Stop ' + n + ' monsters with Bev\u2019s birds', v: G => G.stats.killsBy.flocking, n: [15, 40, 80], req: m => towerUnlocked(m, 'bev') },
+  { id: 'chuckk', crew: 'chuck', t: n => 'Stop ' + n + ' monsters with the Chuckery', v: G => G.stats.killsBy.chucking, n: [30, 80, 150] },
+  { id: 'bonkk', crew: 'bonk', t: n => 'Stop ' + n + ' monsters with the Bonk Booth', v: G => G.stats.killsBy.bonking, n: [15, 40, 80] },
   { id: 'rare', t: n => 'Bank ' + n + ' Decent-or-better items', v: G => G.stats.banked.filter(i => i.tier >= 2).length, n: [3, 6, 12] },
   { id: 'combo', t: n => 'Hit a ' + n + '-kill combo', v: G => G.stats.bestCombo, n: [10, 18, 26], max: true },
   { id: 'flawless', t: () => 'Win a level with nothing stolen', v: G => G.won && G.mode !== 'endless' && G.stats.itemsLost === 0 ? 1 : 0, n: [1, 1, 1], max: true },
   { id: 'pokes', t: n => 'Unleash Gary\u2019s dream ' + n + ' times', v: G => G.stats.dreams || 0, n: [2, 4, 7] },
   { id: 'perfect', t: n => 'Get ' + n + ' perfect waves', v: G => G.stats.perfects || 0, n: [4, 8, 14] },
   { id: 'synergy', t: n => 'Trigger ' + n + ' tower synergies', v: G => G.stats.syn || 0, n: [20, 60, 150] },
-  { id: 'splits', t: n => 'Land ' + n + ' Banana Splits', v: G => G.stats.splits || 0, n: [5, 15, 35], req: m => towerUnlocked(m, 'banjo') },
-  { id: 'lifts', t: n => 'Lift ' + n + ' monsters with Long Peter', v: G => G.stats.lifts || 0, n: [20, 60, 140], req: m => towerUnlocked(m, 'pete') },
-  { id: 'tips', t: n => 'Earn ' + n + ' gold from DJ tips', v: G => G.stats.tips || 0, n: [150, 400, 900], req: m => towerUnlocked(m, 'dj') },
+  { id: 'splits', crew: 'banjo', t: n => 'Land ' + n + ' Banana Splits', v: G => G.stats.splits || 0, n: [5, 15, 35], req: m => towerUnlocked(m, 'banjo') },
+  { id: 'lifts', crew: 'pete', t: n => 'Lift ' + n + ' monsters with Long Peter', v: G => G.stats.lifts || 0, n: [20, 60, 140], req: m => towerUnlocked(m, 'pete') },
+  { id: 'tips', crew: 'dj', t: n => 'Earn ' + n + ' gold from DJ tips', v: G => G.stats.tips || 0, n: [150, 400, 900], req: m => towerUnlocked(m, 'dj') },
   { id: 'ability', t: n => 'Use tower abilities ' + n + ' times', v: G => G.stats.abilities || 0, n: [3, 6, 10] },
   { id: 'nobonk', t: () => 'Win a level without a Bonk Booth', v: G => G.won && G.mode !== 'endless' && !G.stats.builtTypes.bonk ? 1 : 0, n: [1, 1, 1], max: true },
   { id: 'long', t: n => 'Reach wave ' + n + ' in the Long Nap', v: G => G.mode === 'endless' ? G.wave : 0, n: [8, 12, 16], max: true, req: m => (m.wins || 0) > 0 },
   { id: 'daily', t: () => 'Win a Daily Nap', v: G => G.mode === 'daily' && G.won ? 1 : 0, n: [1, 1, 1], max: true, req: m => (m.wins || 0) > 0 },
 ];
 const JOB_REWARD = [15, 30, 50];
-function newJob(meta) {
+// crew: the crew the player can field. A job that needs someone else is never offered (and one already held is dropped).
+const jobFits = (J, crew) => !J.crew || !crew || crew.includes(J.crew);
+function newJob(meta, crew) {
   const active = (meta.jobs || []).map(j => j.id);
   const tier = meta.jobsDone < 5 ? 0 : meta.jobsDone < 15 ? 1 : 2;
-  const pool = JOBS.filter(j => !active.includes(j.id) && (!j.req || j.req(meta)) && j.id !== meta.lastJob);
+  const pool = JOBS.filter(j => !active.includes(j.id) && (!j.req || j.req(meta)) && j.id !== meta.lastJob && jobFits(j, crew));
   const J = pool[Math.floor(Math.random() * pool.length)];
   return { id: J.id, n: J.n[tier], p: 0, reward: JOB_REWARD[tier] };
 }
-function ensureJobs(meta) {
-  meta.jobs = (meta.jobs || []).filter(j => JOBS.some(J => J.id === j.id));
-  while (meta.jobs.length < 3) meta.jobs.push(newJob(meta));
+function ensureJobs(meta, crew) {
+  meta.jobs = (meta.jobs || []).filter(j => JOBS.some(J => J.id === j.id && jobFits(J, crew)));
+  while (meta.jobs.length < 3) meta.jobs.push(newJob(meta, crew));
 }
 function jobText(j) { return JOBS.find(J => J.id === j.id).t(j.n); }
 function jobLive(j, G) { const J = JOBS.find(J => J.id === j.id); const v = G ? J.v(G) : 0; return Math.min(j.n, J.max ? Math.max(j.p, v) : j.p + v); }
@@ -1974,7 +1977,7 @@ function sell(G, pad) {
 function toggleGate(G) { if (!G.map.gate) return false; G.gate = G.gate ? 0 : 1; fx(G, 'gate', {}); return true; }
 
 function earlyBonus(G) { return 10 + 3 * (G.wave + 1); }
-function canCallEarly(G) { return G.waveActive && !G.over && !G.spawnQ.length && G.wave < G.waveCount; }
+function canCallEarly(G) { return G.waveActive && !G.over && !G.spawnQ.length && G.wave < G.waveCount && G.mode !== 'raid'; }
 function toggleMagnet(G) { const M = G.magnet; if (!G.map.magnet || M.cd > 0) return false; M.on = !M.on; fx(G, 'magnet', { on: M.on }); return true; }
 function toggleBelt(G) { const B = G.belt; if (!G.map.belts || B.cd > 0 || !G.waveActive) return false; B.rev = 6; B.cd = 16; fx(G, 'belt', {}); return true; }
 function litAt(G, x, y) {
@@ -2638,7 +2641,7 @@ function update(G, dt) {
     if (t.hatless > 0) { t.hatless -= dt; return; }
     if (t.type === 'kev') {
       const mult = G.skillMult.charging * G.dmgAll, KN = tr.knock || 0;
-      if (tr.ult) { t.ucd = (t.ucd == null ? 5 : t.ucd) - dt; if (t.ucd <= 0) { const es = G.enemies.filter(e => !e.flyer && Math.hypot(e.x - px, e.y - py) < 140); if (es.length) { t.ucd = tr.stampEvery; for (const e of es) { if (!e.boss && !e.raidBoss) e.d = Math.max(0, e.d - 20); damage(G, e, tr.dmg * 1.4 * mult, { src: 'charging', kind: 'charge', pad: i }); } fx(G, 'stampede', { pad: i, x: px, y: py }); fx(G, 'shake', { m: 4 }); ev(G, 'ultFire', { tt: 'kev' }); } else t.ucd = 1; } }
+      if (tr.ult) { t.ucd = (t.ucd == null ? 5 : t.ucd) - dt; if (t.ucd <= 0) { const rp = padRoadPt(map, map.pads[i]), es = G.enemies.filter(e => !e.flyer && Math.hypot(e.x - rp.x, e.y - rp.y) < 140); if (es.length) { t.ucd = tr.stampEvery; for (const e of es) { if (!e.boss && !e.raidBoss) e.d = Math.max(0, e.d - 20); damage(G, e, tr.dmg * 1.4 * mult, { src: 'charging', kind: 'charge', pad: i }); } fx(G, 'stampede', { pad: i, x: rp.x, y: rp.y }); fx(G, 'shake', { m: 4 }); ev(G, 'ultFire', { tt: 'kev' }); } else t.ucd = 1; } }
       t.cd -= dt * (1 + globalBuff) * G.mods.fireRate * SM * (t.rage > 0 ? 3 : 1);
       if (t.cd > 0) return;
       const tg = G.enemies.filter(e => !e.flyer && !(e.air > 0) && Math.hypot(e.x - px, e.y - py) <= tr.range * RM && seen(G, e, px, py)).sort(AIM)[0];
@@ -3105,7 +3108,7 @@ function finishRun(G) {
     if (p >= j.n) { jobsDone.push({ text: jobText(j), reward: j.reward }); rk.jobs += j.reward; meta.jobsDone++; meta.lastJob = j.id; return null; }
     return Object.assign({}, j, { p });
   }).filter(Boolean);
-  ensureJobs(meta);
+  ensureJobs(meta, G.fieldCrew);
   if (G.mode === 'raid') {
     const sc = Math.round(G.raidDmg || 0), med = sc >= RAID_MEDALS[3] ? 3 : sc >= RAID_MEDALS[2] ? 2 : sc >= RAID_MEDALS[1] ? 1 : 0;
     rk.raid = [15, 50, 110, 200][med]; G.raidMedal = med; G.raidScore = sc;
@@ -5601,6 +5604,11 @@ const R = (function () {
     const c = meta.crew.filter(k => TOWERS[k] && towerUnlocked(meta, k)).slice(0, CREW_SIZE);
     return c.length ? c : recommendCrew(mapIdx);
   }
+  // who the player can actually field, for Odd Jobs: their own six, or anyone recommended on a level they can play
+  function fieldCrew() {
+    if (meta.crewMode === 'custom' && Array.isArray(meta.crew)) return crewFor(0);
+    const s = new Set(); MAPS.forEach((m, i) => { if (mapUnlocked(meta, i)) recommendCrew(i).forEach(k => s.add(k)); }); return [...s];
+  }
   // live portrait canvases (animated only while visible)
   let portraitLoop = 0;
   function freeCanvases(root) { try { (root || document).querySelectorAll('canvas.pt').forEach(cv => { cv.width = 0; cv.height = 0; }); } catch (e) {} }
@@ -5709,11 +5717,11 @@ const R = (function () {
     openModal('<div class="cinfo-wrap" style="' + crewStyle(k) + '"><div class="cstage big">' + ptHTML(k, 'big') + '</div><h2 class="title sm">' + C.n + '</h2><span class="crole">' + C.icon + ' ' + C.role + '</span><span class="kchips">' + keyChips(k, 3) + '</span>' +
       '<div class="cstats">' + bars.map((b, i) => '<div class="cstat"><span>' + b + '</span><i>' + '<em class="f"></em>'.repeat(C.st[i]) + '<em></em>'.repeat(5 - C.st[i]) + '</i></div>').join('') + '</div>' +
       '<p class="cab">' + C.ab + '</p><p class="cvs">Great against <b>' + C.vs + '</b>.</p>' + masteryHTML(k) +
-      '<div class="crewbtns"><button class="btn" id="ciBack">Back</button><button class="btn primary big" id="ciSel">' + (sel ? 'Remove' : 'Select') + '</button></div></div>', 'menu crew');
+      '<div class="crewbtns"><button class="btn" id="ciBack">Back</button>' + (onSel ? '<button class="btn primary big" id="ciSel">' + (sel ? 'Remove' : 'Select') + '</button>' : '') + '</div></div>', 'menu crew');
     drawPortraits($('modalCard')); startPortraitLoop(); R.poke(k);
     $('ciBack').onclick = back;
     $('modalCard').querySelectorAll('.pathbtn').forEach(b => b.onclick = () => { meta.paths = meta.paths || {}; meta.paths[k] = b.dataset.path; saveMeta(); SFX.play('levelup'); R.poke(k); trackEvent('path_chosen', { character: k, path: b.dataset.path }); showCrewInfo(k, crew, back, onSel); });
-    $('ciSel').onclick = () => { onSel(k); SFX.play(crewSfx[k] || 'pick'); back(); };
+    if (onSel) $('ciSel').onclick = () => { onSel(k); SFX.play(crewSfx[k] || 'pick'); back(); };
   }
   const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: a gate you can tap' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
   // Gary's pyjamas: cosmetics only. Earned by playing; one reserved for supporters.
@@ -6288,7 +6296,7 @@ const R = (function () {
     if (updateReady) { saveMeta(); window.__applyUpdate(updateReady); return; }
     SFX.music('menu'); SFX.duck(false); bossOn = false; stage.classList.remove('bossfight');
     state = 'home'; G = null; menuOpen = false; closeSheet(); R.reset(); lastHud = '';
-    ensureJobs(meta);
+    ensureJobs(meta, fieldCrew());
     const run = loadRun();
     const runMap = run && MAPS[run.map];
     const won = (meta.wins || 0) > 0;
@@ -6345,7 +6353,7 @@ const R = (function () {
     if ($('homeGear')) $('homeGear').onclick = () => openMenu('settings');
     if ($('giftBtn')) $('giftBtn').onclick = () => openGift();
     $('modalCard').querySelectorAll('[data-wardrobe]').forEach(g => g.onclick = () => showWardrobe(g.dataset.wardrobe));
-    $('modalCard').querySelectorAll('[data-pathgoal]').forEach(g => g.onclick = () => showCrewInfo(g.dataset.pathgoal, [], showHome, () => {}));
+    $('modalCard').querySelectorAll('[data-pathgoal]').forEach(g => g.onclick = () => showCrewInfo(g.dataset.pathgoal, [], showHome, null));
     if ($('supLater')) $('supLater').onclick = () => { meta.supSeen = true; saveMeta(); trackEvent('support_card_dismissed', {}); showHome(); };
     if ($('supHome')) $('supHome').onclick = () => { meta.supSeen = true; saveMeta(); trackEvent('support_link_clicked', { from: 'home' }); };
     drawPortraits($('modalCard'));
@@ -6500,7 +6508,7 @@ const R = (function () {
         (won ? '<div class="mastery"><span class="' + ((ms.stars || 0) >= 3 ? 'done' : '') + '">\u2b50 3 stars: keep 80%+ of the loot' + ((ms.stars || 0) >= 3 ? ' \u2713' : '') + '</span><span class="' + (ms.bestKept >= m.pileMax || ms.bestKept >= 10 ? 'done' : '') + '">\ud83d\udc8e Keep everything (best ' + (ms.bestKept || 0) + ')</span><span class="' + (ms.mods && Object.keys(ms.mods).length >= 5 ? 'done' : '') + '">\ud83d\udd25 Beat all 5 modifiers (' + (ms.mods ? Object.keys(ms.mods).length : 0) + '/5)</span></div>' : '') +
         (won ? '<h3>Difficulty</h3><div class="tiers">' + ['normal', 'hard', 'nightmare'].map(t => { const T = TIERS[t], lock = t === 'nightmare' && !((ms.tiers || {}).hard), st = t === 'normal' ? (ms.stars || 0) : ((ms.tiers || {})[t] || 0);
           return '<button class="tierchip ' + t + (tier === t ? ' on' : '') + '" data-tier="' + t + '"' + (lock ? ' disabled' : '') + '><b>' + (T.icon ? T.icon + ' ' : '') + T.n + '</b><small>' + (lock ? '\ud83d\udd12 Beat Hard first' : t === 'normal' ? 'Rewards \u00d71' : t === 'hard' ? 'Tougher, faster \u00b7 \u00d72' : 'Everything \u00b7 \u00d72.5 \u00b7 rare outfits') + '</small><i>' + '\u2605'.repeat(st) + '</i></button>'; }).join('') + '</div>' : '') +
-        (heatOn() ? '<div class="heatrow"><span>' + heatTxt(meta.heat || 0) + '</span><small>Win to heat up, lose to cool down.</small></div>' : '') +
+        (heatOn() && (meta.heatSeen || meta.heat) ? '<div class="heatrow"><span>' + heatTxt(meta.heat || 0) + '</span><small>Win to heat up, lose to cool down.</small></div>' : '') +
         (tier !== 'normal' ? '' : '<h3>Modifiers</h3>') + (tier !== 'normal' ? '' : won ? '<div class="mods">' + MODS.map(md => {
           const lock = md.gary && gl < md.gary, done = ms.mods && ms.mods[md.id];
           return '<button class="modchip' + (pick[md.id] ? ' on' : '') + (lock ? ' locked' : '') + '" data-mod="' + md.id + '"' + (lock ? ' disabled' : '') + '><b>' + md.name + (done ? ' \u2713' : '') + '</b><small>' + (lock ? 'Gary level ' + md.gary : md.desc) + '</small></button>';
@@ -6606,7 +6614,7 @@ const R = (function () {
   function newGame(mapIdx, mode, daily, mods) {
     clearRun(); closeModal();
     G = newRun(meta, (daily ? daily.key : (Date.now() ^ (Math.random() * 1e9))) >>> 0, mapIdx, mode, daily, mods);
-    G.crew = mode === 'campaign' ? crewFor(mapIdx) : recommendCrew(mapIdx);
+    G.crew = mode === 'campaign' ? crewFor(mapIdx) : recommendCrew(mapIdx); G.fieldCrew = fieldCrew();
     // the short coached first game, until the player has won once (a lost first try gets it again, up to three times)
     if ((!meta.runs || (!meta.wins && (meta.runs || 0) < 4)) && mapIdx === 0 && mode === 'campaign') { G.grace = true; shortFirstLevel(G); speed = 2; window.__tasterSpeed = true; }
     else if (window.__tasterSpeed) { window.__tasterSpeed = false; speed = 1; }
@@ -6718,7 +6726,7 @@ const R = (function () {
   }
   function continueRun(run) {
     closeModal();
-    try { G = restoreRun(meta, run); G.crew = (run.crew && run.crew.length) ? run.crew : crewFor(G.mapIdx); } catch (e) { clearRun(); showHome(); return; }
+    try { G = restoreRun(meta, run); G.crew = (run.crew && run.crew.length) ? run.crew : crewFor(G.mapIdx); G.fieldCrew = fieldCrew(); } catch (e) { clearRun(); showHome(); return; }
     homeMap = G.mapIdx; begin();
     toast('Back on ' + G.map.name + '. Tap Start wave when ready.', 'big');
   }
@@ -6743,7 +6751,7 @@ const R = (function () {
     if (firstTouch) {
       firstTouch = false;
       // The screen is alive before the player decides anything: Dazza is already on duty.
-      if (G && G.mapIdx === 0 && G.wave === 0 && !G.towers[1]) { G.gold += towerCost(G, 'chuck'); build(G, 1, 'chuck'); G.freeDazza = true; const p = G.map.pads[1]; setTimeout(() => R.say(p[0], p[1] - 52, 'Righto. I\u2019ve got this.', 2.2), 700); }
+      if (G && G.mapIdx === 0 && G.wave === 0 && !G.towers[1]) { G.gold += towerCost(G, 'chuck'); build(G, 1, 'chuck'); G.freeDazza = true; trackEvent('tower_placed', { tower: 'chuck', level_id: G.map.id, wave: G.wave, free: true }); const p = G.map.pads[1]; setTimeout(() => R.say(p[0], p[1] - 52, 'Righto. I\u2019ve got this.', 2.2), 700); }
       setTimeout(() => { if (G && G.mapIdx === 0 && G.wave <= 1) { banner('Gary\u2019s asleep', 'Monsters want his loot. Stop them.', 'event'); R.say(GARY.x, GARY.y - 34, 'zzz... guard me loot...', 3); } }, 250);
     }
   }

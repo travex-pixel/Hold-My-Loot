@@ -331,24 +331,14 @@ best stored locally; global board key is `raid-<boss>`.
   Consent (build 31): nothing is stored for analytics until the player says yes on the home-screen card
   after their first level. Before that, events use a memory-only session id; after "no", nothing is sent.
   tower_placed/upgraded, ability_used, wave_complete, speed_set and draft_reroll only fire during a
-  player's first five games (volume). The launch dashboard is "Hold My Loot: launch" in PostHog.
+  player's first five games (volume). The free Dazza on a first run sends `tower_placed` with `free: true`
+  (build 32); `first_tower_placed` is only ever the player's own first hire. The launch dashboard is "Hold My Loot: launch" in PostHog.
 - Service worker (`sw.js`, build 31): the page is network-first with a 4 s fallback to the cached copy, the
   self-update check (`?t=`) bypasses it, assets are cache-first and Google Fonts stale-while-revalidate. Other
   pages (privacy.html) never overwrite the cached game. Proven by `tests/offline.mjs`.
 
 ## 10. Known bugs and rough edges (build 31)
 
-- The free Dazza placed at the start of a first run does not fire `tower_placed`, so the
-  first_tower_placed funnel step means "second crew member".
-- After a Raid ends, the Start button can read "Start wave N" with a stale number until the next
-  level starts.
-- The Heat row on the level screen shows "Heat 0" for players between 5 wins and their first
-  Heat change.
-- Opening a crew member's card from the "Choose a Mastery Path" goal on the home screen shows a
-  Select/Remove button that does nothing (the crew list passed in is empty).
-- Big Kev's Stampede (tier 4 passive) rarely triggers because it needs monsters within 140 of his
-  pallet; he is usually placed further from the road.
-- Odd Jobs can ask for crew who are not in the player's current six (e.g. Banana Splits).
 - The supporter code is honour-system and board scores are plausibility-checked, not proven (see section 9).
 - One Android Chrome `client_error` of "Script error." with no detail has been seen (likely an
   extension). Android can drop canvas memory under pressure; the renderer detects a blank
