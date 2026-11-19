@@ -49,7 +49,7 @@ async function open(w, h, fresh = true) {
   check('the bundled fonts load (same look, no Google request)', await frame.evaluate(async () => { await document.fonts.ready; return document.fonts.check('800 24px Fraunces') && document.fonts.check('800 16px Nunito') && [...document.fonts].some(f => f.status === 'loaded' && /Fraunces/.test(f.family)); }));
   for (let i = 0; i < 400; i++) {
     await settle(page, 250);
-    const st = await frame.evaluate(() => { const c = document.getElementById('coach'), g = window.__hml(); const r = c.getBoundingClientRect(); return { coach: c.hidden ? '' : c.textContent, ring: c.classList.contains('ring'), x: r.left + r.width / 2, y: r.top, h: r.height, modal: !document.getElementById('modal').hidden, over: !g || g.over }; });
+    const st = await frame.evaluate(() => { const c = document.getElementById('coach'), g = window.__hml(); const m = document.querySelector('.coachme'), q = m && m.getBoundingClientRect(); const r = c.getBoundingClientRect(); return { coach: c.hidden ? '' : c.textContent, ring: c.classList.contains('ring'), x: q ? q.left + q.width / 2 : r.left + r.width / 2, y: q ? q.top + q.height / 2 : r.top, h: q ? -18 : r.height, modal: !document.getElementById('modal').hidden, over: !g || g.over }; });
     if (st.modal || st.over) break;
     if (st.coach && !/Speed up|TRY THIS/i.test(st.coach)) await page.mouse.click(box.x + st.x, box.y + st.y + (st.ring ? 30 : st.h + 18));
   }

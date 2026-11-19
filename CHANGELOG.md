@@ -214,12 +214,17 @@ For players who've maxed everything (asked for by a player at wave 50 of the Lon
   11,000-28,000 gold it couldn't spend; with Overtime it ends broke and gets 1 to 11 waves further.
 - Deep sleep: a level-5 dream keeps levelling with shards. Each of 10 levels charges that dream 6% faster.
 - Rock Tumbler: once the whole Shed is maxed, Clive turns 100 spare Shiny Rocks into 1 Dream Shard.
+- The aim buttons appear once a player has won a level, so the first game stays uncluttered.
+- Fix (found in review before release): a save code or damaged save naming an aim like "valueOf" froze the game on
+  the next wave. Only the five real aim names are accepted now, and the save sanitiser drops anything else.
 
 Feels finished
 - 200% zoom: HUD, menus and lists reflow instead of running off the screen.
 - Keys: M mutes everything (remembered), Space starts a wave, 1/2/3 speed, Escape opens and closes the menu.
 - Settings on the home screen; vibration toggle; the pile meter is announced to screen readers.
 - Pause you can see: the board dims and a Paused card says tap to carry on.
+- The coach no longer covers the words it is teaching: inside a sheet its bubble sits just outside the sheet and the
+  card or button to tap glows.
 - A theft shakes the pile meter red; toasts sit above Gary instead of on top of him.
 - The Paddock told players to tap the gate to send monsters the long way, but the gate already starts on the long
   road, so obeying it sent them the short way. The blurb now says so, and the hint only shows when tapping helps.

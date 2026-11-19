@@ -517,6 +517,12 @@ button:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px 
 @keyframes cbob { 50% { transform: translateY(6px); } }
 #coach .cring { display: none; position: absolute; left: 50%; bottom: -34px; width: 54px; height: 30px; margin-left: -27px; border: 3px solid #FFE07A; border-radius: 50%; animation: cring 1s ease-out infinite; }
 #coach.ring .cring { display: block; }
+/* inside a sheet the coach talks from outside it, so the sheet's own words stay readable, and the thing to tap glows */
+#coach.below { transform: translate(-50%, 0); flex-direction: column-reverse; }
+#coach.below i { border-top: 0; border-bottom: 14px solid #3B2F2A; margin-top: 0; margin-bottom: -1px; }
+#sheet .coachme { box-shadow: 0 0 0 3px #FFE07A, 0 0 16px 4px rgba(255,190,40,.75); animation: coachglow 1s ease-in-out infinite; position: relative; z-index: 1; }
+@keyframes coachglow { 50% { box-shadow: 0 0 0 3px #FFE07A, 0 0 6px 1px rgba(255,190,40,.35); } }
+@media (prefers-reduced-motion: reduce) { #sheet .coachme { animation: none; } }
 @keyframes cring { from { transform: scale(.7); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
 #coach { animation: cbob2 .7s ease-in-out infinite; } @keyframes cbob2 { 50% { margin-top: -6px; } }
 /* ===== results ===== */
@@ -1892,11 +1898,13 @@ const AIM_CMP = {
   weak: (a, b) => a.hp - b.hp || b.d - a.d,
   loot: (a, b) => ((b.carry || b.grab ? 1 : 0) - (a.carry || a.grab ? 1 : 0)) || b.d - a.d,
 };
-function aimOf(t) { return (t && AIM_CMP[t.aim] && t.aim) || AIM_DEFAULT[t.type] || 'first'; }
+// only the five real names count: a save that says "valueOf" must not reach a sort comparator
+function isAim(a) { return typeof a === 'string' && AIMS.includes(a); }
+function aimOf(t) { return (t && isAim(t.aim) && t.aim) || AIM_DEFAULT[t.type] || 'first'; }
 function aimCmp(t) { return AIM_CMP[aimOf(t)]; }
 // Big Marg hits everything in reach from tier 3, so there is nothing to choose
 function aimable(t) { return !!(t && AIM_CREW[t.type] && !(t.type === 'bonk' && TOWERS.bonk.tiers[t.tier].multi)); }
-function setAim(G, pad, aim) { const t = G.towers[pad]; if (!t || !AIM_CMP[aim] || !AIM_CREW[t.type]) return false; if (aim === (AIM_DEFAULT[t.type] || 'first')) delete t.aim; else t.aim = aim; ev(G, 'changed'); return true; }
+function setAim(G, pad, aim) { const t = G.towers[pad]; if (!t || !isAim(aim) || !AIM_CREW[t.type]) return false; if (aim === (AIM_DEFAULT[t.type] || 'first')) delete t.aim; else t.aim = aim; ev(G, 'changed'); return true; }
 // ---------- Overtime: somewhere for gold to go once a crew member is ELITE ----------
 // Each level adds OT.step of the tier's own damage to that one crew member; each costs OT.grow times the last. A whole
 // crew on Overtime 5 is +75% damage for about 3,300 gold each, which buys a strong Long Nap run a handful of waves
@@ -1923,7 +1931,7 @@ function build(G, pad, type) {
   if (G.towers[pad] || G.over || !towerUnlocked(G.meta, type) || (G.padLock && G.padLock[pad])) return false;
   const c = towerCost(G, type); if (G.gold < c) return false;
   G.gold -= c; G.towers[pad] = newTower(type, 0, c); G.stats.builtTypes[type] = 1;
-  const pref = G.meta.aim && G.meta.aim[type]; if (pref && AIM_CMP[pref] && AIM_CREW[type] && pref !== (AIM_DEFAULT[type] || 'first')) G.towers[pad].aim = pref;
+  const pref = G.meta.aim && G.meta.aim[type]; if (isAim(pref) && AIM_CREW[type] && pref !== (AIM_DEFAULT[type] || 'first')) G.towers[pad].aim = pref;
   fx(G, 'built', { pad }); ev(G, 'changed');
   return true;
 }
@@ -3027,7 +3035,7 @@ function restoreRun(meta, s) {
   for (const sk of (G.map.sinks || [])) if (sk.w <= s.wave) G.closed[sk.path] = true;
   if (G.map.bridge) G.bridgeIdx = Math.floor(Math.max(0, s.wave - 1) / 2) % 2;
   for (const k of ['perfects', 'dreams', 'syn', 'abilities', 'shards']) G.stats[k] = G.stats[k] || 0;
-  G.towers = G.map.pads.map((_, i) => { const st = s.towers[i]; if (!st) return null; const t = newTower(st.type, st.tier, st.spent); if (AIM_CMP[st.aim] && AIM_CREW[st.type]) t.aim = st.aim; if (st.ot > 0) t.ot = Math.min(OT.max, st.ot | 0); return t; });
+  G.towers = G.map.pads.map((_, i) => { const st = s.towers[i]; if (!st) return null; const t = newTower(st.type, st.tier, st.spent); if (isAim(st.aim) && AIM_CREW[st.type]) t.aim = st.aim; if (st.ot > 0) t.ot = Math.min(OT.max, st.ot | 0); return t; });
   G.firstLoot = true;
   return G;
 }
@@ -5804,7 +5812,7 @@ const R = (function () {
     m.maps = obj(m.maps); for (const id in m.maps) { const ms = obj(m.maps[id]); for (const k of ['plays', 'wins', 'stars', 'bestKept']) ms[k] = n(ms[k]); ms.stars = Math.min(3, ms.stars); m.maps[id] = ms; }
     m.totals = obj(m.totals); for (const k in m.totals) if (k !== 'bosses') m.totals[k] = n(m.totals[k]); m.totals.bosses = obj(m.totals.bosses);
     m.deep = obj(m.deep); for (const k in m.deep) m.deep[k] = Math.min(10, n(m.deep[k]));
-    m.aim = obj(m.aim); for (const k in m.aim) if (typeof m.aim[k] !== 'string') delete m.aim[k];
+    m.aim = obj(m.aim); for (const k in m.aim) if (!isAim(m.aim[k]) || !Object.prototype.hasOwnProperty.call(TOWERS, k)) delete m.aim[k];
     m.settings = obj(m.settings); m.shed = obj(m.shed); for (const k in m.shed) m.shed[k] = n(m.shed[k], 9);
     m.dreams = obj(m.dreams); for (const k in m.dreams) m.dreams[k] = Math.max(1, Math.min(5, n(m.dreams[k]) || 1));
     m.equip = (Array.isArray(m.equip) ? m.equip : []).concat([null, null, null]).slice(0, 3).map(x => typeof x === 'string' && m.stash[x] ? x : null);
@@ -6069,7 +6077,7 @@ const R = (function () {
         abil + padNote(selPad) +
         '<p class="tinfo">' + d.crew + ', ' + SKILL_NAMES[d.skill] + ' level ' + lvl + '. Tier ' + (t.tier + 1) + ' of 5: ' + TIER_NOTES[t.type][t.tier] + '.' + (t.ot ? ' On Overtime ' + t.ot + ': +' + Math.round(OT.step * t.ot * 100) + '% damage.' : '') + (t.hatless > 0 ? (t.credit > 0 ? ' Steve took the credit. Sulking.' : ' Lost their hat. Too scared to work.') : '') + '</p>' +
         (isElite || d.tiers[t.tier].elite ? '<p class="ultdesc elite">' + ELITE_DESC[t.type] + '</p>' : (isUlt || d.tiers[t.tier].ult) ? '<p class="ultdesc">' + ULT_DESC[t.type] + '</p>' : '') +
-        (aimable(t) ? '<div class="aimrow" role="group" aria-label="Who ' + d.crew + ' goes for first"><span>Aim at</span>' + AIMS.map(a => '<button class="aim' + (aimOf(t) === a ? ' on' : '') + '" data-aim="' + a + '" aria-pressed="' + (aimOf(t) === a) + '" title="' + AIM_HELP[a] + '">' + AIM_NAMES[a] + '</button>').join('') + '</div>' : '') +
+        (aimable(t) && !G.taster && (meta.wins || 0) > 0 ? '<div class="aimrow" role="group" aria-label="Who ' + d.crew + ' goes for first"><span>Aim at</span>' + AIMS.map(a => '<button class="aim' + (aimOf(t) === a ? ' on' : '') + '" data-aim="' + a + '" aria-pressed="' + (aimOf(t) === a) + '" title="' + AIM_HELP[a] + '">' + AIM_NAMES[a] + '</button>').join('') + '</div>' : '') +
         '<div class="row2">' + upBtn + '<button class="btn' + (sellArmed === selPad ? ' danger' : '') + '" data-act="sell">' + (sellArmed === selPad ? 'Tap again to sell' : 'Sell for ' + sellValue(G, selPad)) + '</button></div>';
     }
     // only redraw when something changed, so a tap is never swallowed by a refresh
@@ -6691,13 +6699,23 @@ const R = (function () {
   function cvPt(x, y) { const r = C.getBoundingClientRect(); return { x: r.left + x * r.width / W, y: r.top + y * r.height / H }; }
   function elPt(el) { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + 4, w: r.width, h: r.height, top: r.top }; }
   const mousey = (() => { try { return matchMedia('(hover: hover) and (pointer: fine)').matches; } catch (e) { return false; } })();
-  function showCoach(pt, label, ring) {
-    const c = $('coach'); c.hidden = false;
+  function showCoach(pt, label, ring, below) {
+    if (!below || !below.el) markCoach(null);
+    const c = $('coach'); c.hidden = false; c.classList.toggle('below', !!(below && below.under));
     c.style.left = Math.round(pt.x) + 'px'; c.style.top = Math.round(pt.y) + 'px';
     if (mousey) label = label.replace(/\bTAP\b/g, 'CLICK').replace(/\bTap\b/g, 'Click');   // say what the player actually does
     c.querySelector('b').textContent = label; c.classList.toggle('ring', !!ring);
   }
-  function hideCoach() { const c = $('coach'); if (c) c.hidden = true; coachPad = -1; }
+  function hideCoach() { const c = $('coach'); if (c) c.hidden = true; coachPad = -1; markCoach(null); }
+  let coachedEl = null;
+  function markCoach(el) { if (coachedEl === el) return; if (coachedEl) coachedEl.classList.remove('coachme'); coachedEl = el; if (el) el.classList.add('coachme'); }
+  // point at something in the sheet without covering the sheet: the bubble sits just outside it, the target glows
+  function coachSheet(el, label) {
+    markCoach(el);
+    const r = el.getBoundingClientRect(), sr = $('sheet').getBoundingClientRect(), x = r.left + r.width / 2;
+    if (sr.top + sr.height / 2 > innerHeight / 2) return showCoach({ x, y: sr.top - 2 }, label, false, { el });
+    return showCoach({ x, y: sr.bottom + 2 }, label, false, { el, under: true });
+  }
   let coachPad = -1;
   function tutTick() {
     if (!tutOn()) { hideCoach(); return; }
@@ -6712,7 +6730,7 @@ const R = (function () {
     if (step === 'pick') {
       if (towers.length) { if (G.grace && G.wave === 0 && !G.waveActive) setTimeout(() => { if (G && G.wave === 0 && !G.waveActive && state === 'play') { startWave(G); SFX.play('wave'); lastHud = ''; } }, 1400); return tutDone('pick'); }
       if (sheetMode !== 'build') { tut.i = 0; return; }
-      const el = $('sheet').querySelector('.bcard[data-build="chuck"]') || $('sheet').querySelector('.bcard'); if (el) return showCoach(elPt(el), 'Pick Dazza', false);
+      const el = $('sheet').querySelector('.bcard[data-build="chuck"]') || $('sheet').querySelector('.bcard'); if (el) return coachSheet(el, 'Pick Dazza');
       return hideCoach();
     }
     if (step === 'start') {
@@ -6727,7 +6745,7 @@ const R = (function () {
     }
     if (step === 'build2') {
       if (towers.length >= 2 || G.wave > 1 || (G.wave >= 1 && !G.waveActive)) return tutDone('build2');
-      if (sheetMode === 'build') { const el = $('sheet').querySelector('.bcard:not(.poor):not(.far)'); if (el) return showCoach(elPt(el), 'Another one!', false); return hideCoach(); }
+      if (sheetMode === 'build') { const el = $('sheet').querySelector('.bcard:not(.poor):not(.far)'); if (el) return coachSheet(el, 'Another one!'); return hideCoach(); }
       if (sheetMode) return hideCoach();
       const cheapest = Math.min(...(G.crew || ['chuck']).map(k => towerCost(G, k)));
       if (G.gold < cheapest) return hideCoach();
@@ -6740,7 +6758,7 @@ const R = (function () {
       // the bottom of the road is where Kevin gets through: send the third hire there
       if (towers.length >= 3 || !G.taster || G.wave >= 3) return tutDone('guard');
       if (G.wave < 2) return hideCoach();
-      if (sheetMode === 'build') { const el = $('sheet').querySelector('.bcard:not(.poor):not(.far)'); if (el) return showCoach(elPt(el), 'This one!', false); return hideCoach(); }
+      if (sheetMode === 'build') { const el = $('sheet').querySelector('.bcard:not(.poor):not(.far)'); if (el) return coachSheet(el, 'This one!'); return hideCoach(); }
       if (sheetMode) return hideCoach();
       const cheapest = Math.min(...(G.crew || ['chuck']).map(k => towerCost(G, k)));
       if (G.gold < cheapest) return hideCoach();
@@ -6755,7 +6773,7 @@ const R = (function () {
         if (G.wave >= 2 && speed === 1 && !sheetMode && !tut.speedDone) { if (!tut.speedT) tut.speedT = performance.now(); if (performance.now() - tut.speedT < 6000) return showCoach(elPt($('speedBtn')), 'Speed up?', false); tut.speedDone = true; trackEvent('tutorial_step_completed', { step: 'speed_hint' }); }
         return hideCoach();
       }
-      if (sheetMode === 'tower') { const ub = $('sheet').querySelector('[data-act="up"]'); if (ub && !ub.disabled) return showCoach(elPt(ub), 'UPGRADE!', false); return hideCoach(); }
+      if (sheetMode === 'tower') { const ub = $('sheet').querySelector('[data-act="up"]'); if (ub && !ub.disabled) return coachSheet(ub, 'UPGRADE!'); return hideCoach(); }
       if (sheetMode) return hideCoach();
       const ti = G.towers.findIndex((t, i) => t && upgradeCost(G, i) != null && G.gold >= upgradeCost(G, i));
       if (ti < 0) return hideCoach();

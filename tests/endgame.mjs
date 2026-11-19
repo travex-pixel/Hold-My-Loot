@@ -40,6 +40,13 @@ check('aim: Bev sends her bird where she is told', pick('bev', 'strong', G => G.
   S.setAim(G, 2, 'strong'); check('aim: choosing the default clears the setting', G.towers[2].aim === undefined);
   const m = vet(); m.aim = { nan: 'loot', chuck: 'nonsense' }; const G3 = S.newRun(m, 5, 0, 'campaign'); G3.gold = 1e6; S.build(G3, 2, 'nan'); S.build(G3, 3, 'chuck');
   check('aim: the next one hired starts on the aim last chosen for that crew; junk is ignored', S.aimOf(G3.towers[2]) === 'loot' && S.aimOf(G3.towers[3]) === 'first'); }
+// a save code or damaged save naming something on Object.prototype must not reach Array.sort (it froze the game)
+{ const bad = ['valueOf', '__proto__', 'constructor', 'hasOwnProperty', 'toString'];
+  const m = vet(); m.aim = { chuck: 'valueOf', nan: 'constructor' }; const G = S.newRun(m, 5, 0, 'campaign'); G.gold = 1e6; S.build(G, 2, 'nan'); S.build(G, 3, 'chuck');
+  const refused = bad.every(a => !S.setAim(G, 2, a)) && S.aimOf(G.towers[2]) === 'strong' && S.aimOf(G.towers[3]) === 'first';
+  const snap = JSON.parse(JSON.stringify(S.snapshot(G))); snap.towers[3].aim = 'valueOf'; snap.towers[2].aim = '__proto__';
+  let threw = ''; try { const G2 = S.restoreRun(vet(), snap); S.startWave(G2); for (let f = 0; f < 60 * 8; f++) S.update(G2, 1 / 60); S.startWave(G); for (let f = 0; f < 60 * 8; f++) S.update(G, 1 / 60); } catch (e) { threw = String(e); }
+  check('aim: names like valueOf or __proto__ from a save are ignored, and the wave still runs', refused && !threw, threw); }
 
 // ---------- Overtime ----------
 { const G = S.newRun(vet(), 5, 0, 'endless'); G.gold = 1e6; S.build(G, 2, 'nan'); S.build(G, 0, 'sizzle');
@@ -129,6 +136,19 @@ const browser = await launch();
   await page.reload({ waitUntil: 'load' }); await settle(page, 1000);
   check('rocks, shards and Deep sleep are saved', JSON.stringify(await page.evaluate(() => { const m = window.__hmlSave.meta(); return [m.rocks, m.shards, m.deep.swing]; })) === '[134,66,1]');
   check('no page errors in the menus', page.errors.length === 0, page.errors[0]);
+  await ctx.close(); }
+// a save carrying junk aims loads clean; a brand-new player's first crew member has no aim row to puzzle over
+{ const { ctx, page } = await newPage(browser, VIEWPORTS.se);
+  const junk = Object.assign({}, b30, { aim: { chuck: 'valueOf', nan: '__proto__', bev: 'loot', constructor: 'first' } });
+  await ctx.addInitScript(s => { if (sessionStorage.getItem('x')) return; sessionStorage.setItem('x', 1); localStorage.clear(); localStorage.setItem('hml.meta.v3', s); }, JSON.stringify(junk));
+  await page.goto(BASE, { waitUntil: 'load' }); await settle(page, 1300);
+  const aim = await page.evaluate(() => JSON.stringify(window.__hmlSave.meta().aim));
+  check('save: junk aim names are dropped when the save loads, good ones kept', aim === '{"bev":"loot"}', aim);
+  await ctx.close(); }
+{ const { ctx, page } = await newPage(browser, VIEWPORTS.se);
+  await page.goto(BASE, { waitUntil: 'load' }); await page.waitForFunction(() => window.__hml && window.__hml() && window.__hml().towers[1]); await settle(page, 1500);
+  const p = await page.evaluate(() => window.__hml().map.pads[1]); await tapCanvas(page, p[0], p[1]); await settle(page, 500);
+  check('first game: tapping Dazza shows no aim row yet', !!(await page.$('#sheet [data-act="sell"]')) && !(await page.$('#sheet .aim')));
   await ctx.close(); }
 await browser.close();
 console.log(results.every(Boolean) ? 'ALL PASS' : 'SOME FAILED');
