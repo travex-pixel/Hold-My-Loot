@@ -57,6 +57,7 @@ node tests/balance-matrix.mjs       # the full balance report (about 45 minutes)
 | `polish`, `bugbash` | 200% zoom, wide screens and portal sizes, keys, mute; double taps, multitouch, rotation, old WebViews, random taps |
 | `endgame` | aiming (First/Last/Strongest/Weakest/Thieves), Overtime, Deep sleep, the Rock Tumbler, the Long Nap head start and its weekly waves after Continue: sim checks and the buttons on a phone |
 | `knownbugs` | the build 32 fixes from DESIGN.md section 10: free Dazza analytics, Raid Start button, Heat row, Mastery goal card, Big Kev's Stampede, Odd Jobs |
+| `newplayer` | fixes from a new-player playtest: no early-send in the first game, The Paddock's first swarm, the coach after an untouched wave 1, the Gary's Dream hint, no cursed cards for beginners |
 | `portal` | the CrazyGames build in a cross-origin iframe, outside requests blocked: no links out, fonts bundled, first game winnable |
 | `perf-startup`, `perf-play` | time to playable on a throttled Android, frame budget, memory, layout shift |
 | `balance`, `balance-matrix` | bot win rates per level, crew, difficulty and modifier |

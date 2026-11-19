@@ -29,7 +29,7 @@
 <meta name="apple-mobile-web-app-title" content="Hold My Loot">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A4%3C/text%3E%3C/svg%3E">
-<meta name="hml-build" content="31">
+<meta name="hml-build" content="32">
 <script>
 /* ===== ANALYTICS (PostHog) =====
    Paste your PostHog *project* API key below (it starts with "phc_"; it is public and safe to ship).
@@ -53,7 +53,7 @@ window.HML_PORTAL = '';
 </script>
 <script>
 // Self-updating: fetch a fresh copy of this page and reload if it carries a newer build number.
-window.HML_BUILD = 31;
+window.HML_BUILD = 32;
 window.__checkUpdate = function () {
   if (window.HML_PORTAL) return Promise.resolve(0);
   return fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' })
@@ -877,7 +877,7 @@ const MAPS = [
     waves: [
       [{ t: 'rat', n: 7, gap: 1.1, at: 0 }],
       [{ t: 'rat', n: 7, gap: .9, at: 0 }, { t: 'skel', n: 2, gap: 1.5, at: 4 }],
-      [{ t: 'gob', n: 6, gap: .7, at: 0 }, { t: 'rat', n: 5, gap: .8, at: 3 }, { t: 'mozzie', n: 12, gap: .15, at: 7 }],
+      [{ t: 'gob', n: 6, gap: .7, at: 0 }, { t: 'rat', n: 5, gap: .8, at: 3 }, { t: 'mozzie', n: 8, gap: .4, at: 8 }],   // first swarm: was 12 at .15 (a cliff for new players)
       [{ t: 'skel', n: 6, gap: 1.1, at: 0 }, { t: 'bog', n: 1, gap: 0, at: 4 }],
       [{ t: 'gob', n: 10, gap: .5, at: 0 }, { t: 'bog', n: 2, gap: 3, at: 2 }],
       [{ t: 'skel', n: 8, gap: .8, at: 0 }, { t: 'pants', n: 2, gap: 2, at: 4 }, { t: 'mozzie', n: 18, gap: .12, at: 8 }],
@@ -1977,7 +1977,7 @@ function sell(G, pad) {
 function toggleGate(G) { if (!G.map.gate) return false; G.gate = G.gate ? 0 : 1; fx(G, 'gate', {}); return true; }
 
 function earlyBonus(G) { return 10 + 3 * (G.wave + 1); }
-function canCallEarly(G) { return G.waveActive && !G.over && !G.spawnQ.length && G.wave < G.waveCount && G.mode !== 'raid'; }
+function canCallEarly(G) { return G.waveActive && !G.over && !G.spawnQ.length && G.wave < G.waveCount && G.mode !== 'raid' && !G.grace; }
 function toggleMagnet(G) { const M = G.magnet; if (!G.map.magnet || M.cd > 0) return false; M.on = !M.on; fx(G, 'magnet', { on: M.on }); return true; }
 function toggleBelt(G) { const B = G.belt; if (!G.map.belts || B.cd > 0 || !G.waveActive) return false; B.rev = 6; B.cd = 16; fx(G, 'belt', {}); return true; }
 function litAt(G, x, y) {
@@ -3039,10 +3039,11 @@ function update(G, dt) {
 
 function cardTower(c) { if (c._tw === undefined) { const m2 = c.req ? /towerUnlocked\(m,\s*'(\w+)'\)/.exec(String(c.req)) : null; c._tw = m2 ? m2[1] : null; } return c._tw; }
 function rollCards(G) {
-  const pool = CARDS.filter(c => (c.repeat || !G.cards.includes(c.id)) && (!c.req || c.req(G.meta)) && !(G.crew && cardTower(c) && !G.crew.includes(cardTower(c))));
+  // no cursed cards until a player has won three levels; when they do appear, they're listed last
+  const pool = CARDS.filter(c => (c.repeat || !G.cards.includes(c.id)) && (!c.req || c.req(G.meta)) && !(G.crew && cardTower(c) && !G.crew.includes(cardTower(c))) && !(c.cursed && ((G.meta && G.meta.wins) || 0) < 3));
   const out = [];
   while (out.length < G.draftN && pool.length) out.push(pool.splice(Math.floor(G.rng() * pool.length), 1)[0]);
-  return out;
+  return out.filter(c => !c.cursed).concat(out.filter(c => c.cursed));
 }
 function applyCard(G, card) { G.cards.push(card.id); card.apply(G); }
 
@@ -5723,7 +5724,7 @@ const R = (function () {
     $('modalCard').querySelectorAll('.pathbtn').forEach(b => b.onclick = () => { meta.paths = meta.paths || {}; meta.paths[k] = b.dataset.path; saveMeta(); SFX.play('levelup'); R.poke(k); trackEvent('path_chosen', { character: k, path: b.dataset.path }); showCrewInfo(k, crew, back, onSel); });
     if (onSel) $('ciSel').onclick = () => { onSel(k); SFX.play(crewSfx[k] || 'pick'); back(); };
   }
-  const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: a gate you can tap' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
+  const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: two roads and a gate (leave it shut)' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
   // Gary's pyjamas: cosmetics only. Earned by playing; one reserved for supporters.
   const PJS = {
     blue: { name: 'Standard Issue', a: '#6E9AD6', b: '#3F6CA8', e: '#2F5487', belt: '#E9C46A', req: () => true, how: 'Gary\u2019s own' },
@@ -6002,7 +6003,7 @@ const R = (function () {
       if (e.type === 'firstLoot' && meta.runs < 3 && !G.instantLoot && !tutOn()) toast('Loot collects itself. Tap or swipe it to grab it faster.', 'big');
       else if (e.type === 'grabbing' && !toldGrab && !G.instantLoot && !tutOn()) { toldGrab = true; toast("One's spotted it. Tap the loot to snatch it back."); }
       else if (e.type === 'heist' && e.item.tier >= 2 && !G.moment) { G.moment = { k: 'heist', txt: 'A ' + e.base.split(' (')[0].split(',')[0] + ' stole ' + e.item.name + ' and wore it', pri: 1 }; }
-      if (e.type === 'heist' && e.item.tier >= 2) { const nowT = performance.now(); if (!(heistToastAt[e.item.name] > nowT - 8000)) { heistToastAt[e.item.name] = nowT; toast((Math.random() < .3 ? 'Nek minnit. ' : '') + e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad'); } }
+      if (e.type === 'heist' && e.item.tier >= 2 && !G.taster) { const nowT = performance.now(); if (!(heistToastAt[e.item.name] > nowT - 8000)) { heistToastAt[e.item.name] = nowT; toast((Math.random() < .3 ? 'Nek minnit. ' : '') + e.base + ' grabbed ' + e.item.name + ' and is using it.', 'bad'); } }
       else if (e.type === 'stolen') { const pw = document.querySelector('.pilewrap'); if (pw) { pw.classList.remove('hit'); void pw.offsetWidth; pw.classList.add('hit'); } buzz(40); }
       if (e.type === 'stolen') toast(e.carry ? 'Gone, with ' + e.carry.name + '. -' + e.n + ' from the pile.' : e.n + (e.n > 1 ? ' items' : ' item') + ' nicked from the pile.', 'bad');
       else if (e.type === 'waveStart') { SFX.play('wave'); if (G.grace && G.waveCount === 3) { if (e.wave === 2) banner('Wave 2 of 3', 'Nice. One more, then the boss.', 'event'); else if (e.wave === 3) banner('BOSS WAVE', 'Kevin wants Gary\u2019s loot.', 'event'); } }
@@ -6205,6 +6206,7 @@ const R = (function () {
 
   // ---------- changelog ----------
   const CHANGELOG = [
+    { build: 32, title: 'Head start', notes: ['Long Nap veterans can start at wave 11 or 21. Same waves as everyone, with the gold you\u2019d have earned.', 'Continue on a Long Nap now gives you this week\u2019s waves, not random ones.', 'The Paddock\u2019s first mozzie swarm is less of an ambush, and the first game can\u2019t be rushed into a loss.', 'Raids can\u2019t be sped up with Send early any more, Big Kev\u2019s Stampede reaches the road, and Odd Jobs only ask for crew you can use.'] },
     { build: 31, title: 'The big tidy-up', notes: ['Tap a crew member to choose who they aim at. ELITE crew can now work Overtime.', 'Opens fast, works with no signal, and your save keeps three copies.', 'The Laneways and Cliff Top Gusts are fairer. Nan is exactly as ridiculous as before.', 'Leaving mid-wave pauses the game. Press M to mute.'] },
     { build: 30, title: 'A snappier first game', notes: ['Brand-new players get a quick three-wave taster: two warm-ups, then Kevin the boss, at double speed.', 'The wave counter now tells you when the boss is next.'] },
     { build: 29, title: 'Raids, Mastery and three new crew', notes: ['\ud83d\udc79 Weekly Raid Boss: 3 minutes to deal as much damage as you can to The Landlord, The Council Ranger or Gary\u2019s Alarm Clock. Bronze, Silver and Gold medals. New boss every Monday.', '\ud83c\udf93 Mastery Paths: once a crew member\u2019s skill hits level 6, choose how they play. Sniper Nan or Knitting Circle?', 'New crew: Big Kev the Cassowary (charges), Gav the Tradie (road spikes and barricades) and Aunty Val the Psychic (curses, card rerolls).', 'Big late-game levels run smoother: the game now quietly turns down effects, resolution and frame rate if your phone is struggling.'] },
@@ -6617,7 +6619,7 @@ const R = (function () {
     G.crew = mode === 'campaign' ? crewFor(mapIdx) : recommendCrew(mapIdx); G.fieldCrew = fieldCrew();
     // the short coached first game, until the player has won once (a lost first try gets it again, up to three times)
     if ((!meta.runs || (!meta.wins && (meta.runs || 0) < 4)) && mapIdx === 0 && mode === 'campaign') { G.grace = true; shortFirstLevel(G); speed = 2; window.__tasterSpeed = true; }
-    else if (window.__tasterSpeed) { window.__tasterSpeed = false; speed = 1; }
+    else if (window.__tasterSpeed) { window.__tasterSpeed = false; }   // keep 2x: level 2 at 1x felt like the game slowed down
     if (mode === 'campaign' && !G.grace) { G.heat = heatOn() ? (meta.heat || 0) : 0; G.tier = pendingTier || 'normal'; }
     pendingTier = 'normal';
     G.showLocks = (meta.runs || 0) >= 3 || shedLevel(meta, 'pallets') > 0;
@@ -6777,8 +6779,15 @@ const R = (function () {
     return showCoach({ x, y: sr.bottom + 2 }, label, false, { el, under: true });
   }
   let coachPad = -1;
+  // Gary's Dream: point at it the first time it's full mid-wave, on whatever level that happens (until they use one)
+  function dreamHint() {
+    if (meta.toldDreamBtn || !G || G.mode === 'raid' || !$('modal').hidden || G.over || paused || sheetMode || $('banner').classList.contains('show')) return false;
+    if (G.stats.dreams > 0 || (meta.wins || 0) >= 5) { meta.toldDreamBtn = 1; saveMeta(); return false; }
+    if (!G.waveActive || !canDream(G)) return false;
+    showCoach(elPt($('pokeBtn')), 'TRY THIS!', false); return true;
+  }
   function tutTick() {
-    if (!tutOn()) { hideCoach(); return; }
+    if (!tutOn()) { if (!dreamHint()) hideCoach(); return; }
     if (!$('modal').hidden || G.over || paused) { hideCoach(); return; }
     if ($('banner').classList.contains('show')) { hideCoach(); return; }   // never talk over the banner
     const step = TUT_STEPS[tut.i], towers = G.towers.filter(Boolean), age = performance.now() - tut.since;
@@ -6804,7 +6813,7 @@ const R = (function () {
       return hideCoach();
     }
     if (step === 'build2') {
-      if (towers.length >= 2 || G.wave > 1 || (G.wave >= 1 && !G.waveActive)) return tutDone('build2');
+      if (towers.length >= 2 || G.wave > 1 || (G.wave >= 1 && !G.waveActive && !G.taster)) return tutDone('build2');
       if (sheetMode === 'build') { const el = $('sheet').querySelector('.bcard:not(.poor):not(.far)'); if (el) return coachSheet(el, 'Another one!'); return hideCoach(); }
       if (sheetMode) return hideCoach();
       const cheapest = Math.min(...(G.crew || ['chuck']).map(k => towerCost(G, k)));
@@ -6996,7 +7005,7 @@ const R = (function () {
       const nk = nextCrewKey(), asp = nk && TOWERS[nk].unlockWins === (meta.wins || 0) + 1 && G.mode === 'campaign' ? '<div class="ucard tease"><canvas class="pt sil" data-type="' + nk + '"></canvas><div><b>Win this and ' + CREW[nk].n.toUpperCase() + ' joins</b><span>' + CREW[nk].icon + ' ' + CREW[nk].role + '</span></div></div>' : '';
       hero = '<div class="rhero lose"><h2>' + (Math.random() < .25 ? 'NOT HAPPY, JAN' : Math.random() < .3 ? 'YEAH, NAH' : 'SO CLOSE') + '</h2><p class="rbig">Wave ' + G.wave + ' / ' + G.waveCount + '</p><p class="rquip">' + fb[0] + '</p><p class="rhint">\ud83d\udca1 ' + fb[1] + '</p>' + asp + '</div>';
     }
-    const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: a gate you can tap' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
+    const tease = m => (m.finals && new Set(m.finals).size > 1) ? 'NEW: ' + new Set(m.finals).size + ' bosses at once' : m.n === 10 ? 'NEW: ten waves' : m.gate ? 'NEW: two roads and a gate (leave it shut)' : m.waters && m.waters.length ? 'NEW: a creek that slows monsters' : m.fires && m.fires.length && !m.blackout ? 'NEW: a campfire that burns' : m.sticky ? 'NEW: a sticky floor' : m.shortcut != null && m.chapter === 1 ? 'NEW: fairy rings' : m.entr && m.chapter === 1 ? 'NEW: more than one entrance' : m.magnet ? 'NEW: a giant magnet' : m.blackout ? 'NEW: the lights go out' : m.belts ? 'NEW: conveyor belts' : m.ice ? 'NEW: ice' : m.gusts ? 'NEW: gusts of wind' : m.sinks ? 'NEW: sinkholes' : m.tramps ? 'NEW: trampolines' : m.sprinklers ? 'NEW: sprinklers' : m.bridge ? 'NEW: a swinging bridge' : 'Boss: ' + ENEMIES[m.boss].name.split(',')[0];
     const primary = nextOk ? '<button class="btn primary big rgo" id="nextBtn">NEXT LEVEL \u2192</button><p class="rtease">Up next: <b>' + nextMap.name + '</b> \u00b7 ' + tease(nextMap) + (nextMap.chapter > MAPS[G.mapIdx].chapter ? ' \u00b7 CHAPTER ' + nextMap.chapter : '') + '</p>' : '<button class="btn primary big rgo" id="againBtn">' + (G.won || endless ? 'PLAY AGAIN' : 'TRY AGAIN') + '</button>';
     const secondary = '<div class="rsec">' + (nextOk ? '<button class="btn" id="againBtn">Play again</button>' : (!G.won && !endless && G.mode === 'campaign' ? '<button class="btn' + (repeatN >= 3 ? ' primary' : '') + '" id="crewBtn">Change crew</button>' : '')) + '<button class="btn" id="levelsBtn">Home</button><button class="btn" id="shareBtn">Share</button></div><p class="small" id="shareMsg" aria-live="polite"></p>';
     const details = '<details class="rdetails"><summary>Run details</summary>' + (G.won ? '' : rocksLine) + shedHint +

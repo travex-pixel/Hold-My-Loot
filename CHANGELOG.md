@@ -259,6 +259,18 @@ Long Nap
   further, and saves 20-30% of the time. Wave 21 is still everyone's wave 21 that week.
 - Fix: Continue on a Long Nap lost the weekly seed, so every wave after a resume was random instead of everyone's.
 
+New players (from a playtest of the live game as a first-timer; checks in tests/newplayer.mjs)
+- The coached first game no longer offers "Send next early". It was the brightest button on screen and a few taps lost
+  the game in about 30 seconds.
+- The Paddock's wave 3: the first mozzie swarm is 8 spaced out instead of 12 in a burst. A human-style bot lost 1.3
+  items there on average and nothing elsewhere; now 0.04. Three-star wins 77% -> 98%.
+- A first-timer who doesn't tap during wave 1 keeps the coach: it still points at a pallet for the second hire instead
+  of vanishing while the game waits for that hire.
+- Gary's Dream is pointed out ("TRY THIS!") the first time it's full during a wave, on any level, until it's used.
+- The taster's 2x speed carries into level 2 instead of dropping back to 1x.
+- No cursed bonus cards before a player's third win; after that they're always listed last.
+- No item-steal toasts during the first game. The Paddock's teaser says to leave the gate shut.
+
 Known bugs from DESIGN.md section 10 (checks in tests/knownbugs.mjs)
 - The free Dazza on a first game now counts in play stats as a placed crew member, marked free, so
   first_tower_placed is always the player's own first hire.

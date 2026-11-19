@@ -402,6 +402,10 @@ Done fresh from build 30; see CHANGELOG for the list. What matters for later wor
     further, and save 20-30% of the run's time. The weekly seed is burned for the skipped waves (`burnWaves`), so
     wave 21 is everyone's wave 21. Auto-start never fires before the first wave of a head start. Board submissions
     credit 30 s per skipped wave so the server's "too fast" rule (12 s a wave) doesn't reject them.
+  - Build 32 new-player fixes (tests/newplayer.mjs): no early-send while `G.grace`; The Paddock wave 3 mozzies 8 at
+    .4 s (was 12 at .15 s, the only wave in levels 1-3 that cost a bot more than 0.6 items); the `build2` coach step
+    stays open in the taster until the second hire; `dreamHint()` outside the tutorial; no cursed cards under 3 wins
+    and cursed cards listed last (`rollCards`); 2x speed kept after the taster.
   - Fixed in build 32: Continue on a Long Nap lost the weekly seed, so every wave after a resume was random. The
     snapshot now keeps `week` and `restoreRun` re-seeds and burns to the saved wave (`seedLongNap`).
 - Keys: M mute (remembers what was on), Space start wave, 1/2/3 speed, Escape menu.
